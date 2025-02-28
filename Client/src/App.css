@@ -1,2 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 @import 'tailwindcss';
 @plugin "daisyui";
+
+@theme {
+    --breakpoint-tablet: 764px;
+    --breakpoint-desktop: 1440px;
+
+    --font-noto-sans: "Noto Sans", sans-serif;
+
+    --text-heading-l: 32px;
+    --text-heading-l--font-weight: 500;
+    --text-heading-m: 24px;
+    --text-heading-m--font-weight: 300;
+    --text-heading-s: 24px;
+    --text-heading-s--font-weight: 400;
+    --text-body-m: 16px;
+    --text-body-m--font-weight: 300;
+    --text-body-s: 16px;
+    --text-body-s--font-weight: 300;
+
+    --color-cream: #F9F4EB;
+    --color-light-yellow: #F3E3C7;
+    --color-deep-yellow: #DFA238;
+    --color-white: #0E0801;
+    --color-accent: #63BCE9;
+}
