@@ -1,12 +1,11 @@
 import { NavLink } from "react-router";
 
-const Header = () => {
-
-    return(
-        <header className=" sticky bg-red-500 h-[4rem] flex justify-center items-center">
-            <nav className=" flex justify-evenly gap-[19.02rem] self-center items-center w-[]">
-                <section className=" flex items-center gap-[1rem] ">
-                    <svg 
+const NoSinginHeader = () => {
+    return (
+      <header className="bg-white shadow-md">
+        <nav className="container mx-auto flex justify-between items-center px-6 py-4">
+          <section className="flex items-center gap-[1rem] text-[#F59E0B] text-xl font-bold">
+          <svg 
                         width="21" 
                         height="24" viewBox="0 0 21 24" 
                         fill="none" 
@@ -17,29 +16,19 @@ const Header = () => {
                         fill="#F59E0B"
                     />
                     </svg>
-                    <h1 className=" text-[#F59E0B] text-[1.5rem] not-italic font-[700]">Eventify</h1>
-                </section>
-                <section className=" h-[1.5rem] w-[23.28613rem] p-1 ">
-                    <section className=" flex justify-evenly  text-[1rem] not-italic font-[400] leading-4 items-center  ">
-                        <NavLink to="/">
-                            <h1>Home</h1>
-                        </NavLink>
-                        <NavLink to="/events">
-                            <h1>Events</h1>
-                        </NavLink>
-                        <NavLink to="/myRegistrations">
-                            <h1>My Registrations</h1>
-                        </NavLink>
-                        <NavLink to="/aboutUs">
-                            <h1>About Us</h1>
-                        </NavLink>
-                    </section>
-                </section>
-                <section className=" w-[10.83694rem] h-[2.5rem]">
-
-                </section>
-            </nav>
-        </header>
-    )
-}
-export default Header;
+            <h1 className="text-[#78350F] text-[1.25rem] not-italic font-[700]">Eventify</h1>
+          </section>
+          <div className="flex items-center gap-4">
+            <NavLink className="text-orange-400 text-sm hover:underline">
+                <h1>Login</h1>
+            </NavLink>
+            <NavLink className="bg-[#F59E0B] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600">
+                <h1>Sign Up</h1>
+            </NavLink>
+          </div>
+        </nav>
+      </header>
+    );
+  }
+  export default NoSinginHeader;
+  
