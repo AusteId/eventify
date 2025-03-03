@@ -22,7 +22,7 @@ const Header = () => {
                     <h1 className=" text-title text-heading-s not-italic font-[700] ">Eventify</h1>
                 </section>
                 <section className=" h-[1.5rem] w-[23.28613rem] p-1 ">
-                    <section className=" flex justify-evenly  text-[1rem] not-italic font-[400] leading-4 items-center  ">
+                    <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
                         <NavLink to="/">
                             <h1 className="text-body-medium hover:underline">Home</h1>
                         </NavLink>
@@ -30,7 +30,7 @@ const Header = () => {
                             <h1 className=" text-body-medium hover:underline">Events</h1>
                         </NavLink>
                         <NavLink to="/myRegistrations">
-                            <h1 className=" text-body-medium] hover:underline">My Registrations</h1>
+                            <h1 className=" text-body-medium hover:underline">My Registrations</h1>
                         </NavLink>
                         <NavLink to="/aboutUs">
                             <h1 className=" text-body-medium hover:underline">About Us</h1>
