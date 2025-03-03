@@ -19,10 +19,10 @@ const Header = () => {
                         fill="#F59E0B"
                     />
                     </svg>
-                    <h1 className=" text-title text-heading-s not-italic font-[700] ">Eventify</h1>
+                    <h1 className=" text-title text-heading-s font-inter not-italic font-[700] ">Eventify</h1>
                 </section>
                 <section className=" h-[1.5rem] w-[23.28613rem] p-1 ">
-                    <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
+                    <section className=" flex justify-evenly font-inter text-body-m not-italic font-[400] leading-4 items-center  ">
                         <NavLink to="/">
                             <h1 className="text-body-medium hover:underline">Home</h1>
                         </NavLink>
@@ -37,7 +37,7 @@ const Header = () => {
                         </NavLink>
                     </section>
                 </section>
-                <section className=" w-[10.83694rem] h-[2.5rem] flex justify-center items-center gap-[1rem] ">
+                <section className=" w-[10.83694rem] h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
                     <Button>Create Event</Button>
                     <HeaderProfilePicture/>
                 </section>

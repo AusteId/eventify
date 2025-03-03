@@ -16,7 +16,7 @@ const NoSinginHeader = () => {
                         fill="#F59E0B"
                     />
                     </svg>
-            <h1 className="text-title text-heading-s not-italic font-[700]">Eventify</h1>
+            <h1 className="text-title text-heading-s font-inter not-italic font-[700]">Eventify</h1>
           </section>
           <div className="flex items-center gap-4">
             <NavLink tabIndex={-1}>

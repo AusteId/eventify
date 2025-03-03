@@ -14,7 +14,7 @@ const Button = ({
       <button
         type={type}
         onClick={onClick}
-        className={`text-[#FFFFFF] bg-btn text-body-m not-italic font-[400] rounded-[0.5rem] btn btn-soft hover:bg-btn-hover hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] `}
+        className={`text-[#FFFFFF] bg-btn text-body-m not-italic font-[400] font-inter rounded-[0.5rem] btn btn-soft hover:bg-btn-hover hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] `}
       >
         {children}
       </button>
