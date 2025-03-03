@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import Header from "./Header/Header";
 import NoSinginHeader from "./Header/NotSinginHeader";
+import Footer from "./Footer";
 
 const Main = () => {
  
@@ -13,6 +14,9 @@ const Main = () => {
       </div>
       <div>
         <Outlet />
+      </div>
+      <div>
+        <Footer/>
       </div>
     </div>
   );
