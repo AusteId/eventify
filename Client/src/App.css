@@ -1,2 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 @import 'tailwindcss';
 @plugin "daisyui";
+
+@theme {
+    --breakpoint-tablet: 764px;
+    --breakpoint-desktop: 1440px;
+
+    --font-noto-sans: "Noto Sans", sans-serif;
+
+    /* --text-heading-l--font-weight: 500; */
+
+    --text-heading-xl: 3rem;
+    --text-heading-l: 1.875rem;
+    --text-heading-m: 1.5rem;
+    --text-heading-s: 1.25rem;
+    --text-heading-xs: 1.125rem;
+    
+    --text-body-l: 1.125rem;
+    --text-body-m: 1rem;
+    --text-body-s: 0.875rem;
+    --text-body-xs: 0.75rem;
+
+    --color-cream: #F9F4EB;
+    --color-light-yellow: #F3E3C7;
+    --color-deep-yellow: #DFA238;
+    --color-white: #0E0801;
+    --color-accent: #63BCE9;
+
+    --color-btn: #F59E0B;
+    --color-btn-hover: #D97706;  
+    --color-header-dark: #1F2937;
+    --color-body-medium: #4B5563;
+    --color-light: #4B5563;
+
+    --color-beginner: #22C55E;
+    --color-intermediate: #F5BC0B;
+    --color-advanced: #F79141;
+    --color-extreme: #F76D39;
+    --color-welcome: #8A5EAF;
+
+    --color-category-title: #A16207;
+    --color-category-bg: #FEF9C3;
+
+    --color-rating: #FACC15;
+
+    --color-input-light: #E5E7EB;
+    --color-input-muted: #ADAEBC;
+
+    --color-logo: #FBBF24;
+    --color-title: #78350F;
+}
