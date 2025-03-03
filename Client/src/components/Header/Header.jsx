@@ -1,12 +1,13 @@
 import { NavLink } from "react-router";
 import HeaderProfilePicture from "./HeaderProfilePicture";
-
+import Button from "../button";
+const setActive = ({ isActive }) => (isActive ? `active-link ` : ``);
 const Header = () => {
 
     return(
-        <header className=" sticky h-[4rem] bg-white shadow-md flex justify-evenly">
-            <nav className=" flex justify-evenly gap-[25.9rem] self-center items-center w-[]">
-                <section className=" flex items-center gap-[1rem] ">
+        <header className=" sticky h-[4rem] bg-[#FFFFFF] shadow-md flex ">
+            <nav className=" flex justify-between  self-center items-center w-[100%] px-6">
+                <section className=" flex items-center gap-[1rem]">
                     <svg 
                         width="21" 
                         height="24" viewBox="0 0 21 24" 
@@ -18,28 +19,26 @@ const Header = () => {
                         fill="#F59E0B"
                     />
                     </svg>
-                    <h1 className=" text-[#78350F] text-[1.25rem] not-italic font-[700] ">Eventify</h1>
+                    <h1 className=" text-title text-heading-s not-italic font-[700] ">Eventify</h1>
                 </section>
                 <section className=" h-[1.5rem] w-[23.28613rem] p-1 ">
                     <section className=" flex justify-evenly  text-[1rem] not-italic font-[400] leading-4 items-center  ">
                         <NavLink to="/">
-                            <h1>Home</h1>
+                            <h1 className="text-body-medium hover:underline">Home</h1>
                         </NavLink>
                         <NavLink to="/events">
-                            <h1>Events</h1>
+                            <h1 className=" text-body-medium hover:underline">Events</h1>
                         </NavLink>
                         <NavLink to="/myRegistrations">
-                            <h1>My Registrations</h1>
+                            <h1 className=" text-body-medium] hover:underline">My Registrations</h1>
                         </NavLink>
                         <NavLink to="/aboutUs">
-                            <h1>About Us</h1>
+                            <h1 className=" text-body-medium hover:underline">About Us</h1>
                         </NavLink>
                     </section>
                 </section>
-                <section className=" w-[10.83694rem] h-[2.5rem] flex justify-center items-center gap-[1rem]">
-                    <button className=" bg-[#F59E0B] h-[2.5rem] w-[7.83694rem] rounded-[0.5rem]">
-                        <p>Create Event</p>
-                    </button>
+                <section className=" w-[10.83694rem] h-[2.5rem] flex justify-center items-center gap-[1rem] ">
+                    <Button>Create Event</Button>
                     <HeaderProfilePicture/>
                 </section>
             </nav>

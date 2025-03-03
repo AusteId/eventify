@@ -6,7 +6,7 @@ const Main = () => {
  
   return (
 
-    <div className="desktop:flex desktop:gap-[2.25rem] ">
+    <div className="flex justify-center flex-col ">
       <div>
         <Header />
         <NoSinginHeader/>
