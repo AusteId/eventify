@@ -9,7 +9,7 @@ const Main = () => {
     <div className="flex justify-center flex-col ">
       <div>
         <Header />
-        <NoSinginHeader/>
+        {/* <NoSinginHeader/> */}
       </div>
       <div>
         <Outlet />

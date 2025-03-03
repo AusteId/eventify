@@ -5,6 +5,7 @@ import Events from './page/Events';
 import Registrations from './page/Registrations';
 import About from './page/About';
 import Main from './components/Main';
+import Profile from './page/Profile';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
             <Route path="/events" element={<Events />} />
             <Route path="/myRegistrations" element={<Registrations />} />
             <Route path="/aboutUs" element={<About />} />
+            <Route path="/profile" element={<Profile/>} />
           </Route>
     </Routes>
   );
