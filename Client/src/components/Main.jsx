@@ -5,14 +5,15 @@ import NoSinginHeader from "./Header/NotSinginHeader";
 const Main = () => {
  
   return (
-
-    <div className="flex justify-center flex-col ">
+    <div className="bg-gradient-to-b from-[#F3E3C7] via-[#F3E3C7] to-[#F9F4EB] h-screen">
       <div>
         <Header />
         <NoSinginHeader/>
       </div>
-      <div>
-        <Outlet />
+      <div className="p-8">
+        <Outlet
+         />
+        
       </div>
     </div>
   );
