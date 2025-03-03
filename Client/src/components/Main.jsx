@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import Header from "./Header/Header";
 import NoSinginHeader from "./Header/NotSinginHeader";
+import RegistrationHeader from "./Header/RegistrationHeader";
 
 const Main = () => {
  
@@ -10,6 +11,7 @@ const Main = () => {
       <div>
         <Header />
         <NoSinginHeader/>
+        <RegistrationHeader/>
       </div>
       <div>
         <Outlet />

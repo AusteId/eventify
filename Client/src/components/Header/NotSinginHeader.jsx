@@ -1,9 +1,9 @@
-import { NavLink, Link} from "react-router";
+import { NavLink} from "react-router";
 import Button from "../button";
 const NoSinginHeader = () => {
     return (
       <header className="bg-[#FFFFFF] shadow-md">
-        <nav className="flex justify-between items-center px-6 py-4 w-[100%]">
+        <nav className="flex justify-between items-center px-6 py-4 w-[100%] ">
           <section className="flex items-center gap-[1rem]">
           <svg 
                         width="21" 
