@@ -1,16 +1,10 @@
 import { NavLink } from 'react-router';
-import HeaderProfilePicture from './HeaderProfilePicture';
 import Button from '../Button';
-const setActive = ({ isActive }) =>
-  isActive
-    ? 'text-[#F59E0B]'
-    : 'text-body-medium hover:text-[#F59E0B] hover:underline';
-
-const Header = () => {
+const NoSignedInHeader = () => {
   return (
-    <header className=" sticky h-[4rem] bg-[#FFFFFF] shadow-md flex ">
-      <nav className=" flex justify-between  self-center items-center w-[100%] px-6">
-        <section className=" flex items-center gap-[1rem]">
+    <header className="bg-[#FFFFFF] shadow-md">
+      <nav className="flex justify-between items-center px-6 py-4 w-[100%] ">
+        <section className="flex items-center gap-[1rem]">
           <svg
             width="21"
             height="24"
@@ -24,32 +18,20 @@ const Header = () => {
               fill="#F59E0B"
             />
           </svg>
-          <h1 className=" text-title text-heading-s  not-italic font-[700] ">
+          <h1 className="text-title text-heading-s not-italic font-[700]">
             Eventify
           </h1>
         </section>
-        <section className=" h-[1.5rem] w-[23.28613rem] p-1 ">
-          <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
-            <NavLink to="/" className={setActive}>
-              <h1 className=" hover:underline hover">Home</h1>
-            </NavLink>
-            <NavLink to="/events" className={setActive}>
-              <h1 className="  hover:underline">Events</h1>
-            </NavLink>
-            <NavLink to="/myRegistrations" className={setActive}>
-              <h1 className="  hover:underline ">My Registrations</h1>
-            </NavLink>
-            <NavLink to="/aboutUs" className={setActive}>
-              <h1 className="  hover:underline ">About Us</h1>
-            </NavLink>
-          </section>
-        </section>
-        <section className=" w-[10.83694rem] h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
-          <Button>Create Event</Button>
-          <HeaderProfilePicture />
-        </section>
+        <div className="flex items-center gap-4">
+          <NavLink tabIndex={-1}>
+            <Button>Login</Button>
+          </NavLink>
+          <NavLink tabIndex={-1}>
+            <Button>Sign Up</Button>
+          </NavLink>
+        </div>
       </nav>
     </header>
   );
 };
-export default Header;
+export default NoSignedInHeader;
