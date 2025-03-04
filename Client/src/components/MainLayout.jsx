@@ -1,16 +1,15 @@
 import { Outlet } from "react-router";
 import Header from "./Header/Header";
-import NoSinginHeader from "./Header/NotSinginHeader";
+import NoSignedInHeader from "./Header/NotSignedInHeader";
 import Footer from "./Footer";
 
-const Main = () => {
+const MainLayout = () => {
  
   return (
 
-    <div className="flex justify-center flex-col ">
+    <div className="flex justify-center flex-col">
       <div>
-        <Header />
-        <NoSinginHeader/>
+        <NoSignedInHeader/>
       </div>
       <div>
         <Outlet />
@@ -22,4 +21,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default MainLayout;
