@@ -3,7 +3,7 @@ import React from 'react';
 const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
   return (
     <div
-      className="p-6 rounded-lg shadow-lg max-w-[20rem]"
+      className="p-4 rounded-lg shadow-lg min-w-[17rem] max-w-[20rem] m-0"
       style={{ backgroundColor: 'white' }}
     >
       <div className="flex items-center space-x-4">
@@ -12,7 +12,6 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
           alt={`${name}'s Profile`}
           className="w-16 h-16 rounded-full object-cover"
         />
-
         <div className="text-xl font-semibold text-black">{name}</div>
       </div>
 
@@ -52,6 +51,7 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
           </div>
         </div>
       )}
+
       {mail && (
         <div className="mt-2 text-white">
           <div className="flex items-center space-x-2">

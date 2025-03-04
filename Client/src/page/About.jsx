@@ -3,12 +3,12 @@ import AboutUsCard from '../components/AboutUsCard';
 
 const About = () => {
   return (
-    <>
-      <h1 className="font-bold text-2xl p-11 text-left text-black">
+    <div className="h-full">
+      <h1 className="font-bold text-2xl tablet:p-11 mb-5 text-left text-black">
         Team Members
       </h1>
 
-      <div className="flex flex-wrap justify-evenly p-5 space-x-6">
+      <div className="flex flex-wrap justify-evenly gap-4 space-x-6">
         <AboutUsCard
           photo="https://randomuser.me/api/portraits/men/1.jpg"
           name="John Anderson"
@@ -68,7 +68,7 @@ const About = () => {
           mail="michael.chen@example.com"
         />
       </div>
-    </>
+    </div>
   );
 };
 
