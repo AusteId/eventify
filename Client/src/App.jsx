@@ -4,7 +4,6 @@ import Home from './page/Home';
 import Events from './page/Events';
 import Registrations from './page/Registrations';
 import About from './page/About';
-import Main from './components/MainLayout';
 import MainLayout from './components/MainLayout';
 
 function App() {
