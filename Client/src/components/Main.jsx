@@ -14,6 +14,9 @@ const Main = () => {
       <div>
         <Outlet />
       </div>
+      <div>
+        
+      </div>
     </div>
   );
 };
