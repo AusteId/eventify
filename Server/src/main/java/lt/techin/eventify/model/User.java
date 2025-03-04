@@ -21,12 +21,11 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String location;
-
-    @Column(nullable = false)
     private String password;
+    
+    private String city;
 
-    private LocalDate birthdate;
+    private LocalDate birthDate;
     private String description;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -37,23 +36,23 @@ public class User {
     )
     private Set<Category> favoriteEventCategories;
 
-    private String picture;
-
-    private LocalDateTime createdAt;
+    private String photoPath;
+    private LocalDateTime registeredAt;
 
     public User() {
     }
 
-    public User(String username, String email, String location, String password, LocalDate birthdate, String description, Set<Category> eventCategories, String picture, LocalDateTime createdAt) {
+    public User(String username, String email, String city, String password, LocalDate birthDate, String description,
+                Set<Category> eventCategories, String photoPath, LocalDateTime registeredAt) {
         this.username = username;
         this.email = email;
-        this.location = location;
+        this.city = city;
         this.password = password;
-        this.birthdate = birthdate;
+        this.birthDate = birthDate;
         this.description = description;
         this.favoriteEventCategories = eventCategories;
-        this.picture = picture;
-        this.createdAt = createdAt;
+        this.photoPath = photoPath;
+        this.registeredAt = registeredAt;
     }
 
     public long getId() {
@@ -76,12 +75,12 @@ public class User {
         this.email = email;
     }
 
-    public String getLocation() {
-        return location;
+    public String getCity() {
+        return city;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getPassword() {
@@ -92,12 +91,12 @@ public class User {
         this.password = password;
     }
 
-    public LocalDate getBirthdate() {
-        return birthdate;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getDescription() {
@@ -116,19 +115,19 @@ public class User {
         this.favoriteEventCategories = favoriteEventCategories;
     }
 
-    public String getPicture() {
-        return picture;
+    public String getPhotoPath() {
+        return photoPath;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getRegisteredAt() {
+        return registeredAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setRegisteredAt(LocalDateTime registeredAt) {
+        this.registeredAt = registeredAt;
     }
 }

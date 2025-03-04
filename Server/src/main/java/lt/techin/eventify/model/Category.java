@@ -32,14 +32,5 @@ public class Category {
     public void setName(String name) {
         this.name = name;
     }
-
-    //    SPORTS,
-//    BOARDGAMES,
-//    MUSIC,
-//    ARTS_AND_CULTURE,
-//    FOOD_AND_DRINKS,
-//    OUTDOOR,
-//    WELLNESS,
-//    BUSINESS,
-//    TECHNOLOGY
+    
 }
