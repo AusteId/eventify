@@ -4,7 +4,7 @@ const StepIndicator = ({step, totalSteps}) => {
 
     return(
         <div className="flex items-center gap-2">
-            <div className="text-body-s text-title font-[400] font-inter" > Step {step} of {totalSteps}</div>
+            <div className="text-body-s text-title font-[400]" > Step {step} of {totalSteps}</div>
             <progress 
             className="progress w-25"
             style={{ color: "#F59E0B", accentColor: "#F59E0B" }}

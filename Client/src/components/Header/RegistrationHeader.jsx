@@ -15,7 +15,7 @@ const RegistrationHeader = () => {
                     fill="#F59E0B"
                 />
             </svg>
-            <h1 className="text-title text-heading-s font-inter font-[700]">Eventify</h1>
+            <h1 className="text-title text-heading-s font-[700]">Eventify</h1>
       </section>
       <section className="flex items-center gap-2 text-sm text-gray-600">
         <StepIndicator step={50} totalSteps={100}/>
