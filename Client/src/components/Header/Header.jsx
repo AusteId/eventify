@@ -1,7 +1,9 @@
 import { NavLink } from "react-router";
 import HeaderProfilePicture from "./HeaderProfilePicture";
 import Button from "../button";
-const setActive = ({ isActive }) => (isActive ? `active-link ` : ``);
+const setActive = ({ isActive }) =>
+    isActive ? "text-[#F59E0B]" : "text-body-medium hover:text-[#F59E0B] hover:underline";
+  
 const Header = () => {
 
     return(
@@ -19,25 +21,25 @@ const Header = () => {
                         fill="#F59E0B"
                     />
                     </svg>
-                    <h1 className=" text-title text-heading-s not-italic font-[700] ">Eventify</h1>
+                    <h1 className=" text-title text-heading-s  not-italic font-[700] ">Eventify</h1>
                 </section>
                 <section className=" h-[1.5rem] w-[23.28613rem] p-1 ">
-                    <section className=" flex justify-evenly  text-[1rem] not-italic font-[400] leading-4 items-center  ">
-                        <NavLink to="/">
-                            <h1 className="text-body-medium hover:underline">Home</h1>
+                    <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
+                        <NavLink to="/" className={setActive}>
+                            <h1 className=" hover:underline hover">Home</h1>
                         </NavLink>
-                        <NavLink to="/events">
-                            <h1 className=" text-body-medium hover:underline">Events</h1>
+                        <NavLink to="/events" className={setActive}>
+                            <h1 className="  hover:underline">Events</h1>
                         </NavLink>
-                        <NavLink to="/myRegistrations">
-                            <h1 className=" text-body-medium] hover:underline">My Registrations</h1>
+                        <NavLink to="/myRegistrations" className={setActive}>
+                            <h1 className="  hover:underline ">My Registrations</h1>
                         </NavLink>
-                        <NavLink to="/aboutUs">
-                            <h1 className=" text-body-medium hover:underline">About Us</h1>
+                        <NavLink to="/aboutUs" className={setActive}>
+                            <h1 className="  hover:underline ">About Us</h1>
                         </NavLink>
                     </section>
                 </section>
-                <section className=" w-[10.83694rem] h-[2.5rem] flex justify-center items-center gap-[1rem] ">
+                <section className=" w-[10.83694rem] h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
                     <Button>Create Event</Button>
                     <HeaderProfilePicture/>
                 </section>

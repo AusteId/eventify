@@ -1,10 +1,10 @@
-import { NavLink, Link} from "react-router";
+import { NavLink} from "react-router";
 import Button from "../button";
-const NoSinginHeader = () => {
+const NoSignedInHeader = () => {
     return (
       <header className="bg-[#FFFFFF] shadow-md">
-        <nav className="flex justify-between items-center px-6 py-4 w-[100%]">
-          <section className="flex items-center gap-[1rem] text-xl font-bold">
+        <nav className="flex justify-between items-center px-6 py-4 w-[100%] ">
+          <section className="flex items-center gap-[1rem]">
           <svg 
                         width="21" 
                         height="24" viewBox="0 0 21 24" 
@@ -16,19 +16,19 @@ const NoSinginHeader = () => {
                         fill="#F59E0B"
                     />
                     </svg>
-            <h1 className="text-title text-[1.25rem] not-italic font-[700]">Eventify</h1>
+            <h1 className="text-title text-heading-s not-italic font-[700]">Eventify</h1>
           </section>
           <div className="flex items-center gap-4">
             <NavLink tabIndex={-1}>
                 <Button>Login</Button>
             </NavLink>
             <NavLink tabIndex={-1}>
-                <Button>Sing Up</Button>
+                <Button>Sign Up</Button>
             </NavLink>
           </div>
         </nav>
       </header>
     );
   }
-  export default NoSinginHeader;
+  export default NoSignedInHeader;
   

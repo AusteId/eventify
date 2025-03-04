@@ -3,7 +3,7 @@ import AboutUsCard from '../components/AboutUsCard';
 
 const About = () => {
   return (
-    <div className="h-full">
+    <div className="p-5 h-full">
       <h1 className="font-bold text-2xl tablet:p-11 mb-5 text-left text-black">
         Team Members
       </h1>
