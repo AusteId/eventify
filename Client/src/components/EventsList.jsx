@@ -25,11 +25,11 @@ const EventsList = () => {
         currentParticipants={2}
         maxParticipants={9}
         title="Great Paulino Event"
-        description="Lorem ipsum yra tekstas naudojamas spaudos ir grafinio dizaino industrijoje jau nuo XVI amžiaus pradžios. Jis naudojamas parodyti grafinio"
+        // description="Lorem ipsum yra tekstas naudojamas spaudos ir grafinio dizaino industrijoje jau nuo XVI amžiaus pradžios. Jis naudojamas parodyti grafinio"
         startDateTime={start}
         endDateTime={end}
         location="Paulino g. 20"
-        requiredAge="+18"
+        requiredAge="All ages"
       />
       <EventCard
         experienceLevel={2}
@@ -39,7 +39,7 @@ const EventsList = () => {
         title="Great Paulino Event"
         description="Lorem ipsum yra tekstas naudojamas spaudos ir grafinio dizaino industrijoje jau nuo XVI amžiaus pradžios. Jis naudojamas parodyti grafinio"
         startDateTime={start}
-        endDateTime={end}
+        // endDateTime={end}
         location="Paulino g. 20"
         requiredAge="+18"
       />
