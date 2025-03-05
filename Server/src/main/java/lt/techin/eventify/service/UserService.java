@@ -9,6 +9,8 @@ import lt.techin.eventify.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserService {
 
@@ -35,6 +37,7 @@ public class UserService {
 
         User newUser = userMapper.toUser(dto);
         newUser.setPassword(passwordEncoder.encode(dto.password()));
+        newUser.setRegisteredAt(LocalDateTime.now());
 
         return userRepository.save(newUser);
     }
