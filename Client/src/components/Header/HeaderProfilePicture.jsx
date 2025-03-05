@@ -1,4 +1,4 @@
-import avatar from "./../../../public/profile-picture.webp"
+import avatar from "../../assets/profile-picture.webp"
 const ProfilePictureButton = () => {
     return (
       <section>
