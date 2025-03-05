@@ -2,7 +2,7 @@ import CategoryTag from '../components/CategoryTag';
 import ProfileComment from '../components/ProfileComment';
 const Profile = () => {
   return (
-    <div className="flex min-h-screen bg-gradient-to-t from-gradient-white via-gradient-light-yellow to-gradient-yellow">
+    <div className="flex min-h-screen bg-gradient-to-t from-[#FFFFFF] via-gradient-light-yellow to-gradient-yellow">
       <div className="w-[896px] mx-auto">
         <div className="bg-[#FFFFFF] w-full h-auto p-[32px] mt-[32px] rounded-[16px] shadow-md">
           <div className="size-full">
