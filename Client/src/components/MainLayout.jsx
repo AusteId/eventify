@@ -5,8 +5,9 @@ import Footer from './Footer';
 
 const MainLayout = () => {
   return (
-    <div className="h-full bg-gradient-to-b from-[#F3E3C7] via-[#F3E3C7] to-[#F9F4EB] grid grid-rows-[auto_1fr_auto]">
+    <div className="h-full bg-gradient-to-b from-light-yellow via-light-yellow to-cream grid grid-rows-[auto_1fr_auto]">
       <NoSignedInHeader />
+      <Header/>
       <Outlet />
       <Footer />
     </div>
