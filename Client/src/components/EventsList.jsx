@@ -54,6 +54,7 @@ const EventsList = () => {
         endDateTime={end}
         location="Paulino g. 20"
         requiredAge="+18"
+        isEnded={true}
       />
 
       <EventCard experienceLevel={2} />
