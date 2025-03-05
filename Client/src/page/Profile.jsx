@@ -1,5 +1,5 @@
 import CategoryTag from '../components/CategoryTag';
-import Comment from '../components/Comment';
+import ProfileComment from '../components/ProfileComment';
 const Profile = () => {
   return (
     <div className="flex min-h-screen bg-gradient-to-t from-gradient-white via-gradient-light-yellow to-gradient-yellow">
@@ -96,13 +96,13 @@ const Profile = () => {
             </div>
           </div>
           <div className="flex flex-col gap-[24px] pt-[32px]">
-            <Comment
+            <ProfileComment
               name="Mike Johnson"
               avatar="src/assets/avatar.png"
               comment="Great event organizer! Really enjoyed the board game night last week."
               time="2 days ago"
             />
-            <Comment
+            <ProfileComment
               name="John Johnson"
               avatar="src/assets/avatar.png"
               comment="This guy is an amazing host!"
