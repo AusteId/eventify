@@ -1,11 +1,9 @@
 import { NavLink } from 'react-router';
 import HeaderProfilePicture from './HeaderProfilePicture';
-import Button from '../Button';
-const setActive = ({ isActive }) =>
-  isActive
-    ? 'text-[#F59E0B]'
-    : 'text-body-medium hover:text-[#F59E0B] hover:underline';
+import Button from '../button';
 
+const setActive = ({ isActive }) =>
+  isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 const Header = () => {
   return (
     <header className=" sticky h-[4rem] bg-[#FFFFFF] shadow-md flex ">
@@ -28,7 +26,7 @@ const Header = () => {
             Eventify
           </h1>
         </section>
-        <section className=" h-[1.5rem] w-[23.28613rem] p-1 ">
+        <section className=" h-[1.5rem] w-[23rem] p-1 ">
           <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
             <NavLink to="/" className={setActive}>
               <h1 className=" hover:underline hover">Home</h1>
@@ -44,12 +42,34 @@ const Header = () => {
             </NavLink>
           </section>
         </section>
-        <section className=" w-[10.83694rem] h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
+        <section className=" h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
           <Button>Create Event</Button>
-          <HeaderProfilePicture />
+          <section className=' flex '>
+            <HeaderProfilePicture />
+            <div className="dropdown dropdown-end ">
+              <div tabIndex={0} role="button" className="m-1">
+                <img
+                  src="src/assets/arrow_drop_down.svg"
+                  alt="arrow_drop_down"
+                />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu bg-base-100 rounded-box bottom-[-98px] w-52 p-2 shadow-sm"
+              >
+                <li>
+                  <a>Item 1</a>
+                </li>
+                <li>
+                  <a>Item 2</a>
+                </li>
+              </ul>
+            </div>
+          </section>
         </section>
       </nav>
     </header>
   );
 };
+
 export default Header;
