@@ -1,10 +1,10 @@
-import { NavLink } from "react-router";
-import HeaderProfilePicture from "./HeaderProfilePicture";
-import Button from "../button";
+import { NavLink } from 'react-router';
+import HeaderProfilePicture from './HeaderProfilePicture';
+import Button from '../Button';
 const setActive = ({ isActive }) =>
-    isActive ? "text-[#F59E0B]" : "text-body-medium hover:text-[#F59E0B] hover:underline";
-  
-const Header = () => {
+  isActive
+    ? 'text-[#F59E0B]'
+    : 'text-body-medium hover:text-[#F59E0B] hover:underline';
 
     return(
         <header className=" sticky h-[4rem] bg-[#FFFFFF] shadow-md flex ">
