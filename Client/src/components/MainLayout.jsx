@@ -1,24 +1,15 @@
-import { Outlet } from "react-router";
-import Header from "./Header/Header";
-import NoSignedInHeader from "./Header/NotSignedInHeader";
-import Footer from "./Footer";
-import RegistrationHeader from "./Header/RegistrationHeader";
-import AboutRegistrationPage from "./Registration/AboutRegistrationPage";
+import { Outlet } from 'react-router';
+import Header from './Header/Header';
+import NoSignedInHeader from './Header/NotSignedInHeader';
+import Footer from './Footer';
 
 const MainLayout = () => {
- 
   return (
-
-    <div className="flex justify-center flex-col">
-      <div>
-        <RegistrationHeader/>
-      </div>
-      <div>
-        <AboutRegistrationPage/>
-      </div>
-      <div>
-        <Footer/>
-      </div>
+    <div className="h-full bg-gradient-to-b from-light-yellow via-light-yellow to-cream grid grid-rows-[auto_1fr_auto]">
+      <NoSignedInHeader />
+      <Header/>
+      <Outlet />
+      <Footer />
     </div>
   );
 };
