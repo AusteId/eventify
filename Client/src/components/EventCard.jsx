@@ -19,6 +19,7 @@ const EventCard = ({
   endDateTime,
   location = 'Location not provided',
   requiredAge = 'Age: All welcome!',
+  isEnded,
 }) => {
   const expLevels = {
     0: ['bg-welcome', 'All'],
@@ -37,7 +38,9 @@ const EventCard = ({
     `${convertToCompactEuDatetime(startDateTime)} - ${formatToOnlyTime(endDateTime)}`;
 
   return (
-    <div className="flex flex-col justify-between bg-[#FFF] rounded-[0.5rem] max-w-[24.875rem]">
+    <div
+      className={`flex flex-col justify-between bg-[#FFF] rounded-[0.5rem] max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
+    >
       <div>
         <div className="relative">
           {currentParticipants && (
