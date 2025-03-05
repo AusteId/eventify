@@ -1,32 +1,42 @@
-import { useState } from "react";
-import RegistrationFirstStep from "../components/RegistrationFirstStep";
-import RegistrationSecondStep from "../components/RegistrationSecondStep";
-import RegistrationThirdStep from "../components/RegistrationThirdStep";
-import RegistrationFourthStep from "../components/RegistrationFourthStep";
-import Button from "../components/button";
-import UserRegistrationButtons from "../components/UserRegistrationButtons";
+import { useRef, useState } from 'react';
+import RegistrationFirstStep from '../components/RegistrationFirstStep';
+import RegistrationSecondStep from '../components/RegistrationSecondStep';
+import RegistrationThirdStep from '../components/RegistrationThirdStep';
+import RegistrationFourthStep from '../components/RegistrationFourthStep';
+import UserRegistrationButtons from '../components/UserRegistrationButtons';
+import { FormProvider, useForm } from 'react-hook-form';
+import SubmitButton from '../components/SubmitButton';
 
-const steps = [RegistrationFirstStep, RegistrationSecondStep, RegistrationThirdStep, RegistrationFourthStep];
+const steps = [
+  RegistrationFirstStep,
+  RegistrationSecondStep,
+  RegistrationThirdStep,
+  RegistrationFourthStep,
+];
 
 const UserRegistration = () => {
-    const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
 
-    const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 3));
-    const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0))
+  const methods = useForm();
+  const formRef = useRef();
 
-    const StepComponent = steps[currentStep];
+  const Forms = steps[currentStep];
 
-    return (
-        <div className="flex flex-col items-center mt-17 ">
-            <div className="flex flex-col p-8 bg-white w-112">
-                <StepComponent />
-                <p>Current step: {currentStep + 1}</p>
+  return (
+    <div className="flex flex-col items-center mt-17 mb-12">
+      <FormProvider {...methods}>
+        <div className="flex flex-col p-8 bg-white w-112 rounded-2xl">
+          <Forms ref={formRef} setCurrentStep={setCurrentStep}/>
+          <p>Current step: {currentStep + 1}</p>
 
-                {currentStep === 0 && <Button onClick={nextStep}>Continue</Button>}
-
-                {currentStep > 0 && <UserRegistrationButtons setCurrentStep={setCurrentStep}/>}
-            </div>
+          {currentStep === 0 ? (
+            <SubmitButton type={"submit"} onClick={() => formRef.current?.submitForm()}>Continue</SubmitButton>
+          ) : (
+            <UserRegistrationButtons />
+          )}
         </div>
-    )
-}
+      </FormProvider>
+    </div>
+  );
+};
 export default UserRegistration;
