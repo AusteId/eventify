@@ -102,8 +102,10 @@ const EventCard = ({
           </div>
         </div>
       </div>
-      <div className="flex py-[0.38rem] px-[0.75rem]">
-        {!isRegistered ? (
+      <div className="flex justify-center py-[0.38rem] px-[0.75rem]">
+        {isEnded ? (
+          <p className="p-3">Completed</p>
+        ) : !isRegistered ? (
           <Button isFull={true} onClick={eventHandler}>
             +Register
           </Button>
