@@ -18,14 +18,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)          // Disable CSRF protection
+        http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-
                         .anyRequest().permitAll()
                 );
         return http.build();
