@@ -1,4 +1,4 @@
-const ProfileComment = props => {
+const Comment = props => {
   return (
     <div className="flex w-full">
       <img
@@ -21,4 +21,4 @@ const ProfileComment = props => {
   );
 };
 
-export default ProfileComment;
+export default Comment;
