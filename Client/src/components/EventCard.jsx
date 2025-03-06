@@ -28,7 +28,7 @@ const EventCard = ({
     <div className="bg-[#FFF] rounded-[0.5rem] max-w-[24.875rem]">
       <div className="relative">
         {currentParticipants && (
-          <div className="absolute flex top-2 left-2 bg-black/50  gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-[0.875rem]">
+          <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-[0.875rem]">
             <img src="./src/assets/threePersonIcon.svg" />
             <p className="text-[#FFF]">
               {currentParticipants}/{maxParticipants}
