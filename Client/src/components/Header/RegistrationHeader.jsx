@@ -1,6 +1,8 @@
 import StepIndicator from "../StepIndicator";
 
-const RegistrationHeader = () => {
+const RegistrationHeader = ({
+  currentStep
+}) => {
   return (
     <header className="flex items-center justify-between px-6 py-4 bg-[#FFFFFF] shadow-md">
       <section className="flex items-center gap-[1rem]">
@@ -18,7 +20,7 @@ const RegistrationHeader = () => {
             <h1 className="text-title text-heading-s font-[700]">Eventify</h1>
       </section>
       <section className="flex items-center gap-2 text-sm text-gray-600">
-        <StepIndicator step={50} totalSteps={100}/>
+        <StepIndicator step={currentStep} totalSteps={4}/>
       </section>
     </header>
   );
