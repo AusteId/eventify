@@ -21,7 +21,7 @@ const Profile = () => {
                     28
                   </p>
                 </div>
-                <div className="flex items-center mt-[8px]">
+                <div className="flex items-center">
                   <p className="font-inter text-body-medium">
                     sarah.mitchell@gmail.com
                   </p>
