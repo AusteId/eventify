@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
-import RegistrationFirstStep from '../components/RegistrationFirstStep';
-import RegistrationSecondStep from '../components/RegistrationSecondStep';
-import RegistrationThirdStep from '../components/RegistrationThirdStep';
-import RegistrationFourthStep from '../components/RegistrationFourthStep';
+import RegistrationFirstStep from '../components/Registration/RegistrationFirstStep';
+import RegistrationSecondStep from '../components/Registration/RegistrationSecondStep';
+import RegistrationThirdStep from '../components/Registration/RegistrationThirdStep';
+import RegistrationFourthStep from '../components/Registration/RegistrationFourthStep';
 import UserRegistrationButtons from '../components/UserRegistrationButtons';
 import { FormProvider, useForm } from 'react-hook-form';
 import SubmitButton from '../components/SubmitButton';

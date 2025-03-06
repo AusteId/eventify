@@ -6,17 +6,23 @@ import Registrations from './page/Registrations';
 import About from './page/About';
 import MainLayout from './components/MainLayout';
 import UserRegistration from './page/UserRegistration';
+import AuthenticatedLayout from './components/AuthenticatedLayout';
+import RegistrationLayout from './components/Registration/RegistrationLayout';
 
 function App() {
   return (
     <div className="h-screen">
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/myRegistrations" element={<Registrations />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/register" element={<UserRegistration />} />
+          <Route path="/" element={<AuthenticatedLayout />}>
+            <Route index element={<Home />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/myRegistrations" element={<Registrations />} />
+            <Route path="/about" element={<About />} />
+          </Route>
+          <Route path="/register" element={<RegistrationLayout />}>
+            <Route index element={<UserRegistration />} />
+          </Route>
         </Route>
       </Routes>
     </div>
