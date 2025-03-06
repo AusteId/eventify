@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router';
 import HeaderProfilePicture from './HeaderProfilePicture';
-import Button from '../button';
+import Button from '../Button';
 
 const setActive = ({ isActive }) =>
   isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
@@ -37,14 +37,14 @@ const Header = () => {
             <NavLink to="/myRegistrations" className={setActive}>
               <h1 className="  hover:underline ">My Registrations</h1>
             </NavLink>
-            <NavLink to="/aboutUs" className={setActive}>
+            <NavLink to="/about" className={setActive}>
               <h1 className="  hover:underline ">About Us</h1>
             </NavLink>
           </section>
         </section>
         <section className=" h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
           <Button>Create Event</Button>
-          <section className=' flex '>
+          <section className=" flex ">
             <HeaderProfilePicture />
             <div className="dropdown dropdown-end ">
               <div tabIndex={0} role="button" className="m-1">
