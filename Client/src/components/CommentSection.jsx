@@ -1,5 +1,6 @@
 import React from 'react';
 import Comment from './Comment';
+import axios from 'axios';
 
 const CommentSection = () => {
   const comments = [
@@ -20,6 +21,24 @@ const CommentSection = () => {
     },
   ];
 
+  const onPostComment = async () => {
+    console.log(document.getElementById('textarea').value);
+
+    const { data } = await axios.post(
+      'https://httpbin.org/post',
+      {
+        firstName: 'Fred',
+        lastName: 'Flintstone',
+        orders: [1, 2, 3],
+      },
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
+  };
+
   return (
     <div>
       <h1 className="text-header-dark font-inter font-bold text-heading-s pb-[23px]">
@@ -33,11 +52,15 @@ const CommentSection = () => {
         />
         <div className="pl-[16px] w-full">
           <textarea
+            id="textarea"
             class="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
             rows="4"
             placeholder="Write a comment..."
           ></textarea>
-          <button className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-[16px] pt-[10px] pb-[10px] rounded-[8px]">
+          <button
+            onClick={onPostComment}
+            className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-[16px] pt-[10px] pb-[10px] rounded-[8px]"
+          >
             Post Comment
           </button>
         </div>

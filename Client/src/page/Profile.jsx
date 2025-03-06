@@ -1,6 +1,4 @@
-import CategoryTag from '../components/CategoryTag';
-import Interests from '../components/Profile/Interests';
-import Comment from '../components/Comment';
+import InterestsSection from '../components/InterestsSection';
 import CommentSection from '../components/CommentSection';
 const Profile = () => {
   return (
@@ -52,7 +50,7 @@ const Profile = () => {
                 event-goers.
               </p>
             </div>
-            <Interests />
+            <InterestsSection />
           </div>
         </div>
         <div className="bg-[#FFFFFF] w-full h-auto p-[32px] mt-[32px] rounded-[16px] shadow-md">
