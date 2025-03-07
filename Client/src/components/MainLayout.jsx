@@ -1,12 +1,14 @@
 import { Outlet } from 'react-router';
-import Header from './Header/Header'
+import Header from './Header/Header';
 import Footer from './Footer';
 
 const MainLayout = () => {
   return (
-    <div className="h-full bg-gradient-to-b from-light-yellow via-light-yellow to-cream grid grid-rows-[auto_1fr_auto]">
-      <Outlet/>
-      <Footer />
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-light-yellow via-light-yellow to-cream">
+      <div className='flex-1'>
+        <Outlet />
+      </div>
+      <Footer/>
     </div>
   );
 };

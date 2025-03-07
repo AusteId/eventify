@@ -11,7 +11,7 @@ import RegistrationLayout from './components/Registration/RegistrationLayout';
 
 function App() {
   return (
-    <div className="h-screen">
+    <div className="">
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>

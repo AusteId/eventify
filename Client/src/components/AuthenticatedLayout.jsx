@@ -1,12 +1,13 @@
 import { Outlet } from 'react-router';
 import Header from './Header/Header'
 import Footer from './Footer';
+import NotSignedInHeader from './Header/NotSignedInHeader';
 
-const AuthenticatedLayout = ({ authenticationStatusPlaceholder = True }) => {
+const AuthenticatedLayout = ({ authenticationStatusPlaceholder = true }) => {
   return (
     <div className="h-full bg-gradient-to-b from-light-yellow via-light-yellow to-cream grid grid-rows-[auto_1fr_auto]">
       {authenticationStatusPlaceholder && <Header />}
-      {authenticationStatusPlaceholder && <NotSignedInHeader />}
+      {!authenticationStatusPlaceholder && <NotSignedInHeader />}
       <Outlet />
     </div>
   );

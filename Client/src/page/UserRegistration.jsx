@@ -3,9 +3,9 @@ import RegistrationFirstStep from '../components/Registration/RegistrationFirstS
 import RegistrationSecondStep from '../components/Registration/RegistrationSecondStep';
 import RegistrationThirdStep from '../components/Registration/RegistrationThirdStep';
 import RegistrationFourthStep from '../components/Registration/RegistrationFourthStep';
-import UserRegistrationButtons from '../components/UserRegistrationButtons';
 import { FormProvider, useForm } from 'react-hook-form';
-import SubmitButton from '../components/SubmitButton';
+import UserRegistrationButtons from '../components/Registration/UserRegistrationButtons';
+import SubmitButton from '../components/Registration/SubmitButton';
 
 const steps = [
   RegistrationFirstStep,
@@ -23,7 +23,7 @@ const UserRegistration = () => {
   const Forms = steps[currentStep];
 
   return (
-    <div className="flex flex-col items-center mt-17 mb-12">
+    <div className="h-full flex flex-col items-center mt-17">
       <FormProvider {...methods}>
         <div className="flex flex-col p-8 bg-white w-112 rounded-2xl">
           <Forms ref={formRef} setCurrentStep={setCurrentStep}/>

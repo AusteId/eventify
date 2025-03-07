@@ -1,8 +1,8 @@
 import { useFormContext } from 'react-hook-form';
-import email from '../assets/userRegistration/email-Icon.svg';
-import password from '../assets/userRegistration/password-Icon.svg';
-import location from '../assets/userRegistration/location-Icon.svg';
-import username from '../assets/userRegistration/username-Icon.svg';
+import email from '../../assets/userRegistration/email-Icon.svg';
+import password from '../../assets/userRegistration/password-Icon.svg';
+import location from '../../assets/userRegistration/location-Icon.svg';
+import username from '../../assets/userRegistration/username-Icon.svg';
 import { useImperativeHandle, useState } from 'react';
 
 const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
@@ -17,6 +17,7 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
   const formSubmitHandler = async (data) => {
     try {
       //await postData(data);
+      // <<<<<<<PLACEHOLDER>>>>>>>>
       console.log("test");
       setCurrentStep(prev => setCurrentStep(prev + 1));
     } catch (error) {
