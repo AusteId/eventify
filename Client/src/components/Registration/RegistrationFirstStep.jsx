@@ -78,7 +78,7 @@ const RegistrationFirstStep = ({ ref }) => {
                   required: 'Username is required.',
                   pattern: {
                     value: /^[a-zA-Z0-9]+$/g,
-                    message: 'Email not Valid (your@email.com)',
+                    message: 'Username not Valid',
                   },
                 })}
               />
