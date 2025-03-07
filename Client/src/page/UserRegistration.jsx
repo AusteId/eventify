@@ -16,10 +16,12 @@ const steps = [
 ];
 
 const UserRegistration = () => {
-  const { currentStep, setCurrentStep } = useOutletContext();
+  const { currentStep } = useOutletContext();
 
-  const methods = useForm();
+  const methods = useForm({ mode: 'onChange' });
   const formRef = useRef();
+
+  console.log(currentStep);
 
   const Forms = steps[currentStep];
 
@@ -27,7 +29,7 @@ const UserRegistration = () => {
     <div className="h-full flex flex-col items-center mt-12">
       <FormProvider {...methods}>
         <div className="flex flex-col p-8 bg-white w-112 rounded-2xl shadow-[0px_10px_15px_rgba(0,0,0,0.10)]">
-          <Forms ref={formRef} setCurrentStep={setCurrentStep}/>
+          <Forms ref={formRef} />
 
           {currentStep === 0 ? (
             <SubmitButton

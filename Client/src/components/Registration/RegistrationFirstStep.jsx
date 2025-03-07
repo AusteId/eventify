@@ -5,19 +5,20 @@ import location from '../../assets/userRegistration/location-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
 import { useEffect, useImperativeHandle, useState } from 'react';
 import FieldValidationError from '../FieldValidationError';
+import { useOutletContext } from 'react-router';
 
-const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
+const RegistrationFirstStep = ({ ref }) => {
   const [error, setError] = useState(null);
   const [passwordMatchError, setPasswordMatchError] = useState('');
+
+  const { currentStep, nextStep } = useOutletContext();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch
-  } = useFormContext({
-    mode: 'onChange',
-  });
+  } = useFormContext();
 
   const passwordValue = watch('password');
   const passwordConfirmValue = watch('passwordConfirm');
@@ -34,13 +35,14 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
     validatePasswordsMatch(passwordValue, passwordConfirmValue);
   }, [passwordValue, passwordConfirmValue]);
 
-  const formSubmitHandler = async data => {
+  const formSubmitHandler = async (data) => {
     try {
       // <<<<<<<PLACEHOLDER>>>>>>>>
       //await postData(data);
       // <<<<<<<PLACEHOLDER>>>>>>>>
-      console.log('test');
-      setCurrentStep(prev => setCurrentStep(prev + 1));
+      console.log(currentStep);
+      nextStep();
+      console.log(currentStep);
     } catch (error) {
       setError(error);
     }
