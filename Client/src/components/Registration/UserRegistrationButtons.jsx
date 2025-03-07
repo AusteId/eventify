@@ -1,3 +1,4 @@
+import Button from '../button';
 import SubmitButton from './SubmitButton';
 
 const UserRegistrationButtons = ({ currentStep, setCurrentStep }) => {
@@ -7,7 +8,7 @@ const UserRegistrationButtons = ({ currentStep, setCurrentStep }) => {
   return (
     <div className="flex justify-between">
 
-      <SubmitButton onClick={prevStep}>previous</SubmitButton>
+      <Button onClick={prevStep}>previous</Button>
 
       <div className="absolute left-1/2 translate-x-[-50%]">
         <SubmitButton>skip</SubmitButton>

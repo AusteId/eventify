@@ -3,22 +3,43 @@ import email from '../../assets/userRegistration/email-Icon.svg';
 import password from '../../assets/userRegistration/password-Icon.svg';
 import location from '../../assets/userRegistration/location-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
-import { useImperativeHandle, useState } from 'react';
+import { useEffect, useImperativeHandle, useState } from 'react';
+import FieldValidationError from '../FieldValidationError';
 
 const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
   const [error, setError] = useState(null);
+  const [passwordMatchError, setPasswordMatchError] = useState('');
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useFormContext();
+    watch
+  } = useFormContext({
+    mode: 'onChange',
+  });
 
-  const formSubmitHandler = async (data) => {
+  const passwordValue = watch('password');
+  const passwordConfirmValue = watch('passwordConfirm');
+
+  const validatePasswordsMatch = (pass, repeat) => {
+    if (pass && repeat && pass !== repeat) {
+      setPasswordMatchError('Passwords do not match');
+    } else {
+      setPasswordMatchError('');
+    }
+  };
+
+  useEffect(() => {
+    validatePasswordsMatch(passwordValue, passwordConfirmValue);
+  }, [passwordValue, passwordConfirmValue]);
+
+  const formSubmitHandler = async data => {
     try {
+      // <<<<<<<PLACEHOLDER>>>>>>>>
       //await postData(data);
       // <<<<<<<PLACEHOLDER>>>>>>>>
-      console.log("test");
+      console.log('test');
       setCurrentStep(prev => setCurrentStep(prev + 1));
     } catch (error) {
       setError(error);
@@ -52,7 +73,7 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
                 type="text"
                 placeholder="Choose a username"
                 {...register('username', {
-                  required: 'username is required.',
+                  required: 'Username is required.',
                   pattern: {
                     value: /^[a-zA-Z0-9]+$/g,
                     message: 'Email not Valid (your@email.com)',
@@ -60,9 +81,7 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
                 })}
               />
             </label>
-            <div className="flex justify-center text-red-600 drop-shadow-lg">
-              {errors.username?.message}
-            </div>
+            <FieldValidationError>{errors.username?.message}</FieldValidationError>
           </div>
 
           <div>
@@ -84,9 +103,7 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
                 })}
               />
             </label>
-            <div className="flex justify-center text-red-600 drop-shadow-lg">
-              {errors.email?.message}
-            </div>
+            <FieldValidationError>{errors.email?.message}</FieldValidationError>
           </div>
 
           <div>
@@ -94,12 +111,12 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
               Location
             </p>
             <label className="input w-full">
-              <img src={location} alt="email icon" />
+              <img src={location} alt="location icon" />
               <input
-                type="email"
+                type="text"
                 placeholder="Choose a username"
                 {...register('location', {
-                  required: 'location is required.',
+                  required: 'Location is required.',
                   pattern: {
                     value:
                       /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/g,
@@ -108,9 +125,7 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
                 })}
               />
             </label>
-            <div className="flex justify-center text-red-600 drop-shadow-lg">
-              {errors.location?.message}
-            </div>
+            <FieldValidationError>{errors.location?.message}</FieldValidationError>
           </div>
 
           <div>
@@ -123,18 +138,16 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
                 type="password"
                 placeholder="Create a password"
                 {...register('password', {
-                  required: 'password is required.',
+                  required: 'Password is required.',
                   pattern: {
                     value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
                     message:
-                      'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+                      'Password must have an uppercase, lowercase, and a number.',
                   },
                 })}
               />
             </label>
-            <div className="flex justify-center text-red-600 drop-shadow-lg">
-              {errors.password?.message}
-            </div>
+            <FieldValidationError>{errors.password?.message}</FieldValidationError>
           </div>
 
           <div>
@@ -147,19 +160,12 @@ const RegistrationFirstStep = ({ setCurrentStep, ref }) => {
                 type="password"
                 required
                 placeholder="Retype your password"
-                {...register('passwordRepeat', {
-                  required: 'password is required.',
-                  pattern: {
-                    value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
-                    message:
-                      'Password must contain at least one uppercase letter, one lowercase letter, and one number',
-                  },
+                {...register('passwordConfirm', {
+                  required: 'Confirm password.',
                 })}
               />
             </label>
-            <div className="flex justify-center text-red-600 drop-shadow-lg">
-              {errors.passwordRepeat?.message}
-            </div>
+            <FieldValidationError>{errors.passwordConfirm?.message || passwordMatchError}</FieldValidationError>
           </div>
         </fieldset>
       </form>
