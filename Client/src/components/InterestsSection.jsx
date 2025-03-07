@@ -29,11 +29,11 @@ const InterestsSection = () => {
     },
   ];
   return (
-    <div className="w-full mt-[32px]">
+    <div className="w-full mt-8">
       <h1 className="text-header-dark font-inter font-bold text-heading-s">
         Interests
       </h1>
-      <div className="flex flex-wrap items-center pt-[16px] gap-[8px]">
+      <div className="flex flex-wrap items-center pt-4 gap-2">
         {categories.map(category => (
           <CategoryTag
             img={category.img}
