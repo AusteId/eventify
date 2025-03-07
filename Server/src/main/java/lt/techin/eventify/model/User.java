@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -20,7 +21,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 254)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 128)
     private String password;
     
     private String city;
@@ -39,20 +40,28 @@ public class User {
     private String photoPath;
     private LocalDateTime registeredAt;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
     public User() {
     }
 
-    public User(String username, String email, String city, String password, LocalDate birthDate, String description,
-                Set<Category> eventCategories, String photoPath, LocalDateTime registeredAt) {
+    public User(String username, String email, String password, String city, LocalDate birthDate, String description,
+                Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles) {
         this.username = username;
         this.email = email;
-        this.city = city;
         this.password = password;
+        this.city = city;
         this.birthDate = birthDate;
         this.description = description;
-        this.favoriteEventCategories = eventCategories;
+        this.favoriteEventCategories = favoriteEventCategories;
         this.photoPath = photoPath;
         this.registeredAt = registeredAt;
+        this.roles = roles;
     }
 
     public long getId() {
@@ -129,5 +138,13 @@ public class User {
 
     public void setRegisteredAt(LocalDateTime registeredAt) {
         this.registeredAt = registeredAt;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
