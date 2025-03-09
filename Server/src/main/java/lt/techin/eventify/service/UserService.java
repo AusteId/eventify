@@ -32,11 +32,11 @@ public class UserService {
     public User saveUser(CreateUserRequest dto) {
 
         if(userRepository.existsByEmail(dto.email())) {
-            throw new EmailAlreadyExistsException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists.");
         }
 
         if(userRepository.existsByUsername(dto.username())) {
-            throw new UsernameAlreadyExistsException("Username already exists");
+            throw new UsernameAlreadyExistsException("Username already exists.");
         }
 
         Role roleUser = roleRepository.findByName("USER").orElseThrow();
