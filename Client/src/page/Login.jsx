@@ -1,10 +1,18 @@
 import axios from 'axios';
+import { useState } from 'react';
 
 const Login = () => {
+  const [formData, setFormData] = useState({});
+
   const onLogin = e => {
     e.preventDefault();
 
-    console.log('Login');
+    const data = {
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+    };
+
+    console.log(data);
 
     const sendRequest = async () => {
       const { data } = await axios.post(
@@ -81,7 +89,7 @@ const Login = () => {
         </form>
         <div className="w-full text-center pt-6 pb-8">
           <p className="font-inter text-body-medium">
-            Don't have an account?{' '}
+            Don't have an account?
             <a className="text-btn-hover" href="/register">
               Sign up
             </a>
