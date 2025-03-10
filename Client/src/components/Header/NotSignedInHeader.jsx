@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router';
-import Button from '../Button';
-const NoSignedInHeader = () => {
+import Button from '../button';
+const NotSignedInHeader = () => {
   return (
     <header className="bg-[#FFFFFF] shadow-md">
       <nav className="flex justify-between items-center px-6 py-4 w-[100%] ">
@@ -34,4 +34,4 @@ const NoSignedInHeader = () => {
     </header>
   );
 };
-export default NoSignedInHeader;
+export default NotSignedInHeader;
