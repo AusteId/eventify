@@ -1,36 +1,31 @@
 import axios from 'axios';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import FieldValidationError from '../components/FieldValidationError';
 
 const Login = () => {
-  const [formData, setFormData] = useState({});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-  const onLogin = e => {
-    e.preventDefault();
+  const onSubmit = async data => {
+    try {
+      const response = await axios.post('api', {
+        email: data.email,
+        password: data.password,
+      });
 
-    const data = {
-      email: document.getElementById('email').value,
-      password: document.getElementById('password').value,
-    };
-
-    console.log(data);
-
-    const sendRequest = async () => {
-      const { data } = await axios.post(
-        'https://httpbin.org/post',
-        {
-          firstName: 'Fred',
-          lastName: 'Flintstone',
-          orders: [1, 2, 3],
-        },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
-    };
-
-    sendRequest();
+      console.log('Login successful:', response.data);
+    } catch {
+      console.error('Login failed: ', error.response?.data || error.message);
+    }
   };
 
   return (
@@ -44,7 +39,7 @@ const Login = () => {
             Please enter your credentials to continue
           </p>
         </div>
-        <form onSubmit={onLogin} action="" className="px-8">
+        <form onSubmit={handleSubmit(onSubmit)} action="" className="px-8">
           <label
             className="block font-inter text-body-medium mb-2"
             htmlFor="email"
@@ -52,24 +47,34 @@ const Login = () => {
             Email
           </label>
           <input
-            className="h-12 appearance-none border border-input-light rounded-lg w-full py-2 px-3 mb-6 text-body-medium leading-tight focus:outline-none"
+            className="h-12 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
             id="email"
             type="email"
             placeholder="your@email.com"
+            {...register('email', {
+              required: 'Email is required.',
+            })}
           />
+          <FieldValidationError>{errors.email?.message}</FieldValidationError>
           <label
-            className="block font-inter text-body-medium mb-2"
+            className="block font-inter text-body-medium mt-6 mb-2"
             htmlFor="password"
           >
             Password
           </label>
           <input
-            className="h-12 appearance-none border border-input-light rounded-lg w-full py-2 px-3 mb-6 text-body-medium leading-tight focus:outline-none"
+            className="h-12 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
             id="password"
             type="password"
             placeholder="••••••••"
+            {...register('password', {
+              required: 'Password is required.',
+            })}
           />
-          <div className="flex items-center mb-6">
+          <FieldValidationError>
+            {errors.password?.message}
+          </FieldValidationError>
+          <div className="flex items-center mt-6 mb-6">
             <input
               id="remember-checkbox"
               type="checkbox"
