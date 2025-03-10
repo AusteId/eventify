@@ -67,7 +67,11 @@ public class UserService {
     Optional<User> user = userRepository.findByEmail(loginUserRequest.email());
 
     if (user.isEmpty()) {
-      throw new InvalidCredentialsException("Invalid username or password");
+      throw new InvalidCredentialsException("Invalid email or password");
+    }
+
+    if (!passwordEncoder.matches(loginUserRequest.password(), user.get().getPassword())) {
+      throw new InvalidCredentialsException("Invalid email or password");
     }
 
     return tokenService.generateToken(user.get());
