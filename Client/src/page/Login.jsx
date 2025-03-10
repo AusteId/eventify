@@ -24,7 +24,7 @@ const Login = () => {
 
       console.log('Login successful:', response.data);
     } catch {
-      console.error('Login failed: ', error.response?.data || error.message);
+      console.error('Login failed: ', errors.response?.data || errors.message);
     }
   };
 
