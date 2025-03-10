@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router';
 import Header from './Header/Header';
 import Footer from './Footer';
-import ProfilePictureRegistration from './Registration/ProfilePictureRegistration'
 
 const MainLayout = () => {
   return (
