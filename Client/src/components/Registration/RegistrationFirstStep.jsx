@@ -11,7 +11,7 @@ const RegistrationFirstStep = ({ ref }) => {
   const [error, setError] = useState(null);
   const [passwordMatchError, setPasswordMatchError] = useState('');
 
-  const { currentStep, nextStep } = useOutletContext();
+  const { currentStep, nextStep, prevStep } = useOutletContext();
 
   const {
     register,
@@ -106,28 +106,6 @@ const RegistrationFirstStep = ({ ref }) => {
               />
             </label>
             <FieldValidationError>{errors.email?.message}</FieldValidationError>
-          </div>
-
-          <div>
-            <p className="text-body-medium text-sm/normal font-[500]">
-              Location
-            </p>
-            <label className="input w-full">
-              <img src={location} alt="location icon" />
-              <input
-                type="text"
-                placeholder="Choose a username"
-                {...register('location', {
-                  required: 'Location is required.',
-                  pattern: {
-                    value:
-                      /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/g,
-                    message: 'Email not Valid (your@email.com)',
-                  },
-                })}
-              />
-            </label>
-            <FieldValidationError>{errors.location?.message}</FieldValidationError>
           </div>
 
           <div>

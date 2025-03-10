@@ -5,10 +5,12 @@ import NotSignedInHeader from './Header/NotSignedInHeader';
 
 const AuthenticatedLayout = ({ authenticationStatusPlaceholder = true }) => {
   return (
-    <div className="h-full bg-gradient-to-b from-light-yellow via-light-yellow to-cream grid grid-rows-[auto_1fr_auto]">
+    <div className="min-h-full flex flex-col">
       {authenticationStatusPlaceholder && <Header />}
       {!authenticationStatusPlaceholder && <NotSignedInHeader />}
-      <Outlet />
+      <div className="flex-1">
+        <Outlet />
+      </div>
     </div>
   );
 };

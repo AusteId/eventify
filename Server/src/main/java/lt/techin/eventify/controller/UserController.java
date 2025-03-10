@@ -17,26 +17,24 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService userService;
-    private final UserMapper userMapper;
+  private final UserService userService;
+  private final UserMapper userMapper;
 
-    public UserController(UserService userService, UserMapper userMapper) {
-        this.userService = userService;
-        this.userMapper = userMapper;
-    }
+  public UserController(UserService userService, UserMapper userMapper) {
+    this.userService = userService;
+    this.userMapper = userMapper;
+  }
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> addUser(@Valid @RequestBody CreateUserRequest dto) {
-        User newUser = userService.saveUser(dto);
-        UserResponse savedUser = userMapper.toUserResponse(newUser);
+  @PostMapping("/register")
+  public ResponseEntity<UserResponse> addUser(@Valid @RequestBody CreateUserRequest dto) {
+    User newUser = userService.saveUser(dto);
+    UserResponse savedUser = userMapper.toUserResponse(newUser);
 
-        return ResponseEntity.created(
-                        ServletUriComponentsBuilder.fromCurrentRequest()
-                                .path("/{id}")
-                                .buildAndExpand(savedUser.id())
-                                .toUri())
-                .body(savedUser);
-
-
-    }
+    return ResponseEntity.created(
+                    ServletUriComponentsBuilder.fromCurrentRequest()
+                            .path("/{id}")
+                            .buildAndExpand(savedUser.id())
+                            .toUri())
+            .body(savedUser);
+  }
 }
