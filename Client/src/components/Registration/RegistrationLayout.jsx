@@ -13,7 +13,7 @@ const RegistrationLayout = () => {
 
   return (
     <div className="min-h-full flex flex-col">
-      <RegistrationHeader currentStep={currentStep} />
+      <RegistrationHeader currentStep={currentStep + 1} />
       <div className="flex-1">
         <Outlet context={{ currentStep, nextStep, prevStep }} />
       </div>

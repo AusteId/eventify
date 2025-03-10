@@ -6,6 +6,7 @@ import username from '../../assets/userRegistration/username-Icon.svg';
 import { useEffect, useImperativeHandle, useState } from 'react';
 import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
+import { postUserRegistration } from '../../helpers/postOne';
 
 const RegistrationFirstStep = ({ ref }) => {
   const [error, setError] = useState(null);
@@ -37,12 +38,9 @@ const RegistrationFirstStep = ({ ref }) => {
 
   const formSubmitHandler = async (data) => {
     try {
-      // <<<<<<<PLACEHOLDER>>>>>>>>
-      //await postData(data);
-      // <<<<<<<PLACEHOLDER>>>>>>>>
-      console.log(currentStep);
+
+      const response = await postUserRegistration(data);
       nextStep();
-      console.log(currentStep);
     } catch (error) {
       setError(error);
     }
