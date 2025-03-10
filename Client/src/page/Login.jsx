@@ -17,7 +17,7 @@ const Login = () => {
 
   const onSubmit = async data => {
     try {
-      const response = await axios.post('api', {
+      const response = await axios.post('https://httpbin.org/post', {
         email: data.email,
         password: data.password,
       });
