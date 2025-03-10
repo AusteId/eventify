@@ -1,4 +1,30 @@
+import axios from 'axios';
+
 const Login = () => {
+  const onLogin = e => {
+    e.preventDefault();
+
+    console.log('Login');
+
+    const sendRequest = async () => {
+      const { data } = await axios.post(
+        'https://httpbin.org/post',
+        {
+          firstName: 'Fred',
+          lastName: 'Flintstone',
+          orders: [1, 2, 3],
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+    };
+
+    sendRequest();
+  };
+
   return (
     <div className="desktop:w-112 tablet:w-112 mx-auto px-6 pt-12 pb-12">
       <div className="bg-[#FFFFFF] w-full h-auto rounded-2xl shadow-md">
@@ -10,8 +36,11 @@ const Login = () => {
             Please enter your credentials to continue
           </p>
         </div>
-        <form action="" className="px-8">
-          <label class="block font-inter text-body-medium mb-2" htmlFor="email">
+        <form onSubmit={onLogin} action="" className="px-8">
+          <label
+            className="block font-inter text-body-medium mb-2"
+            htmlFor="email"
+          >
             Email
           </label>
           <input
@@ -21,7 +50,7 @@ const Login = () => {
             placeholder="your@email.com"
           />
           <label
-            class="block font-inter text-body-medium mb-2"
+            className="block font-inter text-body-medium mb-2"
             htmlFor="password"
           >
             Password
