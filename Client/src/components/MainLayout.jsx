@@ -1,14 +1,15 @@
 import { Outlet } from 'react-router';
-import RegistrationHeader from './Header/RegistrationHeader'
+import Header from './Header/Header';
 import Footer from './Footer';
 import ProfilePictureRegistration from './Registration/ProfilePictureRegistration'
 
 const MainLayout = () => {
   return (
-    <div className="h-full bg-gradient-to-b from-light-yellow via-light-yellow to-cream grid grid-rows-[auto_1fr_auto]">
-      <RegistrationHeader/>
-      <ProfilePictureRegistration/>
-      <Footer />
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-light-yellow via-light-yellow to-cream">
+      <div className='flex-1'>
+        <Outlet />
+      </div>
+      <Footer/>
     </div>
   );
 };

@@ -1,82 +1,89 @@
-import Button from '../Button';
-import { useCallback, useState } from 'react';
-import Frame from '../../assets/Frame.svg';
+import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
+import Button from '../Button';
+import Frame from '../../assets/Frame.svg';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const ProfilePictureRegistration = () => {
   const [filePreview, setFilePreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const {handleSubmit, formState: { errors } } = useForm();
+  const [error, setError] = useState(null);
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const isValidMimeType = (file) => {
-    if (!file || !file.type) return false; // Ensure file and file type exist
-    const validMimeTypes = ['image/jpeg', 'image/png'];
-    return validMimeTypes.includes(file.type);
+  const validateFile = (file) => {
+    if (!file) return 'No file selected';
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      return 'Invalid file type. Please upload JPG or PNG';
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return 'File too large. Maximum size is 5MB';
+    }
+    return null;
   };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-
-    if (!file) {
-      alert('No file selected.');
+    const validationError = validateFile(file);
+   
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    if (!isValidMimeType(file)) {
-      alert('Invalid file type. Please upload a JPG or PNG.');
-      return;
-    }
-
+    setError(null);
     setSelectedFile(file);
     setFilePreview(URL.createObjectURL(file));
   };
 
-
   const onDrop = useCallback((acceptedFiles) => {
-    const uploadedFile = acceptedFiles[0];
-
-    if (!uploadedFile) {
-      alert('Invalid file selection.');
+    const file = acceptedFiles[0];
+    const validationError = validateFile(file);
+   
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    if (!isValidMimeType(uploadedFile)) {
-      alert('Invalid file type. Please upload a JPG or PNG.');
-      return;
-    }
-
-    setSelectedFile(uploadedFile);
-    setFilePreview(URL.createObjectURL(uploadedFile));
+    setError(null);
+    setSelectedFile(file);
+    setFilePreview(URL.createObjectURL(file));
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: {'':['.jpeg', '.png']
-      },
-    useFsAccessApi:false,
+    accept: {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png']
+    },
+    maxSize: MAX_FILE_SIZE
   });
+
+  useEffect(() => {
+    return () => {
+      if (filePreview) URL.revokeObjectURL(filePreview);
+    };
+  }, [filePreview]);
 
   const onSubmit = (data) => {
     if (!selectedFile) {
-      alert('Please upload a profile picture.');
+      setError('Please upload a profile picture');
       return;
     }
-
-    console.log('Form Data:', data);
-    console.log('Uploaded File:', selectedFile);
+    console.log('Form Data:', { ...data, profilePicture: selectedFile });
   };
-
 
   return (
     <div className="flex flex-col items-center p-6">
       <h2 className="text-header-dark text-heading-l font-[700]">
         Complete Your Profile
       </h2>
-
       <p className="text-light text-body-m font-[400] pb-[1rem]">
         Add a profile picture to help others recognize you
       </p>
+
+      {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <section className="bg-white w-[40rem] flex justify-center items-center rounded-2xl p-[2rem]">
@@ -85,7 +92,6 @@ const ProfilePictureRegistration = () => {
             className="border-2 border-dashed border-btn p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%]"
           >
             <input {...getInputProps()} />
-
             {filePreview ? (
               <img
                 src={filePreview}
@@ -94,38 +100,26 @@ const ProfilePictureRegistration = () => {
               />
             ) : (
               <>
-                <div className="text-3xl">
-                  <img src={Frame} alt="frame.logo" className="bg-white w-[4rem] h-[3rem]" />
-                </div>
-
-                <p className="text-heading-xs text-header-dark font-[600] pt-[0.5rem] pb-[1rem] leading-[1rem]">
+                <img src={Frame} alt="frame.logo" className="bg-white w-[4rem] h-[3rem]" />
+                <p className="text-heading-xs text-header-dark font-[600] pt-[0.5rem] pb-[1rem]">
                   Drag and drop your photo here
                 </p>
-
-                <p className="text-body-s text-body-medium font-[400] leading-[0.875rem] pb-[1rem]">
+                <p className="text-body-s text-body-medium font-[400] pb-[1rem]">
                   or click to browse from your computer
                 </p>
-
-                <small className="text-body-s text-body-medium font-[400] leading-[0.875rem] pb-[2rem]">
+                <small className="text-body-s text-body-medium font-[400] pb-[2rem]">
                   Supported formats: JPG, PNG (Max size: 5MB)
                 </small>
-
-                <Button>
-                  <label htmlFor="fileInput">Choose a file</label>
+                <Button className="mt-4">
+                  <label htmlFor="fileInput" className="cursor-pointer">
+                    Choose a file
+                  </label>
                 </Button>
-                <input
-                  type="file"
-                  id="fileInput"
-                  accept="image/jpeg, image/png"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
               </>
             )}
           </div>
         </section>
-
-        <button type="submit">Submit</button>
+        <Button type="submit" className="mt-4">Submit</Button>
       </form>
     </div>
   );
