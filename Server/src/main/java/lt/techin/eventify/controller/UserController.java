@@ -9,41 +9,45 @@ import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService userService;
-    private final UserMapper userMapper;
+  private final UserService userService;
+  private final UserMapper userMapper;
 
-    @Autowired
-    public UserController(UserService userService, UserMapper userMapper ) {
-        this.userService = userService;
-        this.userMapper = userMapper;
-    }
+  @Autowired
+  public UserController(UserService userService, UserMapper userMapper) {
+    this.userService = userService;
+    this.userMapper = userMapper;
+  }
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> addUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
+  @PostMapping("/register")
+  public ResponseEntity<UserResponse> addUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
+    User newUser = userService.saveUser(createUserRequest);
+    UserResponse savedUser = userMapper.toUserResponse(newUser);
 
-        User newUser = userService.saveUser(createUserRequest);
-        UserResponse savedUser = userMapper.toUserResponse(newUser);
+    return ResponseEntity.created(
+                    ServletUriComponentsBuilder.fromCurrentRequest()
+                            .path("/{id}")
+                            .buildAndExpand(savedUser.id())
+                            .toUri())
+            .body(savedUser);
+  }
 
-        return ResponseEntity.created(
-                        ServletUriComponentsBuilder.fromCurrentRequest()
-                                .path("/{id}")
-                                .buildAndExpand(savedUser.id())
-                                .toUri())
-                .body(savedUser);
-    }
+  @GetMapping("/all")
+  public ResponseEntity<List<User>> getUsers() {
+    return ResponseEntity.ok(userService.findAllUsers());
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginUserRequest userRequest) {
-        return ResponseEntity.ok(userService.loginUser(userRequest));
-    }
+  @PostMapping("/login")
+  public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody LoginUserRequest userRequest) {
+    return ResponseEntity.ok(Map.of("token", userService.loginUser(userRequest)));
+  }
 }

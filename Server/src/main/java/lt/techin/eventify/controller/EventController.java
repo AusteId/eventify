@@ -12,26 +12,27 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/api")
 public class EventController {
 
-    private final EventService eventService;
+  private final EventService eventService;
 
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
+  public EventController(EventService eventService) {
+    this.eventService = eventService;
+  }
 
-    @PostMapping("/events")
-    public ResponseEntity<Event> addEvent(@Valid @RequestBody Event event) {
-        Event newEvent = eventService.saveEvent(event);
+  @PostMapping("/events")
+  public ResponseEntity<Event> addEvent(@Valid @RequestBody Event event) {
+    Event newEvent = eventService.saveEvent(event);
 
-        return ResponseEntity.created(
-                        ServletUriComponentsBuilder.fromCurrentRequest()
-                                .path("/{id}")
-                                .buildAndExpand(newEvent.getId())
-                                .toUri())
-                .body(newEvent);
-    }
+    return ResponseEntity.created(
+                    ServletUriComponentsBuilder.fromCurrentRequest()
+                            .path("/{id}")
+                            .buildAndExpand(newEvent.getId())
+                            .toUri())
+            .body(newEvent);
+  }
 
-    @GetMapping("/events")
-    public ResponseEntity<?> getEvents() {
-        return ResponseEntity.ok().body("newEvent");
-    }
+  @GetMapping("/events")
+  public ResponseEntity<?> getEvents() {
+    System.out.println(System.getenv("DB_PASSWORD"));
+    return ResponseEntity.ok().body("newEvent");
+  }
 }
