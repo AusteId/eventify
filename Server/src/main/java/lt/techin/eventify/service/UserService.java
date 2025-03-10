@@ -10,7 +10,6 @@ import lt.techin.eventify.model.Role;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.repository.RoleRepository;
 import lt.techin.eventify.repository.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

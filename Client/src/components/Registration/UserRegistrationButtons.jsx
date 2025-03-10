@@ -13,7 +13,7 @@ const UserRegistrationButtons = () => {
         <SubmitButton>skip</SubmitButton>
       </div>
 
-      <SubmitButton>{currentStep == 3 ? 'finish' : 'next'}</SubmitButton>
+      <SubmitButton onClick={nextStep}>{currentStep == 3 ? 'finish' : 'next'}</SubmitButton>
     </div>
   );
 };
