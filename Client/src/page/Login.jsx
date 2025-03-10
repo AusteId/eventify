@@ -89,7 +89,7 @@ const Login = () => {
         </form>
         <div className="w-full text-center pt-6 pb-8">
           <p className="font-inter text-body-medium">
-            Don't have an account?
+            Don't have an account?{' '}
             <a className="text-btn-hover" href="/register">
               Sign up
             </a>
