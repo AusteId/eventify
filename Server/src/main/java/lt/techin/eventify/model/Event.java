@@ -13,15 +13,15 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    private Long id;
+    private long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @Getter
     @Setter
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
     @Getter
     @Setter
@@ -30,7 +30,7 @@ public class Event {
 
     @Getter
     @Setter
-    @Column(nullable = false)
+    @Column(nullable = false, length = 128)
     private String name;
 
     @Getter
@@ -48,6 +48,7 @@ public class Event {
 
     @Getter
     @Setter
+    @Lob
     private String description;
 
     @Getter
@@ -60,20 +61,33 @@ public class Event {
 
     @Getter
     @Setter
+    @Column(length = 50)
     private String experienceLevel;
 
+    @Getter
+    @Setter
     @Column(nullable = false)
     private int maxParticipants;
 
-    @Column(nullable = false)
+    @Getter
+    @Setter
+    @Column(nullable = false, length = 50)
     private String city;
 
-    @Column(nullable = false)
+    @Getter
+    @Setter
+    @Column(nullable = false, length = 100)
     private String address;
 
+    @Getter
+    @Setter
     private String photoPath;
 
-    public Event() {
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
 
     public Event(Category category, User organizer, String name, LocalDateTime startDateTime,
@@ -94,6 +108,9 @@ public class Event {
         this.city = city;
         this.address = address;
         this.photoPath = photoPath;
+    }
+
+    public Event() {
     }
 
 }

@@ -1,6 +1,7 @@
 package lt.techin.eventify.validation;
 
 import lt.techin.eventify.exception.EmailAlreadyExistsException;
+import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.exception.UsernameAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleUsernameAlreadyExists(UsernameAlreadyExistsException e) {
+        return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUserDoesNotExist(UsernameNotFoundException e) {
         return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

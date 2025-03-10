@@ -2,10 +2,12 @@ package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.user.CreateUserRequest;
+import lt.techin.eventify.dto.user.LoginUserRequest;
 import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,14 +22,16 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    @Autowired
+    public UserController(UserService userService, UserMapper userMapper ) {
         this.userService = userService;
         this.userMapper = userMapper;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> addUser(@Valid @RequestBody CreateUserRequest dto) {
-        User newUser = userService.saveUser(dto);
+    public ResponseEntity<UserResponse> addUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
+
+        User newUser = userService.saveUser(createUserRequest);
         UserResponse savedUser = userMapper.toUserResponse(newUser);
 
         return ResponseEntity.created(
@@ -36,7 +40,10 @@ public class UserController {
                                 .buildAndExpand(savedUser.id())
                                 .toUri())
                 .body(savedUser);
+    }
 
-
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginUserRequest userRequest) {
+        return ResponseEntity.ok(userService.loginUser(userRequest));
     }
 }
