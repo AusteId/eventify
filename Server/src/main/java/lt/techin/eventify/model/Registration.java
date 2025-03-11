@@ -5,8 +5,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table
+@Table(name = "registrations")
 @Getter
 @Setter
 public class Registration {
@@ -23,9 +25,21 @@ public class Registration {
   @JoinColumn(name = "event_id")
   private Event event;
 
-  public Registration(Long id, User user, Event event) {
+  @Column(nullable = false, name = "registered_at")
+  @Setter(AccessLevel.NONE)
+  private LocalDateTime registeredAt;
+
+  @PrePersist
+  public void prePersist() {
+    if (this.registeredAt == null) {
+      this.registeredAt = LocalDateTime.now();
+    }
+  }
+
+  public Registration(Long id, User user, Event event, LocalDateTime registeredAt) {
     this.id = id;
     this.user = user;
     this.event = event;
+    this.registeredAt = registeredAt;
   }
 }

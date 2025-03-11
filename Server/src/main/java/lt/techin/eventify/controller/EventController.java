@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class EventController {
@@ -31,8 +33,9 @@ public class EventController {
   }
 
   @GetMapping("/events")
-  public ResponseEntity<?> getEvents() {
-    System.out.println(System.getenv("DB_PASSWORD"));
-    return ResponseEntity.ok().body("newEvent");
+  public ResponseEntity<List<Event>> getEvents() {
+//    System.out.println(System.getenv("DB_PASSWORD"));
+
+    return ResponseEntity.ok().body(eventService.findAllEvents());
   }
 }
