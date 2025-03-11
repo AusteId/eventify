@@ -1,6 +1,7 @@
 package lt.techin.eventify.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,79 +9,53 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")
+@Getter
+@Setter
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
+    @Setter(AccessLevel.NONE)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    @Getter
-    @Setter
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
-    @Getter
-    @Setter
     private User organizer;
 
-
-    @Getter
-    @Setter
     @Column(nullable = false, length = 128)
     private String name;
 
-    @Getter
-    @Setter
     @Column(nullable = false)
     private LocalDateTime startDateTime;
 
-    @Getter
-    @Setter
     private LocalDateTime endDateTime;
 
     @Column(nullable = false)
-    @Getter
+    @Setter(AccessLevel.NONE)
     private LocalDateTime createdAt;
 
-    @Getter
-    @Setter
-    @Lob
     private String description;
 
-    @Getter
-    @Setter
     private int minAge;
 
-    @Getter
-    @Setter
     private int maxAge;
 
-    @Getter
-    @Setter
     @Column(length = 50)
     private String experienceLevel;
 
-    @Getter
-    @Setter
     @Column(nullable = false)
     private int maxParticipants;
 
-    @Getter
-    @Setter
     @Column(nullable = false, length = 50)
     private String city;
 
-    @Getter
-    @Setter
     @Column(nullable = false, length = 100)
     private String address;
 
-    @Getter
-    @Setter
     private String photoPath;
 
     @PrePersist
