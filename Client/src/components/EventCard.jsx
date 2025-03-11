@@ -39,23 +39,23 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex flex-col justify-between bg-[#FFF] rounded-[0.5rem] max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
+      className={`flex flex-col justify-between bg-white rounded-[0.5rem] max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <div className="relative">
           {currentParticipants && (
             <div className="absolute flex top-2 left-2 bg-black/50  gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm">
               <img src="./src/assets/threePersonIcon.svg" />
-              <p className="text-[#FFF]">
+              <p className="text-white">
                 {currentParticipants}/{maxParticipants}
               </p>
             </div>
           )}
           {experienceLevel != 0 && (
             <div
-              className={`absolute right-2 top-2 ${expLevels[experienceLevel][0]} rounded-full py-[0.38rem] px-[0.75rem] text-[0.875rem]`}
+              className={`absolute right-2 top-2 ${expLevels[experienceLevel][0]} rounded-full py-1.5 px-3 text-[0.875rem]`}
             >
-              <p className="text-[#FFF]">{expLevels[experienceLevel][1]}</p>
+              <p className="text-white">{expLevels[experienceLevel][1]}</p>
             </div>
           )}
           <img
@@ -106,11 +106,11 @@ const EventCard = ({
         {isEnded ? (
           <p className="p-3">Completed</p>
         ) : !isRegistered ? (
-          <Button isFull={true} onClick={eventHandler}>
+          <Button isFull={true} onClick={eventHandler} >
             +Register
           </Button>
         ) : (
-          <ButtonCancel isFull={true} onClick={eventHandler}>
+          <ButtonCancel isFull={true} onClick={eventHandler} >
             <img src="src/assets/xIcon.svg" className="border-0" />
             Cancel Registration
           </ButtonCancel>
