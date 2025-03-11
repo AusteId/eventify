@@ -6,11 +6,18 @@ import Events from './page/Events';
 import Home from './page/Home';
 import Profile from './page/Profile';
 import Registrations from './page/Registrations';
-import UserRegistration from './page/UserRegistration';
 import AuthenticatedLayout from './components/AuthenticatedLayout';
 import RegistrationLayout from './components/Registration/RegistrationLayout';
+import { useRef } from 'react';
+import RegistrationFirstStep from './components/Registration/RegistrationFirstStep';
+import RegistrationSecondStep from './components/Registration/RegistrationSecondStep';
+import RegistrationThirdStep from './components/Registration/RegistrationThirdStep';
+import RegistrationFourthStep from './components/Registration/RegistrationFourthStep';
+
 
 function App() {
+  const formRefs = useRef([null, null, null, null]);
+  
   return (
     <div className="">
       <Routes>
@@ -22,8 +29,12 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
-          <Route path="/register" element={<RegistrationLayout />}>
-            <Route index element={<UserRegistration />} />
+          
+          <Route path="/register" element={<RegistrationLayout formRefs={formRefs} />}>
+            <Route index element={<RegistrationFirstStep ref={(el) => (formRefs.current[0] = el)} />} />
+            <Route path="step2" element={<RegistrationSecondStep ref={(el) => (formRefs.current[1] = el)} />} />
+            <Route path="step3" element={<RegistrationThirdStep ref={(el) => (formRefs.current[2] = el)} />} />
+            <Route path="step4" element={<RegistrationFourthStep ref={(el) => (formRefs.current[3] = el)} />} />
           </Route>
         </Route>
       </Routes>

@@ -4,6 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lt.techin.eventify.model.Category;
+import lt.techin.eventify.validation.ValidImage;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 public record CreateUserRequest(
         @NotNull(message = "Username cannot be null")
@@ -21,6 +28,12 @@ public record CreateUserRequest(
         @Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters long")
         @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]+$",
                 message = "Password must contain at least one uppercase letter, one lowercase letter, and one number")
-        String password
+        String password,
+        String city,
+        String description,
+        LocalDate birthDate,
+        List<Long> categoryIds,
+        @ValidImage
+        MultipartFile avatar
 ) {
 }

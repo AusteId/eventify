@@ -1,33 +1,36 @@
 import { useFormContext } from 'react-hook-form';
 import email from '../../assets/userRegistration/email-Icon.svg';
 import password from '../../assets/userRegistration/password-Icon.svg';
-import location from '../../assets/userRegistration/location-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
-import { useEffect, useImperativeHandle, useState } from 'react';
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
+import Button from '../Button'; 
+import UserRegistrationButtons from './UserRegistrationButtons';
 
-const RegistrationFirstStep = ({ ref }) => {
-  const [error, setError] = useState(null);
+const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
+  const { nextStep } = useOutletContext();
 
-  const { currentStep, nextStep, prevStep } = useOutletContext();
+  RegistrationFirstStep.displayName = "RegistrationFirstStep";
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
-    watch
+    watch,
+    trigger,
   } = useFormContext();
 
-  const passwordValue = watch('password');
-  const passwordConfirmValue = watch('passwordConfirm');
+  const passwordValue = watch("password");
+  const passwordConfirmValue = watch("passwordConfirm");
 
   const validatePasswordsMatch = (pass, repeat) => {
     if (pass && repeat && pass !== repeat) {
-      setPasswordMatchError('Passwords do not match');
+      setPasswordMatchError("Passwords do not match");
+      return false;
     } else {
-      setPasswordMatchError('');
+      setPasswordMatchError("");
+      return true;
     }
   };
 
@@ -35,25 +38,20 @@ const RegistrationFirstStep = ({ ref }) => {
     validatePasswordsMatch(passwordValue, passwordConfirmValue);
   }, [passwordValue, passwordConfirmValue]);
 
-  const formSubmitHandler = async (data) => {
-    try {
-      // <<<<<<<PLACEHOLDER>>>>>>>>
-      //await postData(data);
-      // <<<<<<<PLACEHOLDER>>>>>>>>
-      console.log(currentStep);
-      nextStep();
-      console.log(currentStep);
-    } catch (error) {
-      setError(error);
-    }
-  };
-
   useImperativeHandle(ref, () => ({
-    submitForm: () => handleSubmit(formSubmitHandler)(),
+    validateStep: async () => {
+      const fieldsValid = await trigger(["username", "email", "password", "passwordConfirm"]);
+      const passwordsMatch = validatePasswordsMatch(passwordValue, passwordConfirmValue);
+      return fieldsValid && passwordsMatch;
+    }
   }));
 
+  const onNext = () => {
+    nextStep();
+  };
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 p-4">
       <div>
         <h1 className="font-bold text-black text-center text-heading-m/normal mb-3">
           Create your account
@@ -63,22 +61,22 @@ const RegistrationFirstStep = ({ ref }) => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(formSubmitHandler)} noValidate>
+      <div>
         <fieldset className="fieldset gap-y-6 mb-6">
           <div>
             <p className="text-body-medium text-sm/normal font-[500]">
               Username
             </p>
             <label className="input w-full">
-              <img src={username} alt="email icon" />
+              <img src={username} alt="username icon" />
               <input
                 type="text"
                 placeholder="Choose a username"
-                {...register('username', {
-                  required: 'Username is required.',
+                {...register("username", {
+                  required: "Username is required.",
                   pattern: {
                     value: /^[a-zA-Z0-9]+$/g,
-                    message: 'Username not Valid',
+                    message: "Username not Valid",
                   },
                 })}
               />
@@ -95,12 +93,12 @@ const RegistrationFirstStep = ({ ref }) => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                {...register('email', {
-                  required: 'Email is required.',
+                {...register("email", {
+                  required: "Email is required.",
                   pattern: {
                     value:
                       /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g,
-                    message: 'Email not Valid (your@email.com)',
+                    message: "Email not Valid (your@email.com)",
                   },
                 })}
               />
@@ -117,12 +115,12 @@ const RegistrationFirstStep = ({ ref }) => {
               <input
                 type="password"
                 placeholder="Create a password"
-                {...register('password', {
-                  required: 'Password is required.',
+                {...register("password", {
+                  required: "Password is required.",
                   pattern: {
                     value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
                     message:
-                      'Password must have an uppercase, lowercase, and a number.',
+                      "Password must have an uppercase, lowercase, and a number.",
                   },
                 })}
               />
@@ -138,18 +136,24 @@ const RegistrationFirstStep = ({ ref }) => {
               <img src={password} alt="password icon" />
               <input
                 type="password"
-                required
                 placeholder="Retype your password"
-                {...register('passwordConfirm', {
-                  required: 'Confirm password.',
+                {...register("passwordConfirm", {
+                  required: "Confirm password.",
                 })}
               />
             </label>
-            <FieldValidationError>{errors.passwordConfirm?.message || passwordMatchError}</FieldValidationError>
+            <FieldValidationError>
+              {errors.passwordConfirm?.message || passwordMatchError}
+            </FieldValidationError>
           </div>
         </fieldset>
-      </form>
+
+        <div className="flex justify-end">
+          <Button onClick={onNext}>Continue</Button>
+        </div>
+      </div>
     </div>
   );
-};
+});
+
 export default RegistrationFirstStep;
