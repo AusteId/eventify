@@ -1,5 +1,9 @@
 package lt.techin.eventify.validation;
 
+import lt.techin.eventify.exception.EmailAlreadyExistsException;
+import lt.techin.eventify.exception.InvalidCredentialsException;
+import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.exception.UsernameAlreadyExistsException;
 import lt.techin.eventify.exception.AlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,18 +17,37 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException e) {
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException e) {
 
-        Map<String, String> errors = new HashMap<>();
+    Map<String, String> errors = new HashMap<>();
 
-        e.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(),
-                error.getDefaultMessage())
-        );
+    e.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(),
+            error.getDefaultMessage())
+    );
 
-        return ResponseEntity.badRequest().body(errors);
-    }
+    return ResponseEntity.badRequest().body(errors);
+  }
 
+  @ExceptionHandler(EmailAlreadyExistsException.class)
+  public ResponseEntity<Map<String, String>> handleEmailAlreadyExists(EmailAlreadyExistsException e) {
+    return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(UsernameAlreadyExistsException.class)
+  public ResponseEntity<Map<String, String>> handleUsernameAlreadyExists(UsernameAlreadyExistsException e) {
+    return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(UsernameNotFoundException.class)
+  public ResponseEntity<Map<String, String>> handleUserDoesNotExist(UsernameNotFoundException e) {
+    return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(InvalidCredentialsException.class)
+  public ResponseEntity<Map<String, String>> handleUserDoesNotExist(InvalidCredentialsException e) {
+    return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleAlreadyExists(AlreadyExistsException e) {
         return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
