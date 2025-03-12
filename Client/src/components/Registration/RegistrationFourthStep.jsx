@@ -70,14 +70,14 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
       <h2 className="text-header-dark text-heading-l font-[700]">
         Complete Your Profile
       </h2>
-      <p className="text-light text-body-m font-[400] pb-[1rem]">
+      <p className="text-light text-body-m font-[400] pb-4">
         Add a profile picture to help others recognize you
       </p>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <div>
-        <section className="bg-white w-[40rem] flex justify-center items-center rounded-2xl p-[2rem]">
+        <section className="bg-white w-[40rem] flex justify-center items-center rounded-2xl p-8">
           <div
             {...getRootProps()}
             className="border-2 border-dashed border-btn p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%]"
@@ -95,10 +95,10 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
                 <p className="text-heading-xs text-header-dark font-[600] pt-[0.5rem] pb-[1rem]">
                   Drag and drop your photo here
                 </p>
-                <p className="text-body-s text-body-medium font-[400] pb-[1rem]">
+                <p className="text-body-s text-body-medium font-[400] pb-4">
                   or click to browse from your computer
                 </p>
-                <small className="text-body-s text-body-medium font-[400] pb-[2rem]">
+                <small className="text-body-s text-body-medium font-[400] pb-8">
                   Supported formats: JPG, PNG (Max size: 5MB)
                 </small>
                 <Button className="mt-4">
@@ -111,8 +111,11 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
           </div>
         </section>
         
-        <div className="flex justify-center mt-8 gap-10">
-        <Button 
+        <div className="flex justify-between mt-8 gap-10">
+           <Button
+            background="bg-white"
+            textColor="text-btn"
+            border="border border-btn"
             onClick={prevStep}
           >
             Back

@@ -105,9 +105,9 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-4">
+    <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
       <div>
-        <h1 className="font-bold text-black text-center text-heading-m/normal mb-3">
+        <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
           Create your account
         </h1>
         <p className="text-body-m/[1rem] text-body-medium">
@@ -202,8 +202,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
           </div>
         </fieldset>
 
-        <div className="flex justify-center">
-          <Button onClick={onNext} disabled={isValidating}>
+        <div className="flex justify-center ">
+          <Button onClick={onNext} disabled={isValidating} isFull>
             {isValidating ? 'Validating...' : 'Continue'}
           </Button>
         </div>

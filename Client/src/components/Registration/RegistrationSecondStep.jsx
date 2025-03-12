@@ -41,12 +41,12 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
   ).toISOString().split("T")[0];
 
   return (
-    <section className="flex flex-col gap-[1.5rem] p-4">
+    <section className="flex flex-col gap-6 mt-12 p-4 bg-white shadow-md rounded-2xl px-8 pt-8 pb-12">
       <h2 className="text-header-dark text-heading-l font-[700]">
         Tell us about yourself
       </h2>
       
-      <fieldset className="fieldset text-[1rem]">
+      <fieldset className="fieldset text-body-m">
         <section className="flex gap-2">
           <legend className="fieldset-legend font-[400]">Birth date</legend>
         </section>
@@ -60,7 +60,7 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
         <FieldValidationError>{errors.birthDate?.message}</FieldValidationError>
       </fieldset>
       
-      <fieldset className="fieldset text-[1rem]">
+      <fieldset className="fieldset text-body-m">
         <legend className="fieldset-legend font-[400]">Bio</legend>
         <textarea
           className="textarea h-24 w-full"
@@ -70,7 +70,7 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
       </fieldset>
       
       <div className="relative">
-        <fieldset className="fieldset text-[1rem]">
+        <fieldset className="fieldset text-body-m">
           <legend className="fieldset-legend font-[400]">City</legend>
           <div 
             className="input flex justify-between items-center cursor-pointer"
