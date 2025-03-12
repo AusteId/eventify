@@ -37,6 +37,10 @@ public class User implements UserDetails {
 
   // TODO: add mapping for registrations
 
+
+  // TODO: add mapping for organizer (to Event)
+  
+
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
           name = "users_categories",

@@ -11,7 +11,7 @@ public record CreateEventRequest(
 
         Set<Category> category,
 
-        @NotBlank
+        @NotNull
         User organizer,
 
         @NotBlank(message = "Event name cannot be empty or null")
@@ -23,6 +23,8 @@ public record CreateEventRequest(
         LocalDateTime startDateTime,
         @Future
         LocalDateTime endDateTime,
+
+        @Size(max = 1000, message = "Description must be less than 1000 characters.")
         String description,
         @Positive
         int minAge,
@@ -40,6 +42,8 @@ public record CreateEventRequest(
         @NotNull
         @Pattern(regexp = "^[\\w\\s ,.]+$", message = "Invalid event address.")
         String address,
+
+        // kol kas palikta nes nezinau kaip Tomo komponentas atrodys
         String photoPath
 ) {
 }

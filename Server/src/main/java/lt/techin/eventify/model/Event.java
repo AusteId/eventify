@@ -28,7 +28,8 @@ public class Event {
   @JoinColumn(name = "organizer_id")
   private User organizer;
 
-  @OneToMany(fetch = FetchType.LAZY)
+  // if event is deleted registration should be deleted as well
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "event_id")
   private List<RegistrationToEvent> registrationToEvents;
 
