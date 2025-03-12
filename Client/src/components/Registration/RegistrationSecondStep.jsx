@@ -41,7 +41,7 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
   ).toISOString().split("T")[0];
 
   return (
-    <section className="flex flex-col gap-[1.5rem] p-4">
+    <section className="flex flex-col gap-[1.5rem] mt-[3rem] p-4 bg-white shadow-md rounded-[1rem] px-[2rem] pt-[2rem] pb-[3rem]">
       <h2 className="text-header-dark text-heading-l font-[700]">
         Tell us about yourself
       </h2>
