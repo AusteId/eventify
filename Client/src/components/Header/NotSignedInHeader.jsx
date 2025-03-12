@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router';
-import Button from '../button';
+import Button from '../Button';
+
 const NotSignedInHeader = () => {
   return (
     <header className="bg-[#FFFFFF] shadow-md">

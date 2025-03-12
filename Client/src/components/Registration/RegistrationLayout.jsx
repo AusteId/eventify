@@ -27,7 +27,7 @@ const RegistrationLayout = ({ formRefs }) => {
   const prevStep = () => {
     const newStep = Math.max(currentStep - 1, 0);
     setCurrentStep(newStep);
-    
+
     if (newStep === 0) {
       navigate("/register");
     } else {
@@ -45,7 +45,7 @@ const RegistrationLayout = ({ formRefs }) => {
         return;
       }
     }
-    
+
     const newStep = Math.min(currentStep + 1, 3);
     setCurrentStep(newStep);
     navigate(`/register${newStep === 0 ? "" : "/step" + (newStep + 1)}`);
@@ -60,14 +60,14 @@ const RegistrationLayout = ({ formRefs }) => {
   const finalSubmit = async (data) => {
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       const formData = new FormData();
-      
+
       formData.append("username", data.username);
       formData.append("email", data.email);
       formData.append("password", data.password);
-      
+
       if (data.birthDate) {
         formData.append("birthDate", data.birthDate);
       }
@@ -77,18 +77,18 @@ const RegistrationLayout = ({ formRefs }) => {
           formData.append(`categoryIds[${index}]`, id);
         });
       }
-      
+
       if (data.description) {
-        formData.append("description", data.description); 
+        formData.append("description", data.description);
       }
-      
+
       if (data.city) {
         formData.append("city", data.city);
       }
-      
+
       if (data.profilePicture && data.profilePicture instanceof File) {
         formData.append("avatar", data.profilePicture);
-      }  
+      }
       const response = await fetch("http://localhost:8080/api/users/register", {
         method: "POST",
         body: formData
@@ -97,11 +97,11 @@ const RegistrationLayout = ({ formRefs }) => {
         const errorData = await response.json().catch(() => null);
         throw new Error(errorData?.message || `Server responded with ${response.status}: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       console.log("Registration successful", result);
       navigate("/login", { state: { registrationSuccess: true } });
-      
+
     } catch (err) {
       console.error("Registration error:", err);
       setError(err.message || "Registration failed");
@@ -120,15 +120,15 @@ const RegistrationLayout = ({ formRefs }) => {
               <span className="block sm:inline">{error}</span>
             </div>
           )}
-          <Outlet 
-            context={{ 
-              currentStep, 
-              nextStep, 
+          <Outlet
+            context={{
+              currentStep,
+              nextStep,
               prevStep,
               skipStep,
               finalSubmit,
               isSubmitting
-            }} 
+            }}
           />
         </div>
       </div>

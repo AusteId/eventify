@@ -1,116 +1,98 @@
 package lt.techin.eventify.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
+@Getter
+@Setter
 public class Event {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
-    private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(AccessLevel.NONE)
+  private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    @Getter
-    @Setter
-    private Category category;
+  @OneToMany(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id")
+  private Set<Category> categories;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organizer_id")
-    @Getter
-    @Setter
-    private User organizer;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "organizer_id")
+  private User organizer;
 
+  // if event is deleted registration should be deleted as well
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "event_id")
+  private List<RegistrationToEvent> registrationToEvents;
 
-    @Getter
-    @Setter
-    @Column(nullable = false, length = 128)
-    private String name;
+  @Column(nullable = false, length = 128)
+  private String name;
 
-    @Getter
-    @Setter
-    @Column(nullable = false)
-    private LocalDateTime startDateTime;
+  @Column(nullable = false)
+  private LocalDateTime startDateTime;
 
-    @Getter
-    @Setter
-    private LocalDateTime endDateTime;
+  private LocalDateTime endDateTime;
 
-    @Column(nullable = false)
-    @Getter
-    private LocalDateTime createdAt;
+  @Column(nullable = false)
+  @Setter(AccessLevel.NONE)
+  private LocalDateTime createdAt;
 
-    @Getter
-    @Setter
-    @Lob
-    private String description;
+  private String description;
 
-    @Getter
-    @Setter
-    private int minAge;
+  private int minAge;
 
-    @Getter
-    @Setter
-    private int maxAge;
+  private int maxAge;
 
-    @Getter
-    @Setter
-    @Column(length = 50)
-    private String experienceLevel;
+  @Column(length = 50)
+  private String experienceLevel;
 
-    @Getter
-    @Setter
-    @Column(nullable = false)
-    private int maxParticipants;
+  @Column(nullable = false)
+  private int maxParticipants;
 
-    @Getter
-    @Setter
-    @Column(nullable = false, length = 50)
-    private String city;
+  @Column(nullable = false, length = 50)
+  private String city;
 
-    @Getter
-    @Setter
-    @Column(nullable = false, length = 100)
-    private String address;
+  @Column(nullable = false, length = 100)
+  private String address;
 
-    @Getter
-    @Setter
-    private String photoPath;
+  private String photoPath;
 
-    @PrePersist
-    public void prePersist() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
+  @PrePersist
+  public void prePersist() {
+    if (this.createdAt == null) {
+      this.createdAt = LocalDateTime.now();
     }
+  }
 
-    public Event(Category category, User organizer, String name, LocalDateTime startDateTime,
-                 LocalDateTime endDateTime, LocalDateTime createdAt, String description,
-                 int minAge, int maxAge, String experienceLevel, int maxParticipants,
-                 String city, String address, String photoPath) {
-        this.category = category;
-        this.organizer = organizer;
-        this.name = name;
-        this.startDateTime = startDateTime;
-        this.endDateTime = endDateTime;
-        this.createdAt = createdAt;
-        this.description = description;
-        this.minAge = minAge;
-        this.maxAge = maxAge;
-        this.experienceLevel = experienceLevel;
-        this.maxParticipants = maxParticipants;
-        this.city = city;
-        this.address = address;
-        this.photoPath = photoPath;
-    }
+  public Event(Set<Category> categories, User organizer, String name, LocalDateTime startDateTime,
+               LocalDateTime endDateTime, LocalDateTime createdAt, String description,
+               int minAge, int maxAge, String experienceLevel, int maxParticipants,
+               String city, String address, String photoPath) {
+    this.categories = categories;
+    this.organizer = organizer;
+    this.name = name;
+    this.startDateTime = startDateTime;
+    this.endDateTime = endDateTime;
+    this.createdAt = createdAt;
+    this.description = description;
+    this.minAge = minAge;
+    this.maxAge = maxAge;
+    this.experienceLevel = experienceLevel;
+    this.maxParticipants = maxParticipants;
+    this.city = city;
+    this.address = address;
+    this.photoPath = photoPath;
+  }
 
-    public Event() {
-    }
+  public Event() {
+  }
 
 }

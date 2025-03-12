@@ -7,6 +7,7 @@ const ButtonCancel = ({
   isFull = false,
   styleType = 'primary',
   size = 'medium',
+  hoverColor
 }) => {
   const sizes = {
     medium: 'h-[3rem] px-4',
@@ -17,7 +18,7 @@ const ButtonCancel = ({
     <button
       type={type}
       onClick={onClick}
-      className={`${isFull ? 'w-full ' : ' '} text-[#EF4444] border-0 bg-[#FFF] text-[1rem] not-italic font-[400] rounded-[0.5rem] btn btn-soft hover:bg-btn hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}
+      className={`${isFull ? 'w-full ' : ' '} text-[#EF4444] border-0 bg-[#FFF] text-[1rem] not-italic font-[400] rounded-[0.5rem] btn btn-soft hover:bg-[#fcf6b7] hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}
     >
       {children}
     </button>

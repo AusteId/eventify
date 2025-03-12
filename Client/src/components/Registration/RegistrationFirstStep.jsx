@@ -5,7 +5,7 @@ import username from '../../assets/userRegistration/username-Icon.svg';
 import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
-import Button from '../Button'; 
+import Button from '../Button';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -50,7 +50,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     setUsernameError('');
     setEmailError('');
     clearErrors(['username', 'email']);
-    
+
     try {
       const response = await fetch(`http://localhost:8080/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
         method: 'GET',
@@ -58,27 +58,27 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to check username/email availability');
       }
-      
+
       const data = await response.json();
-      
+
       let isValid = true;
-      
+
       if (data.usernameExists) {
         setUsernameError('This username is already taken');
         setFormError('username', { type: 'manual', message: 'This username is already taken' });
         isValid = false;
       }
-      
+
       if (data.emailExists) {
         setEmailError('This email is already registered');
         setFormError('email', { type: 'manual', message: 'This email is already registered' });
         isValid = false;
       }
-      
+
       return isValid;
     } catch (error) {
       console.error('Error checking credentials:', error);
@@ -92,7 +92,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     validateStep: async () => {
       const fieldsValid = await trigger(["username", "email", "password", "passwordConfirm"]);
       const passwordsMatch = validatePasswordsMatch(passwordValue, passwordConfirmValue);
-      
+
       if (!fieldsValid || !passwordsMatch) {
         return false;
       }
