@@ -2,6 +2,7 @@ package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.UpdateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
@@ -50,6 +51,13 @@ public class EventController {
   @GetMapping("/")
   public ResponseEntity<List<Event>> getEvents() {
     return ResponseEntity.ok().body(eventService.findAllEvents());
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<EventResponse> updateEvent(@PathVariable long id, @Valid @RequestBody UpdateEventRequest updateEventRequest) {
+    Event updatedEvent = eventService.updateEvent(id, updateEventRequest);
+    EventResponse eventResponse = eventMapper.toEventResponse(updatedEvent);
+    return ResponseEntity.ok().body(eventResponse);
   }
 
 //  @PostMapping("/{eventId}/register")

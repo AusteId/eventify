@@ -1,5 +1,7 @@
 package lt.techin.eventify.dto.event;
 
+import lt.techin.eventify.dto.category.CategoryResponseDTO;
+import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.User;
 
@@ -8,8 +10,8 @@ import java.util.Set;
 
 public record EventResponse(
         long id,
-        Set<Category> category,
-        User organizer,
+        CategoryResponseDTO category,
+        UserResponse organizer,
         String name,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
