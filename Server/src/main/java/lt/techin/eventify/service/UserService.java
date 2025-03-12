@@ -1,8 +1,10 @@
 package lt.techin.eventify.service;
 
 import lt.techin.eventify.dto.user.CreateUserRequest;
+import lt.techin.eventify.dto.user.LoginUserRequest;
 import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.exception.EmailAlreadyExistsException;
+import lt.techin.eventify.exception.InvalidCredentialsException;
 import lt.techin.eventify.exception.UsernameAlreadyExistsException;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Role;
@@ -17,9 +19,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,14 +33,16 @@ public class UserService {
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final CategoryRepository categoryRepository;
+    private final TokenService tokenService;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper,
-                       RoleRepository roleRepository,CategoryRepository categoryRepository) {
+                       RoleRepository roleRepository,CategoryRepository categoryRepository, TokenService tokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.roleRepository = roleRepository;
         this.categoryRepository = categoryRepository;
+        this.tokenService = tokenService;
     }
 
     public boolean existsByUsername(String username) {
@@ -51,11 +55,11 @@ public class UserService {
 
     public User saveUser(CreateUserRequest dto) throws IOException {
 
-        if(userRepository.existsByEmail(dto.email())) {
+        if (userRepository.existsByEmail(dto.email())) {
             throw new EmailAlreadyExistsException("Email already exists.");
         }
 
-        if(userRepository.existsByUsername(dto.username())) {
+        if (userRepository.existsByUsername(dto.username())) {
             throw new UsernameAlreadyExistsException("Username already exists.");
         }
 
@@ -93,4 +97,27 @@ public class UserService {
 
         return userRepository.save(newUser);
     }
+
+
+  public Optional<User> findByUsername(String name) {
+    return userRepository.findByUsername(name);
+  }
+
+  public List<User> findAllUsers() {
+    return userRepository.findAll();
+  }
+
+  public String loginUser(LoginUserRequest loginUserRequest) {
+    Optional<User> user = userRepository.findByEmail(loginUserRequest.email());
+
+    if (user.isEmpty()) {
+      throw new InvalidCredentialsException("Invalid email or password");
+    }
+
+    if (!passwordEncoder.matches(loginUserRequest.password(), user.get().getPassword())) {
+      throw new InvalidCredentialsException("Invalid email or password");
+    }
+
+    return tokenService.generateToken(user.get());
+  }
 }

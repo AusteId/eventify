@@ -1,9 +1,8 @@
 package lt.techin.eventify.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.user.CreateUserRequest;
+import lt.techin.eventify.dto.user.LoginUserRequest;
 import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.model.User;
@@ -14,10 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +26,20 @@ public class UserController {
   private final UserService userService;
   private final UserMapper userMapper;
 
+  @Autowired
   public UserController(UserService userService, UserMapper userMapper) {
     this.userService = userService;
     this.userMapper = userMapper;
+  }
+
+  @GetMapping("/all")
+  public ResponseEntity<List<User>> getUsers() {
+    return ResponseEntity.ok(userService.findAllUsers());
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody LoginUserRequest userRequest) {
+    return ResponseEntity.ok(Map.of("token", userService.loginUser(userRequest)));
   }
 
   @GetMapping("/check-availability")
@@ -51,7 +60,7 @@ public class UserController {
     return ResponseEntity.ok(result);
   }
 
-  @PostMapping(value = "/register",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserResponse> addUser(@Valid @ModelAttribute CreateUserRequest dto) {
     try {
       User newUser = userService.saveUser(dto);
