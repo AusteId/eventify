@@ -3,6 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useOutletContext } from 'react-router';
 import { useFormContext } from 'react-hook-form';
 import Button from '../Button';
+import CategoryImage from '../category/CategoryImage';
 
 const RegistrationThirdStep = forwardRef((props, ref) => {
   const { prevStep, nextStep, skipStep } = useOutletContext();
@@ -93,7 +94,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
             <div
               key={category.id}
               className={`capitalize
-                cursor-pointer px-4 py-2 rounded-2xl border
+                cursor-pointer px-4 py-2 rounded-2xl border flex flex-col items-center
                 ${
                   selectedInterests.includes(category.id)
                     ? 'bg-btn text-white border-btn'
@@ -102,7 +103,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
               `}
               onClick={() => toggleInterest(category.id)}
             >
-    
+              <CategoryImage categoryId={category.id}/>
               {category.name}
             </div>
           ))}

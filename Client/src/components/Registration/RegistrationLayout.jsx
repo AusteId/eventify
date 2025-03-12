@@ -1,6 +1,6 @@
-import { Outlet, useNavigate } from 'react-router';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import RegistrationHeader from '../Header/RegistrationHeader';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 const RegistrationLayout = ({ formRefs }) => {
@@ -9,6 +9,7 @@ const RegistrationLayout = ({ formRefs }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const location = useLocation()
 
   const methods = useForm({
     mode: "onChange",
@@ -109,6 +110,23 @@ const RegistrationLayout = ({ formRefs }) => {
       setIsSubmitting(false);
     }
   };
+  
+  useEffect(() => {
+    const path = location.pathname;
+    let pathStep = 0;
+    if (path.includes('/register/step')) {
+      const stepMatch = path.match(/\/register\/step(\d+)/);
+      if (stepMatch && stepMatch[1]) {
+        pathStep = parseInt(stepMatch[1], 10) - 1; 
+      }
+    }
+    
+    if (pathStep > currentStep) {
+      const correctPath = currentStep === 0 ? '/register' : `/register/step${currentStep + 1}`;
+      navigate(correctPath, { replace: true });
+    }
+  }, [location, currentStep, navigate]);
+
 
   return (
     <FormProvider {...methods}>
