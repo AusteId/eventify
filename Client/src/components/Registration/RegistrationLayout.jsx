@@ -114,7 +114,7 @@ const RegistrationLayout = ({ formRefs }) => {
     <FormProvider {...methods}>
       <div className="min-h-full flex flex-col">
         <RegistrationHeader currentStep={currentStep} />
-        <div className="flex-1">
+        <div className="flex justify-center pt-[2%]">
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <span className="block sm:inline">{error}</span>

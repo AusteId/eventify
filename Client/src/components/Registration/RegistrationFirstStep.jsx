@@ -6,10 +6,12 @@ import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
 import Button from '../Button'; 
-import UserRegistrationButtons from './UserRegistrationButtons';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
 
   RegistrationFirstStep.displayName = "RegistrationFirstStep";
@@ -19,17 +21,22 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     formState: { errors },
     watch,
     trigger,
+    getValues,
+    setError: setFormError,
+    clearErrors,
   } = useFormContext();
 
-  const passwordValue = watch("password");
-  const passwordConfirmValue = watch("passwordConfirm");
+  const passwordValue = watch('password');
+  const passwordConfirmValue = watch('passwordConfirm');
+  const usernameValue = watch('username');
+  const emailValue = watch('email');
 
   const validatePasswordsMatch = (pass, repeat) => {
     if (pass && repeat && pass !== repeat) {
-      setPasswordMatchError("Passwords do not match");
+      setPasswordMatchError('Passwords do not match');
       return false;
     } else {
-      setPasswordMatchError("");
+      setPasswordMatchError('');
       return true;
     }
   };
@@ -38,11 +45,58 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     validatePasswordsMatch(passwordValue, passwordConfirmValue);
   }, [passwordValue, passwordConfirmValue]);
 
+  const checkExistingCredentials = async () => {
+    setIsValidating(true);
+    setUsernameError('');
+    setEmailError('');
+    clearErrors(['username', 'email']);
+    
+    try {
+      const response = await fetch(`http://localhost:8080/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to check username/email availability');
+      }
+      
+      const data = await response.json();
+      
+      let isValid = true;
+      
+      if (data.usernameExists) {
+        setUsernameError('This username is already taken');
+        setFormError('username', { type: 'manual', message: 'This username is already taken' });
+        isValid = false;
+      }
+      
+      if (data.emailExists) {
+        setEmailError('This email is already registered');
+        setFormError('email', { type: 'manual', message: 'This email is already registered' });
+        isValid = false;
+      }
+      
+      return isValid;
+    } catch (error) {
+      console.error('Error checking credentials:', error);
+      return false;
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
   useImperativeHandle(ref, () => ({
     validateStep: async () => {
       const fieldsValid = await trigger(["username", "email", "password", "passwordConfirm"]);
       const passwordsMatch = validatePasswordsMatch(passwordValue, passwordConfirmValue);
-      return fieldsValid && passwordsMatch;
+      
+      if (!fieldsValid || !passwordsMatch) {
+        return false;
+      }
+      return await checkExistingCredentials();
     }
   }));
 
@@ -72,16 +126,16 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
               <input
                 type="text"
                 placeholder="Choose a username"
-                {...register("username", {
-                  required: "Username is required.",
+                {...register('username', {
+                  required: 'Username is required.',
                   pattern: {
                     value: /^[a-zA-Z0-9]+$/g,
-                    message: "Username not Valid",
+                    message: 'Username not Valid',
                   },
                 })}
               />
             </label>
-            <FieldValidationError>{errors.username?.message}</FieldValidationError>
+            <FieldValidationError>{errors.username?.message || usernameError}</FieldValidationError>
           </div>
 
           <div>
@@ -93,17 +147,17 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                {...register("email", {
-                  required: "Email is required.",
+                {...register('email', {
+                  required: 'Email is required.',
                   pattern: {
                     value:
                       /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g,
-                    message: "Email not Valid (your@email.com)",
+                    message: 'Email not Valid (your@email.com)',
                   },
                 })}
               />
             </label>
-            <FieldValidationError>{errors.email?.message}</FieldValidationError>
+            <FieldValidationError>{errors.email?.message || emailError}</FieldValidationError>
           </div>
 
           <div>
@@ -115,12 +169,12 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
               <input
                 type="password"
                 placeholder="Create a password"
-                {...register("password", {
-                  required: "Password is required.",
+                {...register('password', {
+                  required: 'Password is required.',
                   pattern: {
                     value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
                     message:
-                      "Password must have an uppercase, lowercase, and a number.",
+                      'Password must have an uppercase, lowercase, and a number.',
                   },
                 })}
               />
@@ -137,8 +191,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
               <input
                 type="password"
                 placeholder="Retype your password"
-                {...register("passwordConfirm", {
-                  required: "Confirm password.",
+                {...register('passwordConfirm', {
+                  required: 'Confirm password.',
                 })}
               />
             </label>
@@ -148,8 +202,10 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
           </div>
         </fieldset>
 
-        <div className="flex justify-end">
-          <Button onClick={onNext}>Continue</Button>
+        <div className="flex justify-center">
+          <Button onClick={onNext} disabled={isValidating}>
+            {isValidating ? 'Validating...' : 'Continue'}
+          </Button>
         </div>
       </div>
     </div>

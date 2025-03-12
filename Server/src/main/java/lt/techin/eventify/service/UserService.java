@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,6 +41,14 @@ public class UserService {
         this.categoryRepository = categoryRepository;
     }
 
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     public User saveUser(CreateUserRequest dto) throws IOException {
 
         if(userRepository.existsByEmail(dto.email())) {
@@ -53,6 +62,18 @@ public class UserService {
         Role roleUser = roleRepository.findByName("USER").orElseThrow();
 
         User newUser = userMapper.toUser(dto);
+
+        if (newUser.getBirthDate() == null) {
+            newUser.setBirthDate(LocalDate.EPOCH);
+        }
+
+        if (newUser.getDescription() == null) {
+            newUser.setDescription("No description yet");
+        }
+
+        if (newUser.getCity() == null) {
+            newUser.setCity("No city provided");
+        }
 
         Set<Category> favoriteCategories = new HashSet<>();
         if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {

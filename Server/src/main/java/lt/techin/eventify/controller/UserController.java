@@ -17,7 +17,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,6 +31,24 @@ public class UserController {
   public UserController(UserService userService, UserMapper userMapper) {
     this.userService = userService;
     this.userMapper = userMapper;
+  }
+
+  @GetMapping("/check-availability")
+  public ResponseEntity<Map<String, Boolean>> checkAvailability(
+          @RequestParam(required = false) String username,
+          @RequestParam(required = false) String email) {
+
+    Map<String, Boolean> result = new HashMap<>();
+
+    if (username != null && !username.isEmpty()) {
+      result.put("usernameExists", userService.existsByUsername(username));
+    }
+
+    if (email != null && !email.isEmpty()) {
+      result.put("emailExists", userService.existsByEmail(email));
+    }
+
+    return ResponseEntity.ok(result);
   }
 
   @PostMapping(value = "/register",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

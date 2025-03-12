@@ -55,7 +55,6 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
           className="input w-full" 
           max={maxDate}
           {...register("birthDate", {
-            required: "Please enter your birth date",
           })}
         />
         <FieldValidationError>{errors.birthDate?.message}</FieldValidationError>
@@ -85,7 +84,6 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
           <input 
             type="hidden" 
             {...register("city", {
-              required: "Please select your city"
             })}
           />
           <FieldValidationError>{errors.city?.message}</FieldValidationError>

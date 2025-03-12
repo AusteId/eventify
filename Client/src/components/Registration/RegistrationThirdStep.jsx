@@ -87,7 +87,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
       ) : categories.length === 0 ? (
         <div className="text-center py-4">No categories available</div>
       ) : (
-        <div className="flex flex-wrap gap-3 my-4">
+        <div className="grid md:grid-cols-6 grid-cols-3 text-center gap-3">
           {categories.map((category) => (
             <div 
               key={category.id}
