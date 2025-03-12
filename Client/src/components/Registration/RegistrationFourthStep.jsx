@@ -111,8 +111,11 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
           </div>
         </section>
         
-        <div className="flex justify-center mt-8 gap-10">
-        <Button 
+        <div className="flex justify-between mt-8 gap-10">
+           <Button
+            background="bg-white"
+            textColor="text-btn"
+            border="border border-btn"
             onClick={prevStep}
           >
             Back

@@ -32,7 +32,6 @@ public class EventController {
 
   @GetMapping("/events")
   public ResponseEntity<?> getEvents() {
-    System.out.println(System.getenv("DB_PASSWORD"));
     return ResponseEntity.ok().body("newEvent");
   }
 }
