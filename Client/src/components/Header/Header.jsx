@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router';
 import HeaderProfilePicture from './HeaderProfilePicture';
 import Button from '../Button';
+import BasicModal from '../BasicModal';
+import CreateEventForm from '../CreateEventForm';
 
 const setActive = ({ isActive }) =>
   isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
@@ -43,7 +45,18 @@ const Header = () => {
           </section>
         </section>
         <section className=" h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
-          <Button>Create Event</Button>
+          {/* <Button>Create Event</Button> */}
+          <button
+            onClick={() =>
+              document.getElementById('event_creation_modal').showModal()
+            }
+            className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg"
+          >
+            Create Event
+          </button>
+          <BasicModal id="event_creation_modal">
+            <CreateEventForm />
+          </BasicModal>
           <section className=" flex ">
             <HeaderProfilePicture />
             <div className="dropdown dropdown-end ">

@@ -71,7 +71,7 @@ const Login = () => {
             className="h-12 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
             id="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="Password"
             {...register('password', {
               required: 'Password is required.',
               pattern: {
