@@ -6,6 +6,7 @@ import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
 import Button from '../Button';
+import { useNotification } from '../context/NotificationContext';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -13,6 +14,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [emailError, setEmailError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
+  const {timeoutForError,url} = useNotification();
 
   RegistrationFirstStep.displayName = "RegistrationFirstStep";
 
@@ -52,7 +54,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     clearErrors(['username', 'email']);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
+      const response = await fetch(`${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -60,7 +62,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to check username/email availability');
+        timeoutForError('Failed to check username/email availability');
+        return false;
       }
 
       const data = await response.json();
@@ -81,7 +84,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
 
       return isValid;
     } catch (error) {
-      console.error('Error checking credentials:', error);
+      timeoutForError(error.message || "Failure checking credentials")
       return false;
     } finally {
       setIsValidating(false);

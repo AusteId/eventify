@@ -2,11 +2,12 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 import RegistrationHeader from '../Header/RegistrationHeader';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useNotification } from '../context/NotificationContext';
 
 const RegistrationLayout = ({ formRefs }) => {
+  const {timeoutForSuccess,timeoutForError,url} = useNotification();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const location = useLocation()
@@ -60,8 +61,7 @@ const RegistrationLayout = ({ formRefs }) => {
 
   const finalSubmit = async (data) => {
     setIsSubmitting(true);
-    setError(null);
-
+  
     try {
       const formData = new FormData();
 
@@ -90,22 +90,21 @@ const RegistrationLayout = ({ formRefs }) => {
       if (data.profilePicture && data.profilePicture instanceof File) {
         formData.append("avatar", data.profilePicture);
       }
-      const response = await fetch("http://localhost:8080/api/users/register", {
+      const response = await fetch(`${url}/api/users/register`, {
         method: "POST",
         body: formData
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || `Server responded with ${response.status}: ${response.statusText}`);
+        timeoutForError(errorData?.message || `Server responded with ${response.status}: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      console.log("Registration successful", result);
+      await response.json();
+      timeoutForSuccess("Successfully Registered")
       navigate("/login", { state: { registrationSuccess: true } });
 
     } catch (err) {
-      console.error("Registration error:", err);
-      setError(err.message || "Registration failed");
+      timeoutForError(err.message || "Registration failed")
     } finally {
       setIsSubmitting(false);
     }
@@ -133,11 +132,11 @@ const RegistrationLayout = ({ formRefs }) => {
       <div className="min-h-full flex flex-col">
         <RegistrationHeader currentStep={currentStep} />
         <div className="flex justify-center pt-[2%]">
-          {error && (
+          {/* {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <span className="block sm:inline">{error}</span>
             </div>
-          )}
+          )} */}
           <Outlet
             context={{
               currentStep,

@@ -4,12 +4,14 @@ import { useOutletContext } from 'react-router';
 import { useFormContext } from 'react-hook-form';
 import Button from '../Button';
 import CategoryImage from '../category/CategoryImage';
+import { useNotification } from '../context/NotificationContext';
 
 const RegistrationThirdStep = forwardRef((props, ref) => {
   const { prevStep, nextStep, skipStep } = useOutletContext();
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const {timeoutForError,url} = useNotification();
 
   RegistrationThirdStep.displayName = 'RegistrationThirdStep';
 
@@ -31,7 +33,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
   const getAllCategories = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/categories/all', {
+      const response = await fetch(`${url}/api/categories/all`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -39,13 +41,13 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
       });
 
       if (!response.ok) {
-        throw new Error(`Error fetching categories: ${response.status}`);
+        timeoutForError(`Error fetching categories: ${response.status}`);
       }
 
       const data = await response.json();
       setCategories(data);
     } catch (err) {
-      console.error('Error loading categories:', err);
+      timeoutForError(err.message || "Failed to fetch categories")
     } finally {
       setIsLoading(false);
     }
