@@ -10,6 +10,7 @@ import Registrations from './page/Registrations';
 import UserRegistration from './page/UserRegistration';
 import AuthenticatedLayout from './components/AuthenticatedLayout';
 import RegistrationLayout from './components/Registration/RegistrationLayout';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
   return (
@@ -19,10 +20,24 @@ function App() {
           <Route path="/" element={<AuthenticatedLayout />}>
             <Route index element={<Home />} />
             <Route path="/events" element={<Events />} />
-            <Route path="/myRegistrations" element={<Registrations />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute allowedRoles={['USER']}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/myRegistrations"
+              element={
+                <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                  <Registrations />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/about" element={<About />} />
           </Route>
           <Route path="/register" element={<RegistrationLayout />}>
             <Route index element={<UserRegistration />} />

@@ -1,30 +1,29 @@
-import { jwtDecode } from 'jwt-decode';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 
-const getUserRole = () => {
-  const token = localStorage.getItem('token');
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, loading } = useAuth();
 
-  if (!token) return null;
-  try {
-    const decoded = jwtDecode(token);
-    return decoded.scope;
-  } catch (error) {
-    console.error('Invalid JWT:', error);
-    return null;
+  if (loading) {
+    return <div>Loading...</div>;
   }
-};
 
-const ProtectedRoute = ({ element, requiredRole }) => {
-  const userRole = getUserRole();
-
-  if (!userRole) {
+  if (!user || !user.token || !user.isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (userRole !== requiredRole) {
+  const currentTime = Date.now() / 1000;
+  if (user.exp < currentTime) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const userRoles = user.roles || [];
+
+  if (allowedRoles && !allowedRoles.some(role => userRoles.includes(role))) {
     return <Navigate to="/" replace />;
   }
 
-  return element;
+  return children;
 };
+
 export default ProtectedRoute;

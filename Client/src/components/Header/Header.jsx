@@ -1,12 +1,15 @@
 import { NavLink } from 'react-router';
 import HeaderProfilePicture from './HeaderProfilePicture';
 import Button from '../Button';
+import { useAuth } from '../Auth/AuthContext';
 
 const setActive = ({ isActive }) =>
   isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 const Header = () => {
+  const { logout } = useAuth();
+
   return (
-    <header className=" sticky h-[4rem] bg-[#FFFFFF] shadow-md flex ">
+    <header className="sticky h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
       <nav className=" flex justify-between  self-center items-center w-[100%] px-6">
         <section className=" flex items-center gap-[1rem]">
           <svg
@@ -46,8 +49,12 @@ const Header = () => {
           <Button>Create Event</Button>
           <section className=" flex ">
             <HeaderProfilePicture />
-            <div className="dropdown dropdown-end ">
-              <div tabIndex={0} role="button" className="m-1">
+            <div className="dropdown dropdown-end flex items-center">
+              <div
+                tabIndex={0}
+                role="button"
+                className="p-1 hover:bg-advanced rounded-full"
+              >
                 <img
                   src="src/assets/arrow_drop_down.svg"
                   alt="arrow_drop_down"
@@ -55,13 +62,13 @@ const Header = () => {
               </div>
               <ul
                 tabIndex={0}
-                className="dropdown-content menu bg-base-100 rounded-box bottom-[-98px] w-52 p-2 shadow-sm"
+                className="dropdown-content menu bg-base-100 rounded-box bottom-[-98px] w-52 p-2 shadow-sm z-[1000]"
               >
                 <li>
                   <a>Item 1</a>
                 </li>
                 <li>
-                  <a>Item 2</a>
+                  <a onClick={logout}>Logout</a>
                 </li>
               </ul>
             </div>

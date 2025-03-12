@@ -21,8 +21,7 @@ const Login = () => {
 
   const onSubmit = async data => {
     try {
-      login(data);
-
+      await login(data);
       navigate('/');
     } catch (error) {
       console.error('Login failed: ', error);
@@ -93,13 +92,13 @@ const Login = () => {
             Sign In
           </button>
         </form>
-        <div className="w-full text-center pt-6 pb-8">
+        <div className="flex justify-center gap-4 w-full text-center pt-6 pb-8">
           <p className="font-inter text-body-medium">
-            Don't have an account?{' '}
-            <a className="text-btn-hover" href="/register">
-              Sign up
-            </a>
+            Don&apos;t have an account?
           </p>
+          <a className="text-btn-hover" href="/register">
+            Sign up
+          </a>
         </div>
       </div>
     </div>

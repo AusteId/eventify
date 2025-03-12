@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const postLogin = async (data) => {
+export const postLogin = async data => {
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BACK_URL}/api/users/login`,
@@ -9,7 +9,7 @@ export const postLogin = async (data) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     return response.data;
