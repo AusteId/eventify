@@ -53,11 +53,15 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "avatar_id")
+    private UserImage avatar;
+
     public User() {
     }
 
     public User(String username, String email, String password, String city, LocalDate birthDate, String description,
-                Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles) {
+                Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles,UserImage avatar) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -68,6 +72,15 @@ public class User implements UserDetails {
         this.photoPath = photoPath;
         this.registeredAt = registeredAt;
         this.roles = roles;
+        this.avatar = avatar;
+    }
+
+    public UserImage getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(UserImage avatar) {
+        this.avatar = avatar;
     }
 
     public long getId() {

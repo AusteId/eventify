@@ -1,86 +1,138 @@
-import { useImperativeHandle } from 'react'; 
-import { useOutletContext } from 'react-router'; 
+import { useImperativeHandle, forwardRef, useState } from 'react'; 
+import { useOutletContext } from 'react-router';
+import { useFormContext } from 'react-hook-form';
 import Button from '../Button';
+import FieldValidationError from '../FieldValidationError';
 
-const RegistrationSecondStep = ({ ref }) => {
-  const { currentStep, nextStep, prevStep } = useOutletContext();
+const RegistrationSecondStep = forwardRef((props, ref) => {
+  const { nextStep, prevStep, skipStep } = useOutletContext();
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
+  const cities = ["New York", "Los Angeles", "Kyoto", "Vilnius", "Arizon", "Paris", "Peking", "MiddleOfBumfuckNowhere"];
+  
+  RegistrationSecondStep.displayName = "RegistrationSecondStep";
+
+  const {
+    register,
+    formState: { errors },
+    setValue,
+    watch,
+    trigger
+  } = useFormContext();
+
+  const selectedCity = watch("city");
 
   useImperativeHandle(ref, () => ({
-    submitForm: () => handleSubmit(formSubmitHandler)(),
+    validateStep: async () => {
+      const fieldsValid = await trigger(["birthDate", "city"]);
+      return fieldsValid;
+    }
   }));
 
-  const formSubmitHandler = (values) => {
-    console.log('Form submitted:', values);
-    nextStep();
+  const selectCity = (city) => {
+    setValue("city", city);
+    setCityDropdownOpen(false);
   };
 
-  const handleSubmit = (callback) => () => {
-    callback();
-  };
+  const today = new Date();
+  const maxDate = new Date(
+    today.getFullYear() - 18,
+    today.getMonth(),
+    today.getDate()
+  ).toISOString().split("T")[0];
 
   return (
-        <section className="flex flex-col gap-[1.5rem]">
-          <h2 className="text-header-dark text-heading-l font-[700]">
-            Tell us about yourself
-          </h2>
-          <fieldset className="fieldset text-[1rem]">
-            <section className="flex gap-2">
-              <legend className="fieldset-legend font-[400]">Birth date</legend>
-            </section>
-            <input type="date" className="input" />
-          </fieldset>
-          <fieldset className="fieldset text-[1rem]">
-            <legend className="fieldset-legend font-[400]">Bio</legend>
-            <textarea
-              className="textarea h-24"
-              placeholder="Tell us about yourself..."
-            ></textarea>
-          </fieldset>
-          <div className="dropdown">
-            <div tabIndex={0} role="button" className="btn">
-              City
-            </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
-            >
-              <li>
-                <a>Item 1</a>
-              </li>
-              <li>
-                <a>Item 2</a>
-              </li>
-            </ul>
-          </div>
-          <section className="flex justify-between w-[100%]">
-            <section>
-              <Button
-                background="bg-white"
-                textColor="text-btn"
-                border="border border-btn"
-                onClick={prevStep}
-              >
-                Back
-              </Button>
-            </section>
-            <section>
-              <Button
-                background="bg-white"
-                textColor="text-btn"
-                hoverColor="not-hover:hover"
-                onClick={nextStep} 
-              >
-                Skip
-              </Button>
-            </section>
-            <section>
-              <Button onClick={() => ref.current.submitForm()}>
-                Next
-              </Button>
-            </section>
-          </section>
+    <section className="flex flex-col gap-[1.5rem] p-4">
+      <h2 className="text-header-dark text-heading-l font-[700]">
+        Tell us about yourself
+      </h2>
+      
+      <fieldset className="fieldset text-[1rem]">
+        <section className="flex gap-2">
+          <legend className="fieldset-legend font-[400]">Birth date</legend>
         </section>
+        <input 
+          type="date" 
+          className="input w-full" 
+          max={maxDate}
+          {...register("birthDate", {
+          })}
+        />
+        <FieldValidationError>{errors.birthDate?.message}</FieldValidationError>
+      </fieldset>
+      
+      <fieldset className="fieldset text-[1rem]">
+        <legend className="fieldset-legend font-[400]">Bio</legend>
+        <textarea
+          className="textarea h-24 w-full"
+          placeholder="Tell us about yourself..."
+          {...register("description")}
+        ></textarea>
+      </fieldset>
+      
+      <div className="relative">
+        <fieldset className="fieldset text-[1rem]">
+          <legend className="fieldset-legend font-[400]">City</legend>
+          <div 
+            className="input flex justify-between items-center cursor-pointer"
+            onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
+          >
+            <span>{selectedCity || "Select your city"}</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <input 
+            type="hidden" 
+            {...register("city", {
+            })}
+          />
+          <FieldValidationError>{errors.city?.message}</FieldValidationError>
+        </fieldset>
+        
+        {cityDropdownOpen && (
+          <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded shadow-lg mt-1">
+            {cities.map((city) => (
+              <li 
+                key={city} 
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => selectCity(city)}
+              >
+                {city}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      
+      <section className="flex justify-between w-[100%] mt-4">
+        <section>
+          <Button
+            background="bg-white"
+            textColor="text-btn"
+            border="border border-btn"
+            onClick={prevStep}
+          >
+            Back
+          </Button>
+        </section>
+        <section>
+          <Button
+            background="bg-white"
+            textColor="text-btn"
+            hoverColor="hover:bg-gray-50"
+            onClick={skipStep} 
+          >
+            Skip
+          </Button>
+        </section>
+        <section>
+          <Button onClick={nextStep}>
+            Next
+          </Button>
+        </section>
+      </section>
+    </section>
   );
-};
+});
 
 export default RegistrationSecondStep;
