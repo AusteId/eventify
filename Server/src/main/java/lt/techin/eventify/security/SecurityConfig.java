@@ -54,6 +54,7 @@ public class SecurityConfig {
                             "/v3/api-docs", "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated()
             ).csrf(AbstractHttpConfigurer::disable)
+            .cors(Customizer.withDefaults())
             .oauth2ResourceServer(oauth2 -> oauth2
                     .jwt(jwt -> jwt
                             .decoder(jwtDecoder())

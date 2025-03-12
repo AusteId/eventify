@@ -1,5 +1,5 @@
 import heroBanner from '../assets/HeroBanner.png';
-import Button from '../components/button';
+import Button from '../components/Button';
 import boardgamesIcon from '../assets/Boardgames-category.svg';
 import musicIcon from '../assets/music-category.svg';
 import WorkshopIcon from '../assets/workshop-category.svg';
@@ -45,10 +45,10 @@ const Home = () => {
         </h1>
 
         <div className="flex gap-x-6 gap-y-6 tablet:gap-y-0 flex-col items-center tablet:flex-row justify-center">
-          <CategoryButton text={"Music"} picture={musicIcon}/>
-          <CategoryButton text={"Sports"} picture={SportsIcon}/>
-          <CategoryButton text={"Workshop"} picture={WorkshopIcon}/>
-          <CategoryButton text={"Board Games"} picture={boardgamesIcon}/>
+          <CategoryButton text={'Music'} picture={musicIcon} />
+          <CategoryButton text={'Sports'} picture={SportsIcon} />
+          <CategoryButton text={'Workshop'} picture={WorkshopIcon} />
+          <CategoryButton text={'Board Games'} picture={boardgamesIcon} />
         </div>
       </div>
 
