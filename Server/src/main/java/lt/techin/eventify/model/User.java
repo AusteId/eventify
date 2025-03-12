@@ -17,29 +17,29 @@ import java.util.stream.Collectors;
 @Table(name = "users")
 public class User implements UserDetails {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-  @Column(nullable = false, unique = true, length = 100)
-  private String username;
+    @Column(nullable = false, unique = true, length = 100)
+    private String username;
 
-  @Column(nullable = false, unique = true, length = 254)
-  private String email;
+    @Column(nullable = false, unique = true, length = 254)
+    private String email;
 
-  @Column(nullable = false, length = 128)
-  private String password;
+    @Column(nullable = false, length = 128)
+    private String password;
+    
+    private String city;
 
-  private String city;
-
-  private LocalDate birthDate;
-  private String description;
+    private LocalDate birthDate;
+    private String description;
 
   // TODO: add mapping for registrations
 
 
   // TODO: add mapping for organizer (to Event)
-  
+
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
@@ -49,139 +49,152 @@ public class User implements UserDetails {
   )
   private Set<Category> favoriteEventCategories;
 
-  private String photoPath;
-  private LocalDateTime registeredAt;
+    private String photoPath;
+    private LocalDateTime registeredAt;
 
-  @ManyToMany(fetch = FetchType.EAGER)
-  @JoinTable(
-          name = "users_roles",
-          joinColumns = @JoinColumn(name = "user_id"),
-          inverseJoinColumns = @JoinColumn(name = "role_id"))
-  private Set<Role> roles = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
-  public User() {
-  }
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "avatar_id")
+    private UserImage avatar;
 
-  public User(String username, String email, String password, String city, LocalDate birthDate, String description,
-              Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles) {
-    this.username = username;
-    this.email = email;
-    this.password = password;
-    this.city = city;
-    this.birthDate = birthDate;
-    this.description = description;
-    this.favoriteEventCategories = favoriteEventCategories;
-    this.photoPath = photoPath;
-    this.registeredAt = registeredAt;
-    this.roles = roles;
-  }
+    public User() {
+    }
 
-  public long getId() {
-    return id;
-  }
+    public User(String username, String email, String password, String city, LocalDate birthDate, String description,
+                Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles,UserImage avatar) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.city = city;
+        this.birthDate = birthDate;
+        this.description = description;
+        this.favoriteEventCategories = favoriteEventCategories;
+        this.photoPath = photoPath;
+        this.registeredAt = registeredAt;
+        this.roles = roles;
+        this.avatar = avatar;
+    }
 
-  public String getUsername() {
-    return username;
-  }
+    public UserImage getAvatar() {
+        return avatar;
+    }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return UserDetails.super.isAccountNonExpired();
-  }
+    public void setAvatar(UserImage avatar) {
+        this.avatar = avatar;
+    }
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return UserDetails.super.isAccountNonLocked();
-  }
+    public long getId() {
+        return id;
+    }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return UserDetails.super.isCredentialsNonExpired();
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  @Override
-  public boolean isEnabled() {
-    return UserDetails.super.isEnabled();
-  }
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 
-  public String getCity() {
-    return city;
-  }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-  public void setCity(String city) {
-    this.city = city;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  @Override
-  public Set<? extends GrantedAuthority> getAuthorities() {
-    return roles.stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName())).collect(Collectors.toSet());
-  }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public String getCity() {
+        return city;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    public void setCity(String city) {
+        this.city = city;
+    }
 
-  public LocalDate getBirthDate() {
-    return birthDate;
-  }
+    @Override
+    public Set<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream().map(r->new SimpleGrantedAuthority("ROLE_" + r.getName())).collect(Collectors.toSet());
+    }
 
-  public void setBirthDate(LocalDate birthDate) {
-    this.birthDate = birthDate;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public String getDescription() {
-    return description;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-  public void setDescription(String description) {
-    this.description = description;
-  }
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
 
-  public Set<Category> getFavoriteEventCategories() {
-    return favoriteEventCategories;
-  }
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
 
-  public void setFavoriteEventCategories(Set<Category> favoriteEventCategories) {
-    this.favoriteEventCategories = favoriteEventCategories;
-  }
+    public String getDescription() {
+        return description;
+    }
 
-  public String getPhotoPath() {
-    return photoPath;
-  }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-  public void setPhotoPath(String photoPath) {
-    this.photoPath = photoPath;
-  }
+    public Set<Category> getFavoriteEventCategories() {
+        return favoriteEventCategories;
+    }
 
-  public LocalDateTime getRegisteredAt() {
-    return registeredAt;
-  }
+    public void setFavoriteEventCategories(Set<Category> favoriteEventCategories) {
+        this.favoriteEventCategories = favoriteEventCategories;
+    }
 
-  public void setRegisteredAt(LocalDateTime registeredAt) {
-    this.registeredAt = registeredAt;
-  }
+    public String getPhotoPath() {
+        return photoPath;
+    }
 
-  public Set<Role> getRoles() {
-    return roles;
-  }
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
+    }
 
-  public void setRoles(Set<Role> roles) {
-    this.roles = roles;
-  }
+    public LocalDateTime getRegisteredAt() {
+        return registeredAt;
+    }
+
+    public void setRegisteredAt(LocalDateTime registeredAt) {
+        this.registeredAt = registeredAt;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 }

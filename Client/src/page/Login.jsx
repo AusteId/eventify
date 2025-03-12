@@ -53,6 +53,11 @@ const Login = () => {
             placeholder="your@email.com"
             {...register('email', {
               required: 'Email is required.',
+              pattern: {
+                value:
+                  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+                message: 'Email not valid (your@email.com)',
+              },
             })}
           />
           <FieldValidationError>{errors.email?.message}</FieldValidationError>
@@ -69,6 +74,18 @@ const Login = () => {
             placeholder="••••••••"
             {...register('password', {
               required: 'Password is required.',
+              pattern: {
+                value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
+                message: 'An uppercase, lowercase, and a number is required',
+              },
+              minLength: {
+                value: 8,
+                message: 'Password must be at least 8 characters long',
+              },
+              maxLength: {
+                value: 128,
+                message: 'Password cannot exceed 128 characters',
+              },
             })}
           />
           <FieldValidationError>

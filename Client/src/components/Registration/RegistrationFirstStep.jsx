@@ -1,34 +1,43 @@
 import { useFormContext } from 'react-hook-form';
 import email from '../../assets/userRegistration/email-Icon.svg';
 import password from '../../assets/userRegistration/password-Icon.svg';
-import location from '../../assets/userRegistration/location-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
-import { useEffect, useImperativeHandle, useState } from 'react';
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
-import { postUserRegistration } from '../../helpers/postOne';
+import Button from '../Button';
 
-const RegistrationFirstStep = ({ ref }) => {
-  const [error, setError] = useState(null);
+const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const { nextStep } = useOutletContext();
 
-  const { currentStep, nextStep, prevStep } = useOutletContext();
+  RegistrationFirstStep.displayName = "RegistrationFirstStep";
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
-    watch
+    watch,
+    trigger,
+    getValues,
+    setError: setFormError,
+    clearErrors,
   } = useFormContext();
 
   const passwordValue = watch('password');
   const passwordConfirmValue = watch('passwordConfirm');
+  const usernameValue = watch('username');
+  const emailValue = watch('email');
 
   const validatePasswordsMatch = (pass, repeat) => {
     if (pass && repeat && pass !== repeat) {
       setPasswordMatchError('Passwords do not match');
+      return false;
     } else {
       setPasswordMatchError('');
+      return true;
     }
   };
 
@@ -36,24 +45,69 @@ const RegistrationFirstStep = ({ ref }) => {
     validatePasswordsMatch(passwordValue, passwordConfirmValue);
   }, [passwordValue, passwordConfirmValue]);
 
-  const formSubmitHandler = async (data) => {
-    try {
+  const checkExistingCredentials = async () => {
+    setIsValidating(true);
+    setUsernameError('');
+    setEmailError('');
+    clearErrors(['username', 'email']);
 
-      const response = await postUserRegistration(data);
-      nextStep();
+    try {
+      const response = await fetch(`http://localhost:8080/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to check username/email availability');
+      }
+
+      const data = await response.json();
+
+      let isValid = true;
+
+      if (data.usernameExists) {
+        setUsernameError('This username is already taken');
+        setFormError('username', { type: 'manual', message: 'This username is already taken' });
+        isValid = false;
+      }
+
+      if (data.emailExists) {
+        setEmailError('This email is already registered');
+        setFormError('email', { type: 'manual', message: 'This email is already registered' });
+        isValid = false;
+      }
+
+      return isValid;
     } catch (error) {
-      setError(error);
+      console.error('Error checking credentials:', error);
+      return false;
+    } finally {
+      setIsValidating(false);
     }
   };
 
   useImperativeHandle(ref, () => ({
-    submitForm: () => handleSubmit(formSubmitHandler)(),
+    validateStep: async () => {
+      const fieldsValid = await trigger(["username", "email", "password", "passwordConfirm"]);
+      const passwordsMatch = validatePasswordsMatch(passwordValue, passwordConfirmValue);
+
+      if (!fieldsValid || !passwordsMatch) {
+        return false;
+      }
+      return await checkExistingCredentials();
+    }
   }));
 
+  const onNext = () => {
+    nextStep();
+  };
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
       <div>
-        <h1 className="font-bold text-black text-center text-heading-m/normal mb-3">
+        <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
           Create your account
         </h1>
         <p className="text-body-m/[1rem] text-body-medium">
@@ -61,14 +115,14 @@ const RegistrationFirstStep = ({ ref }) => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(formSubmitHandler)} noValidate>
+      <div>
         <fieldset className="fieldset gap-y-6 mb-6">
           <div>
             <p className="text-body-medium text-sm/normal font-[500]">
               Username
             </p>
             <label className="input w-full">
-              <img src={username} alt="email icon" />
+              <img src={username} alt="username icon" />
               <input
                 type="text"
                 placeholder="Choose a username"
@@ -81,7 +135,7 @@ const RegistrationFirstStep = ({ ref }) => {
                 })}
               />
             </label>
-            <FieldValidationError>{errors.username?.message}</FieldValidationError>
+            <FieldValidationError>{errors.username?.message || usernameError}</FieldValidationError>
           </div>
 
           <div>
@@ -103,7 +157,7 @@ const RegistrationFirstStep = ({ ref }) => {
                 })}
               />
             </label>
-            <FieldValidationError>{errors.email?.message}</FieldValidationError>
+            <FieldValidationError>{errors.email?.message || emailError}</FieldValidationError>
           </div>
 
           <div>
@@ -136,18 +190,26 @@ const RegistrationFirstStep = ({ ref }) => {
               <img src={password} alt="password icon" />
               <input
                 type="password"
-                required
                 placeholder="Retype your password"
                 {...register('passwordConfirm', {
                   required: 'Confirm password.',
                 })}
               />
             </label>
-            <FieldValidationError>{errors.passwordConfirm?.message || passwordMatchError}</FieldValidationError>
+            <FieldValidationError>
+              {errors.passwordConfirm?.message || passwordMatchError}
+            </FieldValidationError>
           </div>
         </fieldset>
-      </form>
+
+        <div className="flex justify-center ">
+          <Button onClick={onNext} disabled={isValidating} isFull>
+            {isValidating ? 'Validating...' : 'Continue'}
+          </Button>
+        </div>
+      </div>
     </div>
   );
-};
+});
+
 export default RegistrationFirstStep;

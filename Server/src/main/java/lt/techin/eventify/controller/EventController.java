@@ -5,18 +5,12 @@ import lt.techin.eventify.dto.event.CreateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
