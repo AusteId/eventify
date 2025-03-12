@@ -30,7 +30,7 @@ public class Event {
 
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumn(name = "event_id")
-  private List<Registration> registrations;
+  private List<RegistrationToEvent> registrationToEvents;
 
   @Column(nullable = false, length = 128)
   private String name;

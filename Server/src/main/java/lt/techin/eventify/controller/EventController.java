@@ -1,8 +1,12 @@
 package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
+import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.EventMapper;
+import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.service.EventService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -14,28 +18,29 @@ import java.util.List;
 @RequestMapping("/api")
 public class EventController {
 
-  private final EventService eventService;
+    private final EventService eventService;
+    private final EventMapper eventMapper;
 
-  public EventController(EventService eventService) {
-    this.eventService = eventService;
-  }
+    @Autowired
+    public EventController(EventService eventService, EventMapper eventMapper) {
+        this.eventService = eventService;
+        this.eventMapper = eventMapper;
+    }
 
-  @PostMapping("/events")
-  public ResponseEntity<Event> addEvent(@Valid @RequestBody Event event) {
-    Event newEvent = eventService.saveEvent(event);
+    @PostMapping("/events")
+    public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
+        Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
 
-    return ResponseEntity.created(
-                    ServletUriComponentsBuilder.fromCurrentRequest()
-                            .path("/{id}")
-                            .buildAndExpand(newEvent.getId())
-                            .toUri())
-            .body(newEvent);
-  }
+        return ResponseEntity.created(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(newEvent.getId())
+                                .toUri())
+                .body(eventMapper.toEventResponse(newEvent));
+    }
 
-  @GetMapping("/events")
-  public ResponseEntity<List<Event>> getEvents() {
-//    System.out.println(System.getenv("DB_PASSWORD"));
-
-    return ResponseEntity.ok().body(eventService.findAllEvents());
-  }
+    @GetMapping("/events")
+    public ResponseEntity<List<Event>> getEvents() {
+        return ResponseEntity.ok().body(eventService.findAllEvents());
+    }
 }
