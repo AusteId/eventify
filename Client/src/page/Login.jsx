@@ -76,8 +76,7 @@ const Login = () => {
               required: 'Password is required.',
               pattern: {
                 value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
-                message:
-                  'Password must have an uppercase, lowercase, and a number.',
+                message: 'An uppercase, lowercase, and a number is required',
               },
               minLength: {
                 value: 8,
