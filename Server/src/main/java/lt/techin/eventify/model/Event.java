@@ -28,7 +28,7 @@ public class Event {
   @JoinColumn(name = "organizer_id")
   private User organizer;
 
-  // if event is deleted registration should be deleted as well
+  // if event is deleted registrations should be deleted as well
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "event_id")
   private List<RegistrationToEvent> registrationToEvents;
@@ -47,9 +47,9 @@ public class Event {
 
   private String description;
 
-  private int minAge;
+  private Integer minAge;
 
-  private int maxAge;
+  private Integer maxAge;
 
   @Column(length = 50)
   private String experienceLevel;
