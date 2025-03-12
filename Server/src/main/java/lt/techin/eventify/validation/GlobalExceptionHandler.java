@@ -26,6 +26,10 @@ public class GlobalExceptionHandler {
             error.getDefaultMessage())
     );
 
+    e.getBindingResult().getGlobalErrors().forEach(error ->
+            errors.put(error.getObjectName(), error.getDefaultMessage())
+    );
+
     return ResponseEntity.badRequest().body(errors);
   }
 
@@ -48,8 +52,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, String>> handleUserDoesNotExist(InvalidCredentialsException e) {
     return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
   }
-    @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<Map<String, String>> handleAlreadyExists(AlreadyExistsException e) {
-        return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
+
+  @ExceptionHandler(AlreadyExistsException.class)
+  public ResponseEntity<Map<String, String>> handleAlreadyExists(AlreadyExistsException e) {
+    return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
 }

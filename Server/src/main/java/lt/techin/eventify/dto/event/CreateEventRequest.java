@@ -3,10 +3,12 @@ package lt.techin.eventify.dto.event;
 import jakarta.validation.constraints.*;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.validation.ConsistentDateRangeValidation.ConsistentDateRange;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@ConsistentDateRange
 public record CreateEventRequest(
 
         Set<Category> category,
