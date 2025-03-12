@@ -13,6 +13,7 @@ import java.util.Set;
 @ConsistentDateRange
 public record CreateEventRequest(
 
+        @NotNull
         Set<Category> category,
 
         @NotNull
@@ -34,6 +35,8 @@ public record CreateEventRequest(
         Integer minAge,
         @Positive
         Integer maxAge,
+
+        @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme")
         String experienceLevel,
 
         @NotNull

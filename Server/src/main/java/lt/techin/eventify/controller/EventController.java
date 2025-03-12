@@ -5,12 +5,18 @@ import lt.techin.eventify.dto.event.CreateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
+import lt.techin.eventify.exception.EventNotFoundException;
+import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -19,7 +25,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
-
   private final EventService eventService;
   private final EventMapper eventMapper;
   private final RegistrationToEventMapper registrationToEventMapper;
@@ -38,7 +43,6 @@ public class EventController {
   @PostMapping("/")
   public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
     Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
-
     return ResponseEntity.created(
                     ServletUriComponentsBuilder.fromCurrentRequest()
                             .path("/{id}")
@@ -52,18 +56,20 @@ public class EventController {
     return ResponseEntity.ok().body(eventService.findAllEvents());
   }
 
-//  @PostMapping("/{eventId}/register")
-//  public void registerEvent(@PathVariable long eventId, @Valid @RequestBody RegistrationToEventRequest registrationToEventRequest, Authentication authentication) {
-//    User user = userService.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User does not exist."));
-//    Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event does not exist."));
-//
-//    // check if events have available spaces
-//    if (event.getMaxParticipants())
-//
-//    RegistrationToEvent registration = new RegistrationToEvent();
-//    registration.setUser(user);
-//    registration.setEvent(event);
-//    registrationToEventService.saveEventRegistration(registration);
-//
-//  }
+  @PostMapping("/{eventId}/register")
+  public void registerEvent(@PathVariable long eventId, @Valid @RequestBody RegistrationToEventRequest registrationToEventRequest, Authentication authentication) throws IllegalAccessException {
+    User user = userService.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User does not exist."));
+    Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event does not exist."));
+
+    // check if events don't have available spaces
+    if (event.getMaxParticipants() <= registrationToEventService.countRegistrationsByEvent(eventId)) {
+      throw new IllegalAccessException("it works! " + registrationToEventService.countRegistrationsByEvent(eventId));
+    }
+
+    RegistrationToEvent registration = new RegistrationToEvent();
+    registration.setUser(user);
+    registration.setEvent(event);
+    registrationToEventService.saveEventRegistration(registration);
+
+  }
 }

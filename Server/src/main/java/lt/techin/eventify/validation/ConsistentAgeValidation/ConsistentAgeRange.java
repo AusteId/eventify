@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConsistentAgeRange {
-  String message() default "End date must be after start date";
+  String message() default "max age cannot be smaller than min age";
 
   Class<?>[] groups() default {};
 
