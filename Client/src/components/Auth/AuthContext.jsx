@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { redirect, useNavigate } from 'react-router';
 import { postLogin } from '../../helpers/user/postLogin';
 import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
@@ -8,6 +9,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -63,6 +65,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setUser(null);
     toast.success('Successfully logged out!');
+    navigate('/');
   };
 
   return (
