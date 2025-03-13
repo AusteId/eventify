@@ -7,10 +7,17 @@ import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
@@ -28,19 +35,6 @@ public class UserController {
     this.userMapper = userMapper;
   }
 
-  @PostMapping("/register")
-  public ResponseEntity<UserResponse> addUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
-    User newUser = userService.saveUser(createUserRequest);
-    UserResponse savedUser = userMapper.toUserResponse(newUser);
-
-    return ResponseEntity.created(
-                    ServletUriComponentsBuilder.fromCurrentRequest()
-                            .path("/{id}")
-                            .buildAndExpand(savedUser.id())
-                            .toUri())
-            .body(savedUser);
-  }
-
   @GetMapping("/all")
   public ResponseEntity<List<User>> getUsers() {
     return ResponseEntity.ok(userService.findAllUsers());
@@ -49,5 +43,41 @@ public class UserController {
   @PostMapping("/login")
   public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody LoginUserRequest userRequest) {
     return ResponseEntity.ok(Map.of("token", userService.loginUser(userRequest)));
+  }
+
+  @GetMapping("/check-availability")
+  public ResponseEntity<Map<String, Boolean>> checkAvailability(
+          @RequestParam(required = false) String username,
+          @RequestParam(required = false) String email) {
+
+    Map<String, Boolean> result = new HashMap<>();
+
+    if (username != null && !username.isEmpty()) {
+      result.put("usernameExists", userService.existsByUsername(username));
+    }
+
+    if (email != null && !email.isEmpty()) {
+      result.put("emailExists", userService.existsByEmail(email));
+    }
+
+    return ResponseEntity.ok(result);
+  }
+
+  @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<UserResponse> addUser(@Valid @ModelAttribute CreateUserRequest dto) {
+    try {
+      User newUser = userService.saveUser(dto);
+      UserResponse savedUser = userMapper.toUserResponse(newUser);
+
+      return ResponseEntity.created(
+                      ServletUriComponentsBuilder.fromCurrentRequest()
+                              .path("/{id}")
+                              .buildAndExpand(savedUser.id())
+                              .toUri())
+              .body(savedUser);
+    } catch (IOException e) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
   }
 }

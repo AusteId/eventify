@@ -1,9 +1,11 @@
 package lt.techin.eventify.dto.user;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+import lt.techin.eventify.validation.ImageValidation.ValidImage;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public record CreateUserRequest(
         @NotNull(message = "Username cannot be null")
@@ -23,6 +25,16 @@ public record CreateUserRequest(
         @Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters long")
         @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]+$",
                 message = "Password must contain at least one uppercase letter, one lowercase letter, and one number")
-        String password
+        String password,
+        @Size(max = 255, message = "City can be up to 255 characters")
+        String city,
+        @Size(max = 2000, message = "Description can be up to 1000 characters")
+        String description,
+        @Past(message = "Birthdate must be in the past")
+        LocalDate birthDate,
+        @Size(max = 20, message = "Can only have up to 20 interests")
+        List<Long> categoryIds,
+        @ValidImage
+        MultipartFile avatar
 ) {
 }
