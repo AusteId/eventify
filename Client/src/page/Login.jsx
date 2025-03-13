@@ -1,30 +1,30 @@
-import axios from 'axios';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FieldValidationError from '../components/FieldValidationError';
+import { useNavigate } from 'react-router';
+import { useAuth } from '../components/Auth/AuthContext';
 
 const Login = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'User12345@gmail.com',
+      password: 'User12345',
     },
   });
 
+  const { login } = useAuth();
+
+  const navigate = useNavigate();
+
   const onSubmit = async data => {
     try {
-      const response = await axios.post('https://httpbin.org/post', {
-        email: data.email,
-        password: data.password,
-      });
-
-      console.log('Login successful:', response.data);
-    } catch {
-      console.error('Login failed: ', errors.response?.data || errors.message);
+      await login(data);
+      navigate('/');
+    } catch (error) {
+      console.error('Login failed: ', error);
     }
   };
 
@@ -109,13 +109,13 @@ const Login = () => {
             Sign In
           </button>
         </form>
-        <div className="w-full text-center pt-6 pb-8">
+        <div className="flex justify-center gap-4 w-full text-center pt-6 pb-8">
           <p className="font-inter text-body-medium">
-            Don't have an account?{' '}
-            <a className="text-btn-hover" href="/register">
-              Sign up
-            </a>
+            Don&apos;t have an account?
           </p>
+          <a className="text-btn-hover" href="/register">
+            Sign up
+          </a>
         </div>
       </div>
     </div>

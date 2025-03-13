@@ -1,15 +1,21 @@
 import { Outlet } from 'react-router';
 import Header from './Header/Header';
 import Footer from './Footer';
+import ErrorServer from './message/ErrorServer';
+import Success from './message/Success';
 
 const MainLayout = () => {
   return (
+    <>
+    <ErrorServer/>
+    <Success/>
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-light-yellow via-light-yellow to-cream">
       <div className='flex-1'>
         <Outlet />
       </div>
       <Footer/>
     </div>
+    </>
   );
 };
 

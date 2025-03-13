@@ -35,13 +35,19 @@ public class User implements UserDetails {
     private LocalDate birthDate;
     private String description;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "users_categories",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private Set<Category> favoriteEventCategories;
+  // TODO: add mapping for registrations
+
+
+  // TODO: add mapping for organizer (to Event)
+
+
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+          name = "users_categories",
+          joinColumns = @JoinColumn(name = "user_id"),
+          inverseJoinColumns = @JoinColumn(name = "category_id")
+  )
+  private Set<Category> favoriteEventCategories;
 
     private String photoPath;
     private LocalDateTime registeredAt;

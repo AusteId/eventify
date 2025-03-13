@@ -1,13 +1,14 @@
 import { Outlet } from 'react-router';
-import Header from './Header/Header'
-import Footer from './Footer';
+import Header from './Header/Header';
 import NotSignedInHeader from './Header/NotSignedInHeader';
+import { useAuth } from './Auth/AuthContext';
 
-const AuthenticatedLayout = ({ authenticationStatusPlaceholder = true }) => {
+const AuthenticatedLayout = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-full flex flex-col">
-      {authenticationStatusPlaceholder && <Header />}
-      {!authenticationStatusPlaceholder && <NotSignedInHeader />}
+      {user ? <Header /> : <NotSignedInHeader />}
       <div className="flex-1">
         <Outlet />
       </div>

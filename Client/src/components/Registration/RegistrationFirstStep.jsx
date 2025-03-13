@@ -5,7 +5,8 @@ import username from '../../assets/userRegistration/username-Icon.svg';
 import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
-import Button from '../Button'; 
+import Button from '../Button';
+import { useNotification } from '../context/NotificationContext';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -13,6 +14,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [emailError, setEmailError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
+  const {timeoutForError,url} = useNotification();
 
   RegistrationFirstStep.displayName = "RegistrationFirstStep";
 
@@ -50,38 +52,39 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     setUsernameError('');
     setEmailError('');
     clearErrors(['username', 'email']);
-    
+
     try {
-      const response = await fetch(`http://localhost:8080/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
+      const response = await fetch(`${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to check username/email availability');
+        timeoutForError('Failed to check username/email availability');
+        return false;
       }
-      
+
       const data = await response.json();
-      
+
       let isValid = true;
-      
+
       if (data.usernameExists) {
         setUsernameError('This username is already taken');
         setFormError('username', { type: 'manual', message: 'This username is already taken' });
         isValid = false;
       }
-      
+
       if (data.emailExists) {
         setEmailError('This email is already registered');
         setFormError('email', { type: 'manual', message: 'This email is already registered' });
         isValid = false;
       }
-      
+
       return isValid;
     } catch (error) {
-      console.error('Error checking credentials:', error);
+      timeoutForError(error.message || "Failure checking credentials")
       return false;
     } finally {
       setIsValidating(false);
@@ -92,7 +95,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     validateStep: async () => {
       const fieldsValid = await trigger(["username", "email", "password", "passwordConfirm"]);
       const passwordsMatch = validatePasswordsMatch(passwordValue, passwordConfirmValue);
-      
+
       if (!fieldsValid || !passwordsMatch) {
         return false;
       }
@@ -105,9 +108,9 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-4">
+    <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
       <div>
-        <h1 className="font-bold text-black text-center text-heading-m/normal mb-3">
+        <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
           Create your account
         </h1>
         <p className="text-body-m/[1rem] text-body-medium">
@@ -202,8 +205,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
           </div>
         </fieldset>
 
-        <div className="flex justify-center">
-          <Button onClick={onNext} disabled={isValidating}>
+        <div className="flex justify-center ">
+          <Button onClick={onNext} disabled={isValidating} isFull>
             {isValidating ? 'Validating...' : 'Continue'}
           </Button>
         </div>
