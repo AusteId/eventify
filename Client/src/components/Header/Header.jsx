@@ -51,9 +51,6 @@ const Header = () => {
         </section>
         <section className=" h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
           <Button>Create Event</Button>
-          <BasicModal id="event_creation_modal">
-            <CreateEventForm />
-          </BasicModal>
           <section className=" flex ">
             <HeaderProfilePicture />
             <div className="dropdown dropdown-end flex items-center">

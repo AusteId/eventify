@@ -5,6 +5,8 @@ import musicIcon from '../assets/music-category.svg';
 import WorkshopIcon from '../assets/workshop-category.svg';
 import SportsIcon from '../assets/sports-category.svg';
 import CategoryButton from '../components/CategoryButton';
+import BasicModal from '../components/BasicModal';
+import CreateEventForm from '../components/CreateEventForm';
 
 const Home = () => {
   return (
@@ -25,7 +27,17 @@ const Home = () => {
               people who love to connect and share experiences.
             </p>
             <div className="flex gap-4">
-              <Button size="big">Create Event</Button>
+              <Button
+                onClick={() =>
+                  document.getElementById('event_creation_modal').showModal()
+                }
+                size="big"
+              >
+                Create Event
+              </Button>
+              <BasicModal id="event_creation_modal">
+                <CreateEventForm />
+              </BasicModal>
               <Button
                 size="big"
                 background="bg-white"

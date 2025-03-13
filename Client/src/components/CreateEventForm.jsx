@@ -175,7 +175,7 @@ const CreateEventForm = () => {
           </label>
           <textarea
             id="event-description"
-            class="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
+            className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
             rows="5"
             placeholder="Describe the event..."
           ></textarea>
