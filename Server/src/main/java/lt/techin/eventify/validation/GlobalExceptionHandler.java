@@ -1,10 +1,6 @@
 package lt.techin.eventify.validation;
 
-import lt.techin.eventify.exception.EmailAlreadyExistsException;
-import lt.techin.eventify.exception.InvalidCredentialsException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.exception.UsernameAlreadyExistsException;
-import lt.techin.eventify.exception.AlreadyExistsException;
+import lt.techin.eventify.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -52,4 +48,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAlreadyExists(AlreadyExistsException e) {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
+  @ExceptionHandler(NotFoundException.class)
+  public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException e) {
+    return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.NOT_FOUND);
+  }
 }
