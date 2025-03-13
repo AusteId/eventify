@@ -2,6 +2,12 @@
 @import 'tailwindcss';
 @plugin "daisyui";
 
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
+}
+
 @theme {
   /* mobile size = 375px */
   --breakpoint-tablet: 764px;
