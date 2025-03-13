@@ -20,7 +20,7 @@ public class RegistrationToEventController {
     @PostMapping("{eventId}/register")
     public void registerEvent(@PathVariable long eventId, @Valid @RequestBody RegistrationToEventRequest registrationToEventRequest, Authentication authentication) {
 
-        registrationToEventService.saveEventRegistration(registrationToEventRequest);
+        registrationToEventService.saveEventRegistration();
 
     }
 }
