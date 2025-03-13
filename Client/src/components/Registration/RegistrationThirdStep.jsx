@@ -5,13 +5,15 @@ import { useFormContext } from 'react-hook-form';
 import Button from '../Button';
 import CategoryImage from '../category/CategoryImage';
 import { useNotification } from '../context/NotificationContext';
+import config from '../../helpers/config';
 
 const RegistrationThirdStep = forwardRef((props, ref) => {
   const { prevStep, nextStep, skipStep } = useOutletContext();
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const {timeoutForError,url} = useNotification();
+  const {timeoutForError} = useNotification();
+  const {categoriesAllUrl} = config;
 
   RegistrationThirdStep.displayName = 'RegistrationThirdStep';
 
@@ -33,7 +35,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
   const getAllCategories = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${url}/api/categories/all`, {
+      const response = await fetch(`${categoriesAllUrl}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

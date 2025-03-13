@@ -8,7 +8,6 @@ export const useNotification = () => {
 }
 
 export const NotificationProvider = ({children}) => {
-    const url = "http://localhost:8080";
     const [error,setError] = useState("");
     const [success,setSuccess] = useState("")
 
@@ -29,7 +28,7 @@ export const NotificationProvider = ({children}) => {
 
     return ( 
         <>
-        <NotificationContext.Provider value={{url,error,success,timeoutForError,timeoutForSuccess}}>
+        <NotificationContext.Provider value={{error,success,timeoutForError,timeoutForSuccess}}>
             {children}
         </NotificationContext.Provider>
         </>

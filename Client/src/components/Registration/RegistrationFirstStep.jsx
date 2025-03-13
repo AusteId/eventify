@@ -7,6 +7,7 @@ import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
 import Button from '../Button';
 import { useNotification } from '../context/NotificationContext';
+import config from '../../helpers/config';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -14,7 +15,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [emailError, setEmailError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
-  const {timeoutForError,url} = useNotification();
+  const {timeoutForError} = useNotification();
+  const {registerUserAvailabilityUrl} = config;
 
   RegistrationFirstStep.displayName = "RegistrationFirstStep";
 
@@ -54,7 +56,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     clearErrors(['username', 'email']);
 
     try {
-      const response = await fetch(`${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
+      const response = await fetch(`${registerUserAvailabilityUrl}?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

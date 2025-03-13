@@ -3,12 +3,14 @@ import RegistrationHeader from '../Header/RegistrationHeader';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNotification } from '../context/NotificationContext';
+import config from '../../helpers/config';
 
 const RegistrationLayout = ({ formRefs }) => {
   const {timeoutForSuccess,timeoutForError,url} = useNotification();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const {registerUserUrl} = config;
 
   const location = useLocation()
 
@@ -90,7 +92,7 @@ const RegistrationLayout = ({ formRefs }) => {
       if (data.profilePicture && data.profilePicture instanceof File) {
         formData.append("avatar", data.profilePicture);
       }
-      const response = await fetch(`${url}/api/users/register`, {
+      const response = await fetch(`${registerUserUrl}`, {
         method: "POST",
         body: formData
       });
