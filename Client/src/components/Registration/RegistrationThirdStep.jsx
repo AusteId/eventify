@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import Button from '../Button';
 import CategoryImage from '../category/CategoryImage';
 import { useNotification } from '../context/NotificationContext';
+import LoadingScreen from '../message/LoadingScreen';
 
 const RegistrationThirdStep = forwardRef((props, ref) => {
   const { prevStep, nextStep, skipStep } = useOutletContext();
@@ -78,6 +79,8 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
   register('categoryIds');
 
   return (
+    <>
+    {isLoading && <LoadingScreen/>}
     <div className="flex flex-col gap-6 p-12 bg-white shadow-md rounded-2xl mt-12">
       <h2 className="text-header-dark text-heading-l font-[700] flex justify-center">
         What interests you?
@@ -137,6 +140,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
         </section>
       </section>
     </div>
+    </>
   );
 });
 

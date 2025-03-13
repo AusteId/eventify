@@ -1,25 +1,20 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import LoadingScreen from '../message/LoadingScreen';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, loading } = useAuth();
+  const { isAuthenticated,roles,loading} = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div><LoadingScreen/></div>
   }
 
-  if (!user || !user.token || !user.isAuthenticated) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  const currentTime = Date.now() / 1000;
-  if (user.exp < currentTime) {
-    return <Navigate to="/login" replace />;
-  }
 
-  const userRoles = user.roles || [];
-
-  if (allowedRoles && !allowedRoles.some(role => userRoles.includes(role))) {
+  if (allowedRoles && !allowedRoles.some(role => roles.includes(role))) {
     return <Navigate to="/" replace />;
   }
 

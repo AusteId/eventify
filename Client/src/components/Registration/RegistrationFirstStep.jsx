@@ -7,6 +7,7 @@ import FieldValidationError from '../FieldValidationError';
 import { useOutletContext } from 'react-router';
 import Button from '../Button';
 import { useNotification } from '../context/NotificationContext';
+import LoadingScreen from '../message/LoadingScreen';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -15,6 +16,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
   const {timeoutForError,url} = useNotification();
+  const [isLoading,setIsLoading] = useState(false)
 
   RegistrationFirstStep.displayName = "RegistrationFirstStep";
 
@@ -52,7 +54,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     setUsernameError('');
     setEmailError('');
     clearErrors(['username', 'email']);
-
+    setIsLoading(true)
     try {
       const response = await fetch(`${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
         method: 'GET',
@@ -88,6 +90,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
       return false;
     } finally {
       setIsValidating(false);
+      setIsLoading(false)
     }
   };
 
@@ -108,6 +111,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   };
 
   return (
+    <>
+    {isLoading && <LoadingScreen/>}
     <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
       <div>
         <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
@@ -212,6 +217,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
         </div>
       </div>
     </div>
+    </>
   );
 });
 

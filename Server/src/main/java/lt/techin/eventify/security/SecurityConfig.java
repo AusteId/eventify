@@ -11,10 +11,13 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -50,10 +53,13 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/users/check-availability").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/avatar").hasAnyAuthority("ADMIN","USER")
                         .requestMatchers(HttpMethod.GET,"/api/categories/all").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/categories/{id}/icon").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/categories/{id}/add-icon").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/users/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/me").hasAnyAuthority("ADMIN","USER")
                         .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
@@ -64,6 +70,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 ).csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
+                .addFilterBefore(new JwtCookieAuthenticationFilter(jwtDecoder(),jwtAuthenticationConverter()),
+                        org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .decoder(jwtDecoder())
@@ -77,6 +85,26 @@ public class SecurityConfig {
                 );
         return http.build();
     }
+
+//    @Bean
+//    public SecurityFilterChain logoutFilterChain(HttpSecurity http) throws Exception {
+//        return http
+//                .logout(logout -> logout
+//                        .logoutUrl("/api/users/logout")
+//                        .addLogoutHandler((request, response, auth) -> {
+//                            ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
+//                                    .httpOnly(true)
+//                                    .secure(false)
+//                                    .maxAge(0)
+//                                    .path("/")
+//                                    .build();
+//                            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+//                        })
+//                        .logoutSuccessHandler((request, response, auth) -> {
+//                            response.setStatus(HttpServletResponse.SC_OK);
+//                        }))
+//                .build();
+//    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

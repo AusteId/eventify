@@ -4,11 +4,11 @@ import NotSignedInHeader from './Header/NotSignedInHeader';
 import { useAuth } from './Auth/AuthContext';
 
 const AuthenticatedLayout = () => {
-  const { user } = useAuth();
+  const { isAuthenticated} = useAuth();
 
   return (
     <div className="min-h-full flex flex-col">
-      {user ? <Header /> : <NotSignedInHeader />}
+      {isAuthenticated ? <Header /> : <NotSignedInHeader />}
       <div className="flex-1">
         <Outlet />
       </div>

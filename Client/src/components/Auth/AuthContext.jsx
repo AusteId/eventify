@@ -1,75 +1,144 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { redirect, useNavigate } from 'react-router';
-import { postLogin } from '../../helpers/user/postLogin';
-import toast from 'react-hot-toast';
-import { jwtDecode } from 'jwt-decode';
+import { createContext, useCallback, useContext, useEffect, useState, } from 'react';
+import { useNavigate } from 'react-router';
+import { useNotification } from '../context/NotificationContext';
+import LoadingScreen from '../message/LoadingScreen';
+
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isAuthenticated,setIsAuthenticated] = useState(false);
+  const [roles,setRoles] = useState([]);
+  const [userId,setUserId] = useState("")
+  const [loading,setIsLoading] = useState(false)
+
+  const {timeoutForError} = useNotification();
+
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-
-        const currentTime = Date.now() / 1000;
-        if (decodedToken.exp < currentTime) {
-          localStorage.removeItem('token');
-          return;
-        }
-
-        setUser({
-          iat: decodedToken.iat,
-          exp: decodedToken.exp,
-          token,
-          sub: decodedToken.sub,
-          roles: decodedToken.scope ? decodedToken.scope.split(' ') : [],
-          isAuthenticated: true,
-        });
-      } catch (error) {
-        console.error('Invalid token:', error);
-        localStorage.removeItem('token');
-      }
+  const checkAuthStatus = useCallback(async () => {
+    //Constant agony of 401's if not logged in, so need to store shit in session to prevent it from checking the cookie
+    const stupidFuckingCheck = isAuthenticated || sessionStorage.getItem("plsStahp") === "true";
+    if (!stupidFuckingCheck) {
+      return;
     }
-    setLoading(false);
-  }, []);
-
-  const login = async data => {
+    setIsLoading(true)
     try {
-      const response = await postLogin(data);
-      const token = response.token;
-      localStorage.setItem('token', token);
-      const decodedToken = jwtDecode(token);
-
-      setUser({
-        iat: decodedToken.iat,
-        exp: decodedToken.exp,
-        token,
-        sub: decodedToken.sub,
-        roles: decodedToken.scope ? decodedToken.scope.split(' ') : [],
-        isAuthenticated: true,
+    const response = await fetch("http://localhost:8080/api/users/me", {
+      credentials: "include"
+    });
+    if (response.ok) {
+      const userData = await response.json();
+      setIsAuthenticated(true);
+      setRoles(userData.roles || []);
+      setUserId(userData.id || "");
+      sessionStorage.setItem("plsStahp","true")
+      console.log( {
+        authenticated: true,
+        roles: userData.roles || [],
+        userId: userData.id || ""
       });
-      toast.success('Successfully logged in!');
-    } catch (error) {
-      toast.error(error.message);
-      throw new Error(error.message);
+    } else {
+      setIsAuthenticated(false);
+      setRoles([])
+      setUserId("");
+      sessionStorage.removeItem("plsStahp")
     }
-  };
+  } catch (error) {
+    timeoutForError(error.message || "Failed to authenticate")
+    setIsAuthenticated(false);
+    setRoles([])
+    setUserId("");
+    sessionStorage.removeItem("plsStahp")
+  } finally {
+    setIsLoading(false)
+  }
+  },[])
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    toast.success('Successfully logged out!');
-    navigate('/');
-  };
+  useEffect(() => {
+    checkAuthStatus();
+  },[checkAuthStatus])
+
+  const login = async(credentials) => {
+    setIsLoading(true);
+    try{
+      const response = await fetch("http://localhost:8080/api/users/login", {
+        method:"POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: credentials.email.toLowerCase(),
+          password: credentials.password
+        }),
+        credentials: "include"
+      })
+      if (!response.ok) {
+        timeoutForError("Login Failed")
+        return false;
+      }
+      sessionStorage.setItem("plsStahp","true")
+      await checkAuthStatus();
+      return true;
+    } catch (error) {
+      timeoutForError(error.message || "Failed to login")
+      return false;
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = async () => {
+    setIsLoading(true)
+    try {
+    await fetch("http://localhost:8080/api/users/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+    sessionStorage.removeItem("plsStahp")
+  } catch(error) {
+    timeoutForError(error.message || "Failed to logout")
+  } finally {
+    setIsAuthenticated(false);
+    setRoles([])
+    setUserId("");
+    sessionStorage.removeItem("plsStahp")
+    navigate("/login")
+  }
+  }
+
+  const authFetch = async (url, options = {}) => {
+    const fetchOptions = {
+      ...options,
+      credentials: "include",
+      headers: {
+        ...(options.headers || {})
+      }
+    };
+    setIsLoading(true)
+    try {
+      const response = await fetch(url,fetchOptions)
+    if (response.status === 401) {
+      setIsAuthenticated(false);
+      setRoles([])
+      setUserId("");
+      navigate("/login")
+      return null;
+    }
+    return response;
+  } catch (error) {
+    timeoutForError(error.message || "Failed to authenticate")
+    return null;
+  } finally {
+    setIsLoading(false)
+  }
+  }
+
+ 
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{isAuthenticated,roles,userId,login,logout,authFetch,loading}}>
       {children}
     </AuthContext.Provider>
   );
