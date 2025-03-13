@@ -1,7 +1,7 @@
 
 export function convertToCompactEuDatetime(date){
     return date.toLocaleString('en-GB', {
-        hour12: false, // Use 24-hour format
+        hour12: false,
         hour: '2-digit',
         minute: '2-digit',
         day: 'numeric',
@@ -21,7 +21,5 @@ export function isSameDay(date1, date2) {
 export function formatToOnlyTime(date){
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
-  // const seconds = date.getSeconds().toString().padStart(2, '0');
-  // return `${hours}:${minutes}:${seconds}`;
   return `${hours}:${minutes}`;
 }

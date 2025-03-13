@@ -33,12 +33,12 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
     setCityDropdownOpen(false);
   };
 
-  const today = new Date();
-  const maxDate = new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate()
-  ).toISOString().split("T")[0];
+  // const today = new Date();
+  // const maxDate = new Date(
+  //   today.getFullYear() - 18,
+  //   today.getMonth(),
+  //   today.getDate()
+  // ).toISOString().split("T")[0];
 
   return (
     <section className="flex flex-col gap-6 mt-12 p-4 bg-white shadow-md rounded-2xl px-8 pt-8 pb-12">
@@ -53,7 +53,7 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
         <input 
           type="date" 
           className="input w-full" 
-          max={maxDate}
+          // max={maxDate}
           {...register("birthDate", {
           })}
         />
