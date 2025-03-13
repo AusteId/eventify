@@ -14,6 +14,7 @@ import RegistrationFirstStep from './components/Registration/RegistrationFirstSt
 import RegistrationSecondStep from './components/Registration/RegistrationSecondStep';
 import RegistrationThirdStep from './components/Registration/RegistrationThirdStep';
 import RegistrationFourthStep from './components/Registration/RegistrationFourthStep';
+import { NotificationProvider } from './components/context/NotificationContext';
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
   
   return (
     <div className="">
+      <NotificationProvider>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>
@@ -40,6 +42,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
+      </NotificationProvider>
     </div>
   );
 }

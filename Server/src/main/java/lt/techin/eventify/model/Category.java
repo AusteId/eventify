@@ -14,7 +14,20 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "icon_id")
+    private CategoryIcon icon;
+
+
     public Category() {
+    }
+
+    public CategoryIcon getIcon() {
+        return icon;
+    }
+
+    public void setIcon(CategoryIcon icon) {
+        this.icon = icon;
     }
 
     public Category(String name) {
