@@ -5,7 +5,6 @@ import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 public record CreateEventRequest(
 

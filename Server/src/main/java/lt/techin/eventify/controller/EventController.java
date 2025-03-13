@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -53,11 +54,17 @@ public class EventController {
     return ResponseEntity.ok().body(eventService.findAllEvents());
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<EventResponse> updateEvent(@PathVariable long id, @Valid @RequestBody UpdateEventRequest updateEventRequest) {
-    Event updatedEvent = eventService.updateEvent(id, updateEventRequest);
+  @PutMapping("/{eventId}")
+  public ResponseEntity<EventResponse> updateEvent(@PathVariable long eventId, @Valid @RequestBody UpdateEventRequest updateEventRequest) {
+    Event updatedEvent = eventService.updateEvent(eventId, updateEventRequest);
     EventResponse eventResponse = eventMapper.toEventResponse(updatedEvent);
     return ResponseEntity.ok().body(eventResponse);
+  }
+
+  @DeleteMapping("/{eventId}")
+  public ResponseEntity<String> deleteEvent(@PathVariable long eventId, Principal principal) {
+    eventService.deleteEvent(eventId, principal);
+    return ResponseEntity.noContent().build();
   }
 
 //  @PostMapping("/{eventId}/register")
