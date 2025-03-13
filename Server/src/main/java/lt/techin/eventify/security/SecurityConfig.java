@@ -51,6 +51,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/users/check-availability").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/categories/all").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/categories/{id}/icon").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/categories/{id}/add-icon").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")

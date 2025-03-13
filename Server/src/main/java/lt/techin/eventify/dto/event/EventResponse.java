@@ -8,7 +8,7 @@ import java.util.Set;
 
 public record EventResponse(
         long id,
-        Set<Category> category,
+        Category category,
         User organizer,
         String name,
         LocalDateTime startDateTime,

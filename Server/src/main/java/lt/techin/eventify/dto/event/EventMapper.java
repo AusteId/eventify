@@ -8,7 +8,7 @@ public class EventMapper {
   public EventResponse toEventResponse(Event event) {
     return new EventResponse(
             event.getId(),
-            event.getCategories(), // Convert single Category to Set
+            event.getCategory(),
             event.getOrganizer(),
             event.getName(),
             event.getStartDateTime(),
@@ -27,7 +27,7 @@ public class EventMapper {
 
   public Event toEvent(CreateEventRequest event) {
     return new Event(
-            event.category(), // Convert single Category to Set
+            event.category(),
             event.organizer(),
             event.name(),
             event.startDateTime(),

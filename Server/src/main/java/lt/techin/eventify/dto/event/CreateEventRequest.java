@@ -14,7 +14,7 @@ import java.util.Set;
 public record CreateEventRequest(
 
         @NotNull
-        Set<Category> category,
+        Category category,
 
         @NotNull
         User organizer,

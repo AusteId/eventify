@@ -1,4 +1,8 @@
 import React from 'react';
+import LinkedIn from '../assets/aboutUs/linkedin.svg';
+import Email from '../assets/aboutUs/email.svg';
+import Phone from '../assets/aboutUs/phone.svg';
+import GitHub from '../assets/aboutUs/github.svg';
 
 const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
   return (
@@ -17,7 +21,9 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
 
       <div className="mt-4 text-white">
         <div className="flex items-center space-x-2">
-          <i className="fab fa-linkedin text-blue-500"></i>
+          <div>
+            <img src={LinkedIn} alt="linkedIn" />
+          </div>
           <a
             href={`https://${linkedin}`}
             target="_blank"
@@ -31,7 +37,9 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
 
       <div className="mt-2 text-white">
         <div className="flex items-center space-x-2">
-          <i className="fab fa-github text-gray-700"></i>
+          <div>
+            <img src={GitHub} alt="github" />
+          </div>
           <a
             href={`https://${github}`}
             target="_blank"
@@ -46,7 +54,9 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
       {phone && (
         <div className="mt-2 text-white">
           <div className="flex items-center space-x-2">
-            <i className="fas fa-phone-alt"></i>
+          <div>
+            <img src={Phone} alt="phone" />
+          </div>
             <span className="text-black">{phone}</span>
           </div>
         </div>
@@ -55,7 +65,9 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
       {mail && (
         <div className="mt-2 text-white">
           <div className="flex items-center space-x-2">
-            <i className="fas fa-envelope"></i>
+          <div>
+            <img src={Email} alt="email" />
+          </div>
             <span className="text-black">{mail}</span>
           </div>
         </div>
