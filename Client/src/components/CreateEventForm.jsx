@@ -78,6 +78,18 @@ const CreateEventForm = () => {
             name="title"
             {...register('title', {
               required: 'Event title is required',
+              pattern: {
+                value: /^[A-Za-z0-9\s'-]+$/,
+                message: 'Event title can only contain letters and numbers',
+              },
+              minLength: {
+                value: 3,
+                message: 'Event title must be at least 3 characters',
+              },
+              maxLength: {
+                value: 100,
+                message: 'Event title cannot exceed 100 characters',
+              },
             })}
           />
           <FieldValidationError>{errors.title?.message}</FieldValidationError>
@@ -99,6 +111,11 @@ const CreateEventForm = () => {
             name="city"
             {...register('city', {
               required: 'City is required',
+              pattern: {
+                value:
+                  /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/,
+                message: 'Invalid city name',
+              },
             })}
           />
           <FieldValidationError>{errors.city?.message}</FieldValidationError>
@@ -118,6 +135,10 @@ const CreateEventForm = () => {
             name="address"
             {...register('address', {
               required: 'Address is required',
+              pattern: {
+                value: /^[\w\s ,.]+$/,
+                message: 'Invalid address',
+              },
             })}
           />
           <FieldValidationError>{errors.address?.message}</FieldValidationError>
@@ -262,7 +283,16 @@ const CreateEventForm = () => {
             className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
             rows="3"
             placeholder="Describe the event..."
+            {...register('description', {
+              maxLength: {
+                value: 1000,
+                message: 'Description cannot exceed 1000 characters',
+              },
+            })}
           ></textarea>
+          <FieldValidationError>
+            {errors.description?.message}
+          </FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6  justify-end">
