@@ -50,22 +50,27 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/users/check-availability").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/avatar").hasAnyAuthority("ADMIN","USER")
                         .requestMatchers(HttpMethod.GET,"/api/categories/all").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/categories/{id}/icon").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/categories/{id}/add-icon").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/users/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/me").hasAnyAuthority("ADMIN","USER")
                         .requestMatchers(HttpMethod.GET, "/api/users/{userId}/events").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
-
+                        .requestMatchers(HttpMethod.GET, "/api/events").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers("/", "/error", "/csrf", "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 ).csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
+                .addFilterBefore(new JwtCookieAuthenticationFilter(jwtDecoder(),jwtAuthenticationConverter()),
+                        org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .decoder(jwtDecoder())

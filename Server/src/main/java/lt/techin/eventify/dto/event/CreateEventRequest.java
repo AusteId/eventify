@@ -41,7 +41,7 @@ public record CreateEventRequest(
         @Max(value = 120, message = "Maximum age cannot be more than 120")
         int maxAge,
 
-        @Size(max = 50, message = "Experience level must be less than 50 characters")
+        @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme")
         String experienceLevel,
 
         @NotNull(message = "Maximum number of participants cannot be null")
@@ -59,6 +59,7 @@ public record CreateEventRequest(
         @Pattern(regexp = "^[\\w\\s ,.]+$", message = "Invalid event address.")
         String address,
 
+        // kol kas palikta nes nezinau kaip Tomo komponentas atrodys
         String photoPath
 ) {
 }

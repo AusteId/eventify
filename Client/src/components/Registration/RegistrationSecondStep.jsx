@@ -33,13 +33,6 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
     setCityDropdownOpen(false);
   };
 
-  // const today = new Date();
-  // const maxDate = new Date(
-  //   today.getFullYear() - 18,
-  //   today.getMonth(),
-  //   today.getDate()
-  // ).toISOString().split("T")[0];
-
   return (
     <section className="flex flex-col gap-6 mt-12 p-4 bg-white shadow-md rounded-2xl px-8 pt-8 pb-12">
       <h2 className="text-header-dark text-heading-l font-[700]">
@@ -53,7 +46,6 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
         <input 
           type="date" 
           className="input w-full" 
-          // max={maxDate}
           {...register("birthDate", {
           })}
         />
@@ -65,7 +57,10 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
         <textarea
           className="textarea h-24 w-full"
           placeholder="Tell us about yourself..."
-          {...register("description")}
+          {...register("description", {
+            maxLength:1000
+          })}
+
         ></textarea>
       </fieldset>
       
@@ -84,6 +79,7 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
           <input 
             type="hidden" 
             {...register("city", {
+              max:255
             })}
           />
           <FieldValidationError>{errors.city?.message}</FieldValidationError>

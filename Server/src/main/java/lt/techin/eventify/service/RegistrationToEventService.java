@@ -7,16 +7,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RegistrationToEventService {
-    private final RegistrationToEventRepository registrationToEventRepository;
+  private final RegistrationToEventRepository registrationToEventRepository;
 
-    @Autowired
-    public RegistrationToEventService(RegistrationToEventRepository registrationToEventRepository) {
-        this.registrationToEventRepository = registrationToEventRepository;
-    }
+  @Autowired
+  public RegistrationToEventService(RegistrationToEventRepository registrationToEventRepository) {
+    this.registrationToEventRepository = registrationToEventRepository;
+  }
 
-    public RegistrationToEvent saveEventRegistration(RegistrationToEvent registrationToEvent) {
-        return registrationToEventRepository.save(registrationToEvent);
-    }
+  public RegistrationToEvent saveEventRegistration(RegistrationToEvent registrationToEvent) {
+    return registrationToEventRepository.save(registrationToEvent);
+  }
 
+  public int countRegistrationsByEvent(Long eventId) {
+    return registrationToEventRepository.countByEventId(eventId);
+  }
 
 }
