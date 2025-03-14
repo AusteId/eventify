@@ -1,7 +1,7 @@
 package lt.techin.eventify.dto.user;
 
 import jakarta.validation.constraints.*;
-import lt.techin.eventify.validation.ImageValidation.ValidImage;
+import lt.techin.eventify.validation.file.ValidImage;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -29,7 +29,7 @@ public record CreateUserRequest(
         String password,
         @Size(max = 255, message = "City can be up to 255 characters")
         String city,
-        @Size(max = 2000, message = "Description can be up to 1000 characters")
+        @Size(max = 1000, message = "Description can be up to 1000 characters")
         String description,
         @Past(message = "Birthdate must be in the past")
         LocalDate birthDate,

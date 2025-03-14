@@ -21,11 +21,11 @@ public class Event {
     private long id;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "category_id")
+  @JoinColumn(name = "category_id", nullable = false)
   private Category category;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "organizer_id")
+  @JoinColumn(name = "organizer_id", nullable = false)
   private User organizer;
 
   // if event is deleted registration should be deleted as well
@@ -33,7 +33,7 @@ public class Event {
   @JoinColumn(name = "event_id")
   private List<RegistrationToEvent> registrationToEvents;
 
-  @Column(nullable = false, length = 128)
+  @Column(nullable = false, length = 100)
   private String name;
 
   @Column(nullable = false)
@@ -45,6 +45,7 @@ public class Event {
   @Setter(AccessLevel.NONE)
   private LocalDateTime createdAt;
 
+  @Column(length = 1000)
   private String description;
 
   private int minAge;
@@ -57,10 +58,10 @@ public class Event {
   @Column(nullable = false)
   private int maxParticipants;
 
-  @Column(nullable = false, length = 50)
+  @Column(nullable = false, length = 200)
   private String city;
 
-  @Column(nullable = false, length = 100)
+  @Column(nullable = false)
   private String address;
 
   private String photoPath;

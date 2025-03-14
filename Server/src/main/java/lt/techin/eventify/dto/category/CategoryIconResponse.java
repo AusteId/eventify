@@ -1,6 +1,6 @@
 package lt.techin.eventify.dto.category;
 
-public record CategoryIconResponseDTO (
+public record CategoryIconResponse(
         byte[] data,
         String contentType
 ){

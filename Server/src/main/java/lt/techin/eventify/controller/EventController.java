@@ -53,9 +53,10 @@ public class EventController {
             .body(eventMapper.toEventResponse(newEvent));
   }
 
-  @GetMapping("/")
-  public ResponseEntity<List<Event>> getEvents() {
-    return ResponseEntity.ok().body(eventService.findAllEvents());
+  @GetMapping
+  public ResponseEntity<List<EventResponse>> getAllEvents() {
+    List<EventResponse> events = eventService.getAllEvents();
+    return ResponseEntity.ok(events);
   }
 
   @PutMapping("/{eventId}")

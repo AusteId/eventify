@@ -2,14 +2,23 @@ package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.user.*;
+import lt.techin.eventify.dto.event.EventResponse;
+import lt.techin.eventify.dto.user.CreateUserRequest;
+import lt.techin.eventify.dto.user.LoginUserRequest;
+import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -23,11 +32,13 @@ import java.util.Map;
 public class UserController {
 
   private final UserService userService;
+  private final EventService eventService;
   private final UserMapper userMapper;
 
   @Autowired
-  public UserController(UserService userService, UserMapper userMapper) {
+  public UserController(UserService userService, EventService eventService, UserMapper userMapper) {
     this.userService = userService;
+    this.eventService = eventService;
     this.userMapper = userMapper;
   }
 
@@ -109,6 +120,12 @@ public class UserController {
     } catch (IOException e) {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
+  }
+
+  @GetMapping("/{userId}/events")
+  public ResponseEntity<List<EventResponse>> getUserEvents(@PathVariable long userId) {
+    List<EventResponse> events = eventService.getUserEvents(userId);
+    return ResponseEntity.ok(events);
   }
   @GetMapping("/avatar")
   public ResponseEntity<byte[]> getUserPrivateAvatar() {

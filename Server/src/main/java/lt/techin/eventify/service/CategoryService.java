@@ -1,10 +1,10 @@
 package lt.techin.eventify.service;
 
 
-import lt.techin.eventify.dto.category.CategoryIconRequestDTO;
-import lt.techin.eventify.dto.category.CategoryIconResponseDTO;
+import lt.techin.eventify.dto.category.CategoryIconRequest;
+import lt.techin.eventify.dto.category.CategoryIconResponse;
 import lt.techin.eventify.dto.category.CategoryMapper;
-import lt.techin.eventify.dto.category.CategoryResponseDTO;
+import lt.techin.eventify.dto.category.CategoryResponse;
 import lt.techin.eventify.exception.NotFoundException;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.CategoryIcon;
@@ -30,24 +30,24 @@ public class CategoryService {
                 " with id '" + categoryId + "' was not found"));
     }
 
-    public List<CategoryResponseDTO> getAllCategories() {
+    public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream().map(CategoryMapper::toDTO).toList();
     }
 
 
     // Icon related Section
-    public CategoryIconResponseDTO getCategoryIcon(Long categoryId) {
+    public CategoryIconResponse getCategoryIcon(Long categoryId) {
         Category category = checkCategory(categoryId);
         if (category.getIcon() == null || category.getIcon().getData() == null) {
             throw new NotFoundException("Icon for the category not found");
         }
-        return new CategoryIconResponseDTO(
+        return new CategoryIconResponse(
                 category.getIcon().getData(),
                 category.getIcon().getContentType());
 
     }
 
-    public void addIconToCategory(Long categoryId, CategoryIconRequestDTO dto) throws IOException {
+    public void addIconToCategory(Long categoryId, CategoryIconRequest dto) throws IOException {
         Category category = checkCategory(categoryId);
         if (category.getIcon() != null) {
              CategoryIcon existingIcon = category.getIcon();
