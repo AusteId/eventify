@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ButtonCancel = ({
   children,
   onClick,
@@ -7,7 +5,7 @@ const ButtonCancel = ({
   isFull = false,
   styleType = 'primary',
   size = 'medium',
-  hoverColor
+  hoverColor,
 }) => {
   const sizes = {
     medium: 'h-[3rem] px-4',

@@ -2,7 +2,6 @@ package lt.techin.eventify.service;
 
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.repository.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
