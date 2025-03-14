@@ -5,14 +5,17 @@ import App from './App.jsx';
 import { BrowserRouter } from 'react-router';
 import { AuthProvider } from './components/Auth/AuthContext.jsx';
 import { Toaster } from 'react-hot-toast';
+import { NotificationProvider } from './components/context/NotificationContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
+    <NotificationProvider>
       <AuthProvider>
         <App />
         <Toaster />
       </AuthProvider>
+      </NotificationProvider>
     </BrowserRouter>
   </StrictMode>,
 );
