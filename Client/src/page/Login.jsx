@@ -2,33 +2,47 @@ import { useForm } from 'react-hook-form';
 import FieldValidationError from '../components/FieldValidationError';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../components/Auth/AuthContext';
+import { useNotification } from '../components/context/NotificationContext';
+import { useState } from 'react';
+import LoadingScreen from '../components/message/LoadingScreen';
 
 const Login = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: 'User12345@gmail.com',
-      password: 'User12345',
-    },
-  });
+  } = useForm();
 
+  const {timeoutForSuccess,timeoutForError} = useNotification();
   const { login } = useAuth();
+  const [isLoading,setIsloading] = useState(false);
 
   const navigate = useNavigate();
 
-  const onSubmit = async data => {
+  const onSubmit = async (data) => {
+    setIsloading(true)
     try {
-      await login(data);
-      navigate('/');
-    } catch (error) {
-      console.error('Login failed: ', error);
+      const success = await login(data);
+      if (success) {
+        timeoutForSuccess("Successfully logged in");
+        reset();
+        setTimeout(() => {
+          navigate("/")
+        },1000)
+      } else {
+        timeoutForError("Incorrect email or password");
+      }
+    } catch(error) {
+      timeoutForError(error.message || "Something went wrong")
+    } finally {
+      setIsloading(false)
     }
-  };
+  }
 
   return (
+    <>
+    {isLoading && <LoadingScreen/>}
     <div className="desktop:w-112 tablet:w-112 mx-auto px-6 pt-12 pb-12">
       <div className="bg-[#FFFFFF] w-full h-auto rounded-2xl shadow-md">
         <div className="text-center px-8 pt-8 pb-8">
@@ -71,7 +85,7 @@ const Login = () => {
             className="h-12 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
             id="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="Password"
             {...register('password', {
               required: 'Password is required.',
               pattern: {
@@ -119,6 +133,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

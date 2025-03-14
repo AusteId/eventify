@@ -47,27 +47,29 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleUserDoesNotExist(InvalidCredentialsException e) {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleAlreadyExists(AlreadyExistsException e) {
-        return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
-  @ExceptionHandler(NotFoundException.class)
-  public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException e) {
-    return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.NOT_FOUND);
-  }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException e) {
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleEventNotFound(EventNotFoundException e) {
-        return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleCategoryNotFound(CategoryNotFoundException e) {
-        return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<Map<String, String>> handleUnauthorized(ForbiddenException e) {
-        return new ResponseEntity<>(Map.of("Error", e.getMessage()), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }

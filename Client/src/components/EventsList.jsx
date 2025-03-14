@@ -9,7 +9,6 @@ const EventsList = () => {
   const [loading, setLoading] = useState(true);
 
   // temporary solution
-  const staticEvents = staticEventLoader();
 
   useEffect(() => {
     fetchData();
@@ -19,29 +18,30 @@ const EventsList = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_BACK_URL}/api/events/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACK_URL}/api/events/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       setData(response.data);
-      console.log(response.data);
-
     } catch (error) {
       console.error('Error fetching data: ', error);
       setData(staticEventLoader());
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 12;
 
-  const events = data || staticEvents;
+  const events = data || '';
 
   const indexOfLastEvent = currentPage * eventsPerPage;
-  
+
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
 
@@ -61,13 +61,13 @@ const EventsList = () => {
 
   return (
     <div className="h-full flex flex-col justify-between">
-      <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
-        {currentEvents.map((event, index) => (
-          <EventCard key={index} {...event} />
-        ))}
-      </div>
-
-      <button onClick={fetchData}>test</button>
+      {events && (
+        <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
+          {currentEvents.map((event, index) => (
+            <EventCard key={index} {...event} />
+          ))}
+        </div>
+      )}
 
       <Pagination
         totalPages={totalPages}

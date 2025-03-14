@@ -1,5 +1,7 @@
 package lt.techin.eventify.service;
 
+import lt.techin.eventify.dto.event.EventMapper;
+import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.event.UpdateEventRequest;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.EventNotFoundException;
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -23,23 +25,17 @@ public class EventService {
   private final EventRepository eventRepository;
   private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
+  private final EventMapper eventMapper;
 
-  public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, UserRepository userRepository) {
+  public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, UserRepository userRepository, EventMapper eventMapper) {
     this.eventRepository = eventRepository;
     this.categoryRepository = categoryRepository;
     this.userRepository = userRepository;
+    this.eventMapper = eventMapper;
   }
 
   public Event saveEvent(Event event) {
     return eventRepository.save(event);
-  }
-
-  public List<Event> findAllEvents() {
-    return eventRepository.findAll();
-  }
-
-  public Optional<Event> findEventById(Long id) {
-    return eventRepository.findById(id);
   }
 
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
@@ -88,4 +84,21 @@ public class EventService {
 
   }
 
+  public List<EventResponse> getUserEvents(long userId) {
+
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UsernameNotFoundException("User " + userId + " not found"));
+
+    List<Event> events = eventRepository.findByOrganizer(user);
+
+    return events.stream()
+            .map(eventMapper::toEventResponse)
+            .collect(Collectors.toList());
+  }
+
+  public List<EventResponse> getAllEvents() {
+    return eventRepository.findAll().stream()
+            .map(eventMapper::toEventResponse)
+            .collect(Collectors.toList());
+  }
 }

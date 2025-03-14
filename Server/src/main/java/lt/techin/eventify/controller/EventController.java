@@ -39,7 +39,7 @@ public class EventController {
     this.userService = userService;
   }
 
-  @PostMapping("/")
+  @PostMapping
   public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
     Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
     return ResponseEntity.created(
@@ -50,9 +50,19 @@ public class EventController {
             .body(eventMapper.toEventResponse(newEvent));
   }
 
+
+  // For testing purposes only, to add a lot of events at once
+//  @PostMapping("/all")
+//  public ResponseEntity<?> addEvent(@Valid @RequestBody List<CreateEventRequest> createEventRequest) {
+//    createEventRequest.forEach(item -> eventService.saveEvent(eventMapper.toEvent(item)));
+//    ;
+//    return ResponseEntity.ok().build();
+//  }
+
   @GetMapping("/")
-  public ResponseEntity<List<GetEventResponse>> getEvents() {
-    return ResponseEntity.ok().body(eventService.findAllEvents().stream().map(eventMapper::toGetEventResponse).toList());
+  public ResponseEntity<List<EventResponse>> getAllEvents() {
+    List<EventResponse> events = eventService.getAllEvents();
+    return ResponseEntity.ok(events);
   }
 
   @PutMapping("/{eventId}")

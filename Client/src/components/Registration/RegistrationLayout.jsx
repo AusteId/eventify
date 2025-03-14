@@ -3,11 +3,13 @@ import RegistrationHeader from '../Header/RegistrationHeader';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNotification } from '../context/NotificationContext';
+import LoadingScreen from '../message/LoadingScreen';
 
 const RegistrationLayout = ({ formRefs }) => {
   const {timeoutForSuccess,timeoutForError,url} = useNotification();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading,setIsloading] = useState(false);
   const navigate = useNavigate();
 
   const location = useLocation()
@@ -61,7 +63,7 @@ const RegistrationLayout = ({ formRefs }) => {
 
   const finalSubmit = async (data) => {
     setIsSubmitting(true);
-  
+    setIsloading(true)
     try {
       const formData = new FormData();
 
@@ -107,6 +109,7 @@ const RegistrationLayout = ({ formRefs }) => {
       timeoutForError(err.message || "Registration failed")
     } finally {
       setIsSubmitting(false);
+      setIsloading(false);
     }
   };
   
@@ -128,6 +131,8 @@ const RegistrationLayout = ({ formRefs }) => {
 
 
   return (
+    <>
+    {isLoading && <LoadingScreen/>}
     <FormProvider {...methods}>
       <div className="min-h-full flex flex-col">
         <RegistrationHeader currentStep={currentStep} />
@@ -150,6 +155,7 @@ const RegistrationLayout = ({ formRefs }) => {
         </div>
       </div>
     </FormProvider>
+    </>
   );
 };
 

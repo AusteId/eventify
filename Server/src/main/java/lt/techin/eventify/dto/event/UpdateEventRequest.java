@@ -31,10 +31,10 @@ public record UpdateEventRequest(
         String description,
 
         @Positive
-        int minAge,
+        Integer minAge,
 
         @Positive
-        int maxAge,
+        Integer maxAge,
 
         String experienceLevel,
 

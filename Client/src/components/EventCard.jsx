@@ -8,12 +8,12 @@ import {
 } from '../utils/dateFunctions';
 
 const EventCard = ({
-  experienceLevel,
+  experienceLevel = "All Welcome",
   isRegistered = 0,
   eventHandler,
   currentParticipants,
   maxParticipants = 1,
-  title = 'Title missing...',
+  name = 'Title missing...',
   description,
   startDateTime,
   endDateTime,
@@ -21,17 +21,22 @@ const EventCard = ({
   requiredAge = 'Age: All welcome!',
   isEnded,
 }) => {
+  
+  const normalizedKey = experienceLevel
+  .toLowerCase()
+  .replace(/\b\w/g, c => c.toUpperCase());
+
   const expLevels = {
-    0: ['bg-welcome', 'All'],
-    1: ['bg-beginner', 'Beginner Friendly'],
-    2: ['bg-intermediate', 'Intermediate'],
-    3: ['bg-advanced', 'Advanced'],
-    4: ['bg-extreme', 'Extreme'],
+    "String": ['bg-welcome', 'All'],
+    "All Welcome": ['bg-welcome', 'All'],
+    "Beginner": ['bg-beginner', 'Beginner Friendly'],
+    "Intermediate": ['bg-intermediate', 'Intermediate'],
+    "Advanced": ['bg-advanced', 'Advanced'],
+    "Extreme": ['bg-extreme', 'Extreme'],
   };
 
-  console.log(startDateTime);
-
-
+  console.log(experienceLevel);
+  
   const wordArr = description?.split(' ');
   const shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
 
@@ -57,9 +62,9 @@ const EventCard = ({
           )}
           {experienceLevel != 0 && (
             <div
-              className={`absolute right-2 top-2 ${expLevels[experienceLevel][0]} rounded-full py-1.5 px-3 text-[0.875rem]`}
+              className={`absolute right-2 top-2 ${expLevels[normalizedKey][0]} rounded-full py-1.5 px-3 text-[0.875rem]`}
             >
-              <p className="text-white">{expLevels[experienceLevel][1]}</p>
+              <p className="text-white">{expLevels[normalizedKey][1]}</p>
             </div>
           )}
           <img
@@ -70,7 +75,7 @@ const EventCard = ({
 
         <div className="pt-5 px-5 flex flex-col gap-2">
           <h2 className="text-heading-xs font-[600] leading-[1.125rem]">
-            {title}
+            {name}
           </h2>
           {description && <p>{shortDesc}</p>}
           <div className="flex flex-col gap-1">

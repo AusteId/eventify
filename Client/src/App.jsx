@@ -14,44 +14,35 @@ import RegistrationFirstStep from './components/Registration/RegistrationFirstSt
 import RegistrationSecondStep from './components/Registration/RegistrationSecondStep';
 import RegistrationThirdStep from './components/Registration/RegistrationThirdStep';
 import RegistrationFourthStep from './components/Registration/RegistrationFourthStep';
-import { NotificationProvider } from './components/context/NotificationContext';
 
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
 
   return (
     <div className="">
-      <NotificationProvider>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route path="/" element={<AuthenticatedLayout />}>
-              <Route index element={<Home />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute allowedRoles={['USER']}>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/myRegistrations"
-                element={
-                  <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
-                    <Registrations />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/about" element={<About />} />
-            </Route>
-
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route path="/" element={<AuthenticatedLayout />}>
+            <Route index element={<Home />} />
+            <Route path="/events" element={<Events />} />
+            <Route
+              path="/login"
+              element={
+                <ProtectedRouteLoggedIn>
+                  <Login />
+                </ProtectedRouteLoggedIn>
+              }
+            />
             <Route
               path="/register"
-              element={<RegistrationLayout formRefs={formRefs} />}
+              element={
+                <ProtectedRouteLoggedIn>
+                  <RegistrationLayout formRefs={formRefs} />{' '}
+                </ProtectedRouteLoggedIn>
+              }
             >
               <Route
                 index
@@ -86,9 +77,26 @@ function App() {
                 }
               />
             </Route>
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute allowedRoles={['USER']}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/myRegistrations"
+              element={
+                <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                  <Registrations />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/about" element={<About />} />
           </Route>
-        </Routes>
-      </NotificationProvider>
+        </Route>
+      </Routes>
     </div>
   );
 }
