@@ -1,5 +1,6 @@
 package lt.techin.eventify.service;
 
+import lt.techin.eventify.dto.user.AvatarResponseDTO;
 import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.user.LoginUserRequest;
 import lt.techin.eventify.dto.user.UserMapper;
@@ -13,6 +14,9 @@ import lt.techin.eventify.model.UserImage;
 import lt.techin.eventify.repository.CategoryRepository;
 import lt.techin.eventify.repository.RoleRepository;
 import lt.techin.eventify.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +58,6 @@ public class UserService {
     }
 
     public User saveUser(CreateUserRequest dto) throws IOException {
-
         if (userRepository.existsByEmail(dto.email())) {
             throw new EmailAlreadyExistsException("Email already exists.");
         }
@@ -66,18 +69,7 @@ public class UserService {
         Role roleUser = roleRepository.findByName("USER").orElseThrow();
 
         User newUser = userMapper.toUser(dto);
-
-        if (newUser.getBirthDate() == null) {
-            newUser.setBirthDate(LocalDate.EPOCH);
-        }
-
-        if (newUser.getDescription() == null) {
-            newUser.setDescription("No description yet");
-        }
-
-        if (newUser.getCity() == null) {
-            newUser.setCity("No city provided");
-        }
+        
 
         Set<Category> favoriteCategories = new HashSet<>();
         if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
@@ -120,4 +112,13 @@ public class UserService {
 
     return tokenService.generateToken(user.get());
   }
+
+public AvatarResponseDTO getUserPrivateAvatar() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    return new AvatarResponseDTO(
+            user.getAvatar().getData(),
+            user.getAvatar().getContentType()
+    );
+}
 }

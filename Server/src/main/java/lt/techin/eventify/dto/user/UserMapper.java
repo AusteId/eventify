@@ -22,7 +22,8 @@ public class UserMapper {
                 user.getBirthDate(),
                 user.getDescription(),
                 user.getFavoriteEventCategories(),
-                user.getPhotoPath());
+                user.getPhotoPath(),
+                user.getRoles());
     }
 
     public User toUser(CreateUserRequest dto) {
