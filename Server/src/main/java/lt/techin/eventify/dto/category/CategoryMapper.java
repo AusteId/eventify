@@ -12,11 +12,11 @@ import java.io.IOException;
 @Component
 public class CategoryMapper {
 
-    public static CategoryResponseDTO toDTO(Category category) {
-        return new CategoryResponseDTO(category.getId(), category.getName());
+    public static CategoryResponse toDTO(Category category) {
+        return new CategoryResponse(category.getId(), category.getName());
     }
 
-    public static CategoryIcon iconToEntity(CategoryIconRequestDTO dto) throws IOException {
+    public static CategoryIcon iconToEntity(CategoryIconRequest dto) throws IOException {
         if (dto.categoryIcon() != null && !dto.categoryIcon().isEmpty()) {
             CategoryIcon icon = new CategoryIcon();
             icon.setFilename(dto.categoryIcon().getOriginalFilename());

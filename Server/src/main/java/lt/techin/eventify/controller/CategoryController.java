@@ -1,9 +1,9 @@
 package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
-import lt.techin.eventify.dto.category.CategoryIconRequestDTO;
-import lt.techin.eventify.dto.category.CategoryIconResponseDTO;
-import lt.techin.eventify.dto.category.CategoryResponseDTO;
+import lt.techin.eventify.dto.category.CategoryIconRequest;
+import lt.techin.eventify.dto.category.CategoryIconResponse;
+import lt.techin.eventify.dto.category.CategoryResponse;
 import lt.techin.eventify.service.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,20 +25,20 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/all")
-    public ResponseEntity<List<CategoryResponseDTO>> getAllCategories() {
+    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok().body(categoryService.getAllCategories());
     }
 
     @GetMapping("/categories/{id}/icon")
     public ResponseEntity<byte[]> getCategoryIcon(@PathVariable Long id) {
-        CategoryIconResponseDTO icon = categoryService.getCategoryIcon(id);
+        CategoryIconResponse icon = categoryService.getCategoryIcon(id);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(icon.contentType()))
                 .body(icon.data());
     }
 
     @PostMapping(value = "/categories/{id}/add-icon", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> addIconToCategory(@Valid @ModelAttribute CategoryIconRequestDTO dto,
+    public ResponseEntity<Void> addIconToCategory(@Valid @ModelAttribute CategoryIconRequest dto,
                                                   @PathVariable Long id) {
         try {
             categoryService.addIconToCategory(id,dto);

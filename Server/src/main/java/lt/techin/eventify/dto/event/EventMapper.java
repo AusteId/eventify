@@ -38,7 +38,7 @@ public class EventMapper {
 
   public Event toEvent(CreateEventRequest event) {
     return new Event(
-            event.category(), // Convert single Category to Set
+            event.category(),
             event.organizer(),
             event.name(),
             event.startDateTime(),

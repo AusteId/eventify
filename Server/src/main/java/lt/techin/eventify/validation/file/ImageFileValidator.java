@@ -1,4 +1,4 @@
-package lt.techin.eventify.validation;
+package lt.techin.eventify.validation.file;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

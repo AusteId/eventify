@@ -1,9 +1,9 @@
 package lt.techin.eventify.dto.category;
 
-import lt.techin.eventify.validation.ValidImage;
+import lt.techin.eventify.validation.file.ValidImage;
 import org.springframework.web.multipart.MultipartFile;
 
-public record CategoryIconRequestDTO (
+public record CategoryIconRequest(
         @ValidImage
         MultipartFile categoryIcon
 ){

@@ -1,13 +1,11 @@
 package lt.techin.eventify.dto.user;
 
 import jakarta.validation.constraints.*;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.validation.ValidImage;
+import lt.techin.eventify.validation.file.ValidImage;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 public record CreateUserRequest(
         @NotNull(message = "Username cannot be null")
@@ -30,7 +28,7 @@ public record CreateUserRequest(
         String password,
         @Size(max = 255, message = "City can be up to 255 characters")
         String city,
-        @Size(max = 2000, message = "Description can be up to 1000 characters")
+        @Size(max = 1000, message = "Description can be up to 1000 characters")
         String description,
         @Past(message = "Birthdate must be in the past")
         LocalDate birthDate,
