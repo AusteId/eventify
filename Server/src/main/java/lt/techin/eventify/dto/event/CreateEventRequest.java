@@ -7,7 +7,6 @@ import lt.techin.eventify.validation.ConsistentAgeValidation.ConsistentAgeRange;
 import lt.techin.eventify.validation.ConsistentDateRangeValidation.ConsistentDateRange;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @ConsistentAgeRange
 @ConsistentDateRange

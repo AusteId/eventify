@@ -99,7 +99,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
                 cursor-pointer px-4 py-2 rounded-2xl border flex flex-col items-center
                 ${
                   selectedInterests.includes(category.id)
-                    ? 'bg-btn text-white border-btn'
+                    ? 'bg-category-bg text-black border-btn'
                     : 'bg-white text-body-medium border-gray-300'
                 }
               `}

@@ -54,7 +54,6 @@ public class UserService {
     }
 
     public User saveUser(CreateUserRequest dto) throws IOException {
-
         if (userRepository.existsByEmail(dto.email())) {
             throw new EmailAlreadyExistsException("Email already exists.");
         }

@@ -1,6 +1,7 @@
 package lt.techin.eventify.dto.category;
 
 import lt.techin.eventify.model.Category;
+import org.springframework.stereotype.Component;
 import lt.techin.eventify.model.CategoryIcon;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -8,6 +9,7 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 
+@Component
 public class CategoryMapper {
 
     public static CategoryResponseDTO toDTO(Category category) {
