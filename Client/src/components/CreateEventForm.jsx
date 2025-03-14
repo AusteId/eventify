@@ -17,11 +17,12 @@ const CreateEventForm = () => {
       address: '',
       start_date: null,
       end_date: null,
-      category: '',
+      category: 'Select Category',
       minage: null,
       maxage: null,
       maxp: null,
       description: '',
+      level: 'Select Experience Level',
     },
   });
 
@@ -94,6 +95,33 @@ const CreateEventForm = () => {
           />
           <FieldValidationError>{errors.title?.message}</FieldValidationError>
         </div>
+        <div className="w-full">
+          <label
+            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            htmlFor="event-level"
+          >
+            Experience Level*
+          </label>
+          <select
+            id="event-level"
+            defaultValue="Select Experience Level"
+            name="level"
+            {...register('level', {
+              required: 'Experience level is required',
+              validate: value =>
+                value !== 'Select Experience Level' ||
+                'Please select a valid option',
+            })}
+            className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none"
+          >
+            <option disabled={true}>Select Experience Level</option>
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+            <option>Extreme</option>
+          </select>
+          <FieldValidationError>{errors.level?.message}</FieldValidationError>
+        </div>
       </div>
       <div className="flex mt-6 gap-6">
         <div className="w-full">
@@ -114,7 +142,7 @@ const CreateEventForm = () => {
               pattern: {
                 value:
                   /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/,
-                message: 'Invalid city name',
+                message: 'Invalid city',
               },
             })}
           />
@@ -195,15 +223,17 @@ const CreateEventForm = () => {
             Category*
           </label>
           <select
-            defaultValue="Select category"
             id="event-category"
-            className="select h-10  appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            defaultValue="Select Category"
             name="category"
             {...register('category', {
               required: 'Category is required',
+              validate: value =>
+                value !== 'Select Category' || 'Please select a valid option',
             })}
+            className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none"
           >
-            <option disabled={true}>Select category</option>
+            <option disabled={true}>Select Category</option>
             <option>Sports</option>
             <option>Music</option>
             <option>Social Games</option>
@@ -229,6 +259,16 @@ const CreateEventForm = () => {
             name="minage"
             min={0}
             max={120}
+            {...register('minage', {
+              minLength: {
+                value: 0,
+                message: 'Minimum age must be 0 or above',
+              },
+              maxLength: {
+                value: 120,
+                message: 'Minmum age cannot exceed 120',
+              },
+            })}
           />
         </div>
         <div className="w-full">
@@ -246,6 +286,16 @@ const CreateEventForm = () => {
             name="maxage"
             min={0}
             max={120}
+            {...register('maxage', {
+              minLength: {
+                value: 0,
+                message: 'Maximum age must be 0 or above',
+              },
+              maxLength: {
+                value: 120,
+                message: 'Maximum age cannot exceed 120',
+              },
+            })}
           />
         </div>
         <div className="w-full">
