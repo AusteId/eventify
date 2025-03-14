@@ -3,7 +3,7 @@ import Button from '../Button';
 
 const NotSignedInHeader = () => {
   return (
-    <header className="bg-[#FFFFFF] shadow-md">
+    <header className="bg-white shadow-md">
       <nav className="flex justify-between items-center px-6 py-4 w-[100%] ">
         <NavLink tabIndex={-1} to={'/'}>
           <section className="flex items-center gap-[1rem]">

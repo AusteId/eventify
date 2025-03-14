@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -14,10 +15,10 @@ import java.util.List;
 @Setter
 public class Event {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Setter(AccessLevel.NONE)
-  private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
+    private long id;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "category_id")

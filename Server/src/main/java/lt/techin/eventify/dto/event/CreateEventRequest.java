@@ -3,11 +3,16 @@ package lt.techin.eventify.dto.event;
 import jakarta.validation.constraints.*;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.validation.ConsistentAgeValidation.ConsistentAgeRange;
+import lt.techin.eventify.validation.ConsistentDateRangeValidation.ConsistentDateRange;
 
 import java.time.LocalDateTime;
 
+@ConsistentAgeRange
+@ConsistentDateRange
 public record CreateEventRequest(
 
+        @NotNull
         Category category,
 
         @NotNull
@@ -26,9 +31,11 @@ public record CreateEventRequest(
         @Size(max = 1000, message = "Description must be less than 1000 characters.")
         String description,
         @Positive
-        int minAge,
+        Integer minAge,
         @Positive
-        int maxAge,
+        Integer maxAge,
+
+        @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme")
         String experienceLevel,
 
         @NotNull
