@@ -1,9 +1,7 @@
 import { NavLink } from 'react-router';
-import HeaderProfilePicture from './HeaderProfilePicture';
-import Button from '../Button';
-import BasicModal from '../BasicModal';
-import CreateEventForm from '../CreateEventForm';
 import { useAuth } from '../Auth/AuthContext';
+import Button from '../Button';
+import HeaderProfilePicture from './HeaderProfilePicture';
 
 const setActive = ({ isActive }) =>
   isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
