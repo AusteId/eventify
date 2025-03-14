@@ -55,4 +55,20 @@ public class EventMapper {
     );
   }
 
+  public GetEventResponse toGetEventResponse(Event event) {
+    return new GetEventResponse(
+            event.getId(),
+            event.getName(),
+            event.getStartDateTime(),
+            event.getEndDateTime(),
+            event.getDescription(),
+            event.getMinAge(),
+            event.getMaxAge(),
+            event.getExperienceLevel(),
+            event.getMaxParticipants(),
+            event.getCity(),
+            event.getPhotoPath()
+    );
+  }
+
 }

@@ -1,10 +1,7 @@
 package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
-import lt.techin.eventify.dto.event.CreateEventRequest;
-import lt.techin.eventify.dto.event.UpdateEventRequest;
-import lt.techin.eventify.dto.event.EventMapper;
-import lt.techin.eventify.dto.event.EventResponse;
+import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
 import lt.techin.eventify.exception.EventNotFoundException;
@@ -54,8 +51,8 @@ public class EventController {
   }
 
   @GetMapping("/")
-  public ResponseEntity<List<Event>> getEvents() {
-    return ResponseEntity.ok().body(eventService.findAllEvents());
+  public ResponseEntity<List<GetEventResponse>> getEvents() {
+    return ResponseEntity.ok().body(eventService.findAllEvents().stream().map(eventMapper::toGetEventResponse).toList());
   }
 
   @PutMapping("/{eventId}")

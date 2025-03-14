@@ -29,13 +29,17 @@ const EventCard = ({
     4: ['bg-extreme', 'Extreme'],
   };
 
+  console.log(startDateTime);
+
+
   const wordArr = description?.split(' ');
   const shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
 
   const timeString =
-    startDateTime &&
-    endDateTime &&
-    `${convertToCompactEuDatetime(startDateTime)} - ${formatToOnlyTime(endDateTime)}`;
+    (startDateTime && endDateTime)
+      ? `${convertToCompactEuDatetime(startDateTime)} - ${formatToOnlyTime(endDateTime)}`
+      : "N/A";
+
 
   return (
     <div

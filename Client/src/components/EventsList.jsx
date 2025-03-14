@@ -4,13 +4,12 @@ import Pagination from './Pagination';
 import { staticEventLoader } from '../helpers/staticEventLoader';
 import axios from 'axios';
 
-const url = 'http://localhost:8080/api/events/';
-
 const EventsList = () => {
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // temporary solution
-  const events = staticEventLoader();
+  const staticEvents = staticEventLoader();
 
   useEffect(() => {
     fetchData();
@@ -18,24 +17,31 @@ const EventsList = () => {
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('token');
-      console.log(token);
-      const response = await axios.get(url, {
+      const response = await axios.get(`${import.meta.env.VITE_BACK_URL}/api/events/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setData(response);
-      console.log(data);
+      setData(response.data);
+      console.log(response.data);
+
     } catch (error) {
       console.error('Error fetching data: ', error);
+      setData(staticEventLoader());
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 12;
 
+  const events = data || staticEvents;
+
   const indexOfLastEvent = currentPage * eventsPerPage;
+  
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
 
@@ -60,6 +66,8 @@ const EventsList = () => {
           <EventCard key={index} {...event} />
         ))}
       </div>
+
+      <button onClick={fetchData}>test</button>
 
       <Pagination
         totalPages={totalPages}
