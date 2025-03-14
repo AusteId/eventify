@@ -137,8 +137,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                 {...register('username', {
                   required: 'Username is required.',
                   pattern: {
-                    value: /^[a-zA-Z0-9]+$/g,
-                    message: 'Username not Valid',
+                    value: /^[a-zA-Z0-9]{3,100}$/g,
+                    message: 'Username must be from 3 to 100 characters',
                   },
                 })}
               />
@@ -159,7 +159,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                   required: 'Email is required.',
                   pattern: {
                     value:
-                      /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g,
+                      /^(?=.{3,254}$)(?=.{1,64}@)(?!\.)(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/g,
                     message: 'Email not Valid (your@email.com)',
                   },
                 })}
@@ -179,10 +179,12 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                 placeholder="Create a password"
                 {...register('password', {
                   required: 'Password is required.',
+                  min:8,
+                  max:255,
                   pattern: {
-                    value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[\S]{8,255}$/,
                     message:
-                      'Password must have an uppercase, lowercase, and a number.',
+                      'Password must have an uppercase, lowercase, number, special character and be at 8 characters long.',
                   },
                 })}
               />

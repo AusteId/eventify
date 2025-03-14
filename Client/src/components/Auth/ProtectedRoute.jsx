@@ -9,12 +9,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <div><LoadingScreen/></div>
   }
 
+  if (isAuthenticated) {
+    return <Navigate to="/" replace/>
+   }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
 
-  if (allowedRoles && !allowedRoles.some(role => roles.includes(role))) {
+  if (!isAuthenticated && !roles.includes("USER","ADMIN")) {
     return <Navigate to="/" replace />;
   }
 

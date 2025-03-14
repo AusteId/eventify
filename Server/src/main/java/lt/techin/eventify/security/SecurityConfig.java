@@ -86,25 +86,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-//    @Bean
-//    public SecurityFilterChain logoutFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .logout(logout -> logout
-//                        .logoutUrl("/api/users/logout")
-//                        .addLogoutHandler((request, response, auth) -> {
-//                            ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
-//                                    .httpOnly(true)
-//                                    .secure(false)
-//                                    .maxAge(0)
-//                                    .path("/")
-//                                    .build();
-//                            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-//                        })
-//                        .logoutSuccessHandler((request, response, auth) -> {
-//                            response.setStatus(HttpServletResponse.SC_OK);
-//                        }))
-//                .build();
-//    }
+
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

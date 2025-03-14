@@ -12,12 +12,7 @@ const Login = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: 'User12345@gmail.com',
-      password: 'User12345',
-    },
-  });
+  } = useForm();
 
   const {timeoutForSuccess,timeoutForError} = useNotification();
   const { login } = useAuth();

@@ -105,6 +105,7 @@ export const AuthProvider = ({ children }) => {
     setUserId("");
     sessionStorage.removeItem("plsStahp")
     navigate("/login")
+    setIsLoading(false)
   }
   }
 
@@ -123,7 +124,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setRoles([])
       setUserId("");
-      navigate("/login")
+      navigate("/")
       return null;
     }
     return response;
