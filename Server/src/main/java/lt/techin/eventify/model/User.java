@@ -13,27 +13,28 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+// TODO: use lombok setters and getters
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-    @Column(nullable = false, unique = true, length = 100)
-    private String username;
+  @Column(nullable = false, unique = true, length = 100)
+  private String username;
 
-    @Column(nullable = false, unique = true, length = 254)
-    private String email;
+  @Column(nullable = false, unique = true, length = 254)
+  private String email;
 
-    @Column(nullable = false, length = 128)
-    private String password;
-    
-    private String city;
+  @Column(nullable = false, length = 128)
+  private String password;
 
-    private LocalDate birthDate;
-    private String description;
+  private String city;
+
+  private LocalDate birthDate;
+  private String description;
 
   // TODO: add mapping for registrations
 
@@ -49,152 +50,152 @@ public class User implements UserDetails {
   )
   private Set<Category> favoriteEventCategories;
 
-    private String photoPath;
-    private LocalDateTime registeredAt;
+  private String photoPath;
+  private LocalDateTime registeredAt;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+          name = "users_roles",
+          joinColumns = @JoinColumn(name = "user_id"),
+          inverseJoinColumns = @JoinColumn(name = "role_id"))
+  private Set<Role> roles = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "avatar_id")
-    private UserImage avatar;
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "avatar_id")
+  private UserImage avatar;
 
-    public User() {
-    }
+  public User() {
+  }
 
-    public User(String username, String email, String password, String city, LocalDate birthDate, String description,
-                Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles,UserImage avatar) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.city = city;
-        this.birthDate = birthDate;
-        this.description = description;
-        this.favoriteEventCategories = favoriteEventCategories;
-        this.photoPath = photoPath;
-        this.registeredAt = registeredAt;
-        this.roles = roles;
-        this.avatar = avatar;
-    }
+  public User(String username, String email, String password, String city, LocalDate birthDate, String description,
+              Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles, UserImage avatar) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.city = city;
+    this.birthDate = birthDate;
+    this.description = description;
+    this.favoriteEventCategories = favoriteEventCategories;
+    this.photoPath = photoPath;
+    this.registeredAt = registeredAt;
+    this.roles = roles;
+    this.avatar = avatar;
+  }
 
-    public UserImage getAvatar() {
-        return avatar;
-    }
+  public UserImage getAvatar() {
+    return avatar;
+  }
 
-    public void setAvatar(UserImage avatar) {
-        this.avatar = avatar;
-    }
+  public void setAvatar(UserImage avatar) {
+    this.avatar = avatar;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public String getUsername() {
-        return username;
-    }
+  public String getUsername() {
+    return username;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return UserDetails.super.isAccountNonExpired();
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return UserDetails.super.isAccountNonLocked();
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return UserDetails.super.isCredentialsNonExpired();
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
+  @Override
+  public boolean isEnabled() {
+    return UserDetails.super.isEnabled();
+  }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+  public void setUsername(String username) {
+    this.username = username;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    public String getCity() {
-        return city;
-    }
+  public String getCity() {
+    return city;
+  }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
+  public void setCity(String city) {
+    this.city = city;
+  }
 
-    @Override
-    public Set<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(r->new SimpleGrantedAuthority("ROLE_" + r.getName())).collect(Collectors.toSet());
-    }
+  @Override
+  public Set<? extends GrantedAuthority> getAuthorities() {
+    return roles.stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName())).collect(Collectors.toSet());
+  }
 
-    public String getPassword() {
-        return password;
-    }
+  public String getPassword() {
+    return password;
+  }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
+  public LocalDate getBirthDate() {
+    return birthDate;
+  }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
+  public void setBirthDate(LocalDate birthDate) {
+    this.birthDate = birthDate;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Set<Category> getFavoriteEventCategories() {
-        return favoriteEventCategories;
-    }
+  public Set<Category> getFavoriteEventCategories() {
+    return favoriteEventCategories;
+  }
 
-    public void setFavoriteEventCategories(Set<Category> favoriteEventCategories) {
-        this.favoriteEventCategories = favoriteEventCategories;
-    }
+  public void setFavoriteEventCategories(Set<Category> favoriteEventCategories) {
+    this.favoriteEventCategories = favoriteEventCategories;
+  }
 
-    public String getPhotoPath() {
-        return photoPath;
-    }
+  public String getPhotoPath() {
+    return photoPath;
+  }
 
-    public void setPhotoPath(String photoPath) {
-        this.photoPath = photoPath;
-    }
+  public void setPhotoPath(String photoPath) {
+    this.photoPath = photoPath;
+  }
 
-    public LocalDateTime getRegisteredAt() {
-        return registeredAt;
-    }
+  public LocalDateTime getRegisteredAt() {
+    return registeredAt;
+  }
 
-    public void setRegisteredAt(LocalDateTime registeredAt) {
-        this.registeredAt = registeredAt;
-    }
+  public void setRegisteredAt(LocalDateTime registeredAt) {
+    this.registeredAt = registeredAt;
+  }
 
-    public Set<Role> getRoles() {
-        return roles;
-    }
+  public Set<Role> getRoles() {
+    return roles;
+  }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
 }

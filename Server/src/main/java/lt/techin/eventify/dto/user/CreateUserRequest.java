@@ -1,13 +1,11 @@
 package lt.techin.eventify.dto.user;
 
 import jakarta.validation.constraints.*;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.validation.ValidImage;
+import lt.techin.eventify.validation.ImageValidation.ValidImage;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 public record CreateUserRequest(
         @NotNull(message = "Username cannot be null")

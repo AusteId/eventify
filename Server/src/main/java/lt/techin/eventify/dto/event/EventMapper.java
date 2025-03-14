@@ -1,15 +1,26 @@
 package lt.techin.eventify.dto.event;
 
+import lt.techin.eventify.dto.category.CategoryMapper;
+import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.model.Event;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventMapper {
+
+  private final UserMapper userMapper;
+  private final CategoryMapper categoryMapper;
+
+  public EventMapper(UserMapper userMapper, CategoryMapper categoryMapper) {
+    this.userMapper = userMapper;
+    this.categoryMapper = categoryMapper;
+  }
+
   public EventResponse toEventResponse(Event event) {
     return new EventResponse(
             event.getId(),
-            event.getCategories(), // Convert single Category to Set
-            event.getOrganizer(),
+            categoryMapper.toDTO(event.getCategory()),
+            userMapper.toUserResponse(event.getOrganizer()),
             event.getName(),
             event.getStartDateTime(),
             event.getEndDateTime(),
@@ -27,7 +38,7 @@ public class EventMapper {
 
   public Event toEvent(CreateEventRequest event) {
     return new Event(
-            event.category(), // Convert single Category to Set
+            event.category(),
             event.organizer(),
             event.name(),
             event.startDateTime(),
