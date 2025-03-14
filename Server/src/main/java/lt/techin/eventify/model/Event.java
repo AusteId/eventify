@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -20,11 +19,11 @@ public class Event {
   @Setter(AccessLevel.NONE)
   private long id;
 
-  @OneToMany(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "category_id")
-  private Set<Category> categories;
+  private Category category;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "organizer_id")
   private User organizer;
 
@@ -72,11 +71,11 @@ public class Event {
     }
   }
 
-  public Event(Set<Category> categories, User organizer, String name, LocalDateTime startDateTime,
+  public Event(Category category, User organizer, String name, LocalDateTime startDateTime,
                LocalDateTime endDateTime, LocalDateTime createdAt, String description,
                int minAge, int maxAge, String experienceLevel, int maxParticipants,
                String city, String address, String photoPath) {
-    this.categories = categories;
+    this.category = category;
     this.organizer = organizer;
     this.name = name;
     this.startDateTime = startDateTime;

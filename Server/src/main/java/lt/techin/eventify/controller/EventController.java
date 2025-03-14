@@ -2,6 +2,7 @@ package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.UpdateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -50,6 +52,19 @@ public class EventController {
   @GetMapping("/")
   public ResponseEntity<List<Event>> getEvents() {
     return ResponseEntity.ok().body(eventService.findAllEvents());
+  }
+
+  @PutMapping("/{eventId}")
+  public ResponseEntity<EventResponse> updateEvent(@PathVariable long eventId, @Valid @RequestBody UpdateEventRequest updateEventRequest) {
+    Event updatedEvent = eventService.updateEvent(eventId, updateEventRequest);
+    EventResponse eventResponse = eventMapper.toEventResponse(updatedEvent);
+    return ResponseEntity.ok().body(eventResponse);
+  }
+
+  @DeleteMapping("/{eventId}")
+  public ResponseEntity<String> deleteEvent(@PathVariable long eventId, Principal principal) {
+    eventService.deleteEvent(eventId, principal);
+    return ResponseEntity.noContent().build();
   }
 
 //  @PostMapping("/{eventId}/register")
