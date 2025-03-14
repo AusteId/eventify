@@ -7,21 +7,21 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
     pagination.push(1);
 
     if (currentPage <= 3) {
-      for (let i = 2; i <= Math.min(3, totalPages - 1); i++) {
+      for (let i = 2; i <= Math.min(4); i++) {
         pagination.push(i);
       }
-      if (totalPages > 3) pagination.push('...');
+      if (totalPages > 2) pagination.push('...');
     } else {
       pagination.push('...');
       
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
+      for (let i = Math.max(3, currentPage - 3); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
         pagination.push(i);
       }
       
-      if (currentPage < totalPages - 2) pagination.push('...');
+      // if (currentPage < totalPages +1) pagination.push('...');
     }
 
-    if (currentPage >= totalPages - 2) {
+    if (currentPage >= totalPages + 2) {
       pagination.length = 0; 
       pagination.push(1);
       pagination.push('...');
@@ -30,7 +30,7 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
       }
     }
 
-    if (totalPages > 1 && !pagination.includes(totalPages)) {
+    if (totalPages > 3 && !pagination.includes(totalPages)) {
       pagination.push(totalPages);
     }
 
