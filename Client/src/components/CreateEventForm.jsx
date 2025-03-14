@@ -174,7 +174,7 @@ const CreateEventForm = () => {
             Category*
           </label>
           <select
-            defaultValue=""
+            defaultValue="Select category"
             id="event-category"
             className="select h-10  appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
             name="category"
@@ -260,7 +260,7 @@ const CreateEventForm = () => {
           <textarea
             id="event-description"
             className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
-            rows="5"
+            rows="3"
             placeholder="Describe the event..."
           ></textarea>
         </div>
