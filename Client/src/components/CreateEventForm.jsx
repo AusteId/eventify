@@ -1,15 +1,56 @@
-import Button from './Button';
+import { useForm } from 'react-hook-form';
+import FieldValidationError from './FieldValidationError';
 import FileDropzone from './FileDropzone';
 
 const CreateEventForm = () => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      image: null,
+      title: '',
+      city: '',
+      address: '',
+      start_date: null,
+      end_date: null,
+      category: '',
+      minage: null,
+      maxage: null,
+      maxp: null,
+      description: '',
+    },
+  });
+
+  const onSubmit = async data => {
+    try {
+      // whatever
+    } catch (error) {
+      console.error('Event creation failed: ', error);
+    }
+  };
+
+  const closeModal = () => {
+    reset();
+    clearErrors();
+    document.getElementById('event_creation_modal').close();
+  };
+
   return (
-    <form className="">
+    <form onSubmit={handleSubmit(onSubmit)} className="">
       <div className="flex w-full items-center justify-between">
         <h1 className="text-header-dark font-inter text-heading-m font-bold">
           Create New Event
         </h1>
-        <button className="w-5 h-5">
-          <img className="w-full h-full" src="src/assets/close.svg" alt="" />
+        <button onClick={closeModal} type="button" className="w-10 h-10">
+          <img
+            className="w-full h-full p-2"
+            src="src/assets/close.svg"
+            alt=""
+          />
         </button>
       </div>
       <div>
@@ -34,7 +75,12 @@ const CreateEventForm = () => {
             id="event-title"
             type="text"
             placeholder=""
+            name="title"
+            {...register('title', {
+              required: 'Event title is required',
+            })}
           />
+          <FieldValidationError>{errors.title?.message}</FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6">
@@ -50,7 +96,12 @@ const CreateEventForm = () => {
             id="event-city"
             type="text"
             placeholder=""
+            name="city"
+            {...register('city', {
+              required: 'City is required',
+            })}
           />
+          <FieldValidationError>{errors.city?.message}</FieldValidationError>
         </div>
         <div className="w-full">
           <label
@@ -64,7 +115,12 @@ const CreateEventForm = () => {
             id="event-address"
             type="text"
             placeholder=""
+            name="address"
+            {...register('address', {
+              required: 'Address is required',
+            })}
           />
+          <FieldValidationError>{errors.address?.message}</FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6">
@@ -80,7 +136,14 @@ const CreateEventForm = () => {
             id="event-date"
             type="datetime-local"
             placeholder=""
+            name="start_date"
+            {...register('start_date', {
+              required: 'Start date is required',
+            })}
           />
+          <FieldValidationError>
+            {errors.start_date?.message}
+          </FieldValidationError>
         </div>
         <div className="w-full">
           <label
@@ -94,7 +157,14 @@ const CreateEventForm = () => {
             id="event-date-ende"
             type="datetime-local"
             placeholder=""
+            name="end_date"
+            {...register('end_date', {
+              required: 'End date is required',
+            })}
           />
+          <FieldValidationError>
+            {errors.end_date?.message}
+          </FieldValidationError>
         </div>
         <div className="w-full">
           <label
@@ -104,15 +174,22 @@ const CreateEventForm = () => {
             Category*
           </label>
           <select
-            defaultValue="Pick a color"
+            defaultValue=""
             id="event-category"
             className="select h-10  appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            name="category"
+            {...register('category', {
+              required: 'Category is required',
+            })}
           >
             <option disabled={true}>Select category</option>
             <option>Sports</option>
             <option>Music</option>
             <option>Social Games</option>
           </select>
+          <FieldValidationError>
+            {errors.category?.message}
+          </FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6">
@@ -128,6 +205,7 @@ const CreateEventForm = () => {
             id="event-minage"
             type="number"
             placeholder=""
+            name="minage"
             min={0}
             max={120}
           />
@@ -144,6 +222,7 @@ const CreateEventForm = () => {
             id="event-maxage"
             type="number"
             placeholder=""
+            name="maxage"
             min={0}
             max={120}
           />
@@ -160,9 +239,14 @@ const CreateEventForm = () => {
             id="event-maxparticipants"
             type="number"
             placeholder=""
+            name="maxp"
             min={1}
             max={1000}
+            {...register('maxp', {
+              required: 'Maximum Participants is required',
+            })}
           />
+          <FieldValidationError>{errors.maxp?.message}</FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6">
@@ -182,10 +266,17 @@ const CreateEventForm = () => {
         </div>
       </div>
       <div className="flex mt-6 gap-6  justify-end">
-        <button className="btn bg-white border border-input-light shadow-none hover:bg-input-light px-6 pt-3 pb-3 rounded-lg">
+        <button
+          type="button"
+          onClick={closeModal}
+          className="btn bg-white border border-input-light shadow-none hover:bg-input-light px-6 pt-3 pb-3 rounded-lg"
+        >
           <p className="text-body-medium">Cancel</p>
         </button>
-        <button className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-6 pt-3 pb-3 rounded-lg">
+        <button
+          type="submit"
+          className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-6 pt-3 pb-3 rounded-lg"
+        >
           <p className="text-white">Create Event</p>
         </button>
       </div>
