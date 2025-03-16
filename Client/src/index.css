@@ -1,3 +1,14 @@
 * {
   font-family: 'Inter', sans-serif;
 }
+
+.slick-slide {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+.slick-track {
+  display: flex;
+  justify-content: center;
+}

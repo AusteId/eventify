@@ -11,34 +11,44 @@ const EventCard = ({
   experienceLevel = "All Welcome",
   isRegistered = 0,
   eventHandler,
-  currentParticipants,
+  currentParticipants = 0,
   maxParticipants = 1,
   name = 'Title missing...',
   description,
   startDateTime,
   endDateTime,
-  location = 'Location not provided',
-  requiredAge = 'Age: All welcome!',
+  city = 'Location not provided',
   isEnded,
+  minAge,
+  maxAge
 }) => {
   
-  const normalizedKey = experienceLevel
-  .toLowerCase()
-  .replace(/\b\w/g, c => c.toUpperCase());
+  // const normalizedKey = experienceLevel
+  // .toLowerCase()
+  // .replace(/\b\w/g, c => c.toUpperCase());
+
+  const normalizedExpLevel = experienceLevel ? experienceLevel : "All Welcome";
 
   const expLevels = {
-    "String": ['bg-welcome', 'All'],
-    "All Welcome": ['bg-welcome', 'All'],
+    "All Welcome": ['bg-welcome', 'All Welcome!'],
     "Beginner": ['bg-beginner', 'Beginner Friendly'],
     "Intermediate": ['bg-intermediate', 'Intermediate'],
     "Advanced": ['bg-advanced', 'Advanced'],
     "Extreme": ['bg-extreme', 'Extreme'],
   };
-
-  console.log(experienceLevel);
   
   const wordArr = description?.split(' ');
-  const shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
+  let shortDesc;
+  if (wordArr.length > 10) {
+    const lastWord = wordArr[9];
+    const cleanedLastWord = lastWord.endsWith('.') || lastWord.endsWith(',')
+    ? lastWord.slice(0, -1)
+    : lastWord;
+    wordArr[9] = cleanedLastWord
+    shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
+  } else {
+    wordArr?.join(' ')
+  }
 
   const timeString =
     (startDateTime && endDateTime)
@@ -46,13 +56,22 @@ const EventCard = ({
       : "N/A";
 
 
+      const ageString = 
+      minAge !== null && maxAge !== null 
+        ? `Min age: ${minAge} - max age: ${maxAge}`
+        : minAge !== null 
+        ? `Min age: ${minAge}`
+        : maxAge !== null 
+        ? `Max age: ${maxAge}`
+        : 'All Welcome!';
+
   return (
     <div
-      className={`flex flex-col justify-between bg-white rounded-[0.5rem] max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
+      className={`flex flex-col justify-between bg-white rounded-[0.5rem] max-w-[22rem] desktop:max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <div className="relative">
-          {currentParticipants && (
+          {currentParticipants !== null && (
             <div className="absolute flex top-2 left-2 bg-black/50  gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm">
               <img src="./src/assets/threePersonIcon.svg" />
               <p className="text-white">
@@ -62,9 +81,9 @@ const EventCard = ({
           )}
           {experienceLevel != 0 && (
             <div
-              className={`absolute right-2 top-2 ${expLevels[normalizedKey][0]} rounded-full py-1.5 px-3 text-[0.875rem]`}
+              className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem]`}
             >
-              <p className="text-white">{expLevels[normalizedKey][1]}</p>
+              <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
             </div>
           )}
           <img
@@ -96,16 +115,16 @@ const EventCard = ({
                 <figcaption>Time not provided</figcaption>
               </figure>
             )}
-            {location && (
+            {city && (
               <figure className="flex gap-2">
                 <img src="src/assets/mapMarker.svg" alt="Icon of map marker" />
-                <figcaption>{location}</figcaption>
+                <figcaption>{city}</figcaption>
               </figure>
             )}
-            {requiredAge && (
+            {ageString && (
               <figure className="flex gap-2">
                 <img src="src/assets/age.svg" alt="Icon representing age" />
-                <figcaption>{requiredAge}</figcaption>
+                <figcaption>{ageString}</figcaption>
               </figure>
             )}
           </div>

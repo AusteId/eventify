@@ -52,6 +52,8 @@ public class EventController {
 
 
   // For testing purposes only, to add a lot of events at once
+  // For testing validations
+  // www.mockaroo.com
 //  @PostMapping("/all")
 //  public ResponseEntity<?> addEvent(@Valid @RequestBody List<CreateEventRequest> createEventRequest) {
 //    createEventRequest.forEach(item -> eventService.saveEvent(eventMapper.toEvent(item)));

@@ -4,9 +4,8 @@ import Pagination from './Pagination';
 import { staticEventLoader } from '../helpers/staticEventLoader';
 import axios from 'axios';
 
-const EventsList = () => {
+const EventsList = ({ setLoading, loading }) => {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   // temporary solution
 
@@ -31,6 +30,8 @@ const EventsList = () => {
       console.error('Error fetching data: ', error);
       setData(staticEventLoader());
     } finally {
+      console.log('done');
+
       setLoading(false);
     }
   };
@@ -39,6 +40,8 @@ const EventsList = () => {
   const eventsPerPage = 12;
 
   const events = data || '';
+
+  console.log(events[0]);
 
   const indexOfLastEvent = currentPage * eventsPerPage;
 
@@ -61,7 +64,9 @@ const EventsList = () => {
 
   return (
     <div className="h-full flex flex-col justify-between">
-      {events && (
+      {loading ? (
+        <span className="loading loading-bars loading-xl"></span>
+      ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {currentEvents.map((event, index) => (
             <EventCard key={index} {...event} />
