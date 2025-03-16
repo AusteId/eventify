@@ -15,10 +15,10 @@ import java.util.Set;
 @Setter
 public class Event {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
-    private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(AccessLevel.NONE)
+  private long id;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "category_id", nullable = false)
@@ -48,9 +48,9 @@ public class Event {
   @Column(length = 1000)
   private String description;
 
-  private int minAge;
+  private Integer minAge;
 
-  private int maxAge;
+  private Integer maxAge;
 
   @Column(length = 50)
   private String experienceLevel;

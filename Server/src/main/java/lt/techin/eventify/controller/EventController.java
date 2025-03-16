@@ -18,6 +18,7 @@ import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -42,15 +43,21 @@ public class EventController {
     this.userService = userService;
   }
 
-  @PostMapping("/")
-  public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
-    Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
-    return ResponseEntity.created(
-                    ServletUriComponentsBuilder.fromCurrentRequest()
-                            .path("/{id}")
-                            .buildAndExpand(newEvent.getId())
-                            .toUri())
-            .body(eventMapper.toEventResponse(newEvent));
+  @PostMapping
+//  public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest, @AuthenticationPrincipal User organizer) {
+  public ResponseEntity<?> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest, @AuthenticationPrincipal User organizer) {
+    System.out.println("ORGANIZER!!!!!!!!!!!!!!!!");
+    System.out.println(organizer);
+    System.out.println("ORGANIZER!!!!!!!!!!!!!!!!");
+//    Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
+//    return ResponseEntity.created(
+//                    ServletUriComponentsBuilder.fromCurrentRequest()
+//                            .path("/{id}")
+//                            .buildAndExpand(newEvent.getId())
+//                            .toUri())
+//            .body(eventMapper.toEventResponse(newEvent)); return ResponseEntity.created(
+
+    return ResponseEntity.ok("eee");
   }
 
   @GetMapping

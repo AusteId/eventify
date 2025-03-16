@@ -3,6 +3,8 @@ import EventCard from './EventCard';
 import Pagination from './Pagination';
 import { staticEventLoader } from '../helpers/staticEventLoader';
 import axios from 'axios';
+import { getEvents } from '../helpers/event/getEvents';
+import { LoaderIcon } from 'react-hot-toast';
 
 const url = 'http://localhost:8080/api/events/';
 
@@ -18,13 +20,14 @@ const EventsList = () => {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      console.log(token);
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // const token = localStorage.getItem('token');
+      // console.log(token);
+      // const response = await axios.get(url, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
+      const response = await getEvents();
       setData(response);
       console.log(data);
     } catch (error) {
@@ -53,11 +56,25 @@ const EventsList = () => {
     }
   };
 
+  if (!data) {
+    return <LoaderIcon />;
+  }
+
+  console.log(data);
+
   return (
     <div className="h-full flex flex-col justify-between">
       <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
-        {currentEvents.map((event, index) => (
+        {/* {currentEvents.map((event, index) => (
           <EventCard key={index} {...event} />
+        ))} */}
+        {data.map((eventData, index) => (
+          <EventCard
+            key={index}
+            {...eventData}
+            startDateTime={new Date(eventData.startDateTime)}
+            endDateTime={new Date(eventData.endDateTime)}
+          />
         ))}
       </div>
 

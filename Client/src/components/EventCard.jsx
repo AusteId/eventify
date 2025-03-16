@@ -1,10 +1,8 @@
-import React from 'react';
 import Button from './Button';
 import ButtonCancel from './ButtonCancel';
 import {
   convertToCompactEuDatetime,
   formatToOnlyTime,
-  isSameDay,
 } from '../utils/dateFunctions';
 
 const EventCard = ({
@@ -13,20 +11,20 @@ const EventCard = ({
   eventHandler,
   currentParticipants,
   maxParticipants = 1,
-  title = 'Title missing...',
+  name = 'Title missing...',
   description,
   startDateTime,
   endDateTime,
-  location = 'Location not provided',
+  address = 'Location not provided',
   requiredAge = 'Age: All welcome!',
   isEnded,
 }) => {
   const expLevels = {
-    0: ['bg-welcome', 'All'],
-    1: ['bg-beginner', 'Beginner Friendly'],
-    2: ['bg-intermediate', 'Intermediate'],
-    3: ['bg-advanced', 'Advanced'],
-    4: ['bg-extreme', 'Extreme'],
+    'All Welcome': ['bg-welcome', 'All'],
+    Beginner: ['bg-beginner', 'Beginner Friendly'],
+    Intermediate: ['bg-intermediate', 'Intermediate'],
+    Advanced: ['bg-advanced', 'Advanced'],
+    Extreme: ['bg-extreme', 'Extreme'],
   };
 
   const wordArr = description?.split(' ');
@@ -51,7 +49,7 @@ const EventCard = ({
               </p>
             </div>
           )}
-          {experienceLevel != 0 && (
+          {experienceLevel && experienceLevel != 0 && (
             <div
               className={`absolute right-2 top-2 ${expLevels[experienceLevel][0]} rounded-full py-1.5 px-3 text-[0.875rem]`}
             >
@@ -66,7 +64,7 @@ const EventCard = ({
 
         <div className="pt-5 px-5 flex flex-col gap-2">
           <h2 className="text-heading-xs font-[600] leading-[1.125rem]">
-            {title}
+            {name}
           </h2>
           {description && <p>{shortDesc}</p>}
           <div className="flex flex-col gap-1">
@@ -87,10 +85,10 @@ const EventCard = ({
                 <figcaption>Time not provided</figcaption>
               </figure>
             )}
-            {location && (
+            {address && (
               <figure className="flex gap-2">
                 <img src="src/assets/mapMarker.svg" alt="Icon of map marker" />
-                <figcaption>{location}</figcaption>
+                <figcaption>{address}</figcaption>
               </figure>
             )}
             {requiredAge && (
@@ -106,11 +104,11 @@ const EventCard = ({
         {isEnded ? (
           <p className="p-3">Completed</p>
         ) : !isRegistered ? (
-          <Button isFull={true} onClick={eventHandler} >
+          <Button isFull={true} onClick={eventHandler}>
             +Register
           </Button>
         ) : (
-          <ButtonCancel isFull={true} onClick={eventHandler} >
+          <ButtonCancel isFull={true} onClick={eventHandler}>
             <img src="src/assets/xIcon.svg" className="border-0" />
             Cancel Registration
           </ButtonCancel>

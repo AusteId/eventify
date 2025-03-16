@@ -15,8 +15,8 @@ public record CreateEventRequest(
         @NotNull(message = "Category cannot be null")
         Category category,
 
-        @NotNull(message = "Organizer cannot be null")
-        User organizer,
+//        @NotNull(message = "Organizer cannot be null")
+//        User organizer,
 
         @NotBlank(message = "Event name cannot be empty or null")
         @Size(min = 3, max = 100, message = "Event name must be between 3 and 100 characters")
@@ -35,11 +35,11 @@ public record CreateEventRequest(
 
         @Min(value = 0, message = "The age must be greater than zero")
         @Max(value = 120, message = "Minimum age cannot be more than 120")
-        int minAge,
+        Integer minAge,
 
         @Min(value = 0, message = "The age must be greater than zer")
         @Max(value = 120, message = "Maximum age cannot be more than 120")
-        int maxAge,
+        Integer maxAge,
 
         @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme")
         String experienceLevel,
@@ -47,7 +47,7 @@ public record CreateEventRequest(
         @NotNull(message = "Maximum number of participants cannot be null")
         @Min(value = 1, message = "Event must have at least 1 participant")
         @Max(value = 1000, message = "Event cannot have more than 1000 participants")
-        int maxParticipants,
+        Integer maxParticipants,
 
         @NotNull(message = "City cannot be null")
         @Size(max = 200, message = "City must be less than 200 characters.")
@@ -59,7 +59,7 @@ public record CreateEventRequest(
         @Pattern(regexp = "^[\\w\\s ,.]+$", message = "Invalid event address.")
         String address,
 
-        // kol kas palikta nes nezinau kaip Tomo komponentas atrodys
+        //TODO: kol kas palikta nes nezinau kaip Tomo komponentas atrodys
         String photoPath
 ) {
 }
