@@ -61,6 +61,8 @@ export default function EventCarousel() {
 
   // setting of carousel. more:
   // https://react-slick.neostack.com/docs/api
+
+  // FIXME: scrolls too fast back to beginning, might need to tweak index.css file
   var settings = useMemo(
     () => ({
       dots: true,
@@ -71,9 +73,9 @@ export default function EventCarousel() {
       slide: 'div',
       touchMove: true,
       slidesToScroll: 1,
-      autoplay: false,
+      autoplay: true,
       draggable: true,
-      autoplaySpeed: 2500,
+      autoplaySpeed: 3000,
       responsive: [
         {
           breakpoint: 764,
