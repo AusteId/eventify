@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import EventCard from './EventCard';
 import Pagination from './Pagination';
 import { staticEventLoader } from '../helpers/staticEventLoader';
@@ -10,38 +10,35 @@ const EventsList = ({ setLoading, loading }) => {
   // temporary solution
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACK_URL}/api/events/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        },
-      );
-      setData(response.data);
-    } catch (error) {
-      console.error('Error fetching data: ', error);
-      setData(staticEventLoader());
-    } finally {
-      console.log('done');
+        );
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+        setData(staticEventLoader());
+      } finally {
+        console.log('done');
+        setLoading(false);
+      }
+    };
 
-      setLoading(false);
-    }
-  };
+    fetchData(); // Call the function
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 12;
 
   const events = data || '';
-
-  console.log(events[0]);
 
   const indexOfLastEvent = currentPage * eventsPerPage;
 

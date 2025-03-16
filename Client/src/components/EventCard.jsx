@@ -67,7 +67,7 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex flex-col justify-between bg-white rounded-[0.5rem] max-w-[22rem] desktop:max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
+      className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 max-w-[22rem] desktop:max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <div className="relative">
@@ -96,7 +96,7 @@ const EventCard = ({
           <h2 className="text-heading-xs font-[600] leading-[1.125rem]">
             {name}
           </h2>
-          {description && <p>{shortDesc}</p>}
+          {description && <p className='h-12'>{shortDesc}</p>}
           <div className="flex flex-col gap-1">
             {startDateTime ? (
               <figure className="flex gap-2">

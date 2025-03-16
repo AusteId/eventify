@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
@@ -24,66 +24,80 @@ export default function EventCarousel() {
   const [loading, setLoading] = useState(null);
   const [slider, setSlider] = useState(null);
 
-  // temporary solution
-
+  // TODO: fetch only required amount, current setup inefficient
+  // fetching data:
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+        setData(staticEventLoader());
+      } finally {
+        console.log('done');
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACK_URL}/api/events/`,
+  // cutting slicing the fetched data,
+  const currentEvents = useMemo(() => {
+    const events = Array.isArray(data) ? data : [];
+    return events.slice(0, 10);
+  }, [data]);
+
+
+  // setting of carousel. more:
+  // https://react-slick.neostack.com/docs/api
+  var settings = useMemo(
+    () => ({
+      dots: true,
+      swipeToSlide: true,
+      infinite: true,
+      speed: 500,
+      slidesToShow: 3,
+      slide: 'div',
+      touchMove: true,
+      slidesToScroll: 1,
+      autoplay: false,
+      draggable: true,
+      autoplaySpeed: 2500,
+      responsive: [
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
+          breakpoint: 764,
+          settings: {
+            slidesToShow: 1,
           },
         },
-      );
-      setData(response.data);
-    } catch (error) {
-      console.error('Error fetching data: ', error);
-      setData(staticEventLoader());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const events = Array.isArray(data) ? data : [];
-  const currentEvents = events.slice(0, 10);
-
-  var settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2500,
-    responsive: [
-      {
-        breakpoint: 764,
-        settings: {
-          slidesToShow: 1,
+        {
+          breakpoint: 1440,
+          settings: {
+            slidesToShow: 2,
+          },
         },
-      },
-      {
-        breakpoint: 1440,
-        settings: {
-          slidesToShow: 2,
-        },
-      },
-    ],
-  };
+      ],
+    }),
+    [],
+  );
 
-  const handleResize = useCallback(
+  const handleResize = useCallback(() =>
     debounce(() => {
       if (slider) {
         slider.slickGoTo(slider.innerSlider.state.currentSlide);
       }
-    }, 250),
+    }, 500),
     [slider],
   );
 
@@ -101,7 +115,7 @@ export default function EventCarousel() {
   }
 
   return (
-    <div className="w-full mx-auto overflow-hidden mb-26 relative">
+    <div className="w-full mx-auto overflow-hidden mb-26 relative z-20">
       <CarouselButton
         onPrevClick={() => slider?.slickPrev()}
         onNextClick={() => slider?.slickNext()}

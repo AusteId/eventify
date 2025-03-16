@@ -10,12 +10,12 @@ const About = () => {
 
       <div className="flex flex-wrap justify-evenly gap-4 space-x-6">
         <AboutUsCard
-          photo="https://randomuser.me/api/portraits/men/1.jpg"
+          photo="https://media.licdn.com/dms/image/v2/D4D03AQEnwQEDXrdChA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1725302725417?e=1747872000&v=beta&t=AsvFyrh7KTHHc-6rbu8tn313MEDqj5VA_cNTzpoDjTo"
           name="John Anderson"
-          linkedin="linkedin.com/john-anderson"
-          github="github.com/johndoe"
-          phone="123-456-7890"
-          mail="john.doe@example.com"
+          linkedin="linkedin.com/in/povilasgeguzis/"
+          github="https://github.com/knoeks"
+          phone="+37066800310"
+          mail="povilas.geguzis@gmail.com"
         />
 
         <AboutUsCard
