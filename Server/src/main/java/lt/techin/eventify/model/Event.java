@@ -64,6 +64,8 @@ public class Event {
   @Column(nullable = false)
   private String address;
 
+
+  // TODO: add proper way to load images from database with Tomas solution
   private String photoPath;
 
   @PrePersist
