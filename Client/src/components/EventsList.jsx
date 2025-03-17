@@ -15,12 +15,12 @@ const EventsList = ({ setLoading, loading }) => {
         setLoading(true);
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          `${import.meta.env.VITE_BACK_URL}/api/events`,
+          // {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   },
+          // },
         );
         setData(response.data);
       } catch (error) {

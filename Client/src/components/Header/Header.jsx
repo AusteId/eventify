@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../Auth/AuthContext';
 import Button from '../Button';
 import HeaderProfilePicture from './HeaderProfilePicture';
@@ -7,6 +7,7 @@ const setActive = ({ isActive }) =>
   isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 const Header = () => {
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
@@ -67,7 +68,7 @@ const Header = () => {
                 className="dropdown-content menu bg-base-100 rounded-box bottom-[-98px] w-52 p-2 shadow-sm z-[1000]"
               >
                 <li>
-                  <a>Item 1</a>
+                  <a onClick={() => navigate('/profile')}>Profile</a>
                 </li>
                 <li>
                   <a onClick={logout}>Logout</a>

@@ -30,14 +30,14 @@ export default function EventCarousel() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
+        // const token = localStorage.getItem('token');
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          `${import.meta.env.VITE_BACK_URL}/api/events`,
+          // {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   },
+          // },
         );
         setData(response.data);
       } catch (error) {
@@ -57,7 +57,6 @@ export default function EventCarousel() {
     const events = Array.isArray(data) ? data : [];
     return events.slice(0, 10);
   }, [data]);
-
 
   // setting of carousel. more:
   // https://react-slick.neostack.com/docs/api
@@ -94,12 +93,13 @@ export default function EventCarousel() {
     [],
   );
 
-  const handleResize = useCallback(() =>
-    debounce(() => {
-      if (slider) {
-        slider.slickGoTo(slider.innerSlider.state.currentSlide);
-      }
-    }, 500),
+  const handleResize = useCallback(
+    () =>
+      debounce(() => {
+        if (slider) {
+          slider.slickGoTo(slider.innerSlider.state.currentSlide);
+        }
+      }, 500),
     [slider],
   );
 

@@ -355,9 +355,9 @@ const CreateEventForm = () => {
         </button>
         <button
           type="submit"
-          className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-6 pt-3 pb-3 rounded-lg"
+          className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-6 pt-3 pb-3 rounded-lg text-white"
         >
-          <p className="text-white">Create Event</p>
+          Create Event
         </button>
       </div>
     </form>
