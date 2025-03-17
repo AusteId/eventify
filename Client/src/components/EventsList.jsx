@@ -16,11 +16,19 @@ const EventsList = ({ setLoading, loading }) => {
         const token = localStorage.getItem('token');
         const response = await axios.get(
           `${import.meta.env.VITE_BACK_URL}/api/events`,
+<<<<<<< HEAD
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           },
+=======
+          // {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   },
+          // },
+>>>>>>> ff824012d777166d7d25845ac7c1136cf2ec6925
         );
         setData(response.data);
       } catch (error) {
