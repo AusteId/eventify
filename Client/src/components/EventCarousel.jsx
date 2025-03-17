@@ -44,7 +44,6 @@ export default function EventCarousel() {
         console.error('Error fetching data: ', error);
         setData(staticEventLoader());
       } finally {
-        console.log('done');
         setLoading(false);
       }
     };
