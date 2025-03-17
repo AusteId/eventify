@@ -1,41 +1,47 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import EventCard from './EventCard';
 import Pagination from './Pagination';
 import { staticEventLoader } from '../helpers/staticEventLoader';
 import axios from 'axios';
 
-const url = 'http://localhost:8080/api/events/';
-
-const EventsList = () => {
+const EventsList = ({ setLoading, loading }) => {
   const [data, setData] = useState(null);
 
   // temporary solution
-  const events = staticEventLoader();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+        setData(staticEventLoader());
+      } finally {
+        console.log('done');
+        setLoading(false);
+      }
+    };
 
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      console.log(token);
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setData(response);
-      console.log(data);
-    } catch (error) {
-      console.error('Error fetching data: ', error);
-    }
-  };
+    fetchData(); // Call the function
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 12;
 
+  const events = data || '';
+
   const indexOfLastEvent = currentPage * eventsPerPage;
+
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
 
@@ -55,11 +61,15 @@ const EventsList = () => {
 
   return (
     <div className="h-full flex flex-col justify-between">
-      <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
-        {currentEvents.map((event, index) => (
-          <EventCard key={index} {...event} />
-        ))}
-      </div>
+      {loading ? (
+        <span className="loading loading-bars loading-xl"></span>
+      ) : (
+        <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
+          {currentEvents.map((event, index) => (
+            <EventCard key={index} {...event} />
+          ))}
+        </div>
+      )}
 
       <Pagination
         totalPages={totalPages}

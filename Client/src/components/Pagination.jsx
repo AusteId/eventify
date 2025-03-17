@@ -1,36 +1,57 @@
 import React from 'react';
 
 const Pagination = ({ totalPages, currentPage, paginate }) => {
+  // Handle invalid inputs
+  if (totalPages < 1 || currentPage < 1 || currentPage > totalPages) {
+    return null;
+  }
+
   const getPaginationNumbers = () => {
     const pagination = [];
-    
+
+    // Single page case
+    if (totalPages === 1) {
+      pagination.push(currentPage);
+      return pagination;
+    }
+
+    // Maximum number of visible pages (excluding ellipses and first/last)
+    const maxVisible = 5;
+    const halfVisible = Math.floor(maxVisible / 2);
+
+    // Always include first page
     pagination.push(1);
 
-    if (currentPage <= 3) {
-      for (let i = 2; i <= Math.min(3, totalPages - 1); i++) {
-        pagination.push(i);
-      }
-      if (totalPages > 3) pagination.push('...');
-    } else {
-      pagination.push('...');
-      
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
-        pagination.push(i);
-      }
-      
-      if (currentPage < totalPages - 2) pagination.push('...');
+    // Determine the range of pages to show
+    let start = Math.max(2, currentPage - halfVisible);
+    let end = Math.min(totalPages - 1, currentPage + halfVisible);
+
+    // Adjust if near the start or end
+    if (currentPage <= halfVisible + 1) {
+      end = Math.min(totalPages - 1, maxVisible - 1);
+    } else if (currentPage >= totalPages - halfVisible) {
+      start = Math.max(2, totalPages - maxVisible + 1);
     }
 
-    if (currentPage >= totalPages - 2) {
-      pagination.length = 0; 
-      pagination.push(1);
+    // Add ellipsis if needed
+    if (start > 2) {
       pagination.push('...');
-      for (let i = totalPages - 2; i <= totalPages; i++) {
-        pagination.push(i);
-      }
     }
 
-    if (totalPages > 1 && !pagination.includes(totalPages)) {
+    // Add the range of pages
+
+    // check if total pages fit
+    for (let i = start; i <= end; i++) {
+      pagination.push(i);
+    }
+
+    // Add ellipsis if needed before the last page
+    if (end < totalPages - 1) {
+      pagination.push('...');
+    }
+
+    // Always include the last page if different from the range
+    if (totalPages > 1 && pagination[pagination.length - 1] !== totalPages) {
       pagination.push(totalPages);
     }
 
@@ -42,16 +63,16 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
       <button
         onClick={() => paginate(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-6 py-3 bg-white text-black rounded-full mr-2 transition-all duration-300 transform hover:scale-105 hover:bg-[#DFA238] disabled:opacity-50 shadow-md"
+        className={`px-6 py-3 bg-white text-black rounded-full mr-2 transition-all duration-300 transform hover:scale-105 ${currentPage === 1 ? 'opacity-50 bg-[#F3E3C7]' : 'hover:bg-[#DFA238]'} shadow-md`}
       >
-        &lt;
+        &lt;&lt;
       </button>
 
       {getPaginationNumbers().map((page, index) => (
         <button
           key={index}
           onClick={() => {
-            if (page !== '...') {
+            if (page !== '...' && page !== currentPage) {
               paginate(page);
             }
           }}
@@ -59,18 +80,21 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
             page === currentPage
               ? 'bg-[#DFA238] text-white'
               : 'bg-[#F3E3C7] text-black'
-          } rounded-md mx-1 transition-all duration-300 transform hover:scale-105 hover:bg-[#DFA238] shadow-md`}
+          } rounded-md mx-1 transition-all duration-300 transform hover:scale-105 ${page === '...' ? "bg-[#F3E3C7]": "hover:bg-[#DFA238]"}  shadow-md ${
+            page === '...' || page === currentPage ? 'cursor-default' : ''
+          }`}
           disabled={page === '...' || page === currentPage}
         >
-          {page === '...' ? '...' : page}
+          {page}
         </button>
       ))}
+
       <button
         onClick={() => paginate(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-6 py-3 bg-white text-black rounded-full ml-2 transition-all duration-300 transform hover:scale-105 hover:bg-[#DFA238] disabled:opacity-50 shadow-md"
+        className={`px-6 py-3 bg-white text-black rounded-full ml-2 transition-all duration-300 transform hover:scale-105 ${currentPage === totalPages ? 'opacity-50 bg-[#F3E3C7]' : 'hover:bg-[#DFA238]'} shadow-md`}
       >
-        &gt;
+        &gt;&gt;
       </button>
     </div>
   );

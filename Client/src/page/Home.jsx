@@ -7,6 +7,7 @@ import SportsIcon from '../assets/sports-category.svg';
 import CategoryButton from '../components/CategoryButton';
 import BasicModal from '../components/BasicModal';
 import CreateEventForm from '../components/CreateEventForm';
+import EventCarousel from '../components/EventCarousel';
 
 const Home = () => {
   return (
@@ -64,9 +65,11 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="flex flex-col px-24 justify-center bg-light-gray">
-        <h2 className="text-heading-m mt-8 mb-6">Recommended for You</h2>
-        <p className="text-center">--------KORTELIU PLACEHOLDER---------</p>
+      <div className="flex flex-col  justify-center bg-light-gray">
+        <h2 className="text-heading-m text-center px-24 tablet:text-left mt-8 mb-6">Recommended for You</h2>
+        <div className="w-full overflow-hidden h-125">
+          <EventCarousel />
+        </div>
       </div>
     </div>
   );

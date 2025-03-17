@@ -1,5 +1,12 @@
 
-export function convertToCompactEuDatetime(date){
+export function convertToCompactEuDatetime(dateInput){
+
+  const date = new Date(dateInput);
+  
+  if (isNaN(date)) {
+    return "Invalid Date";
+  }
+
     return date.toLocaleString('en-GB', {
         hour12: false,
         hour: '2-digit',
@@ -10,7 +17,11 @@ export function convertToCompactEuDatetime(date){
       });
 };
 
-export function isSameDay(date1, date2) {
+export function isSameDay(dateInput1, dateInput2) {
+
+  const date1 = new Date(dateInput1);
+  const date2 = new Date(dateInput2);
+
   return (
     date1.getFullYear() === date2.getFullYear() &&
     date1.getMonth() === date2.getMonth() &&
@@ -18,7 +29,10 @@ export function isSameDay(date1, date2) {
   );
 }
 
-export function formatToOnlyTime(date){
+export function formatToOnlyTime(dateInput){
+
+  const date = new Date(dateInput);
+
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
   return `${hours}:${minutes}`;

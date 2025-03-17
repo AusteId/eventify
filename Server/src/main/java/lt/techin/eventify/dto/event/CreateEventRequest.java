@@ -35,13 +35,13 @@ public record CreateEventRequest(
 
         @Min(value = 0, message = "The age must be greater than zero")
         @Max(value = 120, message = "Minimum age cannot be more than 120")
-        int minAge,
+        Integer minAge,
 
         @Min(value = 0, message = "The age must be greater than zer")
         @Max(value = 120, message = "Maximum age cannot be more than 120")
-        int maxAge,
+        Integer maxAge,
 
-        @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme")
+        @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme|All Welcome)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme, All Welcome")
         String experienceLevel,
 
         @NotNull(message = "Maximum number of participants cannot be null")
@@ -51,7 +51,7 @@ public record CreateEventRequest(
 
         @NotNull(message = "City cannot be null")
         @Size(max = 200, message = "City must be less than 200 characters.")
-        @Pattern(regexp = "^([a-zA-Z\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z\\u0080-\\u024F]*$", message = "Invalid event city name.")
+        @Pattern(regexp = "^([a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]+(?:[\\s.\\-'’‘]){0,2})*[a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]*$", message = "Invalid event city name.")
         String city,
 
         @NotNull(message = "Address cannot be null")

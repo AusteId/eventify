@@ -5,6 +5,8 @@ import Phone from '../assets/aboutUs/phone.svg';
 import GitHub from '../assets/aboutUs/github.svg';
 
 const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
+
+  // FIXME: must be only 3 layouts for screens mobile tablet and desktop
   return (
     <div
       className="p-4 rounded-lg shadow-lg min-w-[17rem] max-w-[20rem] m-0"

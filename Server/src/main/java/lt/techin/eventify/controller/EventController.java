@@ -1,10 +1,7 @@
 package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
-import lt.techin.eventify.dto.event.CreateEventRequest;
-import lt.techin.eventify.dto.event.UpdateEventRequest;
-import lt.techin.eventify.dto.event.EventMapper;
-import lt.techin.eventify.dto.event.EventResponse;
+import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
 import lt.techin.eventify.exception.EventNotFoundException;
@@ -42,7 +39,7 @@ public class EventController {
     this.userService = userService;
   }
 
-  @PostMapping("/")
+  @PostMapping
   public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
     Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
     return ResponseEntity.created(
@@ -53,7 +50,18 @@ public class EventController {
             .body(eventMapper.toEventResponse(newEvent));
   }
 
-  @GetMapping
+
+  // For testing purposes only, to add a lot of events at once
+  // For testing validations
+  // www.mockaroo.com
+//  @PostMapping("/all")
+//  public ResponseEntity<?> addEvent(@Valid @RequestBody List<CreateEventRequest> createEventRequest) {
+//    createEventRequest.forEach(item -> eventService.saveEvent(eventMapper.toEvent(item)));
+//    ;
+//    return ResponseEntity.ok().build();
+//  }
+
+  @GetMapping("/")
   public ResponseEntity<List<EventResponse>> getAllEvents() {
     List<EventResponse> events = eventService.getAllEvents();
     return ResponseEntity.ok(events);
