@@ -32,7 +32,7 @@ export default function EventCarousel() {
         setLoading(true);
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events/`,
+          `${import.meta.env.VITE_BACK_URL}/api/events`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
