@@ -50,6 +50,12 @@ public class User implements UserDetails {
   )
   private Set<Category> favoriteEventCategories;
 
+  @OneToMany(mappedBy = "commenter")
+  private Set<ProfileComment> commentsMade; // Comments this user posted
+
+  @OneToMany(mappedBy = "commented")
+  private Set<ProfileComment> commentsReceived; // Comments posted on this user
+
   private String photoPath;
   private LocalDateTime registeredAt;
 
@@ -68,7 +74,7 @@ public class User implements UserDetails {
   }
 
   public User(String username, String email, String password, String city, LocalDate birthDate, String description,
-              Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles, UserImage avatar) {
+              Set<Category> favoriteEventCategories, String photoPath, LocalDateTime registeredAt, Set<Role> roles, UserImage avatar, Set<ProfileComment> commentsMade, Set<ProfileComment> commentsReceived) {
     this.username = username;
     this.email = email;
     this.password = password;
@@ -80,6 +86,24 @@ public class User implements UserDetails {
     this.registeredAt = registeredAt;
     this.roles = roles;
     this.avatar = avatar;
+    this.commentsMade = commentsMade;
+    this.commentsReceived = commentsReceived;
+  }
+
+  public Set<ProfileComment> getCommentsMade() {
+    return commentsMade;
+  }
+
+  public void setCommentsMade(Set<ProfileComment> commentsMade) {
+    this.commentsMade = commentsMade;
+  }
+
+  public Set<ProfileComment> getCommentsReceived() {
+    return commentsReceived;
+  }
+
+  public void setCommentsReceived(Set<ProfileComment> commentsReceived) {
+    this.commentsReceived = commentsReceived;
   }
 
   public UserImage getAvatar() {
