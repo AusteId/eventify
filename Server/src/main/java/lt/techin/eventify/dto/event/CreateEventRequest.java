@@ -50,7 +50,7 @@ public record CreateEventRequest(
         int maxParticipants,
 
         @NotNull(message = "City cannot be null")
-        @Size(max = 200, message = "City must be less than 200 characters.")
+        @Size(max = 30, message = "City must be less than 30 characters.")
         @Pattern(regexp = "^([a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]+(?:[\\s.\\-'’‘]){0,2})*[a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]*$", message = "Invalid event city name.")
         String city,
 

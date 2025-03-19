@@ -15,8 +15,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [emailError, setEmailError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
-  const {timeoutForError,url} = useNotification();
-  const [isLoading,setIsLoading] = useState(false)
+  const { timeoutForError, url } = useNotification();
+  const [isLoading, setIsLoading] = useState(false)
 
   RegistrationFirstStep.displayName = "RegistrationFirstStep";
 
@@ -109,116 +109,115 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const onNext = () => {
     nextStep();
   };
-
+  
   return (
     <>
-    {isLoading && <LoadingScreen/>}
-    <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
-      <div>
-        <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
-          Create your account
-        </h1>
-        <p className="text-body-m/[1rem] text-body-medium">
-          Join Eventify to discover amazing events near you
-        </p>
-      </div>
+      {isLoading && <LoadingScreen />}
+      <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
+        <div>
+          <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
+            Create your account
+          </h1>
+          <p className="text-body-m/[1rem] text-body-medium">
+            Join Eventify to discover amazing events near you
+          </p>
+        </div>
 
-      <div>
-        <fieldset className="fieldset gap-y-6 mb-6">
-          <div>
-            <p className="text-body-medium text-sm/normal font-[500]">
-              Username
-            </p>
-            <label className="input w-full">
-              <img src={username} alt="username icon" />
-              <input
-                type="text"
-                placeholder="Choose a username"
-                {...register('username', {
-                  required: 'Username is required.',
-                  pattern: {
-                    value: /^[a-zA-Z0-9]{3,100}$/g,
-                    message: 'Username must be from 3 to 100 characters',
-                  },
-                })}
-              />
-            </label>
-            <FieldValidationError>{errors.username?.message || usernameError}</FieldValidationError>
+        <div>
+          <fieldset className="fieldset gap-y-6 mb-6">
+            <div>
+              <p className="text-body-medium text-sm/normal font-[500]">
+                Username
+              </p>
+              <label className="input w-full">
+                <img src={username} alt="username icon" />
+                <input
+                  type="text"
+                  placeholder="Choose a username"
+                  {...register('username', {
+                    required: 'Username is required.',
+                    pattern: {
+                      value: /^[a-zA-Z0-9]{3,100}$/g,
+                      message: 'Username must be from 3 to 100 characters',
+                    },
+                  })}
+                />
+              </label>
+              <FieldValidationError>{errors.username?.message || usernameError}</FieldValidationError>
+            </div>
+
+            <div>
+              <p className="text-body-medium text-sm/normal font-[500]">
+                Email address
+              </p>
+              <label className="input w-full">
+                <img src={email} alt="email icon" />
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  {...register('email', {
+                    required: 'Email is required.',
+                    pattern: {
+                      value:
+                        /^(?=.{3,254}$)(?=.{1,64}@)(?!\.)(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/g,
+                      message: 'Email not Valid (your@email.com)',
+                    },
+                  })}
+                />
+              </label>
+              <FieldValidationError>{errors.email?.message || emailError}</FieldValidationError>
+            </div>
+
+            <div>
+              <p className="text-body-medium text-sm/normal font-[500]">
+                Password
+              </p>
+              <label className="input w-full">
+                <img src={password} alt="password icon" />
+                <input
+                  type="password"
+                  placeholder="Create a password"
+                  {...register('password', {
+                    required: 'Password is required.',
+                    minLength: { value: 8, message: 'Password must be at least 8 characters long.' },
+                    maxLength: { value: 255, message: 'Password cannot exceed 255 characters.' },
+                    pattern: {
+                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[\S]{8,255}$/,
+                      message: 'Password must have an uppercase, lowercase, number',
+                    },
+                  })}
+                />
+              </label>
+              <FieldValidationError>{errors.password?.message}</FieldValidationError>
+            </div>
+
+            <div>
+              <p className="text-body-medium text-sm/normal font-[500]">
+                Confirm Password
+              </p>
+              <label className="input w-full">
+                <img src={password} alt="password icon" />
+                <input
+                  type="password"
+                  placeholder="Retype your password"
+                  {...register('passwordConfirm', {
+                    required: 'Confirm password.',
+                  })}
+                />
+              </label>
+              <FieldValidationError>
+                {errors.passwordConfirm?.message || passwordMatchError}
+              </FieldValidationError>
+            </div>
+          </fieldset>
+
+          <div className="flex justify-center ">
+            <Button onClick={onNext} disabled={isValidating} isFull>
+              {isValidating ? 'Validating...' : 'Continue'}
+            </Button>
           </div>
-
-          <div>
-            <p className="text-body-medium text-sm/normal font-[500]">
-              Email address
-            </p>
-            <label className="input w-full">
-              <img src={email} alt="email icon" />
-              <input
-                type="email"
-                placeholder="Enter your email"
-                {...register('email', {
-                  required: 'Email is required.',
-                  pattern: {
-                    value:
-                      /^(?=.{3,254}$)(?=.{1,64}@)(?!\.)(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/g,
-                    message: 'Email not Valid (your@email.com)',
-                  },
-                })}
-              />
-            </label>
-            <FieldValidationError>{errors.email?.message || emailError}</FieldValidationError>
-          </div>
-
-          <div>
-            <p className="text-body-medium text-sm/normal font-[500]">
-              Password
-            </p>
-            <label className="input w-full">
-              <img src={password} alt="password icon" />
-              <input
-                type="password"
-                placeholder="Create a password"
-                {...register('password', {
-                  required: 'Password is required.',
-                  min:8,
-                  max:255,
-                  pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[\S]{8,255}$/,
-                    message:
-                      'Password must have an uppercase, lowercase, number, special character and be at 8 characters long.',
-                  },
-                })}
-              />
-            </label>
-            <FieldValidationError>{errors.password?.message}</FieldValidationError>
-          </div>
-
-          <div>
-            <p className="text-body-medium text-sm/normal font-[500]">
-              Confirm Password
-            </p>
-            <label className="input w-full">
-              <img src={password} alt="password icon" />
-              <input
-                type="password"
-                placeholder="Retype your password"
-                {...register('passwordConfirm', {
-                  required: 'Confirm password.',
-                })}
-              />
-            </label>
-            <FieldValidationError>
-              {errors.passwordConfirm?.message || passwordMatchError}
-            </FieldValidationError>
-          </div>
-        </fieldset>
-
-        <div className="flex justify-center ">
-          <Button onClick={onNext} disabled={isValidating} isFull>
-            {isValidating ? 'Validating...' : 'Continue'}
-          </Button>
         </div>
       </div>
-    </div>
     </>
   );
 });

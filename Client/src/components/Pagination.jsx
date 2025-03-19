@@ -17,7 +17,7 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
 
     // Maximum number of visible pages (excluding ellipses and first/last)
     const maxVisible = 5;
-    const halfVisible = Math.floor(maxVisible / 2);
+    const halfVisible = Math.floor(maxVisible / 2) + 1;
 
     // Always include first page
     pagination.push(1);
@@ -30,7 +30,7 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
     if (currentPage <= halfVisible + 1) {
       end = Math.min(totalPages - 1, maxVisible - 1);
     } else if (currentPage >= totalPages - halfVisible) {
-      start = Math.max(2, totalPages - maxVisible + 1);
+      start = Math.max(2, totalPages - maxVisible + 2);
     }
 
     // Add ellipsis if needed
