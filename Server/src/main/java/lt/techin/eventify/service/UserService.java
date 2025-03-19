@@ -32,63 +32,63 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
-    private final RoleRepository roleRepository;
-    private final CategoryRepository categoryRepository;
-    private final TokenService tokenService;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final UserMapper userMapper;
+  private final RoleRepository roleRepository;
+  private final CategoryRepository categoryRepository;
+  private final TokenService tokenService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper,
-                       RoleRepository roleRepository,CategoryRepository categoryRepository, TokenService tokenService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
-        this.roleRepository = roleRepository;
-        this.categoryRepository = categoryRepository;
-        this.tokenService = tokenService;
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper,
+                     RoleRepository roleRepository, CategoryRepository categoryRepository, TokenService tokenService) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.userMapper = userMapper;
+    this.roleRepository = roleRepository;
+    this.categoryRepository = categoryRepository;
+    this.tokenService = tokenService;
+  }
+
+  public boolean existsByUsername(String username) {
+    return userRepository.existsByUsername(username);
+  }
+
+  public boolean existsByEmail(String email) {
+    return userRepository.existsByEmail(email);
+  }
+
+  public User saveUser(CreateUserRequest dto) throws IOException {
+    if (userRepository.existsByEmail(dto.email())) {
+      throw new EmailAlreadyExistsException("Email already exists.");
     }
 
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
+    if (userRepository.existsByUsername(dto.username())) {
+      throw new UsernameAlreadyExistsException("Username already exists.");
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+    Role roleUser = roleRepository.findByName("USER").orElseThrow();
+
+    User newUser = userMapper.toUser(dto);
+
+
+    Set<Category> favoriteCategories = new HashSet<>();
+    if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
+      favoriteCategories = dto.categoryIds().stream()
+              .map(categoryId -> categoryRepository.findById(categoryId)
+                      .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId)))
+              .collect(Collectors.toSet());
     }
+    newUser.setFavoriteEventCategories(favoriteCategories);
 
-    public User saveUser(CreateUserRequest dto) throws IOException {
-        if (userRepository.existsByEmail(dto.email())) {
-            throw new EmailAlreadyExistsException("Email already exists.");
-        }
+    UserImage avatar = UserMapper.imageToEntity(dto);
 
-        if (userRepository.existsByUsername(dto.username())) {
-            throw new UsernameAlreadyExistsException("Username already exists.");
-        }
+    newUser.setAvatar(avatar);
+    newUser.setPassword(passwordEncoder.encode(dto.password()));
+    newUser.setRegisteredAt(LocalDateTime.now());
+    newUser.setRoles(Set.of(roleUser));
 
-        Role roleUser = roleRepository.findByName("USER").orElseThrow();
-
-        User newUser = userMapper.toUser(dto);
-        
-
-        Set<Category> favoriteCategories = new HashSet<>();
-        if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
-            favoriteCategories = dto.categoryIds().stream()
-                    .map(categoryId -> categoryRepository.findById(categoryId)
-                            .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId)))
-                    .collect(Collectors.toSet());
-        }
-        newUser.setFavoriteEventCategories(favoriteCategories);
-
-        UserImage avatar = UserMapper.imageToEntity(dto);
-
-        newUser.setAvatar(avatar);
-        newUser.setPassword(passwordEncoder.encode(dto.password()));
-        newUser.setRegisteredAt(LocalDateTime.now());
-        newUser.setRoles(Set.of(roleUser));
-
-        return userRepository.save(newUser);
-    }
+    return userRepository.save(newUser);
+  }
 
 
   public Optional<User> findByUsername(String name) {
@@ -113,12 +113,12 @@ public class UserService {
     return tokenService.generateToken(user.get());
   }
 
-public AvatarResponseDTO getUserPrivateAvatar() {
+  public AvatarResponseDTO getUserPrivateAvatar() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     return new AvatarResponseDTO(
             user.getAvatar().getData(),
             user.getAvatar().getContentType()
     );
-}
+  }
 }

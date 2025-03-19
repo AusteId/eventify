@@ -16,30 +16,30 @@ import java.util.stream.Collectors;
 
 @Service
 public class TokenService {
-    private final JwtEncoder jwtEncoder;
-    private final UserRepository userRepository;
+  private final JwtEncoder jwtEncoder;
+  private final UserRepository userRepository;
 
-    public TokenService(JwtEncoder jwtEncoder, UserRepository userRepository) {
-        this.jwtEncoder = jwtEncoder;
-        this.userRepository = userRepository;
-    }
+  public TokenService(JwtEncoder jwtEncoder, UserRepository userRepository) {
+    this.jwtEncoder = jwtEncoder;
+    this.userRepository = userRepository;
+  }
 
-    public String generateToken(User user) {
-        Instant now = Instant.now();
+  public String generateToken(User user) {
+    Instant now = Instant.now();
 
-        long expiry = 360000L;
+    long expiry = 360000L;
 
-        String scope = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(" "));
+    String scope = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(" "));
 
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("self")
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(expiry))
-                .subject(user.getUsername())
-                .claim("scope", scope)
-                .claim("userId",user.getId())
-                .build();
+    JwtClaimsSet claims = JwtClaimsSet.builder()
+            .issuer("self")
+            .issuedAt(now)
+            .expiresAt(now.plusSeconds(expiry))
+            .subject(user.getUsername())
+            .claim("scope", scope)
+            .claim("userId", user.getId())
+            .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-    }
+    return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+  }
 }

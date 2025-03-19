@@ -48,6 +48,7 @@ public class User implements UserDetails {
           joinColumns = @JoinColumn(name = "user_id"),
           inverseJoinColumns = @JoinColumn(name = "category_id")
   )
+
   private Set<Category> favoriteEventCategories;
 
   private String photoPath;

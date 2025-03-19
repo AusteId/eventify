@@ -14,47 +14,48 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtAuthenticationProvider jwtAuthenticationProvider;
-    private final JwtAuthenticationConverter jwtAuthenticationConverter;
+  private final JwtAuthenticationProvider jwtAuthenticationProvider;
+  private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
-    public JwtCookieAuthenticationFilter(JwtDecoder jwtDecoder, JwtAuthenticationConverter jwtAuthenticationConverter) {
-        this.jwtAuthenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
-        this.jwtAuthenticationConverter = jwtAuthenticationConverter;
-        this.jwtAuthenticationProvider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
-    }
+  public JwtCookieAuthenticationFilter(JwtDecoder jwtDecoder, JwtAuthenticationConverter jwtAuthenticationConverter) {
+    this.jwtAuthenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
+    this.jwtAuthenticationConverter = jwtAuthenticationConverter;
+    this.jwtAuthenticationProvider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+  }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+          throws ServletException, IOException {
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            String token = extractTokenFromCookie(request);
-            if (token != null) {
-                try {
+    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+      String token = extractTokenFromCookie(request);
+      if (token != null) {
+        try {
 
-                    var authenticationToken = new org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken(token);
-                    var authentication = jwtAuthenticationProvider.authenticate(authenticationToken);
+          var authenticationToken = new org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken(token);
+          var authentication = jwtAuthenticationProvider.authenticate(authenticationToken);
 
-                    if (authentication != null) {
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-                } catch (Exception e) {
-                    logger.debug("JWT authentication from cookie failed", e);
-                }
-            }
+          if (authentication != null) {
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+          }
+        } catch (Exception e) {
+          logger.debug("JWT authentication from cookie failed", e);
         }
+      }
+    }
 
-        filterChain.doFilter(request, response);
-    }
-    private String extractTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
+    filterChain.doFilter(request, response);
+  }
+
+  private String extractTokenFromCookie(HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if ("jwt_token".equals(cookie.getName())) {
+          return cookie.getValue();
         }
-        return null;
+      }
     }
+    return null;
+  }
 }

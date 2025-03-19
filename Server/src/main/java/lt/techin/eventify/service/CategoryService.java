@@ -17,50 +17,50 @@ import java.util.List;
 
 @Service
 public class CategoryService {
-    private final CategoryRepository categoryRepository;
-    private final CategoryIconRepository categoryIconRepository;
+  private final CategoryRepository categoryRepository;
+  private final CategoryIconRepository categoryIconRepository;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryIconRepository categoryIconRepository) {
-        this.categoryRepository = categoryRepository;
-        this.categoryIconRepository = categoryIconRepository;
+  public CategoryService(CategoryRepository categoryRepository, CategoryIconRepository categoryIconRepository) {
+    this.categoryRepository = categoryRepository;
+    this.categoryIconRepository = categoryIconRepository;
+  }
+
+  private Category checkCategory(Long categoryId) {
+    return categoryRepository.findById(categoryId).orElseThrow(() -> new NotFoundException("Category" +
+            " with id '" + categoryId + "' was not found"));
+  }
+
+  public List<CategoryResponse> getAllCategories() {
+    return categoryRepository.findAll().stream().map(CategoryMapper::toDTO).toList();
+  }
+
+
+  // Icon related Section
+  public CategoryIconResponse getCategoryIcon(Long categoryId) {
+    Category category = checkCategory(categoryId);
+    if (category.getIcon() == null || category.getIcon().getData() == null) {
+      throw new NotFoundException("Icon for the category not found");
     }
+    return new CategoryIconResponse(
+            category.getIcon().getData(),
+            category.getIcon().getContentType());
 
-    private Category checkCategory(Long categoryId) {
-        return categoryRepository.findById(categoryId).orElseThrow(() -> new NotFoundException("Category" +
-                " with id '" + categoryId + "' was not found"));
+  }
+
+  public void addIconToCategory(Long categoryId, CategoryIconRequest dto) throws IOException {
+    Category category = checkCategory(categoryId);
+    if (category.getIcon() != null) {
+      CategoryIcon existingIcon = category.getIcon();
+      existingIcon.setFilename(dto.categoryIcon().getOriginalFilename());
+      existingIcon.setContentType(dto.categoryIcon().getContentType());
+      existingIcon.setData(dto.categoryIcon().getBytes());
+      existingIcon.setFileSize(dto.categoryIcon().getSize());
+      category.setIcon(existingIcon);
+    } else {
+      CategoryIcon icon = CategoryMapper.iconToEntity(dto);
+      category.setIcon(icon);
     }
-
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream().map(CategoryMapper::toDTO).toList();
-    }
-
-
-    // Icon related Section
-    public CategoryIconResponse getCategoryIcon(Long categoryId) {
-        Category category = checkCategory(categoryId);
-        if (category.getIcon() == null || category.getIcon().getData() == null) {
-            throw new NotFoundException("Icon for the category not found");
-        }
-        return new CategoryIconResponse(
-                category.getIcon().getData(),
-                category.getIcon().getContentType());
-
-    }
-
-    public void addIconToCategory(Long categoryId, CategoryIconRequest dto) throws IOException {
-        Category category = checkCategory(categoryId);
-        if (category.getIcon() != null) {
-             CategoryIcon existingIcon = category.getIcon();
-             existingIcon.setFilename(dto.categoryIcon().getOriginalFilename());
-             existingIcon.setContentType(dto.categoryIcon().getContentType());
-             existingIcon.setData(dto.categoryIcon().getBytes());
-             existingIcon.setFileSize(dto.categoryIcon().getSize());
-             category.setIcon(existingIcon);
-        } else {
-            CategoryIcon icon = CategoryMapper.iconToEntity(dto);
-            category.setIcon(icon);
-        }
-        categoryRepository.save(category);
-    }
+    categoryRepository.save(category);
+  }
 
 }

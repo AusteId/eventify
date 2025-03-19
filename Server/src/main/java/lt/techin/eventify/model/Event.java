@@ -68,6 +68,7 @@ public class Event {
   // TODO: add proper way to load images from database with Tomas solution
   private String photoPath;
 
+
   @PrePersist
   public void prePersist() {
     if (this.createdAt == null) {

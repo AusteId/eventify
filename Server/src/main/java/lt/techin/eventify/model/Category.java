@@ -7,43 +7,43 @@ import jakarta.persistence.*;
 @Table(name = "categories")
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+  @Column(nullable = false, unique = true)
+  private String name;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "icon_id")
-    private CategoryIcon icon;
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "icon_id")
+  private CategoryIcon icon;
 
 
-    public Category() {
-    }
+  public Category() {
+  }
 
-    public CategoryIcon getIcon() {
-        return icon;
-    }
+  public CategoryIcon getIcon() {
+    return icon;
+  }
 
-    public void setIcon(CategoryIcon icon) {
-        this.icon = icon;
-    }
+  public void setIcon(CategoryIcon icon) {
+    this.icon = icon;
+  }
 
-    public Category(String name) {
-        this.name = name;
-    }
+  public Category(String name) {
+    this.name = name;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-    
+  public void setName(String name) {
+    this.name = name;
+  }
+
 }

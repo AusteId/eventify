@@ -39,77 +39,77 @@ import java.security.interfaces.RSAPublicKey;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.public.key}")
-    private RSAPublicKey publicKey;
+  @Value("${jwt.public.key}")
+  private RSAPublicKey publicKey;
 
-    @Value("${jwt.private.key}")
-    private RSAPrivateKey privateKey;
+  @Value("${jwt.private.key}")
+  private RSAPrivateKey privateKey;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/users/check-availability").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/users/avatar").hasAnyAuthority("ADMIN","USER")
-                        .requestMatchers(HttpMethod.GET,"/api/categories/all").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/categories/{id}/icon").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/categories/{id}/add-icon").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/users/logout").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/users/me").hasAnyAuthority("ADMIN","USER")
-                        .requestMatchers(HttpMethod.GET, "/api/users/{userId}/events").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/events").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.GET, "/api/events").hasAnyAuthority("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
-                        .requestMatchers("/", "/error", "/csrf", "/swagger-ui.html", "/swagger-ui/**",
-                                "/v3/api-docs", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
-                ).csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .addFilterBefore(new JwtCookieAuthenticationFilter(jwtDecoder(),jwtAuthenticationConverter()),
-                        org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .decoder(jwtDecoder())
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        )
-                )
-                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling((exceptions) -> exceptions
-                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
-                );
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests((authorize) -> authorize
+                    .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/users/check-availability").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/users/avatar").hasAnyAuthority("ADMIN", "USER")
+                    .requestMatchers(HttpMethod.GET, "/api/categories/all").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/categories/{id}/icon").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/categories/{id}/add-icon").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/users/logout").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyAuthority("ADMIN", "USER")
+                    .requestMatchers(HttpMethod.GET, "/api/users/{userId}/events").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/events").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
+                    .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
+                    .requestMatchers(HttpMethod.GET, "/api/events").hasAnyAuthority("ADMIN", "USER")
+                    .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
+                    .requestMatchers("/", "/error", "/csrf", "/swagger-ui.html", "/swagger-ui/**",
+                            "/v3/api-docs", "/v3/api-docs/**").permitAll()
+                    .anyRequest().authenticated()
+            ).csrf(AbstractHttpConfigurer::disable)
+            .cors(Customizer.withDefaults())
+            .addFilterBefore(new JwtCookieAuthenticationFilter(jwtDecoder(), jwtAuthenticationConverter()),
+                    org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
+            .oauth2ResourceServer(oauth2 -> oauth2
+                    .jwt(jwt -> jwt
+                            .decoder(jwtDecoder())
+                            .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                    )
+            )
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling((exceptions) -> exceptions
+                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+            );
+    return http.build();
+  }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
-        grantedAuthoritiesConverter.setAuthorityPrefix("");
+  @Bean
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    grantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
+    grantedAuthoritiesConverter.setAuthorityPrefix("");
 
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return converter;
-    }
+    JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+    converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+    return converter;
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(publicKey).build();
-    }
+  @Bean
+  public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withPublicKey(publicKey).build();
+  }
 
-    @Bean
-    public JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
-        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+  @Bean
+  public JwtEncoder jwtEncoder() {
+    JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
+    JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
     return new NimbusJwtEncoder(jwks);
   }
 
