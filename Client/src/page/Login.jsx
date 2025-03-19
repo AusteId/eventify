@@ -46,7 +46,7 @@ const Login = () => {
   return (
     <>
       {isLoading && <LoadingScreen />}
-      <div className="desktop:w-112 tablet:w-112 mx-auto px-6 pt-12 pb-12">
+      <div className="desktop:w-112 tablet:w-112 mx-auto px-6 pt-12 pb-12 mt-[1.5rem]">
         <div className="bg-[#FFFFFF] w-full h-auto rounded-2xl shadow-md">
           <div className="text-center px-8 pt-8 pb-8">
             <h1 className="text-header-dark font-inter text-heading-m font-bold">
