@@ -98,4 +98,12 @@ public class Event {
   public Event() {
   }
 
+  @Override
+  public String toString() {
+    return "Event{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", city='" + city + '\'' +
+            '}';
+  }
 }
