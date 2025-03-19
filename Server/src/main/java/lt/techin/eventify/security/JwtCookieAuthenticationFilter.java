@@ -22,7 +22,7 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
         this.jwtAuthenticationConverter = jwtAuthenticationConverter;
         this.jwtAuthenticationProvider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
     }
-
+    
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
