@@ -122,7 +122,7 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <button className="btn bg-btn w-full h-12 border-0 shadow-none hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg">
+            <button className="btn bg-btn w-full h-12 border-0 shadow-none text-white font-[500] hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg">
               Sign In
             </button>
           </form>
