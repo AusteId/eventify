@@ -68,6 +68,9 @@ public class Event {
   // TODO: add proper way to load images from database with Tomas solution
   private String photoPath;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "picture_id")
+  private EventImage eventImage;
 
   @PrePersist
   public void prePersist() {
@@ -77,7 +80,7 @@ public class Event {
   }
 
   public Event(Category category, User organizer, String name, LocalDateTime startDateTime,
-               LocalDateTime endDateTime, LocalDateTime createdAt, String description,
+               LocalDateTime endDateTime, String description,
                Integer minAge, Integer maxAge, String experienceLevel, int maxParticipants,
                String city, String address, String photoPath) {
     this.category = category;
@@ -85,7 +88,6 @@ public class Event {
     this.name = name;
     this.startDateTime = startDateTime;
     this.endDateTime = endDateTime;
-    this.createdAt = createdAt;
     this.description = description;
     this.minAge = minAge;
     this.maxAge = maxAge;

@@ -22,5 +22,4 @@ public class EventImage {
   private byte[] data;
 
   private Long fileSize;
-  private LocalDateTime uploadedAt;
 }

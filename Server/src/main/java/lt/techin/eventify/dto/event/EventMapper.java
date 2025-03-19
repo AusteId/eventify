@@ -1,9 +1,18 @@
 package lt.techin.eventify.dto.event;
 
 import lt.techin.eventify.dto.category.CategoryMapper;
+import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.EventImage;
+import lt.techin.eventify.model.UserImage;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Component
 public class EventMapper {
@@ -43,7 +52,6 @@ public class EventMapper {
             event.name(),
             event.startDateTime(),
             event.endDateTime(),
-            null,
             event.description(),
             event.minAge(),
             event.maxAge(),
@@ -67,8 +75,34 @@ public class EventMapper {
             event.getExperienceLevel(),
             event.getMaxParticipants(),
             event.getCity(),
-            event.getPhotoPath()
+            event.getPhotoPath(),
+            event.getEventImage().getData(),
+            event.getEventImage().getContentType()
     );
+  }
+
+  public EventImage imageToEntity(CreateEventRequest dto) throws IOException {
+    if (dto.picture() != null && !dto.picture().isEmpty()) {
+      EventImage eventImage = new EventImage();
+      eventImage.setFilename(dto.picture().getOriginalFilename());
+      eventImage.setContentType(dto.picture().getContentType());
+      eventImage.setFileSize(dto.picture().getSize());
+      eventImage.setData(dto.picture().getBytes());
+      return eventImage;
+    } else {
+      try {
+        Resource resource = new ClassPathResource("static/default-user-image.png");
+        byte[] imageBytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+        EventImage eventImage = new EventImage();
+        eventImage.setFilename("default-user-image");
+        eventImage.setContentType("image/png");
+        eventImage.setData(imageBytes);
+        eventImage.setFileSize((long) imageBytes.length);
+        return eventImage;
+      } catch (IOException e) {
+        throw new IOException("Could not load default user image" + e.getMessage());
+      }
+    }
   }
 
 }

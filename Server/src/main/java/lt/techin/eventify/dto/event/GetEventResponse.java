@@ -13,8 +13,8 @@ public record GetEventResponse(
         String experienceLevel,
         int maxParticipants,
         String city,
-        String address
+        String address,
+        byte[] pictureData,
+        String pictureContentType
 ) {
-
-
 }

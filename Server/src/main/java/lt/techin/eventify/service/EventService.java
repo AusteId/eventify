@@ -1,8 +1,10 @@
 package lt.techin.eventify.service;
 
 import lt.techin.eventify.dto.event.EventMapper;
+import lt.techin.eventify.dto.event.EventPictureResponse;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lt.techin.eventify.dto.user.AvatarResponseDTO;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.ForbiddenException;
@@ -13,6 +15,8 @@ import lt.techin.eventify.model.User;
 import lt.techin.eventify.repository.CategoryRepository;
 import lt.techin.eventify.repository.EventRepository;
 import lt.techin.eventify.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;

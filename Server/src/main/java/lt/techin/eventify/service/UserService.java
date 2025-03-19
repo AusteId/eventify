@@ -84,7 +84,6 @@ public class UserService {
 
     newUser.setAvatar(avatar);
     newUser.setPassword(passwordEncoder.encode(dto.password()));
-    newUser.setRegisteredAt(LocalDateTime.now());
     newUser.setRoles(Set.of(roleUser));
 
     return userRepository.save(newUser);

@@ -5,6 +5,8 @@ import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.validation.event.ValidAgeRange;
 import lt.techin.eventify.validation.event.ValidEventDates;
+import lt.techin.eventify.validation.file.ValidImage;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -60,6 +62,8 @@ public record CreateEventRequest(
         String address,
 
         // kol kas palikta nes nezinau kaip Tomo komponentas atrodys
-        String photoPath
+        String photoPath,
+        @ValidImage
+        MultipartFile picture
 ) {
 }

@@ -43,7 +43,6 @@ public class RolesAndUsersLoader implements CommandLineRunner {
       user.setEmail("user@user.com");
       user.setPassword(passwordEncoder.encode("User1234"));
       user.setRoles(Set.of(userRole));
-      user.setRegisteredAt(LocalDateTime.now());
       userRepository.save(user);
     }
 
@@ -53,7 +52,6 @@ public class RolesAndUsersLoader implements CommandLineRunner {
       admin.setEmail("admin@admin.com");
       admin.setPassword(passwordEncoder.encode("Admin1234"));
       admin.setRoles(Set.of(userRole, adminRole));
-      admin.setRegisteredAt(LocalDateTime.now());
       userRepository.save(admin);
     }
   }
