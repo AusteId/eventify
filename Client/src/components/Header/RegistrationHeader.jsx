@@ -3,7 +3,7 @@ import StepIndicator from '../StepIndicator';
 
 const RegistrationHeader = ({ currentStep }) => {
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-white shadow-md">
+    <header className="flex items-center justify-between px-6 py-[1.3rem] bg-white shadow-md">
       <NavLink tabIndex={-1} to={'/'}>
         <section className="flex items-center gap-4">
           <svg
