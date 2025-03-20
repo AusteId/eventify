@@ -15,10 +15,7 @@ public record CreateProfileCommentRequest(
 
         @NotNull(message =  "Message cannot be null")
         @Size(max = 1000, message = "Message cannot exceed 1000 characters.")
-        String comment,
-
-        @NotNull(message =  "Created time cannot be null")
-        Timestamp createdAt
+        String comment
 ) {
 
 }

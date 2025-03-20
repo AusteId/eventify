@@ -3,6 +3,7 @@ package lt.techin.eventify.model;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -33,14 +34,13 @@ public class ProfileComment {
     @Column(nullable = false, length = 1000)
     private String comment;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private Timestamp createdAt;
 
-    public ProfileComment(User commenter, User commented, String comment, Timestamp createdAt) {
+    public ProfileComment(User commenter, User commented, String comment) {
         this.commenter = commenter;
         this.commented = commented;
         this.comment = comment;
-        this.createdAt = createdAt;
     }
 
     public ProfileComment() {}

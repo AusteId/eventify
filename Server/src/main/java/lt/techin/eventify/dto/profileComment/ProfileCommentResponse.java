@@ -6,7 +6,6 @@ public record ProfileCommentResponse(
         long id,
         long commenterId,
         long commentedId,
-        String comment,
-        Timestamp createdAt
+        String comment
 ) {
 }

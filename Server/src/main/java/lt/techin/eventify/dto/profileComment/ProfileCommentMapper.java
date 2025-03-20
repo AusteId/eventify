@@ -13,14 +13,14 @@ public class ProfileCommentMapper {
     }
 
     public ProfileCommentResponse toResponse (ProfileComment profileComment) {
-        return new ProfileCommentResponse(profileComment.getId(), profileComment.getCommenter().getId(), profileComment.getCommented().getId(), profileComment.getComment(), profileComment.getCreatedAt());
+        return new ProfileCommentResponse(profileComment.getId(), profileComment.getCommenter().getId(), profileComment.getCommented().getId(), profileComment.getComment());
     }
 
     public ProfileComment toProfileComment(CreateProfileCommentRequest dto) {
-        return new ProfileComment(dto.commenter(), dto.commented(), dto.comment(), dto.createdAt());
+        return new ProfileComment(dto.commenter(), dto.commented(), dto.comment());
     }
 
     public ProfileCommentResponse toProfileCommentResponse(ProfileComment comment) {
-        return new ProfileCommentResponse(comment.getId(), comment.getCommenter().getId(), comment.getCommented().getId(), comment.getComment(), comment.getCreatedAt());
+        return new ProfileCommentResponse(comment.getId(), comment.getCommenter().getId(), comment.getCommented().getId(), comment.getComment());
     }
 }
