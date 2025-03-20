@@ -78,6 +78,7 @@ public class UserService {
                       .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId)))
               .collect(Collectors.toSet());
     }
+
     newUser.setFavoriteEventCategories(favoriteCategories);
 
     UserImage avatar = UserMapper.imageToEntity(dto);

@@ -3,9 +3,11 @@ import EventCard from './EventCard';
 import Pagination from './Pagination';
 import { staticEventLoader } from '../helpers/staticEventLoader';
 import axios from 'axios';
+import { useAuth } from './Auth/AuthContext';
 
 const EventsList = ({ setLoading, loading }) => {
   const [data, setData] = useState(null);
+  const { authFetch } = useAuth();
 
   // temporary solution
 
@@ -13,27 +15,42 @@ const EventsList = ({ setLoading, loading }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
+
         const response = await axios.get(
           `${import.meta.env.VITE_BACK_URL}/api/events`,
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${token}`,
-          //   },
-          // },
-        );
+        );      
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data: ', error);
         setData(staticEventLoader());
       } finally {
-        console.log('done');
         setLoading(false);
       }
     };
 
     fetchData(); // Call the function
   }, []);
+
+  console.log(data[0]);
+
+  // const { timeourForError } = useNotification();
+  // const { authFetch } = useAuth();
+
+  // const getUserAvatar = async () => {
+  //   try {
+  //     const response = await authFetch(
+  //       'http://localhost:8080/api/users/avatar',
+  //     );
+  //     if (response.ok) {
+  //       const blob = await response.blob();
+  //       const image = URL.createObjectURL(blob);
+  //       setAvatar(image);
+  //     }
+  //   } catch (error) {
+  //     timeourForError(error.message || 'Failed to load avatar');
+  //   }
+  // };
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 12;
@@ -63,12 +80,14 @@ const EventsList = ({ setLoading, loading }) => {
     <div className="h-full flex flex-col justify-between">
       {loading ? (
         <span className="loading loading-bars loading-xl"></span>
-      ) : (
+      ) : data && currentEvents?.length > 0 ? (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {currentEvents.map((event, index) => (
             <EventCard key={index} {...event} />
           ))}
         </div>
+      ) : (
+        <></>
       )}
 
       <Pagination
