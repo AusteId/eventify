@@ -92,7 +92,7 @@ const Event = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-[2fr_1fr]">
+        <div className="grid grid-cols-[2fr_1fr] gap-6">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-8">
               <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
