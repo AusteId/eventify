@@ -12,22 +12,15 @@ public class ProfileCommentMapper {
         this.userService = userService;
     }
 
-    public profileCommentResponse toResponse (ProfileComment profileComment) {
-        return new profileCommentResponse(profileComment.getId(), profileComment.getCommenter().getId(), profileComment.getCommented().getId(), profileComment.getComment(), profileComment.getCreatedAt());
+    public ProfileCommentResponse toResponse (ProfileComment profileComment) {
+        return new ProfileCommentResponse(profileComment.getId(), profileComment.getCommenter().getId(), profileComment.getCommented().getId(), profileComment.getComment(), profileComment.getCreatedAt());
     }
 
-    public ProfileComment toProfileComment(createProfileCommentRequest dto) {
-        ProfileComment comment = new ProfileComment();
-
-        comment.setCommenter(userService.findById(dto.commenterId()));
-        comment.setCommented(userService.findById(dto.commentedId()));
-        comment.setComment(dto.comment());
-        comment.setCreatedAt(dto.createdAt());
-
-        return comment;
+    public ProfileComment toProfileComment(CreateProfileCommentRequest dto) {
+        return new ProfileComment(dto.commenter(), dto.commented(), dto.comment(), dto.createdAt());
     }
 
-    public profileCommentResponse toProfileCommentResponse(ProfileComment comment) {
-        return new profileCommentResponse(comment.getId(), comment.getCommenter().getId(), comment.getCommented().getId(), comment.getComment(), comment.getCreatedAt());
+    public ProfileCommentResponse toProfileCommentResponse(ProfileComment comment) {
+        return new ProfileCommentResponse(comment.getId(), comment.getCommenter().getId(), comment.getCommented().getId(), comment.getComment(), comment.getCreatedAt());
     }
 }

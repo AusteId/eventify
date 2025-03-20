@@ -36,8 +36,7 @@ public class ProfileComment {
     @Column(nullable = false)
     private Timestamp createdAt;
 
-    public ProfileComment(long id, User commenter, User commented, String comment, Timestamp createdAt) {
-        this.id = id;
+    public ProfileComment(User commenter, User commented, String comment, Timestamp createdAt) {
         this.commenter = commenter;
         this.commented = commented;
         this.comment = comment;

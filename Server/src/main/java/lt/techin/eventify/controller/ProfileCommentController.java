@@ -2,8 +2,8 @@ package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.profileComment.ProfileCommentMapper;
-import lt.techin.eventify.dto.profileComment.createProfileCommentRequest;
-import lt.techin.eventify.dto.profileComment.profileCommentResponse;
+import lt.techin.eventify.dto.profileComment.CreateProfileCommentRequest;
+import lt.techin.eventify.dto.profileComment.ProfileCommentResponse;
 import lt.techin.eventify.model.ProfileComment;
 import lt.techin.eventify.service.ProfileCommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +44,9 @@ public class ProfileCommentController {
 //    public void
 
     @PostMapping("/comments/new")
-    public ResponseEntity<profileCommentResponse> postComment(@Valid @RequestBody createProfileCommentRequest dto) {
-        ProfileComment profileComment = profileCommentService.saveProfileComment(dto);
-        profileCommentResponse response = profileCommentMapper.toProfileCommentResponse(profileComment);
+    public ResponseEntity<ProfileCommentResponse> postComment(@Valid @RequestBody CreateProfileCommentRequest dto) {
+        ProfileComment profileComment = profileCommentService.saveProfileComment(profileCommentMapper.toProfileComment(dto));
+        ProfileCommentResponse response = profileCommentMapper.toProfileCommentResponse(profileComment);
 
         return ResponseEntity.created(
                         ServletUriComponentsBuilder.fromCurrentRequest()

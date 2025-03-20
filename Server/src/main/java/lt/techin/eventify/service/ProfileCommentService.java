@@ -1,7 +1,7 @@
 package lt.techin.eventify.service;
 
 import lt.techin.eventify.dto.profileComment.ProfileCommentMapper;
-import lt.techin.eventify.dto.profileComment.createProfileCommentRequest;
+import lt.techin.eventify.dto.profileComment.CreateProfileCommentRequest;
 import lt.techin.eventify.model.ProfileComment;
 import lt.techin.eventify.repository.ProfileCommentRepository;
 import org.springframework.stereotype.Service;
@@ -26,8 +26,7 @@ public class ProfileCommentService {
         return profileCommentRepository.findById(id).orElseThrow(NullPointerException::new);
     }
 
-    public ProfileComment saveProfileComment(createProfileCommentRequest profileComment) {
-        ProfileComment newComment = profileCommentMapper.toProfileComment(profileComment);
-        return profileCommentRepository.save(newComment);
+    public ProfileComment saveProfileComment(ProfileComment profileComment) {
+        return profileCommentRepository.save(profileComment);
     }
 }

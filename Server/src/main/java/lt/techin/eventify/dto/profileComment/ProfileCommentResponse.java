@@ -1,10 +1,8 @@
 package lt.techin.eventify.dto.profileComment;
 
-import lt.techin.eventify.model.User;
-
 import java.sql.Timestamp;
 
-public record profileCommentResponse(
+public record ProfileCommentResponse(
         long id,
         long commenterId,
         long commentedId,

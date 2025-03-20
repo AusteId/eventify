@@ -6,9 +6,9 @@ import lt.techin.eventify.model.User;
 
 import java.sql.Timestamp;
 
-public record createProfileCommentRequest(
+public record CreateProfileCommentRequest(
         @NotNull(message =  "Commenter cannot be null")
-        User commenterId,
+        User commenter,
 
         @NotNull(message =  "Commented cannot be null")
         User commented,
