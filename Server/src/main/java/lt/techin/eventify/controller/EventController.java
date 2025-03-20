@@ -94,4 +94,6 @@ public class EventController {
 //    registrationToEventService.saveEventRegistration(registration);
 //
 //  }
+
+
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,5 +101,15 @@ public class EventService {
     return eventRepository.findAll().stream()
             .map(eventMapper::toEventResponse)
             .collect(Collectors.toList());
+  }
+
+  public EventResponse getEventById(long eventId) {
+    Optional<Event> foundEvent = eventRepository.findById(eventId);
+
+    if (foundEvent.isEmpty()){
+      throw new EventNotFoundException("Event with ID " + eventId + " not found");
+    }
+
+    return eventMapper.toEventResponse(foundEvent.get());
   }
 }

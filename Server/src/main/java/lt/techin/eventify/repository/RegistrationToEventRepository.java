@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RegistrationToEventRepository extends JpaRepository<RegistrationToEvent, Long> {
   int countByEventId(Long id);
+  boolean existsByUserIdAndEventId(Long userId, Long eventId);
 }
