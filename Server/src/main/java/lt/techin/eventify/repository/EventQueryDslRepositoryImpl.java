@@ -31,7 +31,7 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
 
     public Page<Event> findEventsByFilters(String categoryName, String city, LocalDateTime startDateTime,
                                            LocalDateTime endDateTime, String experienceLevel,
-                                           Integer minAge, Integer maxAge, Pageable pageable) {
+                                           Integer minAge, Integer maxAge, String searchTerm, Pageable pageable) {
 
         QEvent event = QEvent.event;
         BooleanBuilder builder = new BooleanBuilder();
@@ -69,6 +69,13 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
 
         if (maxAge != null) {
             builder.and(event.maxAge.goe(maxAge));
+        }
+
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            builder.andAnyOf(
+                    event.name.containsIgnoreCase(searchTerm),
+                    event.description.containsIgnoreCase(searchTerm)
+            );
         }
 
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();

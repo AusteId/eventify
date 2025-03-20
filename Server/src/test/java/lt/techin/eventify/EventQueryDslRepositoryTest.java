@@ -22,11 +22,10 @@ class EventQueryDslRepositoryTest {
 
     @Test
     void testFindEventsByFiltersWithAllWelcome() {
-        // Puslapiavimas: 1 puslapis (page = 0), 10 įrašų per puslapį, rūšiuoti pagal startDateTime didėjančia tvarka
         Pageable pageable = PageRequest.of(0, 10, Sort.by("startDateTime").ascending());
 
         LocalDateTime startDateTime = LocalDateTime.of(2025, 3, 1, 0, 0); // 2025-03-01 00:00
-        LocalDateTime endDateTime = null;
+        LocalDateTime endDateTime = null; // Kol kas nenaudojame endDateTime
         Page<Event> eventPage = eventRepository.findEventsByFilters(
                 "music",           // categoryName
                 "Bamenda",         // city
@@ -35,6 +34,7 @@ class EventQueryDslRepositoryTest {
                 "All Welcome",     // experienceLevel
                 13,                // minAge
                 69,                // maxAge
+                null,              // searchTerm (praleidžiame)
                 pageable
         );
         assertNotNull(eventPage);
@@ -45,11 +45,10 @@ class EventQueryDslRepositoryTest {
 
     @Test
     void testFindEventsByFiltersWithExtreme() {
-        // Puslapiavimas: 1 puslapis (page = 0), 10 įrašų per puslapį, rūšiuoti pagal name mažėjančia tvarka
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
         LocalDateTime startDateTime = LocalDateTime.of(2025, 3, 1, 0, 0); // 2025-03-01 00:00
-        LocalDateTime endDateTime = null;
+        LocalDateTime endDateTime = null; // Kol kas nenaudojame endDateTime
         Page<Event> eventPage = eventRepository.findEventsByFilters(
                 "music",           // categoryName
                 "Bamenda",         // city
@@ -58,6 +57,7 @@ class EventQueryDslRepositoryTest {
                 "Extreme",         // experienceLevel
                 13,                // minAge
                 69,                // maxAge
+                null,              // searchTerm (praleidžiame)
                 pageable
         );
         assertNotNull(eventPage);
@@ -68,7 +68,6 @@ class EventQueryDslRepositoryTest {
 
     @Test
     void testFindEventsByCityVilniusWithPagination() {
-        // Puslapiavimas: 1 puslapis (page = 0), 2 įrašai per puslapį, rūšiuoti pagal startDateTime didėjančia tvarka
         Pageable pageable = PageRequest.of(0, 2, Sort.by("startDateTime").ascending());
 
         Page<Event> eventPage = eventRepository.findEventsByFilters(
@@ -79,6 +78,7 @@ class EventQueryDslRepositoryTest {
                 null,              // experienceLevel (praleidžiame)
                 null,              // minAge (praleidžiame)
                 null,              // maxAge (praleidžiame)
+                null,              // searchTerm (praleidžiame)
                 pageable
         );
         assertNotNull(eventPage);
@@ -89,4 +89,26 @@ class EventQueryDslRepositoryTest {
         System.out.println("Page size: " + eventPage.getSize());
     }
 
+    @Test
+    void testFindEventsByCityVilniusAndSearchTerm() {
+        Pageable pageable = PageRequest.of(0, 2, Sort.by("startDateTime").ascending());
+
+        Page<Event> eventPage = eventRepository.findEventsByFilters(
+                null,              // categoryName (praleidžiame)
+                "Vilnius",         // city
+                null,              // startDateTime (praleidžiame)
+                null,              // endDateTime (praleidžiame)
+                null,              // experienceLevel (praleidžiame)
+                null,              // minAge (praleidžiame)
+                null,              // maxAge (praleidžiame)
+                "ante",       // searchTerm
+                pageable
+        );
+        assertNotNull(eventPage);
+        System.out.println("Found events in Vilnius with search term 'ante': " + eventPage.getContent());
+        System.out.println("Total elements: " + eventPage.getTotalElements());
+        System.out.println("Total pages: " + eventPage.getTotalPages());
+        System.out.println("Current page: " + eventPage.getNumber());
+        System.out.println("Page size: " + eventPage.getSize());
+    }
 }
