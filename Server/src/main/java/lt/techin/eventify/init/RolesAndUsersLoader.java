@@ -1,15 +1,21 @@
 package lt.techin.eventify.init;
 
+import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.model.Role;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.model.UserImage;
 import lt.techin.eventify.repository.RoleRepository;
 import lt.techin.eventify.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -38,22 +44,35 @@ public class RolesAndUsersLoader implements CommandLineRunner {
             .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
 
     if (userRepository.findByUsername("User").isEmpty()) {
+
+      UserImage avatar = UserMapper.DefaultImage("static/default-user-image.png");
+
       User user = new User();
       user.setUsername("User");
       user.setEmail("user@user.com");
       user.setPassword(passwordEncoder.encode("User1234"));
+      user.setCity("User");
+      user.setDescription("User description");
+      user.setBirthDate(LocalDate.EPOCH);
       user.setRoles(Set.of(userRole));
       user.setRegisteredAt(LocalDateTime.now());
+      user.setAvatar(avatar);
       userRepository.save(user);
     }
 
     if (userRepository.findByUsername("Admin").isEmpty()) {
+      UserImage adminAvatar = UserMapper.DefaultImage("static/default-admin-image.png");
+
       User admin = new User();
       admin.setUsername("Admin");
       admin.setEmail("admin@admin.com");
       admin.setPassword(passwordEncoder.encode("Admin1234"));
+      admin.setCity("Admin");
+      admin.setDescription("Admin description");
+      admin.setBirthDate(LocalDate.EPOCH);
       admin.setRoles(Set.of(userRole, adminRole));
       admin.setRegisteredAt(LocalDateTime.now());
+      admin.setAvatar(adminAvatar);
       userRepository.save(admin);
     }
   }
