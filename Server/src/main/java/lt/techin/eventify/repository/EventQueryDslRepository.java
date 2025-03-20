@@ -12,6 +12,4 @@ public interface EventQueryDslRepository {
                                          LocalDateTime endDateTime, String experienceLevel,
                                          Integer minAge, Integer maxAge, String searchTerm, Pageable pageable);
 
-
-
 }
