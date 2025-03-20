@@ -10,9 +10,9 @@ import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.CategoryRepository;
-import lt.techin.eventify.repository.EventRepository;
-import lt.techin.eventify.repository.UserRepository;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.EventRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
