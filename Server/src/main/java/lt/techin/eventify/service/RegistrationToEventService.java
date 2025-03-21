@@ -1,50 +1,82 @@
 package lt.techin.eventify.service;
 
+import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.exception.AlreadyExistsException;
 import lt.techin.eventify.exception.EventFullException;
+import lt.techin.eventify.exception.EventNotFoundException;
+import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
 import lt.techin.eventify.repository.RegistrationToEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class RegistrationToEventService {
   private final RegistrationToEventRepository registrationToEventRepository;
   private final EventService eventService;
+  private final UserService userService;
+  private final EventMapper eventMapper;
 
   @Autowired
-  public RegistrationToEventService(RegistrationToEventRepository registrationToEventRepository, EventService eventService) {
+  public RegistrationToEventService(RegistrationToEventRepository registrationToEventRepository, EventService eventService, UserService userService, EventMapper eventMapper) {
     this.registrationToEventRepository = registrationToEventRepository;
     this.eventService = eventService;
+    this.userService = userService;
+    this.eventMapper = eventMapper;
   }
 
-  public RegistrationToEvent saveEventRegistration(RegistrationToEvent registrationToEvent) {
-
-    Long eventId = registrationToEvent.getEvent().getId();
-    Long userId = registrationToEvent.getUser().getId();
-
-    if (registrationToEventRepository.existsByUserIdAndEventId(userId, eventId)) {
-      throw new AlreadyExistsException("User is already registered for this event");
-    }
-
-    EventResponse event = eventService.getEventById(eventId);
-
-    int registrationCount = countRegistrationsByEventId(eventId);
-    if (registrationCount >= event.maxParticipants()){
-      throw new EventFullException("No slots available for this event");
-    }
-
-
-
-    return registrationToEventRepository.save(registrationToEvent);
-  }
+//  public RegistrationToEvent saveEventRegistration(RegistrationToEvent registrationToEvent) {
+//
+//    Long eventId = registrationToEvent.getEvent().getId();
+//    Long userId = registrationToEvent.getUser().getId();
+//
+//    if (registrationToEventRepository.existsByUserIdAndEventId(userId, eventId)) {
+//      throw new AlreadyExistsException("User is already registered for this event");
+//    }
+//
+//    EventResponse event = eventService.getEventById(eventId);
+//
+//    int registrationCount = countRegistrationsByEventId(eventId);
+//    if (registrationCount >= event.maxParticipants()){
+//      throw new EventFullException("No slots available for this event");
+//    }
+//
+//
+//
+//    return registrationToEventRepository.save(registrationToEvent);
+//  }
 
   public int countRegistrationsByEventId(Long eventId) {
     return registrationToEventRepository.countByEventId(eventId);
   }
 
+  public RegistrationToEvent saveEventRegistration(Long eventId, String username) {
+
+   User user = userService.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
+
+    Event event = eventService.findEventById(eventId);
+
+
+
+    if (registrationToEventRepository.existsByUserIdAndEventId(user.getId(), eventId)) {
+      throw new AlreadyExistsException("User is already registered for this event");
+    }
+
+    int registrationCount = countRegistrationsByEventId(eventId);
+    if (registrationCount >= event.getMaxParticipants()) {
+      throw new EventFullException("No slots available for this event");
+    }
+
+    RegistrationToEvent registration = new RegistrationToEvent(user, event, LocalDateTime.now());
+    return registrationToEventRepository.save(registration);
+  }
 
 
 }

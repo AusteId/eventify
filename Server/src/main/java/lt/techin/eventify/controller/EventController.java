@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
@@ -13,6 +14,7 @@ import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/events")
@@ -96,4 +99,13 @@ public class EventController {
 //  }
 
 
+  @PostMapping("/{eventId}/register")
+  public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal){
+
+    RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
+
+    RegistrationToEventResponse response = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
 }

@@ -106,10 +106,16 @@ public class EventService {
   public EventResponse getEventById(long eventId) {
     Optional<Event> foundEvent = eventRepository.findById(eventId);
 
-    if (foundEvent.isEmpty()){
+    if (foundEvent.isEmpty()) {
       throw new EventNotFoundException("Event with ID " + eventId + " not found");
     }
 
     return eventMapper.toEventResponse(foundEvent.get());
   }
+
+  public Event findEventById(Long eventId) {
+    return eventRepository.findById(eventId)
+            .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
+  }
+
 }

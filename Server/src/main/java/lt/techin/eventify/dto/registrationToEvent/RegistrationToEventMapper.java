@@ -14,5 +14,14 @@ public class RegistrationToEventMapper {
                 LocalDateTime.now()
         );
     }
+    public RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registration) {
+        return new RegistrationToEventResponse(
+                registration.getId(),
+                registration.getUser(),
+                registration.getEvent(),
+                registration.getRegisteredAt()
+        );
+    }
+
 
 }
