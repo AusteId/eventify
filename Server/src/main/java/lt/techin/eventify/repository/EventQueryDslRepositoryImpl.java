@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +31,8 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
     this.categoryRepository = categoryRepository;
   }
 
-  public Page<Event> findEventsByFilters(String categoryName, String city, LocalDateTime startDateTime,
-                                         LocalDateTime endDateTime, String experienceLevel,
+  public Page<Event> findEventsByFilters(String categoryName, String city, String startDateTime,
+                                         String endDateTime, String experienceLevel,
                                          Integer minAge, Integer maxAge, String searchTerm, Pageable pageable) {
 
     QEvent event = QEvent.event;
@@ -51,15 +53,28 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
       builder.and(event.city.eq(city));
     }
 
-    LocalDateTime now = LocalDateTime.now();
-    if (startDateTime != null) {
-      builder.and(event.startDateTime.goe(startDateTime));
+//    LocalDateTime now = LocalDateTime.now();
+//    if (startDateTime != null) {
+//      builder.and(event.startDateTime.goe(startDateTime));
+//    } else {
+//      builder.and(event.startDateTime.goe(now));
+//    }
+//
+//    if (endDateTime != null) {
+//      builder.and(event.endDateTime.loe(endDateTime));
+//    }
+
+    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+    if (startDateTime != null && !startDateTime.isEmpty()) {
+      LocalDateTime startOfDay = LocalDate.parse(startDateTime).atStartOfDay();
+      builder.and(event.startDateTime.goe(startOfDay));
     } else {
       builder.and(event.startDateTime.goe(now));
     }
 
-    if (endDateTime != null) {
-      builder.and(event.endDateTime.loe(endDateTime));
+    if (endDateTime != null && !endDateTime.isEmpty()) {
+      LocalDateTime endOfDay = LocalDate.parse(endDateTime).atTime(23, 59, 59);
+      builder.and(event.endDateTime.loe(endOfDay));
     }
 
     if (experienceLevel != null && !experienceLevel.isEmpty()) {

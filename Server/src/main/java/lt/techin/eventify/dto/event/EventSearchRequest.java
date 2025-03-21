@@ -1,11 +1,8 @@
 package lt.techin.eventify.dto.event;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
-
-import java.time.LocalDateTime;
 
 public record EventSearchRequest(
 
@@ -14,11 +11,8 @@ public record EventSearchRequest(
         @Pattern(regexp = "^([a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]+(?:[\\s.\\-'’‘]){0,2})*[a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]*$|^$", message = "Invalid city name")
         String city,
 
-        @Future(message = "Start date must be in the future")
-        LocalDateTime startDateTime,
-
-        @Future(message = "End date must be in the future")
-        LocalDateTime endDateTime,
+        String startDateTime,
+        String endDateTime,
 
         @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme|All Welcome)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme, or All Welcome")
         String experienceLevel,

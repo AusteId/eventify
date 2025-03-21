@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -106,8 +105,8 @@ public class EventService {
             .toList();
   }
 
-  public Page<EventResponse> findEventsByFilters(String categoryName, String city, LocalDateTime startDateTime,
-                                                 LocalDateTime endDateTime, String experienceLevel,
+  public Page<EventResponse> findEventsByFilters(String categoryName, String city, String startDateTime,
+                                                 String endDateTime, String experienceLevel,
                                                  Integer minAge, Integer maxAge, String searchTerm, Pageable pageable) {
 
     if (categoryName != null && !categoryName.isEmpty()) {
