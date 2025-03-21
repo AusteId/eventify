@@ -1,4 +1,4 @@
-package lt.techin.eventify.repository;
+package lt.techin.eventify.repository.mysql;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;

@@ -1,4 +1,4 @@
-package lt.techin.eventify.repository;
+package lt.techin.eventify.repository.mysql;
 
 import lt.techin.eventify.model.Event;
 import org.springframework.data.domain.Page;

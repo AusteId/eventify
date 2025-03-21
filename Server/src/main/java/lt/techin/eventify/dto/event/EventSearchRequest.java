@@ -11,7 +11,12 @@ public record EventSearchRequest(
         @Pattern(regexp = "^([a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]+(?:[\\s.\\-'’‘]){0,2})*[a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]*$|^$", message = "Invalid city name")
         String city,
 
+        @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+                message = "startDateTime must be in format yyyy-MM-dd, e.g., 2025-05-01")
         String startDateTime,
+
+        @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+                message = "endDateTime must be in format yyyy-MM-dd, e.g., 2025-06-01")
         String endDateTime,
 
         @Pattern(regexp = "^(Beginner|Intermediate|Advanced|Extreme|All Welcome)?$", message = "Experience level must be Beginner, Intermediate, Advanced, Extreme, or All Welcome")
