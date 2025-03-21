@@ -4,16 +4,13 @@ import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.model.Role;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.model.UserImage;
-import lt.techin.eventify.repository.RoleRepository;
-import lt.techin.eventify.repository.UserRepository;
+import lt.techin.eventify.repository.mysql.RoleRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

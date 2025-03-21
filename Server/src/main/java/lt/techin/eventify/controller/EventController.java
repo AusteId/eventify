@@ -3,18 +3,16 @@ package lt.techin.eventify.controller;
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -78,6 +76,30 @@ public class EventController {
   public ResponseEntity<String> deleteEvent(@PathVariable long eventId, Principal principal) {
     eventService.deleteEvent(eventId, principal);
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/search")
+  public ResponseEntity<Page<EventResponse>> searchEvents(@Valid EventSearchRequest request) {
+
+    Pageable pageable = PageRequest.of(
+            request.page(),
+            request.size(),
+            Sort.by(Sort.Direction.fromString(request.sortDirection()), request.sortBy())
+    );
+
+    Page<EventResponse> eventPage = eventService.findEventsByFilters(
+            request.categoryName(),
+            request.city(),
+            request.startDateTime(),
+            request.endDateTime(),
+            request.experienceLevel(),
+            request.minAge(),
+            request.maxAge(),
+            request.searchTerm(),
+            pageable
+    );
+
+    return ResponseEntity.ok(eventPage);
   }
 
 //  @PostMapping("/{eventId}/register")
