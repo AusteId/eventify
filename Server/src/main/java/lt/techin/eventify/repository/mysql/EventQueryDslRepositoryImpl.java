@@ -53,17 +53,6 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
       builder.and(event.city.eq(city));
     }
 
-//    LocalDateTime now = LocalDateTime.now();
-//    if (startDateTime != null) {
-//      builder.and(event.startDateTime.goe(startDateTime));
-//    } else {
-//      builder.and(event.startDateTime.goe(now));
-//    }
-//
-//    if (endDateTime != null) {
-//      builder.and(event.endDateTime.loe(endDateTime));
-//    }
-
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
     if (startDateTime != null && !startDateTime.isEmpty()) {
       LocalDateTime startOfDay = LocalDate.parse(startDateTime).atStartOfDay();
