@@ -18,17 +18,23 @@ public class Message {
     private LocalDateTime timestamp;
     private String conversationId;
     private boolean read;
+    private OnlineStatus onlineStatus; // ONLINE OFFLINE AWAY
+    private boolean isTyping;
+    private LocalDateTime lastSeen;
+
+    // Something123 some@something.com
+    // Something1234 some1@thing.com
 
     public Message() {
 
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public LocalDateTime getLastSeen() {
+        return lastSeen;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public void setLastSeen(LocalDateTime lastSeen) {
+        this.lastSeen = lastSeen;
     }
 
     public String getId() {
@@ -59,6 +65,14 @@ public class Message {
         this.content = content;
     }
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public String getConversationId() {
         return conversationId;
     }
@@ -73,5 +87,21 @@ public class Message {
 
     public void setRead(boolean read) {
         this.read = read;
+    }
+
+    public OnlineStatus getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(OnlineStatus onlineStatus) {
+        this.onlineStatus = onlineStatus;
+    }
+
+    public boolean isTyping() {
+        return isTyping;
+    }
+
+    public void setTyping(boolean typing) {
+        isTyping = typing;
     }
 }

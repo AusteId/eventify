@@ -1,6 +1,8 @@
 package lt.techin.eventify.controller;
 
 
+import lt.techin.eventify.dto.message.MessageRequest;
+import lt.techin.eventify.dto.message.MessageResponse;
 import lt.techin.eventify.model.Message;
 import lt.techin.eventify.service.MessageService;
 import lt.techin.eventify.util.WebUtils;
@@ -22,24 +24,22 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @PostMapping("/{senderId}/{recipientId}")
-    public ResponseEntity<Message> sendMessage(@RequestBody String content,
-                                               @PathVariable Long senderId,
+    @PostMapping("/{recipientId}")
+    public ResponseEntity<Message> sendMessage(@RequestBody MessageRequest request,
                                                @PathVariable Long recipientId) {
-        Message message = messageService.sendMessage(senderId,recipientId,content);
+        Message message = messageService.sendMessage(recipientId,request);
         URI location = WebUtils.uriLocation("/{conversationId}",message.getConversationId());
         return ResponseEntity.created(location).body(message);
     }
 
-    @GetMapping("/{senderId}/{recipientId}")
-    public ResponseEntity<Page<Message>> getConversationMessages(@PathVariable Long senderId,
-                                                                 @PathVariable Long recipientId,
-                                                                 @RequestParam(defaultValue = "timestamp") String sortBy,
-                                                                 @RequestParam(defaultValue = "asc")String direction,
-                                                                 @RequestParam(defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "4") int size) {
+    @GetMapping("/{recipientId}")
+    public ResponseEntity<Page<MessageResponse>> getConversationMessages(@PathVariable Long recipientId,
+                                                                         @RequestParam(defaultValue = "timestamp") String sortBy,
+                                                                         @RequestParam(defaultValue = "asc")String direction,
+                                                                         @RequestParam(defaultValue = "0") int page,
+                                                                         @RequestParam(defaultValue = "4") int size) {
         Pageable pageable = PageRequest.of(page,size,direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC,sortBy);
-        return ResponseEntity.ok(messageService.getConversation(senderId,recipientId,pageable));
+        return ResponseEntity.ok(messageService.getConversation(recipientId,pageable));
 
     }
 }
