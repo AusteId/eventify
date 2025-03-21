@@ -12,15 +12,15 @@ public class ProfileCommentMapper {
         this.userService = userService;
     }
 
-    public ProfileCommentResponse toResponse (ProfileComment profileComment) {
+    public static ProfileCommentResponse toResponse (ProfileComment profileComment) {
         return new ProfileCommentResponse(profileComment.getId(), profileComment.getCommenter().getId(), profileComment.getCommented().getId(), profileComment.getComment());
     }
 
-    public ProfileComment toProfileComment(CreateProfileCommentRequest dto) {
+    public static ProfileComment toProfileComment(CreateProfileCommentRequest dto) {
         return new ProfileComment(dto.commenter(), dto.commented(), dto.comment());
     }
 
-    public ProfileCommentResponse toProfileCommentResponse(ProfileComment comment) {
+    public static ProfileCommentResponse toProfileCommentResponse(ProfileComment comment) {
         return new ProfileCommentResponse(comment.getId(), comment.getCommenter().getId(), comment.getCommented().getId(), comment.getComment());
     }
 }

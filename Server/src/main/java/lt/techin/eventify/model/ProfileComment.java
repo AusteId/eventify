@@ -17,18 +17,12 @@ public class ProfileComment {
     @Setter(AccessLevel.NONE)
     private long id;
 
-//    @Column(nullable = false, name = "commenter_id")
-//    private long commenterId;
-//
-//    @Column(nullable = false, name = "commented_id")
-//    private long commentedId;
-
     @ManyToOne
     @JoinColumn(name = "commenter_id", nullable = false)
     private User commenter;
 
     @ManyToOne
-    @JoinColumn(name = "commented_id", nullable = false) // Nullable for top-level comments
+    @JoinColumn(name = "commented_id", nullable = false)
     private User commented;
 
     @Column(nullable = false, length = 1000)

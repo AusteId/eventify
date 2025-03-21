@@ -29,4 +29,8 @@ public class ProfileCommentService {
     public ProfileComment saveProfileComment(ProfileComment profileComment) {
         return profileCommentRepository.save(profileComment);
     }
+
+    public void deleteProfileComment(long id) {
+        profileCommentRepository.deleteById(id);
+    }
 }
