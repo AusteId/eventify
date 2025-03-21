@@ -14,12 +14,15 @@ import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -43,30 +46,39 @@ public class EventController {
 
   @PostMapping
   public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
-    Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
-    return ResponseEntity.created(
-                    ServletUriComponentsBuilder.fromCurrentRequest()
-                            .path("/{id}")
-                            .buildAndExpand(newEvent.getId())
-                            .toUri())
-            .body(eventMapper.toEventResponse(newEvent));
+    try {
+      Event newEvent = eventService.saveEvent(createEventRequest);
+      return ResponseEntity.created(
+                      ServletUriComponentsBuilder.fromCurrentRequest()
+                              .path("/{id}")
+                              .buildAndExpand(newEvent.getId())
+                              .toUri())
+              .body(eventMapper.toEventResponse(newEvent));
+    } catch (
+            IOException e) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
   }
 
 
   // For testing purposes only, to add a lot of events at once
-  // For testing validations
-  // www.mockaroo.com
+  // disable in production
 
   @PostMapping("/all")
   public ResponseEntity<?> addEvent(@Valid @RequestBody List<CreateEventRequest> createEventRequest) {
-    createEventRequest.forEach(item -> eventService.saveEvent(eventMapper.toEvent(item)));
-    ;
+    createEventRequest.forEach(item -> {
+      try {
+        eventService.saveEvent(item);
+      } catch (IOException e) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+      }
+    });
     return ResponseEntity.ok().build();
   }
 
   @GetMapping
-  public ResponseEntity<List<EventResponse>> getAllEvents() {
-    List<EventResponse> events = eventService.getAllEvents();
+  public ResponseEntity<List<GetEventResponse>> getAllEvents() {
+    List<GetEventResponse> events = eventService.getAllEvents();
     return ResponseEntity.ok(events);
   }
 

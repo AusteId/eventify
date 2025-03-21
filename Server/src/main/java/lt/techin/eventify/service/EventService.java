@@ -1,17 +1,12 @@
 package lt.techin.eventify.service;
 
-import lt.techin.eventify.dto.event.EventMapper;
-import lt.techin.eventify.dto.event.EventPictureResponse;
-import lt.techin.eventify.dto.event.EventResponse;
-import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.user.AvatarResponseDTO;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.ForbiddenException;
 import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.User;
+import lt.techin.eventify.model.*;
 import lt.techin.eventify.repository.CategoryRepository;
 import lt.techin.eventify.repository.EventRepository;
 import lt.techin.eventify.repository.UserRepository;
@@ -19,8 +14,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,8 +35,14 @@ public class EventService {
     this.eventMapper = eventMapper;
   }
 
-  public Event saveEvent(Event event) {
-    return eventRepository.save(event);
+  public Event saveEvent(CreateEventRequest dto) throws IOException {
+    EventImage image = eventMapper.imageToEntity(dto);
+
+    Event newEvent = eventMapper.toEvent(dto);
+
+    newEvent.setEventImage(image);
+
+    return eventRepository.save(newEvent);
   }
 
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
@@ -100,9 +103,9 @@ public class EventService {
             .collect(Collectors.toList());
   }
 
-  public List<EventResponse> getAllEvents() {
+  public List<GetEventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
-            .map(eventMapper::toEventResponse)
+            .map(eventMapper::toGetEventResponse)
             .collect(Collectors.toList());
   }
 }

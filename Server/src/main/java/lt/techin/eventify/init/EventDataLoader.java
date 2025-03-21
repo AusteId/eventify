@@ -20,9 +20,10 @@
 //import java.io.IOException;
 //import java.util.List;
 //
-//
 
-//// to load events enable this component
+
+// // FOR LOADING EVENTS
+// // uncomment this component to load event data
 
 //@Component
 //public class EventDataLoader {
