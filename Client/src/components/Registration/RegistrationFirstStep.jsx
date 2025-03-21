@@ -25,7 +25,6 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     formState: { errors },
     watch,
     trigger,
-    getValues,
     setError: setFormError,
     clearErrors,
   } = useFormContext();
@@ -136,9 +135,17 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                   placeholder="Choose a username"
                   {...register('username', {
                     required: 'Username is required.',
-                    pattern: {
-                      value: /^[a-zA-Z0-9]{3,100}$/g,
+                    minLength: {
+                      value: 3,
                       message: 'Username must be from 3 to 100 characters',
+                    },
+                    maxLength: {
+                      value: 100,
+                      message: 'Username must be from 3 to 100 characters',
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z0-9]$/g,
+                      message: 'Username can contain lowercase, uppercase and numbers',
                     },
                   })}
                 />
@@ -182,7 +189,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                     minLength: { value: 8, message: 'Password must be at least 8 characters long.' },
                     maxLength: { value: 255, message: 'Password cannot exceed 255 characters.' },
                     pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[\S]{8,255}$/,
+                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[\S]$/,
                       message: 'Password must have an uppercase, lowercase, number',
                     },
                   })}

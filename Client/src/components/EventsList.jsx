@@ -13,7 +13,6 @@ const EventsList = ({ setLoading, loading }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
         const response = await axios.get(
           `${import.meta.env.VITE_BACK_URL}/api/events`,
           // {
