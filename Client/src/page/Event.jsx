@@ -6,6 +6,7 @@ import MarkIcon from '../assets/mapMarker.svg?react';
 import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
+import EditIcon from '../assets/editIcon.svg?react';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
@@ -90,20 +91,25 @@ const Event = () => {
               <p className="text-[#1F2937] font-[600]">Any</p>
             </div>
           )}
-        </div>
 
-        <div className="grid grid-cols-[2fr_1fr] gap-6">
-          <div className="flex flex-col gap-8">
+          <div className="col-span-2">
             <div className="flex flex-col gap-8">
-              <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
-                About the Event
-              </h2>
-              <p className="text-body-medium">{event.description}</p>
-            </div>
+              <div className="flex flex-col gap-8">
+                <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
+                  About the Event
+                </h2>
+                <p className="text-body-medium">{event.description}</p>
+              </div>
 
-            <CommentSection />
+              <CommentSection />
+            </div>
           </div>
-          <ParticipantsSection />
+          <div className="flex flex-col gap-4">
+            <ParticipantsSection />
+            <div className="flex justify-center px-6">
+              <Button>{<EditIcon />} Manage event</Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

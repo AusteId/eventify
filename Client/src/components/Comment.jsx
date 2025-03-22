@@ -1,12 +1,19 @@
+import { useState } from 'react';
+import avatar from '../assets/avatar.png';
+
 const Comment = props => {
+  const [imgSrc, setImgSrc] = useState(props.avatar || avatar);
+
   return (
-    <div className="flex w-full">
+    <div className="flex w-full gap-[16px]">
       <img
         className="w-[40px] h-[40px] rounded-full"
-        src={props.avatar}
+        src={imgSrc}
         alt="Comment Avatar"
+        onError={() => setImgSrc(avatar)}
       />
-      <div className="pl-[16px]">
+      {/* <div className="pl-[16px] bg-light-gray"> */}
+      <div className="bg-light-gray p-3 rounded-[0.5rem]">
         <div className="flex items-center">
           <h1 className="text-header-dark font-inter font-bold">
             {props.name}

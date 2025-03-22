@@ -1,8 +1,10 @@
-import React from 'react';
+import { useState } from 'react';
+import avatar from '../assets/avatar.png';
 import Comment from './Comment';
 import axios from 'axios';
 
 const CommentSection = () => {
+  const [imgSrc, setImgSrc] = useState(avatar);
   const comments = [
     {
       id: 1,
@@ -47,22 +49,25 @@ const CommentSection = () => {
       <div className="flex">
         <img
           className="w-[40px] h-[40px] rounded-full"
-          src="src/assets/avatar.png"
-          alt=""
+          src={imgSrc}
+          alt="User avatar"
+          onError={() => setImgSrc(avatar)}
         />
-        <div className="pl-[16px] w-full">
+        <div className="pl-[16px] w-full flex flex-col gap-3">
           <textarea
             id="textarea"
-            class="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
+            className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
             rows="4"
             placeholder="Write a comment..."
           ></textarea>
-          <button
-            onClick={onPostComment}
-            className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-[16px] pt-[10px] pb-[10px] rounded-[8px]"
-          >
-            Post Comment
-          </button>
+          <div>
+            <button
+              onClick={onPostComment}
+              className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-[16px] pt-[10px] pb-[10px] rounded-[8px] text-white"
+            >
+              Post Comment
+            </button>
+          </div>
         </div>
       </div>
       <div className="flex flex-col gap-[24px] pt-[32px]">
