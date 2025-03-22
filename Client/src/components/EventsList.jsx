@@ -7,6 +7,7 @@ const EventsList = ({ setLoading, loading }) => {
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
   const eventsPerPage = 10;
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const EventsList = ({ setLoading, loading }) => {
               size: eventsPerPage,
               sortBy: 'startDateTime',
               sortDirection: 'ASC',
+              searchTerm: searchTerm || undefined,
             },
           },
         );
@@ -37,7 +39,7 @@ const EventsList = ({ setLoading, loading }) => {
     };
 
     fetchData();
-  }, [currentPage]);
+  }, [currentPage, searchTerm]);
 
   const paginate = pageNumber => {
     if (pageNumber >= 0 && pageNumber < totalPages) {
@@ -49,8 +51,24 @@ const EventsList = ({ setLoading, loading }) => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(0);
+  }
+
   return (
     <div className="h-full flex flex-col justify-between">
+
+      <div className="mb-4">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          placeholder="Search events by name or description..."
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
       {loading ? (
         <span className="loading loading-bars loading-xl"></span>
       ) : events.length === 0 ? (
