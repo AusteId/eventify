@@ -71,11 +71,11 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
     }
 
     if (minAge != null) {
-      builder.and(event.minAge.loe(minAge));
+      builder.and(event.minAge.isNotNull().and(event.minAge.gt(0)).and(event.minAge.goe(minAge)));
     }
 
     if (maxAge != null) {
-      builder.and(event.maxAge.goe(maxAge));
+      builder.and(event.maxAge.isNotNull().and(event.maxAge.gt(0)).and(event.maxAge.loe(maxAge)));
     }
 
     if (searchTerm != null && !searchTerm.isEmpty()) {

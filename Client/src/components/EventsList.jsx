@@ -9,9 +9,19 @@ const EventsList = ({ setLoading, loading }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    categoryName: '',
+    city: '',
+    startDateTime: '',
+    endDateTime: '',
+    experienceLevel: '',
+    minAge: '',
+    maxAge: '',
+  });
   const eventsPerPage = 12;
 
   useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -24,6 +34,13 @@ const EventsList = ({ setLoading, loading }) => {
               sortBy: 'startDateTime',
               sortDirection: 'ASC',
               searchTerm: searchTerm || undefined,
+              categoryName: filters.categoryName || undefined,
+              city: filters.city || undefined,
+              startDateTime: filters.startDateTime || undefined,
+              endDateTime: filters.endDateTime || undefined,
+              experienceLevel: filters.experienceLevel || undefined,
+              minAge: filters.minAge ? parseInt(filters.minAge) : undefined,
+              maxAge: filters.maxAge ? parseInt(filters.maxAge) : undefined,
             },
           },
         );
@@ -40,7 +57,10 @@ const EventsList = ({ setLoading, loading }) => {
     };
 
     fetchData();
-  }, [currentPage, searchTerm]);
+  }, 1000);
+
+  return () => clearTimeout(debounceTimeout);
+  }, [currentPage, searchTerm, filters]);
 
   const paginate = pageNumber => {
     if (pageNumber >= 0 && pageNumber < totalPages) {
@@ -54,14 +74,22 @@ const EventsList = ({ setLoading, loading }) => {
 
   const handleSearchChange = (event) => {
     setSearchInput(event.target.value);
-  }
+  };
 
   const handleSearchSubmit = (event) => {
     if (event.key === 'Enter') {
       setSearchTerm(searchInput);
       setCurrentPage(0);
     }
-  }
+  };
+
+  const handleFilterChange = (filterName, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterName]: value,
+    }));
+    setCurrentPage(0);
+  };
 
   return (
     <div className="h-full flex flex-col justify-between">
@@ -73,6 +101,59 @@ const EventsList = ({ setLoading, loading }) => {
           onChange={handleSearchChange}
           onKeyDown={handleSearchSubmit}
           placeholder="Search for events..."
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      {/* Laikini input laukeliai filtrams */}
+      <div className="mb-4 flex flex-col gap-2">
+        <input
+          type="text"
+          value={filters.categoryName}
+          onChange={(event) => handleFilterChange('categoryName', event.target.value)}
+          placeholder="Filter by category (e.g., Sports)"
+          className="w-full p-2 border rounded-md"
+        />
+        <input
+          type="text"
+          value={filters.city}
+          onChange={(event) => handleFilterChange('city', event.target.value)}
+          placeholder="Filter by city (e.g., Vilnius)"
+          className="w-full p-2 border rounded-md"
+        />
+        <input
+          type="text"
+          value={filters.startDateTime}
+          onChange={(event) => handleFilterChange('startDateTime', event.target.value)}
+          placeholder="Filter by start date (yyyy-MM-dd, e.g., 2025-05-01)"
+          className="w-full p-2 border rounded-md"
+        />
+        <input
+          type="text"
+          value={filters.endDateTime}
+          onChange={(event) => handleFilterChange('endDateTime', event.target.value)}
+          placeholder="Filter by end date (yyyy-MM-dd, e.g., 2025-06-01)"
+          className="w-full p-2 border rounded-md"
+        />
+        <input
+          type="text"
+          value={filters.experienceLevel}
+          onChange={(event) => handleFilterChange('experienceLevel', event.target.value)}
+          placeholder="Filter by experience level (e.g., Beginner)"
+          className="w-full p-2 border rounded-md"
+        />
+        <input
+          type="number"
+          value={filters.minAge}
+          onChange={(event) => handleFilterChange('minAge', event.target.value)}
+          placeholder="Filter by min age (e.g., 18)"
+          className="w-full p-2 border rounded-md"
+        />
+        <input
+          type="number"
+          value={filters.maxAge}
+          onChange={(event) => handleFilterChange('maxAge', event.target.value)}
+          placeholder="Filter by max age (e.g., 30)"
           className="w-full p-2 border rounded-md"
         />
       </div>
