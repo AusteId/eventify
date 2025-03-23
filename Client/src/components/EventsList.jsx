@@ -7,8 +7,9 @@ const EventsList = ({ setLoading, loading }) => {
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const eventsPerPage = 10;
+  const eventsPerPage = 12;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,9 +52,15 @@ const EventsList = ({ setLoading, loading }) => {
     }
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(0);
+  const handleSearchChange = (event) => {
+    setSearchInput(event.target.value);
+  }
+
+  const handleSearchSubmit = (event) => {
+    if (event.key === 'Enter') {
+      setSearchTerm(searchInput);
+      setCurrentPage(0);
+    }
   }
 
   return (
@@ -62,9 +69,10 @@ const EventsList = ({ setLoading, loading }) => {
       <div className="mb-4">
         <input
           type="text"
-          value={searchTerm}
+          value={searchInput}
           onChange={handleSearchChange}
-          placeholder="Search events by name or description..."
+          onKeyDown={handleSearchSubmit}
+          placeholder="Search for events..."
           className="w-full p-2 border rounded-md"
         />
       </div>
@@ -81,11 +89,13 @@ const EventsList = ({ setLoading, loading }) => {
         </div>
       )}
 
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage + 1}
-        paginate={(page) => paginate(page - 1)}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage + 1}
+          paginate={(page) => paginate(page - 1)}
+        />
+      )}
     </div>
   );
 };
