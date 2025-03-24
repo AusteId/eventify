@@ -46,7 +46,7 @@ const Login = () => {
   return (
     <>
       {isLoading && <LoadingScreen />}
-      <div className="desktop:w-112 tablet:w-112 mx-auto px-6 pt-12 pb-12">
+      <div className="desktop:w-112 tablet:w-112 mx-auto px-6 pt-12 pb-12 mt-[1.5rem]">
         <div className="bg-[#FFFFFF] w-full h-auto rounded-2xl shadow-md">
           <div className="text-center px-8 pt-8 pb-8">
             <h1 className="text-header-dark font-inter text-heading-m font-bold">
@@ -122,7 +122,7 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <button className="btn bg-btn w-full h-12 border-0 shadow-none hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg">
+            <button className="btn bg-btn w-full h-12 border-0 shadow-none text-white font-[500] hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg">
               Sign In
             </button>
           </form>

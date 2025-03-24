@@ -10,15 +10,16 @@ import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.CategoryRepository;
-import lt.techin.eventify.repository.EventRepository;
-import lt.techin.eventify.repository.UserRepository;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.EventRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -28,7 +29,8 @@ public class EventService {
   private final UserRepository userRepository;
   private final EventMapper eventMapper;
 
-  public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, UserRepository userRepository, EventMapper eventMapper) {
+  public EventService(EventRepository eventRepository, CategoryRepository categoryRepository,
+                      UserRepository userRepository, EventMapper eventMapper) {
     this.eventRepository = eventRepository;
     this.categoryRepository = categoryRepository;
     this.userRepository = userRepository;
@@ -94,7 +96,7 @@ public class EventService {
 
     return events.stream()
             .map(eventMapper::toEventResponse)
-            .collect(Collectors.toList());
+            .toList();
   }
 
   public EventResponse getEventById(long eventId) {
@@ -105,6 +107,25 @@ public class EventService {
   public List<EventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
             .map(eventMapper::toEventResponse)
-            .collect(Collectors.toList());
+            .toList();
+  }
+
+  public Page<EventResponse> findEventsByFilters(String categoryName, String city, String startDateTime,
+                                                 String endDateTime, String experienceLevel,
+                                                 Integer minAge, Integer maxAge, String searchTerm, Pageable pageable) {
+
+    if (categoryName != null && !categoryName.isEmpty()) {
+      categoryRepository.findByName(categoryName)
+              .orElseThrow(() -> new CategoryNotFoundException("Category '" + categoryName + "' not found"));
+    }
+
+    Page<Event> eventPage = eventRepository.findEventsByFilters(categoryName, city, startDateTime, endDateTime,
+            experienceLevel, minAge, maxAge, searchTerm, pageable);
+
+    List<EventResponse> eventResponses = eventPage.getContent().stream()
+            .map(eventMapper::toEventResponse)
+            .toList();
+
+    return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
   }
 }
