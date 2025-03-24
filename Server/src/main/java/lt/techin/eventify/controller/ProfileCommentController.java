@@ -1,6 +1,7 @@
 package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
+import lt.techin.eventify.dto.eventComment.EventCommentMapper;
 import lt.techin.eventify.dto.profileComment.ProfileCommentMapper;
 import lt.techin.eventify.dto.profileComment.CreateProfileCommentRequest;
 import lt.techin.eventify.dto.profileComment.ProfileCommentResponse;
@@ -32,14 +33,12 @@ public class ProfileCommentController {
         this.userService = userService;
     }
 
-    @GetMapping("/comments")
-    public ResponseEntity<List<ProfileComment>> getAllProfileComments() {
-        return ResponseEntity.ok(profileCommentService.getProfileComments());
-    }
-
     @GetMapping("/comments/{id}")
-    public ResponseEntity<ProfileComment> getProfileComment(@PathVariable long id) {
-        return ResponseEntity.ok(profileCommentService.getProfileComment(id));
+    public ResponseEntity<ProfileCommentResponse> getProfileComment(@PathVariable long id) {
+        ProfileComment profileComment = profileCommentService.findById(id);
+        if (profileComment == null) return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(ProfileCommentMapper.toResponse(profileComment));
     }
 
     @GetMapping("/{userId}/comments")
@@ -47,25 +46,33 @@ public class ProfileCommentController {
         User user = userService.findById(userId);
 
         if (user == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
 
         List<ProfileCommentResponse> commentResponses = new ArrayList<>();
 
         for (ProfileComment comment : user.getCommentsReceived()) {
-            commentResponses.add(ProfileCommentMapper.toProfileCommentResponse(comment));
+            commentResponses.add(ProfileCommentMapper.toResponse(comment));
         }
 
         return ResponseEntity.ok(commentResponses);
     }
 
-    @PostMapping("/comments/new")
-    public ResponseEntity<ProfileCommentResponse> postComment(@Valid @RequestBody CreateProfileCommentRequest dto, Authentication authentication) {
+    @PostMapping("{userId}/comments")
+    public ResponseEntity<ProfileCommentResponse> postComment(@PathVariable long userId, @Valid @RequestBody CreateProfileCommentRequest dto, Authentication authentication) {
         User user = userService.findByUsername(authentication.getName()).orElse(null);
         if (user == null) return ResponseEntity.badRequest().build();
 
-        ProfileComment profileComment = profileCommentService.saveProfileComment(ProfileCommentMapper.toProfileComment(dto, user));
-        ProfileCommentResponse response = ProfileCommentMapper.toProfileCommentResponse(profileComment);
+        User commented = userService.findById(userId);
+        if (commented == null) return ResponseEntity.notFound().build();
+
+        if (user == commented) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        ProfileComment profileComment = profileCommentService.save(ProfileCommentMapper.toProfileComment(dto, user, commented));
+
+        ProfileCommentResponse response = ProfileCommentMapper.toResponse(profileComment);
 
         return ResponseEntity.created(
                         ServletUriComponentsBuilder.fromCurrentRequest()
@@ -80,38 +87,33 @@ public class ProfileCommentController {
         User user = userService.findByUsername(authentication.getName()).orElse(null);
         if (user == null) return ResponseEntity.badRequest().build();
 
-        if (profileCommentService.getProfileComment(id) == null) {
+        ProfileComment profileComment = profileCommentService.findById(id);
+
+        if (profileComment == null) {
             return ResponseEntity.notFound().build();
         }
 
-        ProfileComment profileComment = profileCommentService.getProfileComment(id);
-
         // You can only delete your own comments. For admins, it doesn't matter
         if ((profileComment.getCommenter() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
-            profileCommentService.deleteProfileComment(id);
+            profileCommentService.delete(id);
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
-    @PutMapping("/comments/{id}")
-    public ResponseEntity<ProfileComment> updateComment(@Valid @RequestBody CreateProfileCommentRequest dto, @PathVariable long id, Authentication authentication) {
+    @PatchMapping("/comments/{id}")
+    public ResponseEntity<ProfileCommentResponse> updateComment(@PathVariable long id, @Valid @RequestBody CreateProfileCommentRequest dto, Authentication authentication) {
         User user = userService.findByUsername(authentication.getName()).orElse(null);
         if (user == null) return ResponseEntity.badRequest().build();
 
-        ProfileComment profileComment = profileCommentService.getProfileComment(id);
+        ProfileComment profileComment = profileCommentService.findById(id);
+        if (profileComment == null) ResponseEntity.notFound().build();
 
-        if (profileComment == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // You can only update your own comments. For admins, it doesn't matter
         if ((profileComment.getCommenter() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
-            profileComment.setCommented(dto.commented());
-            profileComment.setCommenter(user);
             profileComment.setComment(dto.comment());
-            return ResponseEntity.ok(profileCommentService.saveProfileComment(profileComment));
+            profileCommentService.save(profileComment);
+            return ResponseEntity.ok(ProfileCommentMapper.toResponse(profileComment));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

@@ -123,4 +123,8 @@ public class EventService {
 
     return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
   }
+
+  public Event findById(long id) {
+    return eventRepository.findById(id).orElse(null);
+  }
 }

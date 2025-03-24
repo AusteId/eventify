@@ -1,9 +1,8 @@
 package lt.techin.eventify.service;
 
 import lt.techin.eventify.dto.profileComment.ProfileCommentMapper;
-import lt.techin.eventify.dto.profileComment.CreateProfileCommentRequest;
 import lt.techin.eventify.model.ProfileComment;
-import lt.techin.eventify.repository.ProfileCommentRepository;
+import lt.techin.eventify.repository.mysql.ProfileCommentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,15 +21,15 @@ public class ProfileCommentService {
         return profileCommentRepository.findAll();
     }
 
-    public ProfileComment getProfileComment(long id) {
-        return profileCommentRepository.findById(id).orElseThrow(NullPointerException::new);
+    public ProfileComment findById(long id) {
+        return profileCommentRepository.findById(id).orElse(null);
     }
 
-    public ProfileComment saveProfileComment(ProfileComment profileComment) {
+    public ProfileComment save(ProfileComment profileComment) {
         return profileCommentRepository.save(profileComment);
     }
 
-    public void deleteProfileComment(long id) {
+    public void delete(long id) {
         profileCommentRepository.deleteById(id);
     }
 }

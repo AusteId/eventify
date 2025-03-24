@@ -4,29 +4,26 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Set;
 
 @Entity
-@Table(name = "users_comments")
+@Table(name="events_comments")
 @Getter
 @Setter
-public class ProfileComment {
+public class EventComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "commenter_id", nullable = false)
-    private User commenter;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne
-    @JoinColumn(name = "commented_id", nullable = false)
-    private User commented;
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
 
     @Column(nullable = false, length = 1000)
     private String comment;
@@ -34,11 +31,11 @@ public class ProfileComment {
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private Timestamp createdAt;
 
-    public ProfileComment(User commenter, User commented, String comment) {
-        this.commenter = commenter;
-        this.commented = commented;
+    public EventComment(User user, Event event, String comment) {
+        this.user = user;
+        this.event = event;
         this.comment = comment;
     }
 
-    public ProfileComment() {}
+    public EventComment() {}
 }

@@ -33,6 +33,10 @@ public class Event {
   @JoinColumn(name = "event_id")
   private List<RegistrationToEvent> registrationToEvents;
 
+  @OneToMany
+  @JoinColumn(name = "event_id")
+  private List<EventComment> comments;
+
   @Column(nullable = false, length = 100)
   private String name;
 
