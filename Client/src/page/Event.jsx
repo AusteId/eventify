@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import getEvent from '../helpers/event/getEvent';
+import joinEvent from '../helpers/event/joinEvent';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
 import Button from '../components/Button';
@@ -12,7 +13,6 @@ const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
-  const [count, setCount] = useState(0);
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -21,6 +21,13 @@ const Event = () => {
     };
     fetchdata();
   }, []);
+
+  
+    const fetchdata = async () => {
+      const data = await joinEvent(params.id)
+      setEvent(data);
+    };
+
 
   if (!event) {
     return <p>LOADING</p>;
@@ -48,7 +55,7 @@ const Event = () => {
             </div>
           </div>
           <div>
-            <Button onClick={console.log("click")}>Join Event</Button>
+            <Button onClick={fetchdata}>Join Event</Button>
           </div>
         </div>
 
