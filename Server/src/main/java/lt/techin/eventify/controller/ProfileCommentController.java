@@ -86,7 +86,7 @@ public class ProfileCommentController {
 
         ProfileComment profileComment = profileCommentService.getProfileComment(id);
 
-        // You can only delete your own comments
+        // You can only delete your own comments. For admins, it doesn't matter
         if ((profileComment.getCommenter() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
             profileCommentService.deleteProfileComment(id);
             return ResponseEntity.ok().build();
