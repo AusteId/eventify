@@ -18,6 +18,8 @@ const EventsList = ({ setLoading, loading }) => {
     minAge: '',
     maxAge: '',
   });
+  const [sortBy, setSortBy] = useState('startDateTime');
+  const [sortDirection, setSortDirection] = useState('ASC');
   const eventsPerPage = 12;
 
   useEffect(() => {
@@ -31,8 +33,8 @@ const EventsList = ({ setLoading, loading }) => {
             params: {
               page: currentPage,
               size: eventsPerPage,
-              sortBy: 'startDateTime',
-              sortDirection: 'ASC',
+              sortBy: sortBy,
+              sortDirection: sortDirection,
               searchTerm: searchTerm || undefined,
               categoryName: filters.categoryName || undefined,
               city: filters.city || undefined,
@@ -60,7 +62,7 @@ const EventsList = ({ setLoading, loading }) => {
   }, 1000);
 
   return () => clearTimeout(debounceTimeout);
-  }, [currentPage, searchTerm, filters]);
+  }, [currentPage, searchTerm, filters, sortBy, sortDirection]);
 
   const paginate = pageNumber => {
     if (pageNumber >= 0 && pageNumber < totalPages) {
@@ -91,9 +93,17 @@ const EventsList = ({ setLoading, loading }) => {
     setCurrentPage(0);
   };
 
+  const handleSortChange = (event) => {
+    const [newSortBy, newSortDirection] = event.target.value.split(':');
+    setSortBy(newSortBy);
+    setSortDirection(newSortDirection);
+    setCurrentPage(0);
+  }
+
   return (
     <div className="h-full flex flex-col justify-between">
 
+  {/* Laikinas paieškos laukelis */}
       <div className="mb-4">
         <input
           type="text"
@@ -103,6 +113,28 @@ const EventsList = ({ setLoading, loading }) => {
           placeholder="Search for events..."
           className="w-full p-2 border rounded-md"
         />
+      </div>
+
+  {/* Laikini dropdown rūšiavimui */}
+      <div className="mb-4">
+        <label htmlFor="sortOptions" className="mr-2">
+          Sort by:
+        </label>
+        <select
+          id="sortOptions"
+          value={`${sortBy}:${sortDirection}`}
+          onChange={handleSortChange}
+          className="p-2 border rounded-md"
+        >
+          <option value="startDateTime:ASC">Start Date (Ascending)</option>
+          <option value="startDateTime:DESC">Start Date (Descending)</option>
+          <option value="name:ASC">Name (Ascending)</option>
+          <option value="name:DESC">Name (Descending)</option>
+          <option value="createdAt:ASC">Created At (Ascending)</option>
+          <option value="createdAt:DESC">Created At (Descending)</option>
+          <option value="experienceLevel:ASC">Experience Level (Ascending)</option>
+          <option value="experienceLevel:DESC">Experience Level (Descending)</option>
+        </select>
       </div>
 
       {/* Laikini input laukeliai filtrams */}
