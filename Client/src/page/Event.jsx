@@ -28,30 +28,37 @@ const Event = () => {
   console.log(event);
 
   return (
-    <div className="flex flex-col items-center gap-5 py-10 px-10 text-black">
+    <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
       <div
-        className={`flex flex-col justify-start gap-8 h-full p-8 bg-white rounded-xl tablet:items-baseline`}
+        className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
-        <div className="flex items-center gap-10 w-full justify-between">
-          <div className="flex flex-col gap-3">
+        <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
+          <div className="flex flex-col gap-5">
             <h1
               className={`text-[2.25rem] font-[700] leading-[1.5rem] ${loading && 'text-start'}`}
             >
               {event.name}
             </h1>
-            <div className="flex gap-2 items-center text-body-m text-body-medium">
-              <CalendarIcon />
-              <p>{event.startDateTime}</p>
-              <MarkIcon />
-              <p>{event.address}</p>
+            <div className="flex flex-col tablet:flex-row gap-2 tablet:items-center text-body-m text-body-medium">
+              <div className="flex items-center gap-2">
+                <CalendarIcon />
+                <p>{event.startDateTime}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <MarkIcon />
+                <p>{event.address}</p>
+              </div>
             </div>
           </div>
-          <div>
+          <div className="flex justify-center gap-3">
             <Button>Join Event</Button>
+            <div className="tablet:hidden">
+              <Button>{<EditIcon />} Manage event</Button>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-[1fr_1fr_1fr] gap-6 w-full">
+        <div className="flex flex-col tablet:grid grid-cols-[1fr_1fr_1fr] gap-6 w-full">
           {event.minAge ? (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Age Requirement</p>
@@ -92,9 +99,16 @@ const Event = () => {
             </div>
           )}
 
-          <div className="col-span-2">
+          <div className="tablet:hidden flex flex-col gap-4 tablet:gap-8">
+            <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
+              About the Event
+            </h2>
+            <p className="text-body-medium">{event.description}</p>
+          </div>
+
+          <div className="order-2 tablet:order-none col-span-2">
             <div className="flex flex-col gap-8">
-              <div className="flex flex-col gap-8">
+              <div className="hidden tablet:flex flex-col gap-4 tablet:gap-8">
                 <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
                   About the Event
                 </h2>
@@ -104,9 +118,9 @@ const Event = () => {
               <CommentSection />
             </div>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="order-1 tablet:order-none flex flex-col gap-4">
             <ParticipantsSection />
-            <div className="flex justify-center px-6">
+            <div className="hidden tablet:flex justify-center px-6">
               <Button>{<EditIcon />} Manage event</Button>
             </div>
           </div>
