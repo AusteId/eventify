@@ -29,11 +29,12 @@ export default [
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
       'react/jsx-no-target-blank': 'off',
-      "react/prop-types": 0,
+      'react/prop-types': 0,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
+      'node/no-missing-import': 'error',
     },
   },
 ];

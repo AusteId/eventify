@@ -48,18 +48,22 @@ public class UserMapper {
             return avatar;
         } else {
             try {
-                Resource resource = new ClassPathResource("static/default-user-image.png");
-                    byte[] imageBytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
-                    UserImage avatar = new UserImage();
-                    avatar.setFilename("default-user-image");
-                    avatar.setContentType("image/png");
-                    avatar.setData(imageBytes);
-                    avatar.setUploadedAt(LocalDateTime.now());
-                    avatar.setFileSize((long)imageBytes.length);
-                    return avatar;
+               return DefaultImage("static/default-user-image.png");
             } catch (IOException e) {
                 throw new IOException("Could not load default user image" + e.getMessage());
             }
         }
+    }
+
+    public static UserImage DefaultImage(String path) throws IOException {
+        Resource resource = new ClassPathResource(path);
+        byte[] imageBytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+        UserImage avatar = new UserImage();
+        avatar.setFilename("default-user-image");
+        avatar.setContentType("image/png");
+        avatar.setData(imageBytes);
+        avatar.setUploadedAt(LocalDateTime.now());
+        avatar.setFileSize((long)imageBytes.length);
+        return avatar;
     }
 }

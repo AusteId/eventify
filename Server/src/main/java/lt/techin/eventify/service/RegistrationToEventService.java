@@ -9,8 +9,9 @@ import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.RegistrationToEventRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,26 +32,9 @@ public class RegistrationToEventService {
     this.eventMapper = eventMapper;
   }
 
-//  public RegistrationToEvent saveEventRegistration(RegistrationToEvent registrationToEvent) {
-//
-//    Long eventId = registrationToEvent.getEvent().getId();
-//    Long userId = registrationToEvent.getUser().getId();
-//
-//    if (registrationToEventRepository.existsByUserIdAndEventId(userId, eventId)) {
-//      throw new AlreadyExistsException("User is already registered for this event");
-//    }
-//
-//    EventResponse event = eventService.getEventById(eventId);
-//
-//    int registrationCount = countRegistrationsByEventId(eventId);
-//    if (registrationCount >= event.maxParticipants()){
-//      throw new EventFullException("No slots available for this event");
-//    }
-//
-//
-//
-//    return registrationToEventRepository.save(registrationToEvent);
-//  }
+  public RegistrationToEvent saveEventRegistration(RegistrationToEvent registrationToEvent) {
+    return registrationToEventRepository.save(registrationToEvent);
+  }
 
   public int countRegistrationsByEventId(Long eventId) {
     return registrationToEventRepository.countByEventId(eventId);

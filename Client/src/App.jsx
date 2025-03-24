@@ -17,6 +17,7 @@ import RegistrationFourthStep from './components/Registration/RegistrationFourth
 
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
+import Event from './page/Event';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
@@ -28,6 +29,7 @@ function App() {
           <Route path="/" element={<AuthenticatedLayout />}>
             <Route index element={<Home />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/events/:id" element={<Event />} />
             <Route
               path="/login"
               element={
@@ -81,7 +83,7 @@ function App() {
               path="/profile"
               element={
                 // <ProtectedRoute allowedRoles={['USER']}>
-                  <Profile />
+                <Profile />
                 // </ProtectedRoute>
               }
             />

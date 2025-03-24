@@ -3,26 +3,25 @@ package lt.techin.eventify.controller;
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/events")
@@ -70,6 +69,12 @@ public class EventController {
     return ResponseEntity.ok(events);
   }
 
+  @GetMapping("/{eventId}")
+  public ResponseEntity<EventResponse> getEvent(@PathVariable Long eventId) {
+    EventResponse event = eventService.getEventById(eventId);
+    return ResponseEntity.ok(event);
+  }
+
   @PutMapping("/{eventId}")
   public ResponseEntity<EventResponse> updateEvent(@PathVariable long eventId, @Valid @RequestBody UpdateEventRequest updateEventRequest) {
     Event updatedEvent = eventService.updateEvent(eventId, updateEventRequest);
@@ -83,21 +88,29 @@ public class EventController {
     return ResponseEntity.noContent().build();
   }
 
-//  @PostMapping("/{eventId}/register")
-//  public void registerEvent(@PathVariable long eventId, @Valid @RequestBody RegistrationToEventRequest registrationToEventRequest, Authentication authentication) {
-//    User user = userService.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User does not exist."));
-//    Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event does not exist."));
-//
-//    // check if events have available spaces
-//    if (event.getMaxParticipants())
-//
-//    RegistrationToEvent registration = new RegistrationToEvent();
-//    registration.setUser(user);
-//    registration.setEvent(event);
-//    registrationToEventService.saveEventRegistration(registration);
-//
-//  }
+  @GetMapping("/search")
+  public ResponseEntity<Page<EventResponse>> searchEvents(@Valid EventSearchRequest request) {
 
+    Pageable pageable = PageRequest.of(
+            request.page(),
+            request.size(),
+            Sort.by(Sort.Direction.fromString(request.sortDirection()), request.sortBy())
+    );
+
+    Page<EventResponse> eventPage = eventService.findEventsByFilters(
+            request.categoryName(),
+            request.city(),
+            request.startDateTime(),
+            request.endDateTime(),
+            request.experienceLevel(),
+            request.minAge(),
+            request.maxAge(),
+            request.searchTerm(),
+            pageable
+    );
+
+    return ResponseEntity.ok(eventPage);
+  }
 
   @PostMapping("/{eventId}/register")
   public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal){
