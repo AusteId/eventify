@@ -1,7 +1,7 @@
 package lt.techin.eventify.service;
 
 import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.repository.RegistrationToEventRepository;
+import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

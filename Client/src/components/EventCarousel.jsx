@@ -50,7 +50,7 @@ export default function EventCarousel() {
 
     fetchData();
   }, []);
-
+  
   // cutting slicing the fetched data,
   const currentEvents = useMemo(() => {
     const events = Array.isArray(data) ? data : [];
