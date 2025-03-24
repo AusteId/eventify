@@ -1,10 +1,16 @@
 package lt.techin.eventify.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
 import lt.techin.eventify.dto.user.AvatarResponseDTO;
+import lt.techin.eventify.dto.user.CreateUserRequest;
+import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
@@ -44,8 +50,18 @@ public class EventController {
     this.userService = userService;
   }
 
-  @PostMapping
-  public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
+  @Operation(
+          summary = "Create a new event",
+          description = "Creates a new event with the provided details and an optional image file."
+  )
+  @ApiResponse(
+          responseCode = "201",
+          description = "Event created successfully",
+          content = @Content(schema = @Schema(implementation = EventResponse.class))
+  )
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<EventResponse> addEvent(@Valid @ModelAttribute CreateEventRequest createEventRequest) {
+
     try {
       Event newEvent = eventService.saveEvent(createEventRequest);
       return ResponseEntity.created(
@@ -59,7 +75,6 @@ public class EventController {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
   }
-
 
   // For testing purposes only, to add a lot of events at once
   // disable in production

@@ -29,26 +29,12 @@ const EventsList = ({ setLoading, loading }) => {
     fetchData(); // Call the function
   }, []);
 
-  console.log(data[0]);
-
-  // const { timeourForError } = useNotification();
-  // const { authFetch } = useAuth();
-
-  // const getUserAvatar = async () => {
-  //   try {
-  //     const response = await authFetch(
-  //       'http://localhost:8080/api/users/avatar',
-  //     );
-  //     if (response.ok) {
-  //       const blob = await response.blob();
-  //       const image = URL.createObjectURL(blob);
-  //       setAvatar(image);
-  //     }
-  //   } catch (error) {
-  //     timeourForError(error.message || 'Failed to load avatar');
-  //   }
-  // };
-
+  useEffect(() => {
+    if (data) {
+      console.log(data[0]);
+      
+    }
+  }, [data]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 12;

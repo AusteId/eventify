@@ -8,7 +8,7 @@ import {
 } from '../utils/dateFunctions';
 
 const EventCard = ({
-  experienceLevel = "All Welcome",
+  experienceLevel = 'All Welcome',
   isRegistered = 0,
   eventHandler,
   currentParticipants = 0,
@@ -20,50 +20,56 @@ const EventCard = ({
   city = 'Location not provided',
   isEnded,
   minAge,
-  maxAge
+  maxAge,
+  pictureData,
+  pictureContentType = 'image/jpeg',
 }) => {
-  
-  // const normalizedKey = experienceLevel
-  // .toLowerCase()
-  // .replace(/\b\w/g, c => c.toUpperCase());
+  // ??????????????????????????????????????????
+  // kodel sito niekur kitur kode nera??????????
+  // is kur Tomas tuos komponentus gauna????????
+  const imageUrl = pictureData
+  ? URL.createObjectURL(
+      new Blob([new Uint8Array(pictureData)], { type: pictureContentType })
+    )
+  : './src/assets/eventCardImgSample.png';
 
-  const normalizedExpLevel = experienceLevel ? experienceLevel : "All Welcome";
+  const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
 
   const expLevels = {
-    "All Welcome": ['bg-welcome', 'All Welcome!'],
-    "Beginner": ['bg-beginner', 'Beginner Friendly'],
-    "Intermediate": ['bg-intermediate', 'Intermediate'],
-    "Advanced": ['bg-advanced', 'Advanced'],
-    "Extreme": ['bg-extreme', 'Extreme'],
+    'All Welcome': ['bg-welcome', 'All Welcome!'],
+    Beginner: ['bg-beginner', 'Beginner Friendly'],
+    Intermediate: ['bg-intermediate', 'Intermediate'],
+    Advanced: ['bg-advanced', 'Advanced'],
+    Extreme: ['bg-extreme', 'Extreme'],
   };
-  
+
   const wordArr = description?.split(' ');
   let shortDesc;
   if (wordArr.length > 10) {
     const lastWord = wordArr[9];
-    const cleanedLastWord = lastWord.endsWith('.') || lastWord.endsWith(',')
-    ? lastWord.slice(0, -1)
-    : lastWord;
-    wordArr[9] = cleanedLastWord
+    const cleanedLastWord =
+      lastWord.endsWith('.') || lastWord.endsWith(',')
+        ? lastWord.slice(0, -1)
+        : lastWord;
+    wordArr[9] = cleanedLastWord;
     shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
   } else {
-    wordArr?.join(' ')
+    wordArr?.join(' ');
   }
 
   const timeString =
-    (startDateTime && endDateTime)
+    startDateTime && endDateTime
       ? `${convertToCompactEuDatetime(startDateTime)} - ${formatToOnlyTime(endDateTime)}`
-      : "N/A";
+      : 'N/A';
 
-
-      const ageString = 
-      minAge !== null && maxAge !== null 
-        ? `Min age: ${minAge} - max age: ${maxAge}`
-        : minAge !== null 
+  const ageString =
+    minAge !== null && maxAge !== null
+      ? `Min age: ${minAge} - max age: ${maxAge}`
+      : minAge !== null
         ? `Min age: ${minAge}`
-        : maxAge !== null 
-        ? `Max age: ${maxAge}`
-        : 'All Welcome!';
+        : maxAge !== null
+          ? `Max age: ${maxAge}`
+          : 'All Welcome!';
 
   return (
     <div
@@ -87,7 +93,8 @@ const EventCard = ({
             </div>
           )}
           <img
-            src="./src/assets/eventCardImgSample.png"
+            src={imageUrl}
+            alt='event photo'
             className="rounded-t-[0.5rem]"
           />
         </div>
@@ -96,7 +103,7 @@ const EventCard = ({
           <h2 className="text-heading-xs font-[600] leading-[1.125rem]">
             {name}
           </h2>
-          {description && <p className='h-12'>{shortDesc}</p>}
+          {description && <p className="h-12">{shortDesc}</p>}
           <div className="flex flex-col gap-1">
             {startDateTime ? (
               <figure className="flex gap-2">
@@ -134,11 +141,11 @@ const EventCard = ({
         {isEnded ? (
           <p className="p-3">Completed</p>
         ) : !isRegistered ? (
-          <Button isFull={true} onClick={eventHandler} >
+          <Button isFull={true} onClick={eventHandler}>
             +Register
           </Button>
         ) : (
-          <ButtonCancel isFull={true} onClick={eventHandler} >
+          <ButtonCancel isFull={true} onClick={eventHandler}>
             <img src="src/assets/xIcon.svg" className="border-0" />
             Cancel Registration
           </ButtonCancel>

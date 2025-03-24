@@ -3,9 +3,11 @@ package lt.techin.eventify.dto.event;
 import lt.techin.eventify.dto.category.CategoryMapper;
 import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.user.UserMapper;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.EventImage;
-import lt.techin.eventify.model.UserImage;
+import lt.techin.eventify.exception.CategoryNotFoundException;
+import lt.techin.eventify.exception.UserNotFoundException;
+import lt.techin.eventify.model.*;
+import lt.techin.eventify.repository.CategoryRepository;
+import lt.techin.eventify.repository.UserRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -19,10 +21,14 @@ public class EventMapper {
 
   private final UserMapper userMapper;
   private final CategoryMapper categoryMapper;
+  private final CategoryRepository categoryRepository;
+  private final UserRepository userRepository;
 
-  public EventMapper(UserMapper userMapper, CategoryMapper categoryMapper) {
+  public EventMapper(UserMapper userMapper, CategoryMapper categoryMapper, CategoryRepository categoryRepository, UserRepository userRepository) {
     this.userMapper = userMapper;
     this.categoryMapper = categoryMapper;
+    this.categoryRepository = categoryRepository;
+    this.userRepository = userRepository;
   }
 
   public EventResponse toEventResponse(Event event) {
@@ -46,9 +52,14 @@ public class EventMapper {
   }
 
   public Event toEvent(CreateEventRequest event) {
+    Category category = categoryRepository.findById(event.categoryId())
+            .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + event.categoryId() + " not found"));
+    User organizer = userRepository.findById(event.organizerId())
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + event.organizerId() + " not found"));
+    
     return new Event(
-            event.category(),
-            event.organizer(),
+            category,
+            organizer,
             event.name(),
             event.startDateTime(),
             event.endDateTime(),
@@ -64,6 +75,9 @@ public class EventMapper {
   }
 
   public GetEventResponse toGetEventResponse(Event event) {
+    EventImage eventImage = event.getEventImage();
+    byte[] pictureData = (eventImage != null) ? eventImage.getData() : null;
+    String pictureContentType = (eventImage != null) ? eventImage.getContentType() : null;
     return new GetEventResponse(
             event.getId(),
             event.getName(),
@@ -91,16 +105,16 @@ public class EventMapper {
       return eventImage;
     } else {
       try {
-        Resource resource = new ClassPathResource("static/default-user-image.png");
+        Resource resource = new ClassPathResource("static/default-event.jpg");
         byte[] imageBytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
         EventImage eventImage = new EventImage();
-        eventImage.setFilename("default-user-image");
+        eventImage.setFilename("default-event");
         eventImage.setContentType("image/png");
         eventImage.setData(imageBytes);
         eventImage.setFileSize((long) imageBytes.length);
         return eventImage;
       } catch (IOException e) {
-        throw new IOException("Could not load default user image" + e.getMessage());
+        throw new IOException("Could not load default event image" + e.getMessage());
       }
     }
   }

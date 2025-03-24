@@ -9,6 +9,7 @@
 //import lt.techin.eventify.repository.CategoryRepository;
 //import lt.techin.eventify.repository.EventRepository;
 //import lt.techin.eventify.repository.UserRepository;
+//import lt.techin.eventify.service.EventService;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -20,34 +21,27 @@
 //import java.io.IOException;
 //import java.util.List;
 //
-
-
-// // FOR LOADING EVENTS
-// // uncomment this component to load event data
-
 //@Component
 //public class EventDataLoader {
 //
 //  private static final Logger logger = LoggerFactory.getLogger(EventDataLoader.class);
 //
 //  private final EventRepository eventRepository;
-//  private final UserRepository userRepository;
-//  private final CategoryRepository categoryRepository;
+//  private final EventService eventService; // Add this
 //  private final ObjectMapper objectMapper;
 //
 //  @Autowired
 //  public EventDataLoader(EventRepository eventRepository, UserRepository userRepository,
-//                         CategoryRepository categoryRepository, ObjectMapper objectMapper) {
+//                         CategoryRepository categoryRepository, EventService eventService,
+//                         ObjectMapper objectMapper) {
 //    this.eventRepository = eventRepository;
-//    this.userRepository = userRepository;
-//    this.categoryRepository = categoryRepository;
+//    this.eventService = eventService;
 //    this.objectMapper = objectMapper;
 //  }
 //
 //  @EventListener(ApplicationReadyEvent.class)
 //  public void loadEvents() {
 //    try {
-//      // Load JSON from resources
 //      ClassPathResource resource = new ClassPathResource("data/eventData.json");
 //      List<CreateEventRequest> eventDTOs = objectMapper.readValue(
 //              resource.getInputStream(),
@@ -55,33 +49,13 @@
 //              }
 //      );
 //
-//      // Process each event
 //      for (CreateEventRequest dto : eventDTOs) {
-//        // Check if event exists by name and startDateTime (unique combo)
+//        if (dto == null) {
+//          logger.warn("Skipping null event in eventData.json");
+//          continue;
+//        }
 //        if (eventRepository.findByNameAndStartDateTime(dto.name(), dto.startDateTime()).isEmpty()) {
-//          // Fetch organizer and category
-//          User organizer = userRepository.findById(dto.organizer().getId())
-//                  .orElseThrow(() -> new RuntimeException("Organizer not found: " + dto.organizer().getId()));
-//          Category category = categoryRepository.findById(dto.category().getId())
-//                  .orElseThrow(() -> new RuntimeException("Category not found: " + dto.category().getId()));
-//
-//          // Create and save event
-//          Event event = new Event(
-//                  category,
-//                  organizer,
-//                  dto.name(),
-//                  dto.startDateTime(),
-//                  dto.endDateTime(),
-//                  dto.description(),
-//                  dto.minAge(),
-//                  dto.maxAge(),
-//                  dto.experienceLevel(),
-//                  dto.maxParticipants(),
-//                  dto.city(),
-//                  dto.address(),
-//                  null // Default photoPath
-//          );
-//          eventRepository.save(event);
+//          eventService.saveEvent(dto); // Use EventService to save the event
 //          logger.info("Loaded event: {}", dto.name());
 //        } else {
 //          logger.info("Event already exists: {}", dto.name());

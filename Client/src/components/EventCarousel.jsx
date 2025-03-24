@@ -63,7 +63,7 @@ export default function EventCarousel() {
     }
   }, [data]);
 
-  // setting of carousel. more:
+  // settings of carousel. more:
   // https://react-slick.neostack.com/docs/api
 
   // FIXME: scrolls too fast back to beginning, might need to tweak index.css file

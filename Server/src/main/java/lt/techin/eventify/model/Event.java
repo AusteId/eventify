@@ -18,7 +18,7 @@ public class Event {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Setter(AccessLevel.NONE)
-  private long id;
+  private Long id;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "category_id", nullable = false)
@@ -64,18 +64,19 @@ public class Event {
   @Column(nullable = false)
   private String address;
 
-
-  // TODO: add proper way to load images from database with Tomas solution
   private String photoPath;
 
   @OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "picture_id")
+  @JoinColumn(name = "picture_id", nullable = false)
   private EventImage eventImage;
 
   @PrePersist
   public void prePersist() {
     if (this.createdAt == null) {
       this.createdAt = LocalDateTime.now();
+    }
+    if (this.experienceLevel == null) {
+      this.experienceLevel = "All Welcome";
     }
   }
 
