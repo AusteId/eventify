@@ -99,6 +99,11 @@ public class EventService {
             .toList();
   }
 
+  public EventResponse getEventById(long eventId) {
+    Event event = eventRepository.findById(eventId).orElseThrow(()-> new EventNotFoundException("Event with ID " + eventId + " not found"));
+    return eventMapper.toEventResponse(event);
+  }
+
   public List<EventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
             .map(eventMapper::toEventResponse)
