@@ -1,7 +1,9 @@
 package lt.techin.eventify.dto.profileComment;
 
 import lt.techin.eventify.model.ProfileComment;
+import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,8 +18,8 @@ public class ProfileCommentMapper {
         return new ProfileCommentResponse(profileComment.getId(), profileComment.getCommenter().getId(), profileComment.getCommented().getId(), profileComment.getComment());
     }
 
-    public static ProfileComment toProfileComment(CreateProfileCommentRequest dto) {
-        return new ProfileComment(dto.commenter(), dto.commented(), dto.comment());
+    public static ProfileComment toProfileComment(CreateProfileCommentRequest dto, User user) {
+        return new ProfileComment(user, dto.commented(), dto.comment());
     }
 
     public static ProfileCommentResponse toProfileCommentResponse(ProfileComment comment) {

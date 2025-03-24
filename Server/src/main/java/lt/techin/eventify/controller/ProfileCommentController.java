@@ -9,7 +9,9 @@ import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.ProfileCommentService;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -58,8 +60,11 @@ public class ProfileCommentController {
     }
 
     @PostMapping("/comments/new")
-    public ResponseEntity<ProfileCommentResponse> postComment(@Valid @RequestBody CreateProfileCommentRequest dto) {
-        ProfileComment profileComment = profileCommentService.saveProfileComment(ProfileCommentMapper.toProfileComment(dto));
+    public ResponseEntity<ProfileCommentResponse> postComment(@Valid @RequestBody CreateProfileCommentRequest dto, Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return ResponseEntity.badRequest().build();
+
+        ProfileComment profileComment = profileCommentService.saveProfileComment(ProfileCommentMapper.toProfileComment(dto, user));
         ProfileCommentResponse response = ProfileCommentMapper.toProfileCommentResponse(profileComment);
 
         return ResponseEntity.created(
@@ -71,11 +76,45 @@ public class ProfileCommentController {
     }
 
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<?> deleteComment(@PathVariable long id) {
+    public ResponseEntity<?> deleteComment(@PathVariable long id, Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return ResponseEntity.badRequest().build();
+
         if (profileCommentService.getProfileComment(id) == null) {
             return ResponseEntity.notFound().build();
         }
-        profileCommentService.deleteProfileComment(id);
-        return ResponseEntity.ok().build();
+
+        ProfileComment profileComment = profileCommentService.getProfileComment(id);
+
+        // You can only delete your own comments
+        if ((profileComment.getCommenter() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
+            profileCommentService.deleteProfileComment(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
+
+    @PutMapping("/comments/{id}")
+    public ResponseEntity<ProfileComment> updateComment(@Valid @RequestBody CreateProfileCommentRequest dto, @PathVariable long id, Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return ResponseEntity.badRequest().build();
+
+        ProfileComment profileComment = profileCommentService.getProfileComment(id);
+
+        if (profileComment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // You can only update your own comments. For admins, it doesn't matter
+        if ((profileComment.getCommenter() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
+            profileComment.setCommented(dto.commented());
+            profileComment.setCommenter(user);
+            profileComment.setComment(dto.comment());
+            return ResponseEntity.ok(profileCommentService.saveProfileComment(profileComment));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
 }
