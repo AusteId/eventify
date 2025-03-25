@@ -38,7 +38,7 @@ public class EventCommentController {
         Event event = eventService.findById(eventId);
 
         if (event == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(event.getComments());
@@ -56,7 +56,7 @@ public class EventCommentController {
         }
 
         EventComment eventComment = eventCommentService.save(EventCommentMapper.toEventComment(dto, user, event));
-        if (eventComment == null) return ResponseEntity.badRequest().build();
+        if (eventComment == null) return ResponseEntity.notFound().build();
 
         EventCommentResponse response = EventCommentMapper.toResponse(eventComment);
 
@@ -75,7 +75,7 @@ public class EventCommentController {
         if (user == null) return ResponseEntity.badRequest().build();
 
         EventComment eventComment = eventCommentService.findById(id);
-        if (eventComment == null) return ResponseEntity.badRequest().build();
+        if (eventComment == null) return ResponseEntity.notFound().build();
 
         if ((eventComment.getUser() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
             eventCommentService.delete(id);
@@ -91,7 +91,7 @@ public class EventCommentController {
         if (user == null) return ResponseEntity.badRequest().build();
 
         EventComment eventComment = eventCommentService.findById(id);
-        if (eventComment == null) return ResponseEntity.badRequest().build();
+        if (eventComment == null) return ResponseEntity.notFound().build();
 
         if ((eventComment.getUser() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
             eventComment.setComment(dto.comment());
