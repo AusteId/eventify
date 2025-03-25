@@ -2,10 +2,13 @@ package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
+import lt.techin.eventify.dto.registrationToEvent.JoinEventResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
+import lt.techin.eventify.dto.registrationToEvent.UserJoinToEvent;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
@@ -21,6 +24,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -113,12 +117,18 @@ public class EventController {
   }
 
   @PostMapping("/{eventId}/register")
-  public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal){
+  public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal) {
 
-    RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
-
-    RegistrationToEventResponse response = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
-
+    System.out.println("Event ID: " + eventId);
+    System.out.println("Username: " + principal.getName());
+    try {
+      RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
+      RegistrationToEventResponse response = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    } catch (Exception e) {
+      // Логируем ошибку для отладки
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
   }
 }
