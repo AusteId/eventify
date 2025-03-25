@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -34,14 +35,20 @@ public class EventCommentController {
     }
 
     @GetMapping("{eventId}/comments")
-    public ResponseEntity<List<EventComment>> getCommentsByEvent(@PathVariable long eventId) {
+    public ResponseEntity<List<EventCommentResponse>> getCommentsByEvent(@PathVariable long eventId) {
         Event event = eventService.findById(eventId);
 
         if (event == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(event.getComments());
+        List<EventCommentResponse> responses = new ArrayList<>();
+
+        for (EventComment eventComment : event.getComments()) {
+            responses.add(EventCommentMapper.toResponse(eventComment));
+        }
+
+        return ResponseEntity.ok(responses);
     }
 
     @PostMapping("/{eventId}/comments")
