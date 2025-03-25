@@ -7,8 +7,27 @@ import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
-import BasicModal from '../components/BasicModal';
+import Modal from '../components/event/Modal';
 import CreateEventForm from '../components/CreateEventForm';
+
+const participants = [
+  {
+    name: 'Kestas Bombonis',
+    rating: 4.3,
+  },
+  {
+    name: 'Tomas Kurtauskas',
+    rating: 2.8,
+  },
+  {
+    name: 'Marius Maironis',
+    rating: 3.5,
+  },
+  {
+    name: 'Jonas Petronis',
+    rating: 1.2,
+  },
+];
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
@@ -28,6 +47,10 @@ const Event = () => {
   }
 
   console.log(event);
+
+  const handleEdit = () => {
+    document.getElementById('event_creation_modal').showModal();
+  };
 
   return (
     <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
@@ -121,9 +144,14 @@ const Event = () => {
             </div>
           </div>
           <div className="order-1 tablet:order-none flex flex-col gap-4">
-            <ParticipantsSection />
+            <ParticipantsSection participants={participants} />
             <div className="hidden tablet:flex justify-center px-6">
-              <Button>{<EditIcon />} Manage event</Button>
+              <Button onClick={handleEdit}>{<EditIcon />} Manage event</Button>
+            </div>
+            <div className="absolute">
+              <Modal modalName={'event_creation_modal'}>
+                <CreateEventForm />
+              </Modal>
             </div>
           </div>
         </div>

@@ -1,25 +1,9 @@
 import React from 'react';
 import Participant from './Participant';
-import Button from '../Button';
-import BasicModal from '../BasicModal';
 import Modal from './Modal';
+import ViewParticipants from './ViewParticipants';
 
-const participants = [
-  {
-    name: 'Jonas Petronis',
-  },
-  {
-    name: 'Jonas Petronis',
-  },
-  {
-    name: 'Jonas Petronis',
-  },
-  {
-    name: 'Jonas Petronis',
-  },
-];
-
-const ParticipantsSection = () => {
+const ParticipantsSection = ({ participants }) => {
   const handleClickViewParticipants = () => {
     document.getElementById('view_all_participants_modal').showModal();
   };
@@ -38,7 +22,7 @@ const ParticipantsSection = () => {
                 ? 'Participant'
                 : `Participants (${participants.length})`}
             </h2>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-5">
               {participants.map((participant, index) => (
                 <Participant name={participant.name} key={index} />
               ))}
@@ -56,7 +40,7 @@ const ParticipantsSection = () => {
       )}
       <div className="absolute">
         <Modal modalName={'view_all_participants_modal'}>
-          <p>Participants</p>
+          <ViewParticipants participants={participants} />
         </Modal>
       </div>
     </div>
