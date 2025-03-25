@@ -1,13 +1,37 @@
 import { useState } from 'react';
 import avatar from '../assets/avatar.png';
+import axios from 'axios';
 
 const Comment = props => {
   const [imgSrc, setImgSrc] = useState(props.avatar || avatar);
 
+  const api = axios.create({
+    baseURL: 'http://localhost:8080/api',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    withCredentials: true,
+  });
+
+  const deleteC = () => {
+    props.setComments([]);
+    props.setLoading(true);
+    const del = async () => {
+      try {
+        const response = await api.delete('/events/comments/' + props.id);
+      } catch (err) {
+        console.error('Error deleting comment:', err);
+      } finally {
+        props.fetchComments();
+      }
+    };
+    del();
+  };
+
   return (
     <div className="flex w-full gap-[16px]">
       <img
-        className="w-[40px] h-[40px] rounded-full"
+        className="w-10 h-10 rounded-full"
         src={imgSrc}
         alt="Comment Avatar"
         onError={() => setImgSrc(avatar)}
@@ -18,11 +42,14 @@ const Comment = props => {
           <h1 className="text-header-dark font-inter font-bold">
             {props.name}
           </h1>
-          <p className="font-inter text-body-medium text-body-s pl-[8px]">
+          <p className="font-inter text-body-medium text-body-s pl-2">
             {props.time}
           </p>
+          <button type="button" onClick={deleteC} className="text-red-400 ml-2">
+            X
+          </button>
         </div>
-        <p className="text-body-medium font-inter pt-[6px]">{props.comment}</p>
+        <p className="text-body-medium font-inter pt-2">{props.comment}</p>
       </div>
     </div>
   );

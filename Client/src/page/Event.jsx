@@ -101,7 +101,7 @@ const Event = () => {
                 <p className="text-body-medium">{event.description}</p>
               </div>
 
-              <CommentSection />
+              <CommentSection endpoint={'/events/' + event.id + '/comments'} />
             </div>
           </div>
           <div className="flex flex-col gap-4">
