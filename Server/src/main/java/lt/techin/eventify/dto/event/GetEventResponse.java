@@ -15,6 +15,4 @@ public record GetEventResponse(
         String city,
         String address
 ) {
-
-
 }

@@ -11,8 +11,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,45 +45,56 @@ public class SecurityConfig {
   @Value("${jwt.private.key}")
   private RSAPrivateKey privateKey;
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests((authorize) -> authorize
-                    .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/users/check-availability").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/users/avatar").hasAnyAuthority("ADMIN", "USER")
-                    .requestMatchers(HttpMethod.GET, "/api/categories/all").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/categories/{id}/icon").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/categories/{id}/add-icon").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/users/logout").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyAuthority("ADMIN", "USER")
-                    .requestMatchers(HttpMethod.GET, "/api/users/{userId}/events").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
-                    .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
-                    .requestMatchers(HttpMethod.GET, "/api/events").hasAnyAuthority("ADMIN", "USER")
-                    .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
-                    .requestMatchers("/", "/error", "/csrf", "/swagger-ui.html", "/swagger-ui/**",
-                            "/v3/api-docs", "/v3/api-docs/**", "/custom-swagger-ui.js").permitAll()
-                    .anyRequest().authenticated()
-            ).csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
-            .addFilterBefore(new JwtCookieAuthenticationFilter(jwtDecoder(), jwtAuthenticationConverter()),
-                    org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
-            .oauth2ResourceServer(oauth2 -> oauth2
-                    .jwt(jwt -> jwt
-                            .decoder(jwtDecoder())
-                            .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                    )
-            )
-            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling((exceptions) -> exceptions
-                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
-            );
-    return http.build();
-  }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/check-availability").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/avatar").hasAnyAuthority("ADMIN","USER")
+                        .requestMatchers(HttpMethod.GET,"/api/categories/all").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/categories/{id}/icon").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/categories/{id}/add-icon").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/users/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/me").hasAnyAuthority("ADMIN","USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/{userId}/events").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/comments/{id}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/comments/new").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/comments/{id}").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/comments/{id}").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/{userId}/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/events/{eventId}/comments").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/events/comments/{id}").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/events/comments/{id}").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/events/{eventId}/comments").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/events/{eventId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/events").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers("/", "/error", "/csrf", "/swagger-ui.html", "/swagger-ui/**",
+                                "/v3/api-docs", "/v3/api-docs/**","/custom-swagger-ui.js").permitAll()
+                        .anyRequest().authenticated()
+                ).csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .addFilterBefore(new JwtCookieAuthenticationFilter(jwtDecoder(),jwtAuthenticationConverter()),
+                        org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
+                )
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+                );
+        return http.build();
+    }
 
   @Bean
   public JwtAuthenticationConverter jwtAuthenticationConverter() {

@@ -89,6 +89,9 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
+    public User findById(long id) {
+        return userRepository.findById(id).orElseThrow(NullPointerException::new);
+    }
 
   public Optional<User> findByUsername(String name) {
     return userRepository.findByUsername(name);

@@ -99,6 +99,11 @@ public class EventService {
             .toList();
   }
 
+  public EventResponse getEventById(long eventId) {
+    Event event = eventRepository.findById(eventId).orElseThrow(()-> new EventNotFoundException("Event with ID " + eventId + " not found"));
+    return eventMapper.toEventResponse(event);
+  }
+
   public List<EventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
             .map(eventMapper::toEventResponse)
@@ -122,5 +127,9 @@ public class EventService {
             .toList();
 
     return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
+  }
+
+  public Event findById(long id) {
+    return eventRepository.findById(id).orElse(null);
   }
 }
