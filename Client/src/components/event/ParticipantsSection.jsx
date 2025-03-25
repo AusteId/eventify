@@ -1,6 +1,8 @@
 import React from 'react';
 import Participant from './Participant';
 import Button from '../Button';
+import BasicModal from '../BasicModal';
+import Modal from './Modal';
 
 const participants = [
   {
@@ -18,6 +20,10 @@ const participants = [
 ];
 
 const ParticipantsSection = () => {
+  const handleClickViewParticipants = () => {
+    document.getElementById('view_all_participants_modal').showModal();
+  };
+
   return (
     <div className="flex flex-col gap-6 p-6 bg-light-gray rounded-xl">
       <div className="flex flex-col gap-4 ">
@@ -38,13 +44,21 @@ const ParticipantsSection = () => {
               ))}
             </div>
             <div>
-              <a className="text-btn cursor-pointer hover:underline font-semibold text-[14px]">
+              <a
+                onClick={handleClickViewParticipants}
+                className="text-btn cursor-pointer hover:underline font-semibold text-[14px]"
+              >
                 View all participants
               </a>
             </div>
           </div>
         </>
       )}
+      <div className="absolute">
+        <Modal modalName={'view_all_participants_modal'}>
+          <p>Participants</p>
+        </Modal>
+      </div>
     </div>
   );
 };

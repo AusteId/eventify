@@ -7,6 +7,8 @@ import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
+import BasicModal from '../components/BasicModal';
+import CreateEventForm from '../components/CreateEventForm';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
