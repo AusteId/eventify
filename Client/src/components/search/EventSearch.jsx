@@ -1,18 +1,30 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 const EventSearch = ({ onSearch }) => {
     const [searchInput, setSearchInput] = useState('');
-    const [filters, setFilters] = useState({
-        categoryName: '',
-        city: '',
-        startDateTime: '',
-        endDateTime: '',
-        experienceLevel: '',
-        minAge: '',
-        maxAge: '',
-    });
     const [sortBy, setSortBy] = useState('startDateTime');
     const [sortDirection, setSortDirection] = useState('ASC');
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        watch,
+        setError,
+        clearErrors,
+        reset,
+    } = useForm({
+        defaultValues: {
+            categoryName: '',
+            city: '',
+            startDateTime: '',
+            endDateTime: '',
+            experienceLevel: '',
+            minAge: '',
+            maxAge: '',
+        },
+    });
 
     const handleSearchChange = (event) => {
         setSearchInput(event.target.value);
@@ -21,7 +33,15 @@ const EventSearch = ({ onSearch }) => {
     const handleSearchSubmit = () => {
         onSearch({
             searchTerm: searchInput,
-            filters,
+            filters: {
+                categoryName: watch("categoryName"),
+                city: watch("city"),
+                startDateTime: watch("startDateTime"),
+                endDateTime: watch("endDateTime"),
+                experienceLevel: watch("experienceLevel"),
+                minAge: watch("minAge") ? parseInt(watch("minAge")) : undefined,
+                maxAge: watch("maxAge") ? parseInt(watch("maxAge")) : undefined,
+            },
             sortBy,
             sortDirection,
         });
@@ -37,17 +57,18 @@ const EventSearch = ({ onSearch }) => {
         setSearchInput('');
         onSearch({
             searchTerm: '',
-            filters,
+            filters: {
+                categoryName: watch("categoryName"),
+                city: watch("city"),
+                startDateTime: watch("startDateTime"),
+                endDateTime: watch("endDateTime"),
+                experienceLevel: watch("experienceLevel"),
+                minAge: watch("minAge") ? parseInt(watch("minAge")) : undefined,
+                maxAge: watch("maxAge") ? parseInt(watch("maxAge")) : undefined,
+            },
             sortBy,
             sortDirection,
         });
-    };
-
-    const handleFilterChange = (filterName, value) => {
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [filterName]: value,
-        }));
     };
 
     const handleSortChange = (event) => {
@@ -56,16 +77,72 @@ const EventSearch = ({ onSearch }) => {
         setSortDirection(newSortDirection);
         onSearch({
             searchTerm: searchInput,
-            filters,
+            filters: {
+                categoryName: watch("categoryName"),
+                city: watch("city"),
+                startDateTime: watch("startDateTime"),
+                endDateTime: watch("endDateTime"),
+                experienceLevel: watch("experienceLevel"),
+                minAge: watch("minAge") ? parseInt(watch("minAge")) : undefined,
+                maxAge: watch("maxAge") ? parseInt(watch("maxAge")) : undefined,
+            },
             sortBy: newSortBy,
             sortDirection: newSortDirection,
         });
     };
 
-    const handleApplyFilters = () => {
+    const onSubmit = (data) => {
+
+        if (data.startDateTime && data.endDateTime) {
+            const start = new Date(data.startDateTime);
+            const end = new Date(data.endDateTime);
+            if (end <= start) {
+                setError("endDateTime", {
+                    type: "manual",
+                    message: "End date must be after start date",
+                });
+                return;
+            }
+        }
+
+        if (data.minAge !== "" && data.maxAge !== "" && parseInt(data.minAge) > parseInt(data.maxAge)) {
+            setError("minAge", {
+                type: "manual",
+                message: "Minimum age cannot be greater than maximum age",
+            });
+            return;
+        }
+
+        clearErrors(["endDateTime", "minAge"]);
         onSearch({
             searchTerm: searchInput,
-            filters,
+            filters: {
+                categoryName: data.categoryName || undefined,
+                city: data.city || undefined,
+                startDateTime: data.startDateTime || undefined,
+                endDateTime: data.endDateTime || undefined,
+                experienceLevel: data.experienceLevel || undefined,
+                minAge: data.minAge ? parseInt(data.minAge) : undefined,
+                maxAge: data.maxAge ? parseInt(data.maxAge) : undefined,
+            },
+            sortBy,
+            sortDirection,
+        });
+    };
+
+    const handleClearFilters = () => {
+        reset();
+        onSearch({
+            searchTerm: searchInput,
+            filters: {
+                categoryName: undefined,
+                city: undefined,
+                startDateTime: undefined,
+                endDateTime: undefined,
+                experienceLevel: undefined,
+                minAge: undefined,
+                maxAge: undefined,
+            },
             sortBy,
             sortDirection,
         });
@@ -124,67 +201,127 @@ const EventSearch = ({ onSearch }) => {
                 </select>
             </div>
 
-            {/* Laikini input laukeliai filtrams */}
-            <div className="flex flex-col gap-2">
-                <input
-                    type="text"
-                    value={filters.categoryName}
-                    onChange={(event) => handleFilterChange('categoryName', event.target.value)}
-                    placeholder="Filter by category (e.g., Sports)"
-                    className="w-full p-2 border rounded-md"
-                />
-                <input
-                    type="text"
-                    value={filters.city}
-                    onChange={(event) => handleFilterChange('city', event.target.value)}
-                    placeholder="Filter by city (e.g., Vilnius)"
-                    className="w-full p-2 border rounded-md"
-                />
-                <input
-                    type="text"
-                    value={filters.startDateTime}
-                    onChange={(event) => handleFilterChange('startDateTime', event.target.value)}
-                    placeholder="Filter by start date (yyyy-MM-dd, e.g., 2025-05-01)"
-                    className="w-full p-2 border rounded-md"
-                />
-                <input
-                    type="text"
-                    value={filters.endDateTime}
-                    onChange={(event) => handleFilterChange('endDateTime', event.target.value)}
-                    placeholder="Filter by end date (yyyy-MM-dd, e.g., 2025-06-01)"
-                    className="w-full p-2 border rounded-md"
-                />
-                <input
-                    type="text"
-                    value={filters.experienceLevel}
-                    onChange={(event) => handleFilterChange('experienceLevel', event.target.value)}
-                    placeholder="Filter by experience level (e.g., Beginner)"
-                    className="w-full p-2 border rounded-md"
-                />
-                <input
-                    type="number"
-                    value={filters.minAge}
-                    onChange={(event) => handleFilterChange('minAge', event.target.value)}
-                    placeholder="Filter by min age (e.g., 18)"
-                    className="w-full p-2 border rounded-md"
-                />
-                <input
-                    type="number"
-                    value={filters.maxAge}
-                    onChange={(event) => handleFilterChange('maxAge', event.target.value)}
-                    placeholder="Filter by max age (e.g., 30)"
-                    className="w-full p-2 border rounded-md"
-                />
-            </div>
+            {/* Laikina forma filtrams */}
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
 
-            <div>
-                <button
-                    onClick={handleApplyFilters}
-                    className="p-2 bg-amber-500 text-white rounded-md hover:bg-amber-600"
+                <div>
+                    <select
+                        {...register("categoryName")}
+                        className="w-full p-2 border rounded-md"
+                    >
+                        <option value="">Select category</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Boardgames">Boardgames</option>
+                        <option value="Music">Music</option>
+                        <option value="Arts and Culture">Arts and Culture</option>
+                        <option value="Food and Drinks">Food and Drinks</option>
+                        <option value="Outdoor">Outdoor</option>
+                        <option value="Wellness">Wellness</option>
+                        <option value="Business">Business</option>
+                        <option value="Technology">Technology</option>
+                    </select>
+                </div>
+
+                <div>
+                    <input
+                        {...register("city", {
+                            pattern: {
+                                value: /^([a-zA-Z0-9\u0080-\u02FF\u1E00-\u1EFF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF]+(?:[\s.\-'’‘]){0,2})*[a-zA-Z0-9\u0080-\u02FF\u1E00-\u1EFF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF]*$|^$/,
+                                message: "City name can only contain letters, numbers, spaces, dots, or hyphens (e.g., Vilnius, Kaunas)",
+                            },
+                        })}
+                        placeholder="Filter by city (e.g., Vilnius)"
+                        className="w-full p-2 border rounded-md"
+                    />
+                    {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
+                </div>
+
+                <div>
+                    <input
+                        {...register("startDateTime", {
+                            pattern: {
+                                value: /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$|^$/,
+                                message: "startDateTime must be in format yyyy-MM-dd, e.g., 2025-05-01",
+                            },
+                        })}
+                        placeholder="Filter by start date (yyyy-MM-dd, e.g., 2025-05-01)"
+                        className="w-full p-2 border rounded-md"
+                    />
+                    {errors.startDateTime && <p className="text-red-500 text-sm">{errors.startDateTime.message}</p>}
+                </div>
+
+                <div>
+                    <input
+                        {...register("endDateTime", {
+                            pattern: {
+                                value: /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$|^$/,
+                                message: "endDateTime must be in format yyyy-MM-dd, e.g., 2025-06-01",
+                            },
+                        })}
+                        placeholder="Filter by end date (yyyy-MM-dd, e.g., 2025-06-01)"
+                        className="w-full p-2 border rounded-md"
+                    />
+                    {errors.endDateTime && <p className="text-red-500 text-sm">{errors.endDateTime.message}</p>}
+                </div>
+
+                <div>
+                    <select
+                        {...register("experienceLevel")}
+                        className="w-full p-2 border rounded-md"
+                    >
+                        <option value="">Select experience level</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Extreme">Extreme</option>
+                        <option value="All Welcome">All Welcome</option>
+                    </select>
+                </div>
+
+                <div>
+                    <input
+                        type="number"
+                        {...register("minAge", {
+                            valueAsNumber: true,
+                            min: { value: 0, message: "Minimum age must be 0 or greater" },
+                            max: { value: 120, message: "Minimum age cannot be more than 120" },
+                        })}
+                        placeholder="Filter by min age (e.g., 18)"
+                        className="w-full p-2 border rounded-md"
+                    />
+                    {errors.minAge && <p className="text-red-500 text-sm">{errors.minAge.message}</p>}
+                </div>
+
+                <div>
+                    <input
+                        type="number"
+                        {...register("maxAge", {
+                            valueAsNumber: true,
+                            min: { value: 0, message: "Maximum age must be 0 or greater" },
+                            max: { value: 120, message: "Maximum age cannot be more than 120" },
+                        })}
+                        placeholder="Filter by max age (e.g., 30)"
+                        className="w-full p-2 border rounded-md"
+                    />
+                    {errors.maxAge && <p className="text-red-500 text-sm">{errors.maxAge.message}</p>}
+                </div>
+
+                <div className="flex gap-2">
+                    <button
+                        type="submit"
+                        className="p-2 bg-amber-500 text-white rounded-md hover:bg-amber-600"
                     >
                         Apply Filters
-                </button>
-            </div>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleClearFilters}
+                        className="p-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                    >
+                        Clear Filters
+                    </button>
+                </div>
+            </form>
         </div>
     );
 };
