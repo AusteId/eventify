@@ -49,7 +49,9 @@ const Comment = props => {
             X
           </button>
         </div>
-        <p className="text-body-medium font-inter pt-2">{props.comment}</p>
+        <p className="text-body-medium font-inter pt-2 break-all">
+          {props.comment}
+        </p>
       </div>
     </div>
   );
