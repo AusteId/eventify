@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { CiSearch, CiCircleRemove } from "react-icons/ci";
 
 const EventSearch = ({ onSearch }) => {
     const [searchInput, setSearchInput] = useState('');
@@ -151,32 +152,29 @@ const EventSearch = ({ onSearch }) => {
     return (
         <div className="mb-6 flex flex-col gap-4">
 
-            {/* Laikinas paieškos laukelis */}
-            <div className="flex gap-2">
-                <div className="relative w-full">
-                    <input
-                        type="text"
-                        value={searchInput}
-                        onChange={handleSearchChange}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Search for events..."
-                        className="w-full p-2 border rounded-md"
-                    />
-                    {searchInput && (
-                        <button
-                            onClick={handleClearSearch}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                        >
-                            ✕
-                        </button>
-                    )}
-                </div>
+            <div className="relative w-full tablet:w-3/5 desktop:w-2/3 mx-auto">
                 <button
                     onClick={handleSearchSubmit}
-                    className="p-2 bg-amber-500 text-white rounded-md hover:bg-amber-600"
+                    className="absolute left-2 btn btn-ghost btn-circle text-[#f59e0b] hover:opacity-80 focus:outline-none focus:ring-0 text-xl"
                 >
-                    Search
+                    <CiSearch />
                 </button>
+                <input
+                    type="text"
+                    value={searchInput}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search for events..."
+                    className="h-10 appearance-none border border-input-light rounded-lg w-full py-2 pl-10 pr-10 text-body-medium leading-tight focus:outline-none placeholder:text-input-muted font-inter bg-white"
+                />
+                {searchInput && (
+                    <button
+                        onClick={handleClearSearch}
+                        className="absolute right-2 btn btn-ghost btn-circle text-[#f59e0b] hover:opacity-80 hover:bg-transparent text-xl focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:outline-none transition-none !active:transform-none !active:scale-100 !active:outline-none"
+                    >
+                        <CiCircleRemove />
+                    </button>
+                )}
             </div>
 
             {/* Laikini dropdown rūšiavimui */}
