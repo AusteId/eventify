@@ -7,14 +7,14 @@ import Success from './message/Success';
 const MainLayout = () => {
   return (
     <>
-    <ErrorServer/>
-    <Success/>
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-light-yellow via-light-yellow to-cream">
-      <div className='flex-1'>
-        <Outlet />
+      <ErrorServer />
+      <Success />
+      <div className="min-h-screen flex flex-col bg-gradient-to-t from-white via-gradient-light-yellow to-gradient-yellow">
+        <div className="flex-1">
+          <Outlet />
+        </div>
+        <Footer />
       </div>
-      <Footer/>
-    </div>
     </>
   );
 };
