@@ -11,6 +11,7 @@ const Comment2 = props => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -48,6 +49,7 @@ const Comment2 = props => {
 
   const cancelEdit = () => {
     setEditing(false);
+    reset();
   };
 
   const closeDropdown = () => {
@@ -137,7 +139,9 @@ const Comment2 = props => {
                       message: 'Comment cannot exceed 1000 characters',
                     },
                   })}
-                ></textarea>
+                >
+                  {props.comment}
+                </textarea>
                 <div className="flex gap-2">
                   <button
                     type="submit"
