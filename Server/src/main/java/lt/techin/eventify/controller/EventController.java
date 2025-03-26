@@ -2,15 +2,10 @@ package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.dto.registrationToEvent.JoinEventResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
-import lt.techin.eventify.dto.registrationToEvent.UserJoinToEvent;
-import lt.techin.eventify.exception.AlreadyExistsException;
-import lt.techin.eventify.exception.AlreadyRegisterException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
@@ -121,8 +116,6 @@ public class EventController {
   @PostMapping("/{eventId}/register")
   public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal) {
 
-    System.out.println("Event ID: " + eventId);
-    System.out.println("Username: " + principal.getName());
 
     RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
 

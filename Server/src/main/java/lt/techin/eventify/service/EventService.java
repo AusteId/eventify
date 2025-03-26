@@ -134,4 +134,8 @@ public class EventService {
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
   }
 
+
+  public Event findById(long id) {
+    return eventRepository.findById(id).orElse(null);
+  }
 }
