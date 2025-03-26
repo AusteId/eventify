@@ -144,7 +144,7 @@ const Comment2 = props => {
                     className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
                   >
                     <Pencil className="h-4 w-4" />
-                    Edit Comment
+                    Save Changes
                   </button>
                   <button
                     type="button"
