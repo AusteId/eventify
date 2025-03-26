@@ -6,6 +6,8 @@ import lt.techin.eventify.dto.registrationToEvent.JoinEventResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
 import lt.techin.eventify.dto.registrationToEvent.UserJoinToEvent;
+import lt.techin.eventify.exception.AlreadyExistsException;
+import lt.techin.eventify.exception.AlreadyRegisterException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.model.User;
@@ -121,14 +123,13 @@ public class EventController {
 
     System.out.println("Event ID: " + eventId);
     System.out.println("Username: " + principal.getName());
-    try {
-      RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
-      RegistrationToEventResponse response = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
-      return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    } catch (Exception e) {
-      // Логируем ошибку для отладки
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    }
+
+    RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
+
+
+    RegistrationToEventResponse registrationToEventResponse = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(registrationToEventResponse);
+
   }
 }

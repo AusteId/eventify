@@ -74,4 +74,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(AlreadyRegisterException.class)
+    public ResponseEntity<Map<String, String>> handleAlreadyRegister(AlreadyRegisterException e) {
+      return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+    }
+
 }

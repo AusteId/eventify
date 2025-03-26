@@ -1,12 +1,7 @@
 package lt.techin.eventify.service;
 
-import lt.techin.eventify.dto.event.CreateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
-import lt.techin.eventify.dto.event.EventResponse;
-import lt.techin.eventify.exception.AlreadyExistsException;
-import lt.techin.eventify.exception.EventFullException;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.exception.*;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
@@ -50,7 +45,7 @@ public class RegistrationToEventService {
 
 
     if (registrationToEventRepository.existsByUserIdAndEventId(user.getId(), eventId)) {
-      throw new AlreadyExistsException("User is already registered for this event");
+      throw new AlreadyRegisterException("User is already registered for this event");
     }
 
     int registrationCount = countRegistrationsByEventId(eventId);
