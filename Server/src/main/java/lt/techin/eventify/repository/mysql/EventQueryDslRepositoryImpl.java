@@ -3,6 +3,8 @@ package lt.techin.eventify.repository.mysql;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
@@ -71,11 +73,11 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
     }
 
     if (minAge != null) {
-      builder.and(event.minAge.loe(minAge));
+      builder.and(event.minAge.isNotNull().and(event.minAge.gt(0)).and(event.minAge.goe(minAge)));
     }
 
     if (maxAge != null) {
-      builder.and(event.maxAge.goe(maxAge));
+      builder.and(event.maxAge.isNotNull().and(event.maxAge.gt(0)).and(event.maxAge.loe(maxAge)));
     }
 
     if (searchTerm != null && !searchTerm.isEmpty()) {
@@ -91,22 +93,33 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
 
       Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
 
-      switch (order.getProperty()) {
-        case "startDateTime":
-          orderSpecifiers.add(new OrderSpecifier<>(direction, event.startDateTime));
-          break;
-        case "name":
-          orderSpecifiers.add(new OrderSpecifier<>(direction, event.name));
-          break;
-        case "createdAt":
-          orderSpecifiers.add(new OrderSpecifier<>(direction, event.createdAt));
-          break;
-        case "experienceLevel":
-          orderSpecifiers.add(new OrderSpecifier<>(direction, event.experienceLevel));
-          break;
-        default:
-          orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.startDateTime));
-          break;
+      if (order.getProperty().equals("experienceLevel")) {
+
+        NumberExpression<Integer> experienceLevelOrder = new CaseBuilder()
+                .when(event.experienceLevel.eq("All Welcome")).then(1)
+                .when(event.experienceLevel.eq("Beginner")).then(2)
+                .when(event.experienceLevel.eq("Intermediate")).then(3)
+                .when(event.experienceLevel.eq("Advanced")).then(4)
+                .when(event.experienceLevel.eq("Extreme")).then(5)
+                .otherwise(6);
+
+        orderSpecifiers.add(new OrderSpecifier<>(direction, experienceLevelOrder));
+      } else {
+
+        switch (order.getProperty()) {
+          case "startDateTime":
+            orderSpecifiers.add(new OrderSpecifier<>(direction, event.startDateTime));
+            break;
+          case "name":
+            orderSpecifiers.add(new OrderSpecifier<>(direction, event.name));
+            break;
+          case "createdAt":
+            orderSpecifiers.add(new OrderSpecifier<>(direction, event.createdAt));
+            break;
+          default:
+            orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.startDateTime));
+            break;
+        }
       }
     }
 
