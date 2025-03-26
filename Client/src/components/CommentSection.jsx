@@ -1,17 +1,14 @@
-import { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import { Send } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
-import Comment from './Comment';
 import Comment2 from './Comment2';
-import axios from 'axios';
-import FieldValidationError from './FieldValidationError';
 
 const CommentSection = props => {
   const [imgSrc, setImgSrc] = useState(avatar);
   const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState({
-    comment: '',
-  });
+  const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
 
   const {
@@ -56,6 +53,8 @@ const CommentSection = props => {
     post();
 
     reset();
+
+    setNewComment('');
   };
 
   const fetchComments = () => {
@@ -97,6 +96,7 @@ const CommentSection = props => {
             className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
             rows="4"
             placeholder="Write a comment..."
+            onInput={e => setNewComment(e.target.value)}
             {...register('comment', {
               required: 'Comment required',
               maxLength: {
@@ -108,15 +108,12 @@ const CommentSection = props => {
           <div className="w-full flex flex-row items-center">
             <button
               type="submit"
-              className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
+              className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
+              disabled={!newComment.trim()}
             >
+              <Send className="h-4 w-4" />
               Post Comment
             </button>
-            <div className="items-center">
-              <FieldValidationError>
-                {errors.comment?.message}
-              </FieldValidationError>
-            </div>
           </div>
         </div>
       </div>
