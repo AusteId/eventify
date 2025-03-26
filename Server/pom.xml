@@ -114,6 +114,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Laiko formatavimas-->
+        <dependency>
+            <groupId>org.ocpsoft.prettytime</groupId>
+            <artifactId>prettytime</artifactId>
+            <version>5.0.7.Final</version>
+        </dependency>
+
 
     </dependencies>
 

@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="events_comments")
@@ -29,7 +29,7 @@ public class EventComment {
     private String comment;
 
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     public EventComment(User user, Event event, String comment) {
         this.user = user;
