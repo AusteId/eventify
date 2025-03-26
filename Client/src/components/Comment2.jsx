@@ -1,11 +1,22 @@
-import React from 'react';
 import axios from 'axios';
+import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
-import { useState } from 'react';
-import { Trash2, MoreVertical, Pencil } from 'lucide-react';
 
 const Comment2 = props => {
   const [imgSrc, setImgSrc] = useState(props.avatar || avatar);
+  const [editing, setEditing] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      comment: null,
+    },
+  });
 
   const api = axios.create({
     baseURL: 'http://localhost:8080/api',
@@ -29,6 +40,24 @@ const Comment2 = props => {
     };
     del();
   };
+
+  const onEdit = () => {
+    setEditing(true);
+    closeDropdown();
+  };
+
+  const cancelEdit = () => {
+    setEditing(false);
+  };
+
+  const closeDropdown = () => {
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
+  };
+
+  const editComment = data => {};
 
   return (
     <div
@@ -73,7 +102,7 @@ const Comment2 = props => {
                     <li>
                       <button
                         type="button"
-                        onClick={() => {}}
+                        onClick={onEdit}
                         className="text-body-medium"
                       >
                         <Pencil className="h-4 w-4" />
@@ -94,10 +123,46 @@ const Comment2 = props => {
                 ''
               )}
             </div>
-
-            <p className="text-body-medium text-body-m font-inter mt-2 break-all">
+            {editing ? (
+              <form onSubmit={handleSubmit(editComment)}>
+                <textarea
+                  id="edittext"
+                  className="mt-2 field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
+                  rows="2"
+                  placeholder="Edit your comment..."
+                  {...register('editcomment', {
+                    required: 'Comment required',
+                    maxLength: {
+                      value: 1000,
+                      message: 'Comment cannot exceed 1000 characters',
+                    },
+                  })}
+                ></textarea>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Edit Comment
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelEdit}
+                    className="btn bg-white border border-input-light shadow-none hover:bg-input-light px-6 pt-3 pb-3 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <p className="text-body-medium text-body-m font-inter mt-2 break-all">
+                {props.comment}
+              </p>
+            )}
+            {/* <p className="text-body-medium text-body-m font-inter mt-2 break-all">
               {props.comment}
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
