@@ -5,10 +5,10 @@ import Comment from './Comment';
 import Comment2 from './Comment2';
 import axios from 'axios';
 import FieldValidationError from './FieldValidationError';
+import { useAuth } from './Auth/AuthContext';
 
 const CommentSection = props => {
   const [imgSrc, setImgSrc] = useState(avatar);
-
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
     comment: '',
@@ -35,14 +35,14 @@ const CommentSection = props => {
     withCredentials: true,
   });
 
-  const onPostComment = () => {
+  const onPostComment = data => {
     setComments([]);
     setLoading(true);
 
     const post = async () => {
       try {
         const response = await api.post(`${props.endpoint}`, {
-          comment: document.getElementById('textarea').value,
+          comment: data.comment,
         });
         console.log(response.data);
       } catch (err) {
@@ -53,6 +53,8 @@ const CommentSection = props => {
     };
 
     post();
+
+    reset();
   };
 
   const fetchComments = () => {
@@ -126,6 +128,7 @@ const CommentSection = props => {
           comments.map(comment => (
             <Comment2
               name={comment.userResponse.username}
+              userId={comment.userResponse.id}
               avatar={'src/assets/avatar.png'}
               comment={comment.comment}
               time={comment.createdAt}
@@ -134,6 +137,7 @@ const CommentSection = props => {
               fetchComments={fetchComments}
               setComments={setComments}
               setLoading={setLoading}
+              user={props.user}
             />
           ))
         ) : (

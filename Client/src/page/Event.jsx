@@ -7,13 +7,29 @@ import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
+import axios from 'axios';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
+  const [user, setUser] = useState(null);
+
+  const fetchUser = async () => {
+    // We get the user from cookies
+    try {
+      const response = await axios.get('http://localhost:8080/api/users/me', {
+        withCredentials: true,
+      });
+      setUser(response.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+    }
+  };
 
   useEffect(() => {
+    fetchUser();
     const fetchdata = async () => {
       const data = await getEvent(params.id);
       setEvent(data);
@@ -101,7 +117,10 @@ const Event = () => {
                 <p className="text-body-medium">{event.description}</p>
               </div>
 
-              <CommentSection endpoint={'/events/' + event.id + '/comments'} />
+              <CommentSection
+                user={user}
+                endpoint={'/events/' + event.id + '/comments'}
+              />
             </div>
           </div>
           <div className="flex flex-col gap-4">

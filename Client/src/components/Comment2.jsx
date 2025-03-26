@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import avatar from '../assets/avatar.png';
 import { useState } from 'react';
-import { Trash2, MoreVertical } from 'lucide-react';
+import { Trash2, MoreVertical, Pencil } from 'lucide-react';
 
 const Comment2 = props => {
   const [imgSrc, setImgSrc] = useState(props.avatar || avatar);
@@ -58,26 +58,41 @@ const Comment2 = props => {
                 </p>
               </div>
 
-              <div className="dropdown dropdown-end">
-                <label tabIndex={0} className="btn btn-ghost btn-xs btn-circle">
-                  <MoreVertical className="h-4 w-4" />
-                </label>
-                <ul
-                  tabIndex={0}
-                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
-                >
-                  <li>
-                    <button
-                      type="button"
-                      onClick={deleteC}
-                      className="text-error"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </button>
-                  </li>
-                </ul>
-              </div>
+              {props.user.id == props.userId ? (
+                <div className="dropdown dropdown-end">
+                  <label
+                    tabIndex={0}
+                    className="btn btn-ghost btn-xs btn-circle"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </label>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                  >
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => {}}
+                        className="text-body-medium"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={deleteC}
+                        className="text-error"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              ) : (
+                ''
+              )}
             </div>
 
             <p className="text-body-medium text-body-m font-inter mt-2 break-all">
