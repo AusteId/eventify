@@ -155,7 +155,7 @@ const EventSearch = ({ onSearch }) => {
             <div className="relative w-full tablet:w-3/5 desktop:w-2/3 mx-auto">
                 <button
                     onClick={handleSearchSubmit}
-                    className="absolute left-2 btn btn-ghost btn-circle text-[#f59e0b] hover:opacity-80 focus:outline-none focus:ring-0 text-xl"
+                    className="absolute left-2 rounded-full text-[#f59e0b] hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
                 >
                     <CiSearch />
                 </button>
@@ -170,7 +170,7 @@ const EventSearch = ({ onSearch }) => {
                 {searchInput && (
                     <button
                         onClick={handleClearSearch}
-                        className="absolute right-2 btn btn-ghost btn-circle text-[#f59e0b] hover:opacity-80 hover:bg-transparent text-xl focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:outline-none transition-none !active:transform-none !active:scale-100 !active:outline-none"
+                        className="absolute right-2 btn-circle text-[#f59e0b] hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
                     >
                         <CiCircleRemove />
                     </button>
