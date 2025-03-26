@@ -49,7 +49,7 @@ public record EventSearchRequest(
       page = 0;
     }
     if (size == null) {
-      size = 10;
+      size = 12;
     }
     if (sortBy == null || sortBy.isEmpty()) {
       sortBy = "startDateTime";
