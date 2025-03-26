@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
 import Comment from './Comment';
+import Comment2 from './Comment2';
 import axios from 'axios';
 import FieldValidationError from './FieldValidationError';
 
@@ -26,24 +27,6 @@ const CommentSection = props => {
     },
   });
 
-  const commentsTable = [
-    {
-      id: 1,
-      name: 'Mike Johnson',
-      avatar: 'src/assets/avatar.png',
-      comment:
-        'Great event organizer! Really enjoyed the board game night last week.',
-      time: '2 days ago',
-    },
-    {
-      id: 2,
-      name: 'John Johnson',
-      avatar: 'src/assets/avatar.png',
-      comment: 'One of the greatest hosts of all time!',
-      time: '6 days ago',
-    },
-  ];
-
   const api = axios.create({
     baseURL: 'http://localhost:8080/api',
     headers: {
@@ -61,6 +44,7 @@ const CommentSection = props => {
         const response = await api.post(`${props.endpoint}`, {
           comment: document.getElementById('textarea').value,
         });
+        console.log(response.data);
       } catch (err) {
         console.error('Error posting comment:', err);
       } finally {
@@ -140,7 +124,7 @@ const CommentSection = props => {
           </div>
         ) : comments.length > 0 ? (
           comments.map(comment => (
-            <Comment
+            <Comment2
               name={comment.userResponse.username}
               avatar={'src/assets/avatar.png'}
               comment={comment.comment}
