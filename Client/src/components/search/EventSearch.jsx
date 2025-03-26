@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { CiSearch, CiCircleRemove } from "react-icons/ci";
-import { FaArrowUp, FaArrowDown, FaClock, FaChevronDown, FaCheck } from "react-icons/fa";
-import { FaArrowUpAZ, FaArrowDownZA, FaArrowUp19, FaArrowDown91 } from "react-icons/fa6";
+import { FaArrowUp, FaArrowDown, FaChevronDown, FaCheck } from "react-icons/fa";
+import { FaArrowUpAZ, FaArrowDownZA, FaArrowUp19, FaArrowDown91, FaSort } from "react-icons/fa6";
+import { RiFilter2Fill } from "react-icons/ri";
 
 const EventSearch = ({ onSearch }) => {
     const [searchInput, setSearchInput] = useState('');
@@ -92,26 +93,6 @@ const EventSearch = ({ onSearch }) => {
             sortDirection,
         });
     };
-
-    // const handleSortChange = (event) => {
-    //     const [newSortBy, newSortDirection] = event.target.value.split(':');
-    //     setSortBy(newSortBy);
-    //     setSortDirection(newSortDirection);
-    //     onSearch({
-    //         searchTerm: searchInput,
-    //         filters: {
-    //             categoryName: watch("categoryName"),
-    //             city: watch("city"),
-    //             startDateTime: watch("startDateTime"),
-    //             endDateTime: watch("endDateTime"),
-    //             experienceLevel: watch("experienceLevel"),
-    //             minAge: watch("minAge") ? parseInt(watch("minAge")) : undefined,
-    //             maxAge: watch("maxAge") ? parseInt(watch("maxAge")) : undefined,
-    //         },
-    //         sortBy: newSortBy,
-    //         sortDirection: newSortDirection,
-    //     });
-    // };
 
     const handleSortChange = (newSortBy, newSortDirection) => {
         setSortBy(newSortBy);
@@ -220,171 +201,132 @@ const EventSearch = ({ onSearch }) => {
                     )}
                 </div>
 
-                {/* Laikini dropdown rūšiavimui
-            <div>
-                <label htmlFor="sortOptions" className="mr-2">
-                    Sort by:
-                </label>
-                <select
-                    id="sortOptions"
-                    value={`${sortBy}:${sortDirection}`}
-                    onChange={handleSortChange}
-                    className="p-2 border rounded-md"
-                >
-                    <option value="startDateTime:ASC">Start Date (Ascending)</option>
-                    <option value="startDateTime:DESC">Start Date (Descending)</option>
-                    <option value="name:ASC">Name (Ascending)</option>
-                    <option value="name:DESC">Name (Descending)</option>
-                    <option value="createdAt:ASC">Created At (Ascending)</option>
-                    <option value="createdAt:DESC">Created At (Descending)</option>
-                    <option value="experienceLevel:ASC">Experience Level (Ascending)</option>
-                    <option value="experienceLevel:DESC">Experience Level (Descending)</option>
-                </select>
-            </div> */}
-
-                {/* Sort by ir Filter mygtukai */}
                 <div className="flex gap-2 justify-center tablet:justify-end">
-                    {/* Sort by mygtukas */}
+
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-3 font-inter hover:bg-[#f59e0b]/8 px-4 py-2 min-w-[120px]"
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-[#f59e0b]/8 px-4 py-2 min-w-[120px]"
                         >
-                            Sort by <FaChevronDown className="text-[#f59e0b]" />
+                            <FaSort className="text-[#f59e0b]"/>Sort by <FaChevronDown className="text-[#f59e0b]" />
                         </button>
 
-                        {/* Dropdown meniu */}
                         {isSortDropdownOpen && (
                             <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] bg-white shadow-md rounded-lg z-10 font-inter text-body-medium">
-                    <div className="flex flex-col gap-1 p-2">
-                        <button
-                            onClick={() => handleSortChange("name", "ASC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowUpAZ className="text-[#f59e0b] text-lg" />
-                                A to Z
+                                <div className="flex flex-col gap-1 p-2">
+                                    <button
+                                        onClick={() => handleSortChange("name", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUpAZ className="text-[#f59e0b] text-lg" />
+                                            A to Z
+                                        </div>
+                                        {sortBy === "name" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("name", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDownZA className="text-[#f59e0b] text-lg" />
+                                            Z to A
+                                        </div>
+                                        {sortBy === "name" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("experienceLevel", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUp className="text-[#f59e0b] text-lg" />
+                                            Beginner to Advanced
+                                        </div>
+                                        {sortBy === "experienceLevel" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("experienceLevel", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDown className="text-[#f59e0b] text-lg" />
+                                            Advanced to Beginner
+                                        </div>
+                                        {sortBy === "experienceLevel" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("startDateTime", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUp19 className="text-[#f59e0b] text-lg" />
+                                            Soonest to Latest
+                                        </div>
+                                        {sortBy === "startDateTime" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("startDateTime", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDown91 className="text-[#f59e0b] text-lg" />
+                                            Latest to Soonest
+                                        </div>
+                                        {sortBy === "startDateTime" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("createdAt", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUp19 className="text-[#f59e0b] text-lg" />
+                                            Newest to Latest
+                                        </div>
+                                        {sortBy === "createdAt" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("createdAt", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDown91 className="text-[#f59e0b] text-lg" />
+                                            Latest to Newest
+                                        </div>
+                                        {sortBy === "createdAt" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
-                            {sortBy === "name" && sortDirection === "ASC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange("name", "DESC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowDownZA className="text-[#f59e0b] text-lg" />
-                                Z to A
-                            </div>
-                            {sortBy === "name" && sortDirection === "DESC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange("experienceLevel", "ASC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowUp className="text-[#f59e0b] text-lg" />
-                                Beginner to Advanced
-                            </div>
-                            {sortBy === "experienceLevel" && sortDirection === "ASC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange("experienceLevel", "DESC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowDown className="text-[#f59e0b] text-lg" />
-                                Advanced to Beginner
-                            </div>
-                            {sortBy === "experienceLevel" && sortDirection === "DESC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange("startDateTime", "ASC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowUp19 className="text-[#f59e0b] text-lg" />
-                                Soonest to Latest
-                            </div>
-                            {sortBy === "startDateTime" && sortDirection === "ASC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange("startDateTime", "DESC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowDown91 className="text-[#f59e0b] text-lg" />
-                                Latest to Soonest
-                            </div>
-                            {sortBy === "startDateTime" && sortDirection === "DESC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange("createdAt", "ASC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowUp19 className="text-[#f59e0b] text-lg" />
-                                Newest to Latest
-                            </div>
-                            {sortBy === "createdAt" && sortDirection === "ASC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange("createdAt", "DESC")}
-                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
-                        >
-                            <div className="flex items-center gap-3 text-sm">
-                                <FaArrowDown91 className="text-[#f59e0b] text-lg" />
-                                Latest to Newest
-                            </div>
-                            {sortBy === "createdAt" && sortDirection === "DESC" && (
-                                <FaCheck className="text-[#f59e0b]" />
-                            )}
-                        </button>
-                    </div>
-                </div>
                         )}
-            </div>
+                    </div>
 
-            {/* Filter mygtukas */}
-            <button
-                className="bg-[#e5e7eb] text-body-medium rounded-lg border-0 flex items-center gap-1 font-inter hover:bg-gray-300 px-4 py-2 min-w-[120px]"
-            >
-                Filter <FaChevronDown className="text-[#f59e0b]" />
-            </button>
-        </div>
-           </div > 
-
-
+                    {/* Filter mygtukas */}
+                    <button
+                        className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-[#f59e0b]/8 px-4 py-2 min-w-[120px]"
+                    >
+                        <RiFilter2Fill className="text-[#f59e0b]" /> Filter <FaChevronDown className="text-[#f59e0b]" />
+                    </button>
+                </div>
+            </div >
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    {/* Laikina forma filtrams */ }
-    < form onSubmit = { handleSubmit(onSubmit) } className = "flex flex-col gap-2" >
+            {/* Laikina forma filtrams */}
+            < form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" >
 
                 <div>
                     <select
