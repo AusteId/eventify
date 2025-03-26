@@ -30,7 +30,7 @@ const participants = [
 ];
 
 const Event = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
 

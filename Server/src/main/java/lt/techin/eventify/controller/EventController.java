@@ -13,11 +13,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/events")
@@ -38,14 +42,15 @@ public class EventController {
   }
 
   @PostMapping
-  public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
-    Event newEvent = eventService.saveEvent(eventMapper.toEvent(createEventRequest));
+  public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest, Authentication authentication) {
+    EventResponse eventResponse = eventService.saveEvent(createEventRequest, authentication);
+
     return ResponseEntity.created(
                     ServletUriComponentsBuilder.fromCurrentRequest()
                             .path("/{id}")
-                            .buildAndExpand(newEvent.getId())
+                            .buildAndExpand(eventResponse.id())
                             .toUri())
-            .body(eventMapper.toEventResponse(newEvent));
+            .body(eventResponse);
   }
 
 

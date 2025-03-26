@@ -1,5 +1,6 @@
 package lt.techin.eventify.service;
 
+import lt.techin.eventify.dto.event.CreateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.event.UpdateEventRequest;
@@ -16,10 +17,13 @@ import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EventService {
@@ -37,8 +41,18 @@ public class EventService {
     this.eventMapper = eventMapper;
   }
 
-  public Event saveEvent(Event event) {
-    return eventRepository.save(event);
+  public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) {
+    JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+    Map<String, Object> claims = jwtAuth.getTokenAttributes();
+    Long userId = (Long) claims.get("userId");
+
+    User organizer = userRepository.findById(userId).orElseThrow(() ->
+            new UsernameNotFoundException("User does not exist"));
+
+    Event event = eventMapper.toEvent(createEventRequest, organizer);
+    Event savedEvent = eventRepository.save(event);
+
+    return eventMapper.toEventResponse(savedEvent);
   }
 
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
@@ -100,7 +114,7 @@ public class EventService {
   }
 
   public EventResponse getEventById(long eventId) {
-    Event event = eventRepository.findById(eventId).orElseThrow(()-> new EventNotFoundException("Event with ID " + eventId + " not found"));
+    Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
     return eventMapper.toEventResponse(event);
   }
 

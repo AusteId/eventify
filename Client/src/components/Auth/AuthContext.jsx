@@ -23,12 +23,17 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const checkAuthStatus = useCallback(async () => {
-    //Constant agony of 401's if not logged in, so need to store shit in session to prevent it from checking the cookie
-    const stupidFuckingCheck =
-      isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
-    if (!stupidFuckingCheck) {
-      return;
-    }
+    console.log('CHECKING AUTH');
+
+    //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
+    // const alreadyChecked =
+    //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
+    // if (!alreadyChecked) {
+    //   return;
+    // }
+
+    if (isAuthenticated) return;
+
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/me', {
@@ -64,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuthStatus();
-  }, [checkAuthStatus]);
+  }, []);
 
   const login = async credentials => {
     setIsLoading(true);

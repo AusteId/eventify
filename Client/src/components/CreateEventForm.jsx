@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import FieldValidationError from './FieldValidationError';
 import FileDropzone from './FileDropzone';
+import createEvent from '../helpers/event/createEvent';
 
 const CreateEventForm = () => {
   const {
@@ -12,23 +13,47 @@ const CreateEventForm = () => {
   } = useForm({
     defaultValues: {
       image: null,
-      title: '',
-      city: '',
-      address: '',
-      start_date: null,
-      end_date: null,
-      category: 'Select Category',
-      minage: null,
-      maxage: null,
-      maxp: null,
+      name: 'qwe',
+      city: 'asd',
+      address: 'zxc',
+      startDateTime: "2025-03-26T22:02",
+      endDateTime: "2025-03-28T03:33",
+      category: 'sports',
+      minAge: null,
+      maxAge: null,
+      maxParticipants: 5,
       description: '',
-      level: 'Select Experience Level',
+      experienceLevel: 'Beginner',
     },
+    // defaultValues: {
+    //   image: null,
+    //   name: '',
+    //   city: '',
+    //   address: '',
+    //   startDateTime: null,
+    //   endDateTime: null,
+    //   category: 'Select Category',
+    //   minAge: null,
+    //   maxAge: null,
+    //   maxParticipants: null,
+    //   description: '',
+    //   experienceLevel: 'Select Experience Level',
+    // },
   });
+
+  // TODO: Need to fetch categories from back-end
+  const categories = {
+    sports: { id: 1, name: 'sports' },
+    boardGames: { id: 2, name: 'boardGames' },
+    music: { id: 3, name: 'music' },
+    artsAndCulture: { id: 4, name: 'artsAndCulture' },
+  };
 
   const onSubmit = async data => {
     try {
-      // whatever
+      console.log({ ...data, category: categories[data.category] });
+      const response = await createEvent(data);
+      console.log('RESPONSE: ', response);
     } catch (error) {
       console.error('Event creation failed: ', error);
     }
@@ -76,8 +101,8 @@ const CreateEventForm = () => {
             id="event-title"
             type="text"
             placeholder=""
-            name="title"
-            {...register('title', {
+            name="name"
+            {...register('name', {
               required: 'Event title is required',
               pattern: {
                 value: /^[A-Za-z0-9\s'-]+$/,
@@ -105,8 +130,8 @@ const CreateEventForm = () => {
           <select
             id="event-level"
             defaultValue="Select Experience Level"
-            name="level"
-            {...register('level', {
+            name="experienceLevel"
+            {...register('experienceLevel', {
               required: 'Experience level is required',
               validate: value =>
                 value !== 'Select Experience Level' ||
@@ -185,13 +210,13 @@ const CreateEventForm = () => {
             id="event-date"
             type="datetime-local"
             placeholder=""
-            name="start_date"
-            {...register('start_date', {
+            name="startDateTime"
+            {...register('startDateTime', {
               required: 'Start date is required',
             })}
           />
           <FieldValidationError>
-            {errors.start_date?.message}
+            {errors.startDateTime?.message}
           </FieldValidationError>
         </div>
         <div className="w-full">
@@ -206,13 +231,13 @@ const CreateEventForm = () => {
             id="event-date-ende"
             type="datetime-local"
             placeholder=""
-            name="end_date"
-            {...register('end_date', {
+            name="endDateTime"
+            {...register('endDateTime', {
               required: 'End date is required',
             })}
           />
           <FieldValidationError>
-            {errors.end_date?.message}
+            {errors.endDateTime?.message}
           </FieldValidationError>
         </div>
         <div className="w-full">
@@ -234,9 +259,10 @@ const CreateEventForm = () => {
             className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none"
           >
             <option disabled={true}>Select Category</option>
-            <option>Sports</option>
-            <option>Music</option>
-            <option>Social Games</option>
+            <option value="sports">Sports</option>
+            <option value="boardGames">Board games</option>
+            <option value="music">Music</option>
+            <option value="artsAndCulture">Arts and Culture</option>
           </select>
           <FieldValidationError>
             {errors.category?.message}
@@ -256,10 +282,10 @@ const CreateEventForm = () => {
             id="event-minage"
             type="number"
             placeholder=""
-            name="minage"
+            name="minAge"
             min={0}
             max={120}
-            {...register('minage', {
+            {...register('minAge', {
               minLength: {
                 value: 0,
                 message: 'Minimum age must be 0 or above',
@@ -283,10 +309,10 @@ const CreateEventForm = () => {
             id="event-maxage"
             type="number"
             placeholder=""
-            name="maxage"
+            name="maxAge"
             min={0}
             max={120}
-            {...register('maxage', {
+            {...register('maxAge', {
               minLength: {
                 value: 0,
                 message: 'Maximum age must be 0 or above',
@@ -310,10 +336,10 @@ const CreateEventForm = () => {
             id="event-maxparticipants"
             type="number"
             placeholder=""
-            name="maxp"
+            name="maxParticipants"
             min={1}
             max={1000}
-            {...register('maxp', {
+            {...register('maxParticipants', {
               required: 'Maximum Participants is required',
             })}
           />

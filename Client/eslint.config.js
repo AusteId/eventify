@@ -34,7 +34,6 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
-      'node/no-missing-import': 'error',
     },
   },
 ];
