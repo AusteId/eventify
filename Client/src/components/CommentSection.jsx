@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Send } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
@@ -117,13 +117,13 @@ const CommentSection = props => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-6 pt-8">
-        {loading && !comments.length ? (
-          <div className="flex justify-center mt-20">
-            <span className="loading loading-bars loading-xl"></span>
-          </div>
-        ) : comments.length > 0 ? (
-          comments.map(comment => (
+      {loading && !comments.length ? (
+        <div className="flex justify-center mt-20">
+          <span className="loading loading-bars loading-xl"></span>
+        </div>
+      ) : comments.length > 0 ? (
+        <div className="flex flex-col gap-6 pt-8">
+          {comments.map(comment => (
             <Comment2
               name={comment.userResponse.username}
               contextid={props.contextid}
@@ -137,11 +137,14 @@ const CommentSection = props => {
               setLoading={setLoading}
               userId={comment.userResponse.id}
             />
-          ))
-        ) : (
-          <p>No comments yet</p>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center mt-20">
+          <MessageCircle className="h-20 w-20" />
+          <p className="font-inter text-body-medium mt-2">No commets yet</p>
+        </div>
+      )}
     </form>
   );
 };
