@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
 import Comment from './Comment';
 import Comment2 from './Comment2';
 import axios from 'axios';
 import FieldValidationError from './FieldValidationError';
-import { useAuth } from './Auth/AuthContext';
 
 const CommentSection = props => {
   const [imgSrc, setImgSrc] = useState(avatar);
@@ -38,6 +37,8 @@ const CommentSection = props => {
   const onPostComment = data => {
     setComments([]);
     setLoading(true);
+
+    console.log(props.user);
 
     const post = async () => {
       try {
@@ -128,7 +129,7 @@ const CommentSection = props => {
           comments.map(comment => (
             <Comment2
               name={comment.userResponse.username}
-              userId={comment.userResponse.id}
+              contextid={props.contextid}
               avatar={'src/assets/avatar.png'}
               comment={comment.comment}
               time={comment.createdAt}
@@ -137,7 +138,7 @@ const CommentSection = props => {
               fetchComments={fetchComments}
               setComments={setComments}
               setLoading={setLoading}
-              user={props.user}
+              userId={comment.userResponse.id}
             />
           ))
         ) : (

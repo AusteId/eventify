@@ -8,28 +8,15 @@ import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
 import axios from 'axios';
+import { useAuth } from '../components/Auth/AuthContext';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
-  const [user, setUser] = useState(null);
-
-  const fetchUser = async () => {
-    // We get the user from cookies
-    try {
-      const response = await axios.get('http://localhost:8080/api/users/me', {
-        withCredentials: true,
-      });
-      setUser(response.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-    }
-  };
+  const { userId } = useAuth();
 
   useEffect(() => {
-    fetchUser();
     const fetchdata = async () => {
       const data = await getEvent(params.id);
       setEvent(data);
@@ -118,7 +105,7 @@ const Event = () => {
               </div>
 
               <CommentSection
-                user={user}
+                contextid={userId}
                 endpoint={'/events/' + event.id + '/comments'}
               />
             </div>

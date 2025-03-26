@@ -24,16 +24,17 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = useCallback(async () => {
     //Constant agony of 401's if not logged in, so need to store shit in session to prevent it from checking the cookie
-    const stupidFuckingCheck =
-      isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
-    if (!stupidFuckingCheck) {
-      return;
-    }
+    // const stupidFuckingCheck =
+    //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
+    // if (!stupidFuckingCheck) {
+    //   return;
+    // }
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/me', {
         credentials: 'include',
       });
+      console.log(response.ok || 'is not ok');
       if (response.ok) {
         const userData = await response.json();
         setIsAuthenticated(true);

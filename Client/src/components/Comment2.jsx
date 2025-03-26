@@ -58,7 +58,7 @@ const Comment2 = props => {
                 </p>
               </div>
 
-              {props.user.id == props.userId ? (
+              {props.contextid == props.userId ? (
                 <div className="dropdown dropdown-end">
                   <label
                     tabIndex={0}
