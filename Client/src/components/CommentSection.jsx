@@ -77,45 +77,47 @@ const CommentSection = props => {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit(onPostComment)}>
-      <h1 className="text-header-dark font-inter font-bold text-heading-s pb-6">
-        Comments
-      </h1>
-      <div className="flex">
-        <img
-          className="w-10 h-10 rounded-full"
-          src={imgSrc}
-          alt="User avatar"
-          onError={() => setImgSrc(avatar)}
-        />
-        <div className="pl-4 w-full">
-          <textarea
-            id="textarea"
-            className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
-            rows="4"
-            placeholder="Write a comment..."
-            onInput={e => setNewComment(e.target.value)}
-            maxLength={1000}
-            {...register('comment', {
-              required: 'Comment required',
-              maxLength: {
-                value: 1000,
-                message: 'Comment cannot exceed 1000 characters',
-              },
-            })}
-          ></textarea>
-          <div className="w-full flex flex-row items-center">
-            <button
-              type="submit"
-              className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
-              disabled={!newComment.trim()}
-            >
-              <Send className="h-4 w-4" />
-              Post Comment
-            </button>
+    <div>
+      <form onSubmit={handleSubmit(onPostComment)}>
+        <h1 className="text-header-dark font-inter font-bold text-heading-s pb-6">
+          Comments
+        </h1>
+        <div className="flex">
+          <img
+            className="w-10 h-10 rounded-full"
+            src={imgSrc}
+            alt="User avatar"
+            onError={() => setImgSrc(avatar)}
+          />
+          <div className="pl-4 w-full">
+            <textarea
+              id="textarea"
+              className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
+              rows="4"
+              placeholder="Write a comment..."
+              onInput={e => setNewComment(e.target.value)}
+              maxLength={1000}
+              {...register('comment', {
+                required: 'Comment required',
+                maxLength: {
+                  value: 1000,
+                  message: 'Comment cannot exceed 1000 characters',
+                },
+              })}
+            ></textarea>
+            <div className="w-full flex flex-row items-center">
+              <button
+                type="submit"
+                className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
+                disabled={!newComment.trim()}
+              >
+                <Send className="h-4 w-4" />
+                Post Comment
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
       {loading && !comments.length ? (
         <div className="flex justify-center mt-20">
           <span className="loading loading-bars loading-xl"></span>
@@ -144,7 +146,7 @@ const CommentSection = props => {
           <p className="font-inter text-body-medium mt-2">No commets yet</p>
         </div>
       )}
-    </form>
+    </div>
   );
 };
 

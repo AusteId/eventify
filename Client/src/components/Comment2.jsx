@@ -7,7 +7,7 @@ import avatar from '../assets/avatar.png';
 const Comment2 = props => {
   const [imgSrc, setImgSrc] = useState(props.avatar || avatar);
   const [editing, setEditing] = useState(false);
-  const [editingComment, setEditingComment] = useState('');
+  const [editingComment, setEditingComment] = useState('+');
 
   const {
     register,
@@ -16,7 +16,7 @@ const Comment2 = props => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      comment: null,
+      comment: props.comment,
     },
   });
 
@@ -50,6 +50,7 @@ const Comment2 = props => {
 
   const cancelEdit = () => {
     setEditing(false);
+    setEditingComment('+');
     reset();
   };
 
@@ -67,7 +68,7 @@ const Comment2 = props => {
     const edit = async () => {
       try {
         const response = await api.patch(`/events/comments/` + props.id, {
-          comment: document.getElementById('edittext').value,
+          comment: data.comment,
         });
         console.log(response.data);
       } catch (err) {
@@ -145,20 +146,25 @@ const Comment2 = props => {
               )}
             </div>
             {editing ? (
-              <div>
+              <form onSubmit={handleSubmit(editComment)}>
                 <textarea
                   id="edittext"
                   className="mt-2 field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
                   rows="2"
                   placeholder="Edit your comment..."
-                  defaultValue={props.comment}
                   onInput={e => setEditingComment(e.target.value)}
                   maxLength={1000}
+                  {...register('comment', {
+                    required: 'Comment required',
+                    maxLength: {
+                      value: 1000,
+                      message: 'Comment cannot exceed 1000 characters',
+                    },
+                  })}
                 ></textarea>
                 <div className="flex gap-2">
                   <button
-                    type="button"
-                    onClick={editComment}
+                    type="submit"
                     className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
                     disabled={!editingComment.trim()}
                   >
@@ -173,7 +179,7 @@ const Comment2 = props => {
                     Cancel
                   </button>
                 </div>
-              </div>
+              </form>
             ) : (
               <p className="text-body-medium text-body-m font-inter mt-2 break-all">
                 {props.comment}
