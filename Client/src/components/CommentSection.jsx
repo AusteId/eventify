@@ -35,8 +35,6 @@ const CommentSection = props => {
     setComments([]);
     setLoading(true);
 
-    console.log(props.user);
-
     const post = async () => {
       try {
         const response = await api.post(`${props.endpoint}`, {

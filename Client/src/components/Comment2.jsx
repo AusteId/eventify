@@ -59,7 +59,25 @@ const Comment2 = props => {
     }
   };
 
-  const editComment = data => {};
+  const editComment = data => {
+    props.setComments([]);
+    props.setLoading(true);
+
+    const edit = async () => {
+      try {
+        const response = await api.patch(`/events/comments/` + props.id, {
+          comment: document.getElementById('edittext').value,
+        });
+        console.log(response.data);
+      } catch (err) {
+        console.error('Error editing comment:', err);
+      } finally {
+        props.fetchComments();
+        setEditing(false);
+      }
+    };
+    edit();
+  };
 
   return (
     <div
@@ -126,25 +144,18 @@ const Comment2 = props => {
               )}
             </div>
             {editing ? (
-              <form onSubmit={handleSubmit(editComment)}>
+              <div>
                 <textarea
                   id="edittext"
                   className="mt-2 field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
                   rows="2"
                   placeholder="Edit your comment..."
-                  {...register('editcomment', {
-                    required: 'Comment required',
-                    maxLength: {
-                      value: 1000,
-                      message: 'Comment cannot exceed 1000 characters',
-                    },
-                  })}
-                >
-                  {props.comment}
-                </textarea>
+                  defaultValue={props.comment}
+                ></textarea>
                 <div className="flex gap-2">
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={editComment}
                     className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
                   >
                     <Pencil className="h-4 w-4" />
@@ -158,7 +169,7 @@ const Comment2 = props => {
                     Cancel
                   </button>
                 </div>
-              </form>
+              </div>
             ) : (
               <p className="text-body-medium text-body-m font-inter mt-2 break-all">
                 {props.comment}
