@@ -6,8 +6,6 @@ import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.UserNotFoundException;
 import lt.techin.eventify.model.*;
-import lt.techin.eventify.repository.CategoryRepository;
-import lt.techin.eventify.repository.UserRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -21,14 +19,10 @@ public class EventMapper {
 
   private final UserMapper userMapper;
   private final CategoryMapper categoryMapper;
-  private final CategoryRepository categoryRepository;
-  private final UserRepository userRepository;
 
-  public EventMapper(UserMapper userMapper, CategoryMapper categoryMapper, CategoryRepository categoryRepository, UserRepository userRepository) {
+  public EventMapper(UserMapper userMapper, CategoryMapper categoryMapper) {
     this.userMapper = userMapper;
     this.categoryMapper = categoryMapper;
-    this.categoryRepository = categoryRepository;
-    this.userRepository = userRepository;
   }
 
   public EventResponse toEventResponse(Event event) {
@@ -52,14 +46,11 @@ public class EventMapper {
   }
 
   public Event toEvent(CreateEventRequest event) {
-    Category category = categoryRepository.findById(event.categoryId())
-            .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + event.categoryId() + " not found"));
-    User organizer = userRepository.findById(event.organizerId())
-            .orElseThrow(() -> new UserNotFoundException("User with ID " + event.organizerId() + " not found"));
-    
+
+
     return new Event(
-            category,
-            organizer,
+            event.categoryId(),
+            event.organizerId(),
             event.name(),
             event.startDateTime(),
             event.endDateTime(),
