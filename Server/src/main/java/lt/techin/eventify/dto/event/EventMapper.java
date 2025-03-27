@@ -19,7 +19,7 @@ public class EventMapper {
   public EventResponse toEventResponse(Event event) {
     return new EventResponse(
             event.getId(),
-            categoryMapper.toDTO(event.getCategory()),
+            CategoryMapper.toDTO(event.getCategory()),
             userMapper.toUserResponse(event.getOrganizer()),
             event.getName(),
             event.getStartDateTime(),

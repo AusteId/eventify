@@ -18,33 +18,33 @@ import java.util.List;
 @RequestMapping("/api")
 public class CategoryController {
 
-    private final CategoryService categoryService;
+  private final CategoryService categoryService;
 
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
+  public CategoryController(CategoryService categoryService) {
+    this.categoryService = categoryService;
+  }
 
-    @GetMapping("/categories/all")
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
-        return ResponseEntity.ok().body(categoryService.getAllCategories());
-    }
+  @GetMapping("/categories/all")
+  public ResponseEntity<List<CategoryResponse>> getAllCategories() {
+    return ResponseEntity.ok().body(categoryService.getAllCategories());
+  }
 
-    @GetMapping("/categories/{id}/icon")
-    public ResponseEntity<byte[]> getCategoryIcon(@PathVariable Long id) {
-        CategoryIconResponse icon = categoryService.getCategoryIcon(id);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(icon.contentType()))
-                .body(icon.data());
-    }
+  @GetMapping("/categories/{id}/icon")
+  public ResponseEntity<byte[]> getCategoryIcon(@PathVariable Long id) {
+    CategoryIconResponse icon = categoryService.getCategoryIcon(id);
+    return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(icon.contentType()))
+            .body(icon.data());
+  }
 
-    @PostMapping(value = "/categories/{id}/add-icon", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> addIconToCategory(@Valid @ModelAttribute CategoryIconRequest dto,
-                                                  @PathVariable Long id) {
-        try {
-            categoryService.addIconToCategory(id,dto);
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-        }
+  @PostMapping(value = "/categories/{id}/add-icon", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<Void> addIconToCategory(@Valid @ModelAttribute CategoryIconRequest dto,
+                                                @PathVariable Long id) {
+    try {
+      categoryService.addIconToCategory(id, dto);
+      return ResponseEntity.ok().build();
+    } catch (IOException e) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
+  }
 }
