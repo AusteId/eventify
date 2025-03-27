@@ -49,7 +49,8 @@ public class EventService {
     User organizer = userRepository.findById(userId).orElseThrow(() ->
             new UsernameNotFoundException("User does not exist"));
 
-    Event event = eventMapper.toEvent(createEventRequest, organizer);
+    Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("Category does not exist"));
+    Event event = eventMapper.toEvent(createEventRequest, category, organizer);
     Event savedEvent = eventRepository.save(event);
 
     return eventMapper.toEventResponse(savedEvent);

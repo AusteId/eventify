@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public record CreateEventRequest(
 
         @NotNull(message = "Category cannot be null")
-        Category category,
+        Long categoryId,
 
 //        @NotNull(message = "Organizer cannot be null")
 //        User organizer,

@@ -16,9 +16,9 @@ const CreateEventForm = () => {
       name: 'qwe',
       city: 'asd',
       address: 'zxc',
-      startDateTime: "2025-03-26T22:02",
-      endDateTime: "2025-03-28T03:33",
-      category: 'sports',
+      startDateTime: '2025-05-10T22:02',
+      endDateTime: '2025-06-25T03:33',
+      category: 1,
       minAge: null,
       maxAge: null,
       maxParticipants: 5,
@@ -51,8 +51,12 @@ const CreateEventForm = () => {
 
   const onSubmit = async data => {
     try {
-      console.log({ ...data, category: categories[data.category] });
-      const response = await createEvent(data);
+      console.log('Create event data: ', data);
+      // console.log({ ...data, category: categories[data.category] });
+      const response = await createEvent({
+        ...data,
+        categoryId: data.category,
+      });
       console.log('RESPONSE: ', response);
     } catch (error) {
       console.error('Event creation failed: ', error);
@@ -259,10 +263,14 @@ const CreateEventForm = () => {
             className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none"
           >
             <option disabled={true}>Select Category</option>
-            <option value="sports">Sports</option>
+            {/* <option value="sports">Sports</option>
             <option value="boardGames">Board games</option>
             <option value="music">Music</option>
-            <option value="artsAndCulture">Arts and Culture</option>
+            <option value="artsAndCulture">Arts and Culture</option> */}
+            <option value="1">Sports</option>
+            <option value="2">Board games</option>
+            <option value="3">Music</option>
+            <option value="4">Arts and Culture</option>
           </select>
           <FieldValidationError>
             {errors.category?.message}

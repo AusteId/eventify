@@ -2,6 +2,7 @@ package lt.techin.eventify.dto.event;
 
 import lt.techin.eventify.dto.category.CategoryMapper;
 import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.User;
 import org.springframework.stereotype.Component;
@@ -37,9 +38,9 @@ public class EventMapper {
     );
   }
 
-  public Event toEvent(CreateEventRequest event, User organizer) {
+  public Event toEvent(CreateEventRequest event, Category category, User organizer) {
     return new Event(
-            event.category(),
+            category,
             organizer,
             event.name(),
             event.startDateTime(),
