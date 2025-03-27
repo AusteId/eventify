@@ -1,9 +1,11 @@
 package lt.techin.eventify.dto.event;
 
 import lt.techin.eventify.dto.category.CategoryResponse;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
 import lt.techin.eventify.dto.user.UserResponse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record EventResponse(
         long id,
@@ -20,6 +22,8 @@ public record EventResponse(
         int maxParticipants,
         String city,
         String address,
-        String photoPath
+        String photoPath,
+        List<RegistrationToEventResponse> registrations
+
 ) {
 }

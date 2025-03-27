@@ -34,7 +34,11 @@ public class RegistrationToEvent {
     public RegistrationToEvent(User user, EventResponse event, LocalDateTime now) {
     }
 
-    @PrePersist
+  public RegistrationToEvent() {
+
+  }
+
+  @PrePersist
   public void prePersist() {
     if (this.registeredAt == null) {
       this.registeredAt = LocalDateTime.now();
@@ -44,6 +48,7 @@ public class RegistrationToEvent {
   public RegistrationToEvent(User user, Event event, LocalDateTime registeredAt) {
     this.user = user;
     this.event = event;
+    this.registeredAt = registeredAt;
   }
 
 

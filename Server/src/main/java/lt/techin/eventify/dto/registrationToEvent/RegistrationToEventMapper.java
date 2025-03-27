@@ -18,7 +18,7 @@ public class RegistrationToEventMapper {
 //                registration.getRegisteredAt()
 //        );
 //    }
-    public RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registration) {
+    public static RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registration) {
 
         User user = registration.getUser();
         UserJoinToEvent userJoinToEvent = new UserJoinToEvent(
