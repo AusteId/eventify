@@ -7,7 +7,6 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router';
 import { useNotification } from '../context/NotificationContext';
-import LoadingScreen from '../message/LoadingScreen';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
@@ -86,7 +85,6 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       if (!response.ok) {
-        // timeoutForError('Login Failed');
         toast.error('Login Failed');
         return false;
       }
@@ -94,7 +92,7 @@ export const AuthProvider = ({ children }) => {
       await checkAuthStatus();
       return true;
     } catch (error) {
-      timeoutForError(error.message || 'Failed to login');
+      toast.error(error.message || 'Login Failed');
       return false;
     } finally {
       setIsLoading(false);

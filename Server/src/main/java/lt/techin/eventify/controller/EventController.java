@@ -42,7 +42,7 @@ public class EventController {
   }
 
   @PostMapping
-  public ResponseEntity<EventResponse> addEvent(@Valid @RequestBody CreateEventRequest createEventRequest, Authentication authentication) {
+  public ResponseEntity<EventResponse> createEvent(@Valid @RequestBody CreateEventRequest createEventRequest, Authentication authentication) {
     EventResponse eventResponse = eventService.saveEvent(createEventRequest, authentication);
 
     return ResponseEntity.created(

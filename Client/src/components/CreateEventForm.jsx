@@ -2,6 +2,9 @@ import { useForm } from 'react-hook-form';
 import FieldValidationError from './FieldValidationError';
 import FileDropzone from './FileDropzone';
 import createEvent from '../helpers/event/createEvent';
+import { useEffect, useState } from 'react';
+import getCategories from '../helpers/event/getCategories';
+import { LoaderIcon } from 'react-hot-toast';
 
 const CreateEventForm = () => {
   const {
@@ -41,18 +44,12 @@ const CreateEventForm = () => {
     // },
   });
 
-  // TODO: Need to fetch categories from back-end
-  const categories = {
-    sports: { id: 1, name: 'sports' },
-    boardGames: { id: 2, name: 'boardGames' },
-    music: { id: 3, name: 'music' },
-    artsAndCulture: { id: 4, name: 'artsAndCulture' },
-  };
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async data => {
     try {
       console.log('Create event data: ', data);
-      // console.log({ ...data, category: categories[data.category] });
       const response = await createEvent({
         ...data,
         categoryId: data.category,
@@ -68,6 +65,18 @@ const CreateEventForm = () => {
     clearErrors();
     document.getElementById('event_creation_modal').close();
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoading(true);
+      const data = await getCategories();
+      setCategories(data);
+      setIsLoading(false);
+    };
+    fetchCategories();
+  }, []);
+
+  if (isLoading) return <LoaderIcon />;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="">
@@ -260,17 +269,14 @@ const CreateEventForm = () => {
               validate: value =>
                 value !== 'Select Category' || 'Please select a valid option',
             })}
-            className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none"
+            className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none overflow-auto"
           >
             <option disabled={true}>Select Category</option>
-            {/* <option value="sports">Sports</option>
-            <option value="boardGames">Board games</option>
-            <option value="music">Music</option>
-            <option value="artsAndCulture">Arts and Culture</option> */}
-            <option value="1">Sports</option>
-            <option value="2">Board games</option>
-            <option value="3">Music</option>
-            <option value="4">Arts and Culture</option>
+            {categories.map((category, index) => (
+              <option value={category.id} key={index}>
+                {category.name}
+              </option>
+            ))}
           </select>
           <FieldValidationError>
             {errors.category?.message}
