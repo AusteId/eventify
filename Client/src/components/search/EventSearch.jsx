@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { CiSearch, CiCircleRemove } from "react-icons/ci";
+import { FaArrowUp, FaArrowDown, FaChevronDown, FaCheck } from "react-icons/fa";
+import { FaArrowUpAZ, FaArrowDownZA, FaArrowUp19, FaArrowDown91, FaSort } from "react-icons/fa6";
+import { RiFilter2Fill } from "react-icons/ri";
 
 const EventSearch = ({ onSearch }) => {
     const [searchInput, setSearchInput] = useState('');
     const [sortBy, setSortBy] = useState('startDateTime');
     const [sortDirection, setSortDirection] = useState('ASC');
+    const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+
+    const dropdownRef = useRef(null);
 
     const {
         register,
@@ -25,6 +32,22 @@ const EventSearch = ({ onSearch }) => {
             maxAge: '',
         },
     });
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsSortDropdownOpen(false);
+            }
+        };
+
+        if (isSortDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isSortDropdownOpen]);
 
     const handleSearchChange = (event) => {
         setSearchInput(event.target.value);
@@ -71,10 +94,10 @@ const EventSearch = ({ onSearch }) => {
         });
     };
 
-    const handleSortChange = (event) => {
-        const [newSortBy, newSortDirection] = event.target.value.split(':');
+    const handleSortChange = (newSortBy, newSortDirection) => {
         setSortBy(newSortBy);
         setSortDirection(newSortDirection);
+        setIsSortDropdownOpen(false);
         onSearch({
             searchTerm: searchInput,
             filters: {
@@ -151,58 +174,159 @@ const EventSearch = ({ onSearch }) => {
     return (
         <div className="mb-6 flex flex-col gap-4">
 
-            {/* Laikinas paieškos laukelis */}
-            <div className="flex gap-2">
-                <div className="relative w-full">
+            <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4">
+
+                <div className="relative w-full tablet:w-3/5 desktop:w-2/3 mx-auto">
+                    <button
+                        onClick={handleSearchSubmit}
+                        className="absolute left-2 rounded-full text-[#f59e0b] hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
+                    >
+                        <CiSearch />
+                    </button>
                     <input
                         type="text"
                         value={searchInput}
                         onChange={handleSearchChange}
                         onKeyDown={handleKeyDown}
                         placeholder="Search for events..."
-                        className="w-full p-2 border rounded-md"
+                        className="h-10 appearance-none border border-input-light rounded-lg w-full py-2 pl-10 pr-10 text-body-medium leading-tight focus:outline-none placeholder:text-input-muted font-inter bg-white"
                     />
                     {searchInput && (
                         <button
                             onClick={handleClearSearch}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            className="absolute right-2 btn-circle text-[#f59e0b] hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
                         >
-                            ✕
+                            <CiCircleRemove />
                         </button>
                     )}
                 </div>
-                <button
-                    onClick={handleSearchSubmit}
-                    className="p-2 bg-amber-500 text-white rounded-md hover:bg-amber-600"
-                >
-                    Search
-                </button>
-            </div>
 
-            {/* Laikini dropdown rūšiavimui */}
-            <div>
-                <label htmlFor="sortOptions" className="mr-2">
-                    Sort by:
-                </label>
-                <select
-                    id="sortOptions"
-                    value={`${sortBy}:${sortDirection}`}
-                    onChange={handleSortChange}
-                    className="p-2 border rounded-md"
-                >
-                    <option value="startDateTime:ASC">Start Date (Ascending)</option>
-                    <option value="startDateTime:DESC">Start Date (Descending)</option>
-                    <option value="name:ASC">Name (Ascending)</option>
-                    <option value="name:DESC">Name (Descending)</option>
-                    <option value="createdAt:ASC">Created At (Ascending)</option>
-                    <option value="createdAt:DESC">Created At (Descending)</option>
-                    <option value="experienceLevel:ASC">Experience Level (Ascending)</option>
-                    <option value="experienceLevel:DESC">Experience Level (Descending)</option>
-                </select>
-            </div>
+                <div className="flex gap-2 justify-center tablet:justify-end">
+
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-[#f59e0b]/8 px-4 py-2 min-w-[120px]"
+                        >
+                            <FaSort className="text-[#f59e0b]"/>Sort by <FaChevronDown className="text-[#f59e0b]" />
+                        </button>
+
+                        {isSortDropdownOpen && (
+                            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] bg-white shadow-md rounded-lg z-10 font-inter text-body-medium">
+                                <div className="flex flex-col gap-1 p-2">
+                                    <button
+                                        onClick={() => handleSortChange("name", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUpAZ className="text-[#f59e0b] text-lg" />
+                                            A to Z
+                                        </div>
+                                        {sortBy === "name" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("name", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDownZA className="text-[#f59e0b] text-lg" />
+                                            Z to A
+                                        </div>
+                                        {sortBy === "name" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("experienceLevel", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUp className="text-[#f59e0b] text-lg" />
+                                            Beginner to Advanced
+                                        </div>
+                                        {sortBy === "experienceLevel" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("experienceLevel", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDown className="text-[#f59e0b] text-lg" />
+                                            Advanced to Beginner
+                                        </div>
+                                        {sortBy === "experienceLevel" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("startDateTime", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUp19 className="text-[#f59e0b] text-lg" />
+                                            Soonest to Latest
+                                        </div>
+                                        {sortBy === "startDateTime" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("startDateTime", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDown91 className="text-[#f59e0b] text-lg" />
+                                            Latest to Soonest
+                                        </div>
+                                        {sortBy === "startDateTime" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("createdAt", "ASC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowUp19 className="text-[#f59e0b] text-lg" />
+                                            Newest to Latest
+                                        </div>
+                                        {sortBy === "createdAt" && sortDirection === "ASC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange("createdAt", "DESC")}
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                    >
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <FaArrowDown91 className="text-[#f59e0b] text-lg" />
+                                            Latest to Newest
+                                        </div>
+                                        {sortBy === "createdAt" && sortDirection === "DESC" && (
+                                            <FaCheck className="text-[#f59e0b]" />
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Filter mygtukas */}
+                    <button
+                        className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-[#f59e0b]/8 px-4 py-2 min-w-[120px]"
+                    >
+                        <RiFilter2Fill className="text-[#f59e0b]" /> Filter <FaChevronDown className="text-[#f59e0b]" />
+                    </button>
+                </div>
+            </div >
+
 
             {/* Laikina forma filtrams */}
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+            < form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" >
 
                 <div>
                     <select
@@ -321,8 +445,8 @@ const EventSearch = ({ onSearch }) => {
                         Clear Filters
                     </button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 };
 
