@@ -95,6 +95,7 @@ const CommentSection = props => {
             rows="4"
             placeholder="Write a comment..."
             onInput={e => setNewComment(e.target.value)}
+            maxLength={1000}
             {...register('comment', {
               required: 'Comment required',
               maxLength: {

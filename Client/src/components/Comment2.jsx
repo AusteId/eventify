@@ -7,6 +7,7 @@ import avatar from '../assets/avatar.png';
 const Comment2 = props => {
   const [imgSrc, setImgSrc] = useState(props.avatar || avatar);
   const [editing, setEditing] = useState(false);
+  const [editingComment, setEditingComment] = useState('');
 
   const {
     register,
@@ -151,12 +152,15 @@ const Comment2 = props => {
                   rows="2"
                   placeholder="Edit your comment..."
                   defaultValue={props.comment}
+                  onInput={e => setEditingComment(e.target.value)}
+                  maxLength={1000}
                 ></textarea>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={editComment}
                     className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
+                    disabled={!editingComment.trim()}
                   >
                     <Pencil className="h-4 w-4" />
                     Save Changes
