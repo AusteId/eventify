@@ -66,7 +66,7 @@ public class Event {
 
   private String photoPath;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "picture_id", nullable = false)
   private EventImage eventImage;
 

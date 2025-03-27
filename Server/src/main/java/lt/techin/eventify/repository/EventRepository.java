@@ -12,4 +12,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByOrganizer(User user);
 
   Optional<Event> findByNameAndStartDateTime(String name, LocalDateTime time);
+
+
 }

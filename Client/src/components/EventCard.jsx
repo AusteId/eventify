@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from './Button';
 import ButtonCancel from './ButtonCancel';
 import {
@@ -6,8 +6,10 @@ import {
   formatToOnlyTime,
   isSameDay,
 } from '../utils/dateFunctions';
+import axios from 'axios';
 
 const EventCard = ({
+  id,
   experienceLevel = 'All Welcome',
   isRegistered = 0,
   eventHandler,
@@ -20,18 +22,41 @@ const EventCard = ({
   city = 'Location not provided',
   isEnded,
   minAge,
-  maxAge,
-  pictureData,
-  pictureContentType = 'image/jpeg',
+  maxAge
 }) => {
+  const [imageData, setImageData] = useState(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   // ??????????????????????????????????????????
   // kodel sito niekur kitur kode nera??????????
   // is kur Tomas tuos komponentus gauna????????
-  const imageUrl = pictureData
-  ? URL.createObjectURL(
-      new Blob([new Uint8Array(pictureData)], { type: pictureContentType })
-    )
-  : './src/assets/eventCardImgSample.png';
+  useEffect(() => {
+    const fetchImage = async () => {
+      if (!id) {
+        setImageData('./src/assets/eventCardImgSample.png');
+        setIsImageLoading(false);
+        return;
+      }
+      try {
+        setIsImageLoading(true);
+        const url = `${import.meta.env.VITE_BACK_URL}/api/events/${id}/picture`;
+        console.log('Fetching from:', url);
+        const response = await axios.get(url, {
+          responseType: 'blob',
+        });
+        console.log('API Response:', response.data);
+        const image = URL.createObjectURL(response.data);
+        console.log('API Response:', image);
+        setImageData(image);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        console.log('Error details:', error.response?.data, error.response?.status);
+        setImageData([]);
+      } finally {
+        setIsImageLoading(false);
+      }
+    };
+    fetchImage();
+  }, [id]);
 
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
 
@@ -73,7 +98,7 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 max-w-[22rem] desktop:max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
+      className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <div className="relative">
@@ -92,11 +117,21 @@ const EventCard = ({
               <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
             </div>
           )}
-          <img
-            src={imageUrl}
-            alt='event photo'
-            className="rounded-t-[0.5rem]"
-          />
+          {isImageLoading ? (
+            <div className="rounded-t-[0.5rem] h-44 w-full flex items-center justify-center bg-gray-200">
+              <span className="loading loading-spinner loading-lg text-gray-500"></span>
+            </div>
+          ) : (
+            <img
+              src={imageData || './src/assets/eventCardImgSample.png'}
+              alt="event photo"
+              className="rounded-t-[0.5rem] h-44 w-full object-cover"
+              onError={() => {
+                console.log('Image failed to load, using fallback');
+                setImageData('./src/assets/eventCardImgSample.png');
+              }}
+            />
+          )}
         </div>
 
         <div className="pt-5 px-5 flex flex-col gap-2">

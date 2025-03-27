@@ -75,9 +75,6 @@ public class EventMapper {
   }
 
   public GetEventResponse toGetEventResponse(Event event) {
-    EventImage eventImage = event.getEventImage();
-    byte[] pictureData = (eventImage != null) ? eventImage.getData() : null;
-    String pictureContentType = (eventImage != null) ? eventImage.getContentType() : null;
     return new GetEventResponse(
             event.getId(),
             event.getName(),
@@ -89,9 +86,7 @@ public class EventMapper {
             event.getExperienceLevel(),
             event.getMaxParticipants(),
             event.getCity(),
-            event.getPhotoPath(),
-            event.getEventImage().getData(),
-            event.getEventImage().getContentType()
+            event.getPhotoPath()
     );
   }
 

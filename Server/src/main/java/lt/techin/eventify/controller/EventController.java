@@ -19,12 +19,15 @@ import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -40,6 +43,7 @@ public class EventController {
   private final RegistrationToEventMapper registrationToEventMapper;
   private final RegistrationToEventService registrationToEventService;
   private final UserService userService;
+  private static final Logger logger = LoggerFactory.getLogger(EventController.class);
 
   @Autowired
   public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService) {
@@ -50,18 +54,20 @@ public class EventController {
     this.userService = userService;
   }
 
-  @Operation(
-          summary = "Create a new event",
-          description = "Creates a new event with the provided details and an optional image file."
-  )
-  @ApiResponse(
-          responseCode = "201",
-          description = "Event created successfully",
-          content = @Content(schema = @Schema(implementation = EventResponse.class))
-  )
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<EventResponse> addEvent(@Valid @ModelAttribute CreateEventRequest createEventRequest) {
 
+    MultipartFile picture = createEventRequest.picture();
+    logger.info("Received MultipartFile: {}", picture);
+    if (picture == null) {
+      logger.info("MultipartFile 'picture' is null");
+    } else {
+      logger.info("MultipartFile 'picture' - Name: {}, Size: {}, ContentType: {}, IsEmpty: {}",
+              picture.getOriginalFilename(),
+              picture.getSize(),
+              picture.getContentType(),
+              picture.isEmpty());
+    }
     try {
       Event newEvent = eventService.saveEvent(createEventRequest);
       return ResponseEntity.created(
@@ -108,6 +114,14 @@ public class EventController {
   public ResponseEntity<String> deleteEvent(@PathVariable long eventId, Principal principal) {
     eventService.deleteEvent(eventId, principal);
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/{id}/picture")
+  public ResponseEntity<byte[]> getUserPrivateAvatar(@PathVariable long id) {
+    EventPictureResponse eventPicture = eventService.getEventPicture(id);
+    return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(eventPicture.contentType()))
+            .body(eventPicture.data());
   }
 
 //  @PostMapping("/{eventId}/register")

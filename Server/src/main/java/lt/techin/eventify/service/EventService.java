@@ -1,7 +1,7 @@
 package lt.techin.eventify.service;
 
+import lombok.AllArgsConstructor;
 import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.dto.user.AvatarResponseDTO;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.ForbiddenException;
@@ -10,30 +10,21 @@ import lt.techin.eventify.model.*;
 import lt.techin.eventify.repository.CategoryRepository;
 import lt.techin.eventify.repository.EventRepository;
 import lt.techin.eventify.repository.UserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class EventService {
 
   private final EventRepository eventRepository;
   private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
   private final EventMapper eventMapper;
-
-  public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, UserRepository userRepository, EventMapper eventMapper) {
-    this.eventRepository = eventRepository;
-    this.categoryRepository = categoryRepository;
-    this.userRepository = userRepository;
-    this.eventMapper = eventMapper;
-  }
 
   public Event saveEvent(CreateEventRequest dto) throws IOException {
     EventImage image = eventMapper.imageToEntity(dto);
@@ -107,5 +98,13 @@ public class EventService {
     return eventRepository.findAll().stream()
             .map(eventMapper::toGetEventResponse)
             .collect(Collectors.toList());
+  }
+
+  public EventPictureResponse getEventPicture (long eventId) {
+    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId+ " (id)")).getEventImage();
+    return new EventPictureResponse(
+            eventImage.getData(),
+            eventImage.getContentType()
+    );
   }
 }

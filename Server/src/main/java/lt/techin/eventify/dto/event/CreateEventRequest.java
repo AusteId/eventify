@@ -1,5 +1,6 @@
 package lt.techin.eventify.dto.event;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.User;
@@ -58,12 +59,14 @@ public record CreateEventRequest(
 
         @NotNull(message = "Address cannot be null")
         @Size(max = 255, message = "Address must be less than 255 characters.")
-        @Pattern(regexp = "^[\\w\\s ,.]+$", message = "Invalid event address.")
+        @Pattern(regexp = "^([a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]+(?:[\\s.\\-'’‘]){0,2})*[a-zA-Z0-9\\u0080-\\u02FF\\u1E00-\\u1EFF\\u0400-\\u04FF\\u0600-\\u06FF\\u4E00-\\u9FFF]*$", message = "Invalid event address.")
         String address,
 
         // kol kas palikta nes nezinau kaip Tomo komponentas atrodys
         String photoPath,
+
         @ValidImage
+        @Schema(type = "string", format = "binary")
         MultipartFile picture
 ) {
 }

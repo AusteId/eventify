@@ -59,6 +59,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyAuthority("ADMIN", "USER")
                     .requestMatchers(HttpMethod.GET, "/api/users/{userId}/events").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/events").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/events/{id}/picture").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")
