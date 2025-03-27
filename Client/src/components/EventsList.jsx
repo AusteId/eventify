@@ -1,18 +1,55 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import EventCard from './EventCard';
 import Pagination from './Pagination';
-import { staticEventLoader } from '../helpers/staticEventLoader';
 import axios from 'axios';
+import EventSearch from './search/EventSearch';
 
 const EventsList = ({ setLoading, loading }) => {
-  const [data, setData] = useState([]);
-
-  // temporary solution
+  const [events, setEvents] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchParams, setSearchParams] = useState({
+    searchTerm: '',
+    filters: {
+    categoryName: '',
+    city: '',
+    startDateTime: '',
+    endDateTime: '',
+    experienceLevel: '',
+    minAge: '',
+    maxAge: '',
+    },
+    sortBy: 'startDateTime',
+    sortDirection: 'ASC',
+  });
+  const eventsPerPage = 12;
 
 useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/search`,
+          {
+            params: {
+              page: currentPage,
+              size: eventsPerPage,
+              sortBy: searchParams.sortBy,
+              sortDirection: searchParams.sortDirection,
+              searchTerm: searchParams.searchTerm || undefined,
+              categoryName: searchParams.filters.categoryName || undefined,
+              city: searchParams.filters.city || undefined,
+              startDateTime: searchParams.filters.startDateTime || undefined,
+              endDateTime: searchParams.filters.endDateTime || undefined,
+              experienceLevel: searchParams.filters.experienceLevel || undefined,
+              minAge: searchParams.filters.minAge ? parseInt(searchParams.filters.minAge) : undefined,
+              maxAge: searchParams.filters.maxAge ? parseInt(searchParams.filters.maxAge) : undefined,
+            },
+          },
+        );
+
+        setEvents(response.data.content);
+        setTotalPages(response.data.totalPages);
         const url = `${import.meta.env.VITE_BACK_URL}/api/events`;
         console.log('Fetching from:', url);
         const response = await axios.get(url);
@@ -21,66 +58,54 @@ useEffect(() => {
       } catch (error) {
         console.error('Error fetching data:', error);
         console.log('Error details:', error.response?.data, error.response?.status);
-        setData([]);
+        setEvents([]);
+        setTotalPages(0);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, []);
-
-
-  useEffect(() => {
-    if (data.length > 0) {
-      console.log('First event:', data[0]);
-    } else {
-      console.log('Data is empty or not an array:', data);
-    }
-  }, [data]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 12;
-
-  const events = Array.isArray(data) ? data : [];
-
-  const indexOfLastEvent = currentPage * eventsPerPage;
-
-  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
-
-  const totalPages = Math.ceil(events.length / eventsPerPage);
+  }, [currentPage, searchParams, setLoading]);
 
   const paginate = pageNumber => {
-    if (pageNumber !== currentPage) {
+    if (pageNumber >= 0 && pageNumber < totalPages) {
       setCurrentPage(pageNumber);
-      setTimeout(() => {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        });
-      }, 100);
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
     }
+  };
+
+  const handleSearch = (newSearchParams) => {
+    setSearchParams(newSearchParams);
+    setCurrentPage(0);
   };
 
   return (
     <div className="h-full flex flex-col justify-between">
+      <EventSearch onSearch={handleSearch} />
+
       {loading ? (
         <span className="loading loading-bars loading-xl"></span>
-      ) : currentEvents.length > 0 ? (
+      ) : events.length === 0 ? (
+        <p>Events not found</p>
+      ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
-          {currentEvents.map((event, index) => (
+          {events.map((event, index) => (
             <EventCard key={index} {...event} />
           ))}
         </div>
-      ) : (
-        <p>No events to display</p>
       )}
 
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        paginate={paginate}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage + 1}
+          paginate={(page) => paginate(page - 1)}
+        />
+      )}
     </div>
   );
 };

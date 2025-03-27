@@ -1,11 +1,8 @@
 package lt.techin.eventify.service;
 
-import lt.techin.eventify.exception.NotFoundException;
 import lt.techin.eventify.model.Role;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.UserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;

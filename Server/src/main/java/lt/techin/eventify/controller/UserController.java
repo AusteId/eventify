@@ -58,9 +58,19 @@ public class UserController {
             .maxAge(360000)
             .path("/")
             .build();
+
+    ResponseCookie swaggerCookie = ResponseCookie.from("jwt_token_swagger",token)
+            .httpOnly(false)
+            .secure(false)
+            .sameSite("Strict")
+            .maxAge(360000)
+            .path("/")
+            .build();
+
     return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-            .body(Map.of("success", true));
+            .header(HttpHeaders.SET_COOKIE,jwtCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, swaggerCookie.toString())
+            .body(Map.of("success",true));
   }
 
   @PostMapping("/logout")
@@ -71,9 +81,19 @@ public class UserController {
             .maxAge(0)
             .path("/")
             .build();
+
+    ResponseCookie swaggerCookie = ResponseCookie.from("jwt_token_swagger", "")
+            .httpOnly(false)
+            .secure(false)
+            .maxAge(0)
+            .path("/")
+            .build();
+
+
     return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(Map.of("success", true));
+            .header(HttpHeaders.SET_COOKIE,cookie.toString())
+            .header(HttpHeaders.SET_COOKIE,swaggerCookie.toString())
+            .body(Map.of("success",true));
   }
 
   @GetMapping("/me")

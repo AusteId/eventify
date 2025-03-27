@@ -223,6 +223,14 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
               {isValidating ? 'Validating...' : 'Continue'}
             </Button>
           </div>
+          <div className="flex justify-center gap-4 w-full text-center pt-6 ">
+            <p className="font-inter text-body-medium">
+            Already have an account?
+            </p>
+            <a className="text-btn-hover" href="/login">
+            Sign in
+            </a>
+          </div>
         </div>
       </div>
     </>

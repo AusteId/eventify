@@ -51,6 +51,14 @@ public class User implements UserDetails {
 
   private Set<Category> favoriteEventCategories;
 
+  @OneToMany
+  @JoinColumn(name = "commenter_id")
+  private Set<ProfileComment> commentsMade; // Comments this user posted
+
+  @OneToMany
+  @JoinColumn(name = "commented_id")
+  private Set<ProfileComment> commentsReceived; // Comments posted on this user
+
   private String photoPath;
   private LocalDateTime registeredAt;
 
@@ -81,6 +89,22 @@ public class User implements UserDetails {
     this.registeredAt = registeredAt;
     this.roles = roles;
     this.avatar = avatar;
+  }
+
+  public Set<ProfileComment> getCommentsMade() {
+    return commentsMade;
+  }
+
+  public void setCommentsMade(Set<ProfileComment> commentsMade) {
+    this.commentsMade = commentsMade;
+  }
+
+  public Set<ProfileComment> getCommentsReceived() {
+    return commentsReceived;
+  }
+
+  public void setCommentsReceived(Set<ProfileComment> commentsReceived) {
+    this.commentsReceived = commentsReceived;
   }
 
   public UserImage getAvatar() {

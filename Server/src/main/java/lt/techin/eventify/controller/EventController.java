@@ -14,8 +14,6 @@ import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
@@ -24,8 +22,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -103,6 +104,12 @@ public class EventController {
     return ResponseEntity.ok(events);
   }
 
+  @GetMapping("/{eventId}")
+  public ResponseEntity<EventResponse> getEvent(@PathVariable Long eventId) {
+    EventResponse event = eventService.getEventById(eventId);
+    return ResponseEntity.ok(event);
+  }
+
   @PutMapping("/{eventId}")
   public ResponseEntity<EventResponse> updateEvent(@PathVariable long eventId, @Valid @RequestBody UpdateEventRequest updateEventRequest) {
     Event updatedEvent = eventService.updateEvent(eventId, updateEventRequest);
@@ -122,6 +129,30 @@ public class EventController {
     return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(eventPicture.contentType()))
             .body(eventPicture.data());
+  }
+
+  @GetMapping("/search")
+  public ResponseEntity<Page<EventResponse>> searchEvents(@Valid EventSearchRequest request) {
+
+    Pageable pageable = PageRequest.of(
+            request.page(),
+            request.size(),
+            Sort.by(Sort.Direction.fromString(request.sortDirection()), request.sortBy())
+    );
+
+    Page<EventResponse> eventPage = eventService.findEventsByFilters(
+            request.categoryName(),
+            request.city(),
+            request.startDateTime(),
+            request.endDateTime(),
+            request.experienceLevel(),
+            request.minAge(),
+            request.maxAge(),
+            request.searchTerm(),
+            pageable
+    );
+
+    return ResponseEntity.ok(eventPage);
   }
 
 //  @PostMapping("/{eventId}/register")

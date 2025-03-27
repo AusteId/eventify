@@ -33,6 +33,10 @@ public class Event {
   @JoinColumn(name = "event_id")
   private List<RegistrationToEvent> registrationToEvents;
 
+  @OneToMany
+  @JoinColumn(name = "event_id")
+  private List<EventComment> comments;
+
   @Column(nullable = false, length = 100)
   private String name;
 
@@ -102,4 +106,12 @@ public class Event {
   public Event() {
   }
 
+  @Override
+  public String toString() {
+    return "Event{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", city='" + city + '\'' +
+            '}';
+  }
 }

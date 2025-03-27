@@ -8,8 +8,8 @@ import lt.techin.eventify.dto.category.CategoryResponse;
 import lt.techin.eventify.exception.NotFoundException;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.CategoryIcon;
-import lt.techin.eventify.repository.CategoryIconRepository;
-import lt.techin.eventify.repository.CategoryRepository;
+import lt.techin.eventify.repository.mysql.CategoryIconRepository;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

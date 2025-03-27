@@ -4,8 +4,8 @@ import ButtonCancel from './ButtonCancel';
 import {
   convertToCompactEuDatetime,
   formatToOnlyTime,
-  isSameDay,
 } from '../utils/dateFunctions';
+import { useNavigate } from 'react-router';
 import axios from 'axios';
 
 const EventCard = ({
@@ -22,13 +22,13 @@ const EventCard = ({
   city = 'Location not provided',
   isEnded,
   minAge,
-  maxAge
+  maxAge,
 }) => {
+  const navigate = useNavigate();
+  const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
   const [imageData, setImageData] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(true);
-  // ??????????????????????????????????????????
-  // kodel sito niekur kitur kode nera??????????
-  // is kur Tomas tuos komponentus gauna????????
+
   useEffect(() => {
     const fetchImage = async () => {
       if (!id) {
@@ -101,6 +101,35 @@ const EventCard = ({
       className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
     >
       <div>
+        <a
+          onClick={() => navigate(`/events/${id}`)}
+          className="cursor-pointer group"
+        >
+          <div className="relative">
+            {currentParticipants !== null && (
+              <div className="absolute flex top-2 left-2 bg-black/50  gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm">
+                <img src="./src/assets/threePersonIcon.svg" />
+                <p className="text-white">
+                  {currentParticipants}/{maxParticipants}
+                </p>
+              </div>
+            )}
+            {experienceLevel != 0 && (
+              <div
+                className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem]`}
+              >
+                <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
+              </div>
+            )}
+            {/* <a onClick={() => {}} className="cursor-pointer"> */}
+            <img
+              src="./src/assets/eventCardImgSample.png"
+              className="rounded-t-[0.5rem]"
+            />
+
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-[0.5rem]"></div>
+          </div>
+        </a>
         <div className="relative">
           {currentParticipants !== null && (
             <div className="absolute flex top-2 left-2 bg-black/50  gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm">

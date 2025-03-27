@@ -4,7 +4,7 @@ const Profile = () => {
   return (
     <div className="flex min-h-screen bg-gradient-to-t from-white via-gradient-light-yellow to-gradient-yellow">
       <div className="tablet:w-224 mx-auto">
-        <div className="bg-white w-full h-auto p-8 mt-8 rounded-4 shadow-md">
+        <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
           <div className="size-full">
             <div className="flex w-full h-32">
               <img
@@ -53,7 +53,7 @@ const Profile = () => {
             <InterestsSection />
           </div>
         </div>
-        <div className="bg-white w-full h-auto p-8 mt-8 rounded-4 shadow-md">
+        <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
           <CommentSection />
         </div>
       </div>
