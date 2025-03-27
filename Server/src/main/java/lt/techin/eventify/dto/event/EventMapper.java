@@ -46,11 +46,9 @@ public class EventMapper {
   }
 
   public Event toEvent(CreateEventRequest event) {
-
-
     return new Event(
-            event.categoryId(),
-            event.organizerId(),
+            event.category(),
+            event.organizer(),
             event.name(),
             event.startDateTime(),
             event.endDateTime(),
