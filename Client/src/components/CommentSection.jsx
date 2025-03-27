@@ -3,7 +3,7 @@ import { MessageCircle, Send } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
-import Comment2 from './Comment2';
+import Comment from './Comment';
 
 const CommentSection = props => {
   const [imgSrc, setImgSrc] = useState(avatar);
@@ -125,7 +125,7 @@ const CommentSection = props => {
       ) : comments.length > 0 ? (
         <div className="flex flex-col gap-6 pt-8">
           {comments.map(comment => (
-            <Comment2
+            <Comment
               name={comment.userResponse.username}
               contextid={props.contextid}
               avatar={'src/assets/avatar.png'}
