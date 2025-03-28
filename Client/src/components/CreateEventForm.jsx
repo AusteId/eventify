@@ -236,8 +236,14 @@ const CreateEventForm = () => {
           >
             <option disabled={true}>Select Category</option>
             <option>Sports</option>
+            <option>Board Games</option>
             <option>Music</option>
-            <option>Social Games</option>
+            <option>Arts And Culture</option>
+            <option>Food And Drinks</option>
+            <option>Outdoors</option>
+            <option>Wellness</option>
+            <option>Business</option>
+            <option>Technology</option>
           </select>
           <FieldValidationError>
             {errors.category?.message}
