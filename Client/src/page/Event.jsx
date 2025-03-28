@@ -9,7 +9,6 @@ import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
 import Modal from '../components/event/Modal';
 import CreateEventForm from '../components/CreateEventForm';
-import { useAuth } from '../components/Auth/AuthContext';
 
 const participants = [
   {
@@ -34,7 +33,6 @@ const Event = () => {
   const [loading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
-  const auth = useAuth();
 
   useEffect(() => {
     const fetchdata = async () => {

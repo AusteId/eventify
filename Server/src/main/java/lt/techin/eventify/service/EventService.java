@@ -3,7 +3,8 @@ package lt.techin.eventify.service;
 import lt.techin.eventify.dto.event.CreateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
-import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lombok.AllArgsConstructor;
+import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.ForbiddenException;
@@ -17,15 +18,18 @@ import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import lt.techin.eventify.model.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@AllArgsConstructor
 public class EventService {
 
   private final EventRepository eventRepository;
@@ -33,18 +37,15 @@ public class EventService {
   private final UserRepository userRepository;
   private final EventMapper eventMapper;
 
-  public EventService(EventRepository eventRepository, CategoryRepository categoryRepository,
-                      UserRepository userRepository, EventMapper eventMapper) {
-    this.eventRepository = eventRepository;
-    this.categoryRepository = categoryRepository;
-    this.userRepository = userRepository;
-    this.eventMapper = eventMapper;
-  }
+//  public Event saveEvent(CreateEventRequest createEventRequest) throws IOException {
+//    Event newEvent = eventMapper.toEvent(createEventRequest);
 
-  public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) {
+  public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) throws IOException {
     JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
     Map<String, Object> claims = jwtAuth.getTokenAttributes();
     Long userId = (Long) claims.get("userId");
+
+      EventImage image = eventMapper.imageToEntity(createEventRequest);
 
     User organizer = userRepository.findById(userId).orElseThrow(() ->
             new UsernameNotFoundException("User does not exist"));
@@ -52,6 +53,7 @@ public class EventService {
     Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("Category does not exist"));
     Event event = eventMapper.toEvent(createEventRequest, category, organizer);
     Event savedEvent = eventRepository.save(event);
+    savedEvent.setEventImage(image);
 
     return eventMapper.toEventResponse(savedEvent);
   }
@@ -81,7 +83,6 @@ public class EventService {
   }
 
   public void deleteEvent(long eventId, Principal principal) {
-
     Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
 
@@ -119,9 +120,9 @@ public class EventService {
     return eventMapper.toEventResponse(event);
   }
 
-  public List<EventResponse> getAllEvents() {
+  public List<GetEventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
-            .map(eventMapper::toEventResponse)
+            .map(eventMapper::toGetEventResponse)
             .toList();
   }
 
@@ -144,7 +145,21 @@ public class EventService {
     return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
   }
 
+  public Event findEventById(Long eventId) {
+    return eventRepository.findById(eventId)
+            .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
+  }
+
+
   public Event findById(long id) {
     return eventRepository.findById(id).orElse(null);
+  }
+
+  public EventPictureResponse getEventPicture (long eventId) {
+    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId+ " (id)")).getEventImage();
+    return new EventPictureResponse(
+            eventImage.getData(),
+            eventImage.getContentType()
+    );
   }
 }

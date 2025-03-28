@@ -14,23 +14,23 @@ import java.util.Optional;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @Autowired
-    public UserDetailsServiceImpl(UserService userService) {
-            this.userService = userService;
+  @Autowired
+  public UserDetailsServiceImpl(UserService userService) {
+    this.userService = userService;
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    Optional<User> foundUser = userService.findByUsername(username);
+
+    if (foundUser.isEmpty()) {
+      throw new UsernameNotFoundException(username);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-            Optional<User> foundUser = userService.findByUsername(username);
+    return foundUser.get();
+  }
 
-            if (foundUser.isEmpty()) {
-                throw new UsernameNotFoundException(username);
-            }
-
-            return foundUser.get();
-        }
-
-    }
+}
 

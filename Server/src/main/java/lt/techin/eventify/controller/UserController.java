@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -50,7 +51,7 @@ public class UserController {
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@Valid @RequestBody LoginUserRequest userRequest) {
     String token = userService.loginUser(userRequest);
-    ResponseCookie jwtCookie = ResponseCookie.from("jwt_token",token)
+    ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
             .httpOnly(true)
             .secure(false)
             .sameSite("Strict")
@@ -74,7 +75,7 @@ public class UserController {
 
   @PostMapping("/logout")
   public ResponseEntity<?> logoutUser() {
-    ResponseCookie cookie = ResponseCookie.from("jwt_token","")
+    ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
             .httpOnly(true)
             .secure(false)
             .maxAge(0)
@@ -147,6 +148,7 @@ public class UserController {
     List<EventResponse> events = eventService.getUserEvents(userId);
     return ResponseEntity.ok(events);
   }
+
   @GetMapping("/avatar")
   public ResponseEntity<byte[]> getUserPrivateAvatar() {
     AvatarResponseDTO avatarResponseDTO = userService.getUserPrivateAvatar();

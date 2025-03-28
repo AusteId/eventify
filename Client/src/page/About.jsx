@@ -20,8 +20,8 @@ const About = () => {
 
         <AboutUsCard
           photo="https://randomuser.me/api/portraits/women/2.jpg"
-          name="Dariuš Jurchevič"
-          linkedin="linkedin.com/sarah-williams"
+          name="Dariuš Juchevič"
+          linkedin="linkedin.com/in/dariusjuchevich/"
           github="github.com/DariusJuch"
           phone="-"
           mail="juchevicd@gmail.com"

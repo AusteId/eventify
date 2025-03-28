@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users/comments/new").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers(HttpMethod.PUT, "/api/users/comments/{id}").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/comments/{id}").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/events/{id}/picture").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/{userId}/comments").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events/{eventId}/comments").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/events/comments/{id}").hasAnyAuthority("ADMIN", "USER")

@@ -20,7 +20,7 @@ public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  private Long id;
 
   @Column(nullable = false, unique = true, length = 100)
   private String username;
@@ -48,6 +48,7 @@ public class User implements UserDetails {
           joinColumns = @JoinColumn(name = "user_id"),
           inverseJoinColumns = @JoinColumn(name = "category_id")
   )
+
   private Set<Category> favoriteEventCategories;
 
   @OneToMany
