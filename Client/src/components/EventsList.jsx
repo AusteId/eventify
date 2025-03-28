@@ -29,6 +29,7 @@ useEffect(() => {
       try {
         setLoading(true);
         const response = await axios.get(
+          // sitas sukelia problemas
           `${import.meta.env.VITE_BACK_URL}/api/events/search`,
           {
             params: {
@@ -47,14 +48,8 @@ useEffect(() => {
             },
           },
         );
-
         setEvents(response.data.content);
         setTotalPages(response.data.totalPages);
-        const url = `${import.meta.env.VITE_BACK_URL}/api/events`;
-        console.log('Fetching from:', url);
-        const response = await axios.get(url);
-        console.log('API Response:', response.data);
-        setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
         console.log('Error details:', error.response?.data, error.response?.status);

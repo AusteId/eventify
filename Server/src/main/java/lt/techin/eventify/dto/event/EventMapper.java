@@ -50,7 +50,6 @@ public class EventMapper {
     Category category = categoryRepository.findById(event.categoryId()).orElseThrow(() -> new CategoryNotFoundException("category not found for id " + event.categoryId()));
     User organizer = userRepository.findById(event.organizerId()).orElseThrow(() -> new UserNotFoundException("user not found for id " + event.organizerId()));
 
-
     return new Event(
             category,
             organizer,
