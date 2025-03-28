@@ -119,6 +119,7 @@ const CreateEventForm = () => {
             <option>Intermediate</option>
             <option>Advanced</option>
             <option>Extreme</option>
+            <option>All Welcome</option>
           </select>
           <FieldValidationError>{errors.level?.message}</FieldValidationError>
         </div>
