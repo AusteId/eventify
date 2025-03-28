@@ -1,9 +1,15 @@
 package lt.techin.eventify.dto.event;
 
 import lt.techin.eventify.dto.category.CategoryMapper;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
 import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.User;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class EventMapper {
@@ -17,6 +23,11 @@ public class EventMapper {
   }
 
   public EventResponse toEventResponse(Event event) {
+
+    List<RegistrationToEventResponse> registrations = event.getRegistrations().stream()
+            .map(RegistrationToEventMapper::toEventRegistrationResponse)
+            .collect(Collectors.toList());
+
     return new EventResponse(
             event.getId(),
             categoryMapper.toDTO(event.getCategory()),
@@ -32,26 +43,28 @@ public class EventMapper {
             event.getMaxParticipants(),
             event.getCity(),
             event.getAddress(),
-            event.getPhotoPath()
+            event.getPhotoPath(),
+            registrations
     );
   }
 
-  public Event toEvent(CreateEventRequest event) {
+  public Event toEvent(CreateEventRequest createEventRequest) {
     return new Event(
-            event.category(),
-            event.organizer(),
-            event.name(),
-            event.startDateTime(),
-            event.endDateTime(),
+            createEventRequest.category(),
+            createEventRequest.organizer(),
+            createEventRequest.name(),
+            createEventRequest.startDateTime(),
+            createEventRequest.endDateTime(),
             null,
-            event.description(),
-            event.minAge(),
-            event.maxAge(),
-            event.experienceLevel(),
-            event.maxParticipants(),
-            event.city(),
-            event.address(),
-            event.photoPath()
+            createEventRequest.description(),
+            createEventRequest.minAge(),
+            createEventRequest.maxAge(),
+            createEventRequest.experienceLevel(),
+            createEventRequest.maxParticipants(),
+            createEventRequest.city(),
+            createEventRequest.address(),
+            createEventRequest.photoPath()
+
     );
   }
 

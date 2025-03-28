@@ -61,5 +61,6 @@ public record CreateEventRequest(
 
         // kol kas palikta nes nezinau kaip Tomo komponentas atrodys
         String photoPath
+
 ) {
 }

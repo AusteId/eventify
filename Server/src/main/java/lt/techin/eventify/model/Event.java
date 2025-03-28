@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class Event {
   // if event is deleted registration should be deleted as well
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "event_id")
-  private List<RegistrationToEvent> registrationToEvents;
+  private List<RegistrationToEvent> registrations = new ArrayList<>();
 
   @OneToMany
   @JoinColumn(name = "event_id")
@@ -68,7 +69,6 @@ public class Event {
   @Column(nullable = false)
   private String address;
 
-
   // TODO: add proper way to load images from database with Tomas solution
   private String photoPath;
 
@@ -97,6 +97,7 @@ public class Event {
     this.city = city;
     this.address = address;
     this.photoPath = photoPath;
+    this.registrations = new ArrayList<>();
   }
 
   public Event() {
