@@ -9,6 +9,7 @@ import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
 import Modal from '../components/event/Modal';
 import CreateEventForm from '../components/CreateEventForm';
+import { useAuth } from '../components/Auth/AuthContext';
 
 const participants = [
   {
@@ -33,6 +34,7 @@ const Event = () => {
   const [loading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
+  const { userId } = useAuth();
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -84,12 +86,22 @@ const Event = () => {
         </div>
 
         <div className="flex flex-col tablet:grid grid-cols-[1fr_1fr_1fr] gap-6 w-full">
-          {event.minAge ? (
+          {event.minAge && event.maxAge ? (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">
                 {event.minAge}-{event.maxAge}
               </p>
+            </div>
+          ) : event.minAge && !event.maxAge ? (
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+              <p className="text-[#6B7280]">Age Requirement</p>
+              <p className="text-[#1F2937] font-[600]">from {event.minAge}</p>
+            </div>
+          ) : !event.minAge && event.maxAge ? (
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+              <p className="text-[#6B7280]">Age Requirement</p>
+              <p className="text-[#1F2937] font-[600]">up to {event.maxAge}</p>
             </div>
           ) : (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
@@ -97,11 +109,11 @@ const Event = () => {
               <p className="text-[#1F2937] font-[600]">All ages</p>
             </div>
           )}
-          {event.minAge ? (
+          {event.maxParticipants ? (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Participants</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.minAge}-{event.maxAge}
+                {event.registrations.length}-{event.maxParticipants}
               </p>
             </div>
           ) : (
@@ -110,11 +122,12 @@ const Event = () => {
               <p className="text-[#1F2937] font-[600]">No limits</p>
             </div>
           )}
-          {event.minAge ? (
+          {event.category.name ? (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Category</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.minAge}-{event.maxAge}
+                {event?.category.name.charAt(0).toUpperCase() +
+                  event.category.name.slice(1)}
               </p>
             </div>
           ) : (
@@ -140,7 +153,10 @@ const Event = () => {
                 <p className="text-body-medium">{event.description}</p>
               </div>
 
-              <CommentSection />
+              <CommentSection
+                contextId={userId}
+                endpoint={'/events/' + event.id + '/comments'}
+              />
             </div>
           </div>
           <div className="order-1 tablet:order-none flex flex-col gap-4">
