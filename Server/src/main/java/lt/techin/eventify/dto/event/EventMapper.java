@@ -1,11 +1,14 @@
 package lt.techin.eventify.dto.event;
 
+import lombok.AllArgsConstructor;
 import lt.techin.eventify.dto.category.CategoryMapper;
 import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.UserNotFoundException;
 import lt.techin.eventify.model.*;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -14,16 +17,14 @@ import org.springframework.util.FileCopyUtils;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
 @Component
 public class EventMapper {
 
   private final UserMapper userMapper;
   private final CategoryMapper categoryMapper;
-
-  public EventMapper(UserMapper userMapper, CategoryMapper categoryMapper) {
-    this.userMapper = userMapper;
-    this.categoryMapper = categoryMapper;
-  }
+  private final CategoryRepository categoryRepository;
+  private final UserRepository userRepository;
 
   public EventResponse toEventResponse(Event event) {
     return new EventResponse(
@@ -46,11 +47,13 @@ public class EventMapper {
   }
 
   public Event toEvent(CreateEventRequest event) {
+    Category category = categoryRepository.findById(event.categoryId()).orElseThrow(() -> new CategoryNotFoundException("category not found for id " + event.categoryId()));
+    User organizer = userRepository.findById(event.organizerId()).orElseThrow(() -> new UserNotFoundException("user not found for id " + event.organizerId()));
 
 
     return new Event(
-            event.categoryId(),
-            event.organizerId(),
+            category,
+            organizer,
             event.name(),
             event.startDateTime(),
             event.endDateTime(),
