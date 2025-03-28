@@ -129,6 +129,12 @@ public class EventService {
     return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
   }
 
+  public Event findEventById(Long eventId) {
+    return eventRepository.findById(eventId)
+            .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
+  }
+
+
   public Event findById(long id) {
     return eventRepository.findById(id).orElse(null);
   }

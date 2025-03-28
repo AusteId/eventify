@@ -7,13 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventRequest;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
 import lt.techin.eventify.dto.user.AvatarResponseDTO;
 import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.user.UserResponse;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
@@ -35,6 +36,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/events")
@@ -155,18 +158,26 @@ public class EventController {
     return ResponseEntity.ok(eventPage);
   }
 
-//  @PostMapping("/{eventId}/register")
-//  public void registerEvent(@PathVariable long eventId, @Valid @RequestBody RegistrationToEventRequest registrationToEventRequest, Authentication authentication) {
-//    User user = userService.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User does not exist."));
-//    Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event does not exist."));
-//
-//    // check if events have available spaces
-//    if (event.getMaxParticipants())
-//
-//    RegistrationToEvent registration = new RegistrationToEvent();
-//    registration.setUser(user);
-//    registration.setEvent(event);
-//    registrationToEventService.saveEventRegistration(registration);
-//
-//  }
+  @PostMapping("/{eventId}/register")
+  public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal) {
+
+
+    RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
+
+
+    RegistrationToEventResponse registrationToEventResponse = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(registrationToEventResponse);
+
+  }
+
+  @DeleteMapping("/{eventId}/register")
+  public ResponseEntity<String> cancelRegistration(@PathVariable Long eventId, Principal principal) {
+    try {
+      registrationToEventService.cancelEventRegistration(eventId, principal.getName());
+      return ResponseEntity.ok("Registration successfully cancelled");
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+  }
 }

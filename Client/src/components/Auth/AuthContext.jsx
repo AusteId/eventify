@@ -5,10 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { useNotification } from '../context/NotificationContext';
-import LoadingScreen from '../message/LoadingScreen';
-import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 

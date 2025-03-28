@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lt.techin.eventify.dto.event.EventResponse;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Entity
 @Table(name = "registrations")
@@ -29,6 +31,13 @@ public class RegistrationToEvent {
   @Setter(AccessLevel.NONE)
   private LocalDateTime registeredAt;
 
+    public RegistrationToEvent(User user, EventResponse event, LocalDateTime now) {
+    }
+
+  public RegistrationToEvent() {
+
+  }
+
   @PrePersist
   public void prePersist() {
     if (this.registeredAt == null) {
@@ -39,8 +48,8 @@ public class RegistrationToEvent {
   public RegistrationToEvent(User user, Event event, LocalDateTime registeredAt) {
     this.user = user;
     this.event = event;
+    this.registeredAt = registeredAt;
   }
 
-  public RegistrationToEvent() {
-  }
+
 }

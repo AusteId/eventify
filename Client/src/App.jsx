@@ -19,11 +19,17 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import Event from './page/Event';
 
+import BasicModal from './components/BasicModal';
+import CreateEventForm from './components/CreateEventForm';
+
 function App() {
   const formRefs = useRef([null, null, null, null]);
 
   return (
     <div className="">
+      <BasicModal id="event_creation_modal">
+        <CreateEventForm />
+      </BasicModal>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>

@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import getEvent from '../helpers/event/getEvent';
+import joinEvent from '../helpers/event/joinEvent';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
 import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
+import axios from 'axios';
+import { useAuth } from '../components/Auth/AuthContext';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
+  const { userId } = useAuth();
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -20,6 +24,13 @@ const Event = () => {
     };
     fetchdata();
   }, []);
+
+  
+    const fetchdata = async () => {
+      const data = await joinEvent(params.id)
+      setEvent(data);
+    };
+
 
   if (!event) {
     return <p>LOADING</p>;
@@ -47,7 +58,7 @@ const Event = () => {
             </div>
           </div>
           <div>
-            <Button>Join Event</Button>
+            <Button onClick={fetchdata}>Join Event</Button>
           </div>
         </div>
 
@@ -101,7 +112,10 @@ const Event = () => {
                 <p className="text-body-medium">{event.description}</p>
               </div>
 
-              <CommentSection />
+              <CommentSection
+                contextid={userId}
+                endpoint={'/events/' + event.id + '/comments'}
+              />
             </div>
           </div>
           <div className="flex flex-col gap-4">
