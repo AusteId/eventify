@@ -5,9 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react';
-import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { useNotification } from '../context/NotificationContext';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -22,12 +22,17 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const checkAuthStatus = useCallback(async () => {
-    //Constant agony of 401's if not logged in, so need to store shit in session to prevent it from checking the cookie
-    const stupidFuckingCheck =
-      isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
-    if (!stupidFuckingCheck) {
-      return;
-    }
+    console.log('CHECKING AUTH');
+
+    //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
+    // const alreadyChecked =
+    //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
+    // if (!alreadyChecked) {
+    //   return;
+    // }
+
+    if (isAuthenticated) return;
+
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/me', {
@@ -63,7 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuthStatus();
-  }, [checkAuthStatus]);
+  }, []);
 
   const login = async credentials => {
     setIsLoading(true);
@@ -80,7 +85,6 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       if (!response.ok) {
-        // timeoutForError('Login Failed');
         toast.error('Login Failed');
         return false;
       }
@@ -88,7 +92,7 @@ export const AuthProvider = ({ children }) => {
       await checkAuthStatus();
       return true;
     } catch (error) {
-      timeoutForError(error.message || 'Failed to login');
+      toast.error(error.message || 'Login Failed');
       return false;
     } finally {
       setIsLoading(false);

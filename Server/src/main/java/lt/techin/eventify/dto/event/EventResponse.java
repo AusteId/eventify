@@ -23,7 +23,8 @@ public record EventResponse(
         String city,
         String address,
         String photoPath,
-        List<RegistrationToEventResponse> registrations
+        List<RegistrationToEventResponse> registrations,
+        boolean isRegistered
 
 ) {
 }

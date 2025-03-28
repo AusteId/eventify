@@ -10,31 +10,78 @@ import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
 import axios from 'axios';
 import { useAuth } from '../components/Auth/AuthContext';
+import toast from 'react-hot-toast';
+import { CloudCog, Loader } from 'lucide-react';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
   const { userId } = useAuth();
+  const [isRegistered, setIsRegistered] = useState(false);
+  const auth = useAuth();
+
+  const handleJoinEvent = async () => {
+    try {
+      const data = await joinEvent(params.id);
+      console.log("DATA: ",data);
+      setEvent(data);
+      setIsRegistered(true);
+      toast.success('Successfully joined the event!');
+    } catch (error) {
+      toast.error('Error joining event: ' + error.message);
+    }
+  };
+
+  const handleCancelEvent = async () => {
+    try {
+      const response = await cancelEvent(params.id);
+      const updatedEvent = await getEvent(params.id);
+      setEvent(updatedEvent);
+      setIsRegistered(false);
+      toast.success(response || 'Successfully cancelled registration!');
+    } catch (error) {
+      toast.error('Error cancelling registration: ' + error.message);
+    }
+  };
+
 
   useEffect(() => {
-    const fetchdata = async () => {
-      const data = await getEvent(params.id);
-      setEvent(data);
-    };
-    fetchdata();
-  }, []);
+    const fetchData = async () => {
+      try {
+        if (auth.loading) return;
 
+        console.log("ID: ",params.id);
+        
+        const data = await getEvent(params.id);
+        setEvent(data);
+        setLoading(false);
+
+        console.log("AUTH", auth);
+        
   
-    const fetchdata = async () => {
-      const data = await joinEvent(params.id)
-      setEvent(data);
+        // const currentUserId = localStorage.getItem('userId');
+        const isUserRegistered = data.registrations?.some(reg => reg.user.id === auth.userId);
+        setIsRegistered(isUserRegistered || false);
+      } catch (error) {
+        console.log("ERROR:", error);
+        
+        toast.error('Error loading event: ' + error.message);
+      }
     };
+    fetchData();
+  }, [params.id, auth.loading]);
+ 
 
 
   if (!event) {
     return <p>LOADING</p>;
   }
+
+
+  if (auth.loading) return <Loader/>
+
+console.log("AUTH END: ",auth);
 
   console.log(event);
 
@@ -58,7 +105,11 @@ const Event = () => {
             </div>
           </div>
           <div>
-            <Button onClick={fetchdata}>Join Event</Button>
+            {isRegistered ? (
+              <Button onClick={handleCancelEvent}>Cancel Registration</Button>
+            ) : (
+             <Button onClick={handleJoinEvent}>Join Event</Button>
+            )}
           </div>
         </div>
 
@@ -126,6 +177,7 @@ const Event = () => {
           </div>
         </div>
       </div>
+      {/* <ToastContainer /> */}
     </div>
   );
 };

@@ -44,7 +44,8 @@ public class EventMapper {
             event.getCity(),
             event.getAddress(),
             event.getPhotoPath(),
-            registrations
+            registrations,
+            false
     );
   }
 

@@ -78,5 +78,9 @@ public class RegistrationToEventService {
         registrationToEventRepository.delete(registration);
     }
 
+    public int countRegistrationsByEventIdAndUserId(Long eventId, Long userId) {
+        return registrationToEventRepository.countByEventIdAndUserId(eventId, userId);
+    }
+
 
 }
