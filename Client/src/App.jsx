@@ -88,15 +88,15 @@ function App() {
             <Route
               path="/profile"
               element={
-                // <ProtectedRoute allowedRoles={['USER']}>
-                <Profile />
-                // </ProtectedRoute>
+                <ProtectedRoute allowedRoles={['USER']}>
+                  <Profile />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/myRegistrations"
               element={
-                <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                <ProtectedRoute allowedRoles={['USER']}>
                   <Registrations />
                 </ProtectedRoute>
               }

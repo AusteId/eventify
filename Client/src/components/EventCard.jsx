@@ -1,20 +1,23 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import Button from "./Button"
-import ButtonCancel from "./ButtonCancel"
-import { convertToCompactEuDatetime, formatToOnlyTime } from "../utils/dateFunctions"
-import { useNavigate } from "react-router"
-import axios from "axios"
+import { useEffect, useState } from 'react';
+import Button from './Button';
+import ButtonCancel from './ButtonCancel';
+import {
+  convertToCompactEuDatetime,
+  formatToOnlyTime,
+} from '../utils/dateFunctions';
+import { useNavigate } from 'react-router';
+import axios from 'axios';
 
 const EventCard = ({
   id,
-  experienceLevel = "All Welcome",
+  experienceLevel = 'All Welcome',
   isRegistered = 0,
   eventHandler,
   currentParticipants = 0,
   maxParticipants = 1,
-  name = "Title missing...",
+  name = 'Title missing...',
   description,
   startDateTime,
   endDateTime,
@@ -47,31 +50,38 @@ const EventCard = ({
         console.log("API Response:", image)
         setImageData(image)
       } catch (error) {
-        console.error("Error fetching data:", error)
-        console.log("Error details:", error.response?.data, error.response?.status)
-        setImageData([])
+        console.error('Error fetching data:', error);
+        console.log(
+          'Error details:',
+          error.response?.data,
+          error.response?.status,
+        );
+        setImageData([]);
       } finally {
-        setIsImageLoading(false)
+        setIsImageLoading(false);
       }
-    }
-    fetchImage()
-  }, [id])
+    };
+    fetchImage();
+  }, [id]);
 
   const expLevels = {
-    "All Welcome": ["bg-welcome", "All Welcome!"],
-    Beginner: ["bg-beginner", "Beginner Friendly"],
-    Intermediate: ["bg-intermediate", "Intermediate"],
-    Advanced: ["bg-advanced", "Advanced"],
-    Extreme: ["bg-extreme", "Extreme"],
-  }
+    'All Welcome': ['bg-welcome', 'All Welcome!'],
+    Beginner: ['bg-beginner', 'Beginner Friendly'],
+    Intermediate: ['bg-intermediate', 'Intermediate'],
+    Advanced: ['bg-advanced', 'Advanced'],
+    Extreme: ['bg-extreme', 'Extreme'],
+  };
 
-  const wordArr = description?.split(" ")
-  let shortDesc
+  const wordArr = description?.split(' ');
+  let shortDesc;
   if (wordArr?.length > 10) {
-    const lastWord = wordArr[9]
-    const cleanedLastWord = lastWord.endsWith(".") || lastWord.endsWith(",") ? lastWord.slice(0, -1) : lastWord
-    wordArr[9] = cleanedLastWord
-    shortDesc = wordArr?.slice(0, 10).join(" ") + "..."
+    const lastWord = wordArr[9];
+    const cleanedLastWord =
+      lastWord.endsWith('.') || lastWord.endsWith(',')
+        ? lastWord.slice(0, -1)
+        : lastWord;
+    wordArr[9] = cleanedLastWord;
+    shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
   } else {
     wordArr?.join(" ")
   }
@@ -95,7 +105,10 @@ const EventCard = ({
       className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] ${isEnded && "grayscale-100"}`}
     >
       <div>
-        <a onClick={() => navigate(`/events/${id}`)} className="cursor-pointer group">
+        <a
+          onClick={() => navigate(`/events/${id}`)}
+          className="cursor-pointer group"
+        >
           <div className="relative">
             {currentParticipants !== null && (
               <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
@@ -145,7 +158,9 @@ const EventCard = ({
                 {endDateTime ? (
                   <figcaption>{timeString}</figcaption>
                 ) : (
-                  <figcaption>{convertToCompactEuDatetime(startDateTime)}</figcaption>
+                  <figcaption>
+                    {convertToCompactEuDatetime(startDateTime)}
+                  </figcaption>
                 )}
               </figure>
             ) : (
@@ -184,8 +199,7 @@ const EventCard = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EventCard
-
+export default EventCard;

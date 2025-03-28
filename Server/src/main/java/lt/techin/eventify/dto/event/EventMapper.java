@@ -6,6 +6,7 @@ import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
 import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.model.Category;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.UserNotFoundException;
 import lt.techin.eventify.model.*;
@@ -59,24 +60,24 @@ public class EventMapper {
     );
   }
 
-  public Event toEvent(CreateEventRequest createEventRequest) {
-    Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("category not found for id " + createEventRequest.categoryId()));
-    User organizer = userRepository.findById(createEventRequest.organizerId()).orElseThrow(() -> new UserNotFoundException("user not found for id " + createEventRequest.organizerId()));
+  public Event toEvent(CreateEventRequest event, Category category, User organizer) {
+//    Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("category not found for id " + createEventRequest.categoryId()));
+//    User organizer = userRepository.findById(createEventRequest.organizerId()).orElseThrow(() -> new UserNotFoundException("user not found for id " + createEventRequest.organizerId()));
 
     return new Event(
             category,
             organizer,
-            createEventRequest.name(),
-            createEventRequest.startDateTime(),
-            createEventRequest.endDateTime(),
-            createEventRequest.description(),
-            createEventRequest.minAge(),
-            createEventRequest.maxAge(),
-            createEventRequest.experienceLevel(),
-            createEventRequest.maxParticipants(),
-            createEventRequest.city(),
-            createEventRequest.address(),
-            createEventRequest.photoPath()
+            event.name(),
+            event.startDateTime(),
+            event.endDateTime(),
+            event.description(),
+            event.minAge(),
+            event.maxAge(),
+            event.experienceLevel(),
+            event.maxParticipants(),
+            event.city(),
+            event.address(),
+            event.photoPath()
     );
   }
 
