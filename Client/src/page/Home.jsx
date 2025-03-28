@@ -36,9 +36,6 @@ const Home = () => {
               >
                 Create Event
               </Button>
-              <BasicModal id="event_creation_modal">
-                <CreateEventForm />
-              </BasicModal>
               <Button
                 size="big"
                 background="bg-white"
