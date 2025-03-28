@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +35,14 @@ public class UserController {
   }
 
   @GetMapping("/all")
-  public ResponseEntity<List<User>> getUsers() {
-    return ResponseEntity.ok(userService.findAllUsers());
+  public ResponseEntity<List<UserResponse>> getUsers() {
+    List<UserResponse> userResponses = new ArrayList<>();
+
+    for (User user : userService.findAllUsers()) {
+      userResponses.add(userMapper.toUserResponse(user));
+    }
+
+    return ResponseEntity.ok(userResponses);
   }
 
   @PostMapping("/login")

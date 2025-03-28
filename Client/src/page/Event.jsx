@@ -7,11 +7,34 @@ import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
+import Modal from '../components/event/Modal';
+import CreateEventForm from '../components/CreateEventForm';
+import { useAuth } from '../components/Auth/AuthContext';
+
+const participants = [
+  {
+    name: 'Kestas Bombonis',
+    rating: 4.3,
+  },
+  {
+    name: 'Tomas Kurtauskas',
+    rating: 2.8,
+  },
+  {
+    name: 'Marius Maironis',
+    rating: 3.5,
+  },
+  {
+    name: 'Jonas Petronis',
+    rating: 1.2,
+  },
+];
 
 const Event = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
+  const { userId } = useAuth();
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -27,37 +50,58 @@ const Event = () => {
 
   console.log(event);
 
+  const handleEdit = () => {
+    document.getElementById('event_creation_modal').showModal();
+  };
+
   return (
-    <div className="flex flex-col items-center gap-5 py-10 px-10 text-black">
+    <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
       <div
-        className={`flex flex-col justify-start gap-8 h-full p-8 bg-white rounded-xl tablet:items-baseline`}
+        className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
-        <div className="flex items-center gap-10 w-full justify-between">
-          <div className="flex flex-col gap-3">
+        <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
+          <div className="flex flex-col gap-5">
             <h1
               className={`text-[2.25rem] font-[700] leading-[1.5rem] ${loading && 'text-start'}`}
             >
               {event.name}
             </h1>
-            <div className="flex gap-2 items-center text-body-m text-body-medium">
-              <CalendarIcon />
-              <p>{event.startDateTime}</p>
-              <MarkIcon />
-              <p>{event.address}</p>
+            <div className="flex flex-col tablet:flex-row gap-2 tablet:items-center text-body-m text-body-medium">
+              <div className="flex items-center gap-2">
+                <CalendarIcon />
+                <p>{event.startDateTime}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <MarkIcon />
+                <p>{event.address}</p>
+              </div>
             </div>
           </div>
-          <div>
+          <div className="flex justify-center gap-3">
             <Button>Join Event</Button>
+            <div className="tablet:hidden">
+              <Button>{<EditIcon />} Manage event</Button>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-[1fr_1fr_1fr] gap-6 w-full">
-          {event.minAge ? (
+        <div className="flex flex-col tablet:grid grid-cols-[1fr_1fr_1fr] gap-6 w-full">
+          {event.minAge && event.maxAge ? (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">
                 {event.minAge}-{event.maxAge}
               </p>
+            </div>
+          ) : event.minAge && !event.maxAge ? (
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+              <p className="text-[#6B7280]">Age Requirement</p>
+              <p className="text-[#1F2937] font-[600]">from {event.minAge}</p>
+            </div>
+          ) : !event.minAge && event.maxAge ? (
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+              <p className="text-[#6B7280]">Age Requirement</p>
+              <p className="text-[#1F2937] font-[600]">up to {event.maxAge}</p>
             </div>
           ) : (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
@@ -65,11 +109,11 @@ const Event = () => {
               <p className="text-[#1F2937] font-[600]">All ages</p>
             </div>
           )}
-          {event.minAge ? (
+          {event.maxParticipants ? (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Participants</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.minAge}-{event.maxAge}
+                {event.registrations.length}-{event.maxParticipants}
               </p>
             </div>
           ) : (
@@ -78,11 +122,12 @@ const Event = () => {
               <p className="text-[#1F2937] font-[600]">No limits</p>
             </div>
           )}
-          {event.minAge ? (
+          {event.category.name ? (
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Category</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.minAge}-{event.maxAge}
+                {event?.category.name.charAt(0).toUpperCase() +
+                  event.category.name.slice(1)}
               </p>
             </div>
           ) : (
@@ -92,22 +137,37 @@ const Event = () => {
             </div>
           )}
 
-          <div className="col-span-2">
+          <div className="tablet:hidden flex flex-col gap-4 tablet:gap-8">
+            <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
+              About the Event
+            </h2>
+            <p className="text-body-medium">{event.description}</p>
+          </div>
+
+          <div className="order-2 tablet:order-none col-span-2">
             <div className="flex flex-col gap-8">
-              <div className="flex flex-col gap-8">
+              <div className="hidden tablet:flex flex-col gap-4 tablet:gap-8">
                 <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
                   About the Event
                 </h2>
                 <p className="text-body-medium">{event.description}</p>
               </div>
 
-              <CommentSection />
+              <CommentSection
+                contextId={userId}
+                endpoint={'/events/' + event.id + '/comments'}
+              />
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <ParticipantsSection />
-            <div className="flex justify-center px-6">
-              <Button>{<EditIcon />} Manage event</Button>
+          <div className="order-1 tablet:order-none flex flex-col gap-4">
+            <ParticipantsSection participants={participants} />
+            <div className="hidden tablet:flex justify-center px-6">
+              <Button onClick={handleEdit}>{<EditIcon />} Manage event</Button>
+            </div>
+            <div className="absolute">
+              <Modal modalName={'event_creation_modal'}>
+                <CreateEventForm />
+              </Modal>
             </div>
           </div>
         </div>

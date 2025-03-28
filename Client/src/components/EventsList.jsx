@@ -24,11 +24,12 @@ const EventsList = ({ setLoading, loading }) => {
   });
   const eventsPerPage = 12;
 
-  useEffect(() => {
+useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
+          // sitas sukelia problemas
           `${import.meta.env.VITE_BACK_URL}/api/events/search`,
           {
             params: {
@@ -47,11 +48,11 @@ const EventsList = ({ setLoading, loading }) => {
             },
           },
         );
-
         setEvents(response.data.content);
         setTotalPages(response.data.totalPages);
       } catch (error) {
-        console.error('Error fetching data: ', error);
+        console.error('Error fetching data:', error);
+        console.log('Error details:', error.response?.data, error.response?.status);
         setEvents([]);
         setTotalPages(0);
       } finally {

@@ -63,8 +63,6 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
     }
   }));
 
-
-
   return (
     <div className="flex flex-col items-center p-6">
       <h2 className="text-header-dark text-heading-l font-[700]">

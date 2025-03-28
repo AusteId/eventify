@@ -1,9 +1,15 @@
 package lt.techin.eventify.dto.eventComment;
 
+import lt.techin.eventify.dto.user.UserResponse;
+
+import java.sql.Time;
+import java.sql.Timestamp;
+
 public record EventCommentResponse(
         long id,
-        long userId,
+        UserResponse userResponse,
         long eventId,
-        String comment
+        String comment,
+        String createdAt
 ) {
 }

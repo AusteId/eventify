@@ -77,21 +77,21 @@ public class UserService {
                       .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId)))
               .collect(Collectors.toSet());
     }
+
     newUser.setFavoriteEventCategories(favoriteCategories);
 
     UserImage avatar = UserMapper.imageToEntity(dto);
 
     newUser.setAvatar(avatar);
     newUser.setPassword(passwordEncoder.encode(dto.password()));
-    newUser.setRegisteredAt(LocalDateTime.now());
     newUser.setRoles(Set.of(roleUser));
 
     return userRepository.save(newUser);
   }
 
-  public User findById(long id) {
-    return userRepository.findById(id).orElseThrow(NullPointerException::new);
-  }
+    public User findById(long id) {
+        return userRepository.findById(id).orElseThrow(NullPointerException::new);
+    }
 
   public Optional<User> findByUsername(String name) {
     return userRepository.findByUsername(name);

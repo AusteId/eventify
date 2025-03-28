@@ -8,8 +8,13 @@ import CategoryButton from '../components/CategoryButton';
 import BasicModal from '../components/BasicModal';
 import CreateEventForm from '../components/CreateEventForm';
 import EventCarousel from '../components/EventCarousel';
+import { useAuth } from '../components/Auth/AuthContext';
+import { useNavigate } from 'react-router';
 
 const Home = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
   return (
     <div>
       <div className="relative w-full h-150">
@@ -29,16 +34,17 @@ const Home = () => {
             </p>
             <div className="flex gap-4">
               <Button
-                onClick={() =>
-                  document.getElementById('event_creation_modal').showModal()
-                }
+                onClick={() => {
+                  if (isAuthenticated) {
+                    document.getElementById('event_creation_modal').showModal();
+                  } else {
+                    navigate('/login');
+                  }
+                }}
                 size="big"
               >
                 Create Event
               </Button>
-              <BasicModal id="event_creation_modal">
-                <CreateEventForm />
-              </BasicModal>
               <Button
                 size="big"
                 background="bg-white"

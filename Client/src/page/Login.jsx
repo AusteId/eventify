@@ -22,19 +22,16 @@ const Login = () => {
   const navigate = useNavigate();
 
   const onSubmit = async data => {
-    setIsloading(true);
     try {
       const success = await login(data);
       if (success) {
         // timeoutForSuccess("Successfully logged in");
+        setIsloading(true);
         toast.success('Successfully logged in!');
         reset();
         setTimeout(() => {
           navigate('/');
         }, 1000);
-      } else {
-        // timeoutForError('Incorrect email or password');
-        toast.error('Incorrect email or password');
       }
     } catch (error) {
       timeoutForError(error.message || 'Something went wrong');
@@ -56,7 +53,7 @@ const Login = () => {
               Please enter your credentials to continue
             </p>
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} action="" className="px-8">
+          <form noValidate onSubmit={handleSubmit(onSubmit)} action="" className="px-8">
             <label
               className="block font-inter text-body-medium mb-2"
               htmlFor="email"
@@ -70,11 +67,6 @@ const Login = () => {
               placeholder="your@email.com"
               {...register('email', {
                 required: 'Email is required.',
-                pattern: {
-                  value:
-                    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-                  message: 'Email not valid (your@email.com)',
-                },
               })}
             />
             <FieldValidationError>{errors.email?.message}</FieldValidationError>
@@ -91,18 +83,6 @@ const Login = () => {
               placeholder="Password"
               {...register('password', {
                 required: 'Password is required.',
-                pattern: {
-                  value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$/gm,
-                  message: 'An uppercase, lowercase, and a number is required',
-                },
-                minLength: {
-                  value: 8,
-                  message: 'Password must be at least 8 characters long',
-                },
-                maxLength: {
-                  value: 128,
-                  message: 'Password cannot exceed 128 characters',
-                },
               })}
             />
             <FieldValidationError>

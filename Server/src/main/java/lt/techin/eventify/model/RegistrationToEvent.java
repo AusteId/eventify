@@ -1,9 +1,8 @@
 package lt.techin.eventify.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lt.techin.eventify.dto.event.EventResponse;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +10,8 @@ import java.time.LocalDateTime;
 @Table(name = "registrations")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegistrationToEvent {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,8 +40,6 @@ public class RegistrationToEvent {
   public RegistrationToEvent(User user, Event event, LocalDateTime registeredAt) {
     this.user = user;
     this.event = event;
-  }
-
-  public RegistrationToEvent() {
+    this.registeredAt = registeredAt;
   }
 }

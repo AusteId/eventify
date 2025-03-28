@@ -57,7 +57,13 @@ export default function EventCarousel() {
     return events.slice(0, 10);
   }, [data]);
 
-  // setting of carousel. more:
+  useEffect(() => {
+    if (data) {
+      console.log(data[0]);
+    }
+  }, [data]);
+
+  // settings of carousel. more:
   // https://react-slick.neostack.com/docs/api
 
   // FIXME: scrolls too fast back to beginning, might need to tweak index.css file
@@ -121,17 +127,17 @@ export default function EventCarousel() {
         onPrevClick={() => slider?.slickPrev()}
         onNextClick={() => slider?.slickNext()}
       />
-      <Slider {...settings} ref={slider => setSlider(slider)}>
-        {currentEvents.length > 0 ? (
-          currentEvents.map((event, index) => (
-            <div key={event.id || index} className="px-2 flex justify-center">
+      {currentEvents.length > 0 ? (
+        <Slider {...settings} ref={slider => setSlider(slider)}>
+          {currentEvents.map(event => (
+            <div key={event.id} className="px-2 flex justify-center">
               <EventCard {...event} />
             </div>
-          ))
-        ) : (
-          <div className="text-center py-4">No events available.</div>
-        )}
-      </Slider>
+          ))}
+        </Slider>
+      ) : (
+        <div className="text-center py-4">No events available.</div>
+      )}
     </div>
   );
 }
