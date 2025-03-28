@@ -5,9 +5,12 @@ import lt.techin.eventify.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RegistrationToEventRepository extends JpaRepository<RegistrationToEvent, Long> {
   int countByEventId(Long id);
   boolean existsByUserIdAndEventId(Long userId, Long eventId);
   List<User> findAllByEventId(Long eventId);
+  Optional<RegistrationToEvent> findByUserIdAndEventId(Long userId, Long eventId);
+
 }

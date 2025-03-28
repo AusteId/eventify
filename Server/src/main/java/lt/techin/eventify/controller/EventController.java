@@ -125,4 +125,14 @@ public class EventController {
     return ResponseEntity.status(HttpStatus.CREATED).body(registrationToEventResponse);
 
   }
+
+//  @DeleteMapping("/{eventId}/register")
+//  public ResponseEntity<String> cancelRegistration(@PathVariable Long eventId, Principal principal) {
+//    try {
+//      registrationToEventService.cancelEventRegistration(eventId, principal.getName());
+//      return ResponseEntity.ok("Registration successfully cancelled");
+//    } catch (RuntimeException e) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//    }
+//  }
 }

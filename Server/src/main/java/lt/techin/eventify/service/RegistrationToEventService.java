@@ -57,5 +57,26 @@ public class RegistrationToEventService {
     return registrationToEventRepository.save(registration);
   }
 
+    public void cancelEventRegistration(Long eventId, String username) {
+
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
+
+
+        Event event = eventService.findEventById(eventId);
+
+//        if (LocalDateTime.now().isAfter(event.getStartDateTime())) {
+//            throw new RuntimeException("Cannot cancel registration after the event has started");
+//        }
+
+
+        RegistrationToEvent registration = registrationToEventRepository
+                .findByUserIdAndEventId(user.getId(), eventId)
+                .orElseThrow(() -> new RuntimeException("Registration not found for this user and event"));
+
+
+        registrationToEventRepository.delete(registration);
+    }
+
 
 }
