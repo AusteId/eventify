@@ -14,35 +14,35 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtAuthenticationProvider jwtAuthenticationProvider;
-    private final JwtAuthenticationConverter jwtAuthenticationConverter;
+  private final JwtAuthenticationProvider jwtAuthenticationProvider;
+  private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
-    public JwtCookieAuthenticationFilter(JwtDecoder jwtDecoder, JwtAuthenticationConverter jwtAuthenticationConverter) {
-        this.jwtAuthenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
-        this.jwtAuthenticationConverter = jwtAuthenticationConverter;
-        this.jwtAuthenticationProvider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
-    }
-    
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+  public JwtCookieAuthenticationFilter(JwtDecoder jwtDecoder, JwtAuthenticationConverter jwtAuthenticationConverter) {
+    this.jwtAuthenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
+    this.jwtAuthenticationConverter = jwtAuthenticationConverter;
+    this.jwtAuthenticationProvider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+  }
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            String token = extractTokenFromCookie(request);
-            if (token != null) {
-                try {
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+          throws ServletException, IOException {
 
-                    var authenticationToken = new org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken(token);
-                    var authentication = jwtAuthenticationProvider.authenticate(authenticationToken);
+    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+      String token = extractTokenFromCookie(request);
+      if (token != null) {
+        try {
 
-                    if (authentication != null) {
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-                } catch (Exception e) {
-                    logger.debug("JWT authentication from cookie failed", e);
-                }
-            }
+          var authenticationToken = new org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken(token);
+          var authentication = jwtAuthenticationProvider.authenticate(authenticationToken);
+
+          if (authentication != null) {
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+          }
+        } catch (Exception e) {
+          logger.debug("JWT authentication from cookie failed", e);
         }
+      }
+    }
 
         filterChain.doFilter(request, response);
     }

@@ -1,8 +1,7 @@
 package lt.techin.eventify.service;
 
-import lt.techin.eventify.dto.event.EventMapper;
-import lt.techin.eventify.dto.event.EventResponse;
-import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lombok.AllArgsConstructor;
+import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.exception.CategoryNotFoundException;
 import lt.techin.eventify.exception.EventNotFoundException;
 import lt.techin.eventify.exception.ForbiddenException;
@@ -16,12 +15,15 @@ import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import lt.techin.eventify.model.*;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class EventService {
 
   private final EventRepository eventRepository;
@@ -29,16 +31,14 @@ public class EventService {
   private final UserRepository userRepository;
   private final EventMapper eventMapper;
 
-  public EventService(EventRepository eventRepository, CategoryRepository categoryRepository,
-                      UserRepository userRepository, EventMapper eventMapper) {
-    this.eventRepository = eventRepository;
-    this.categoryRepository = categoryRepository;
-    this.userRepository = userRepository;
-    this.eventMapper = eventMapper;
-  }
+  public Event saveEvent(CreateEventRequest dto) throws IOException {
+    EventImage image = eventMapper.imageToEntity(dto);
 
-  public Event saveEvent(Event event) {
-    return eventRepository.save(event);
+    Event newEvent = eventMapper.toEvent(dto);
+
+    newEvent.setEventImage(image);
+
+    return eventRepository.save(newEvent);
   }
 
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
@@ -104,9 +104,9 @@ public class EventService {
     return eventMapper.toEventResponse(event);
   }
 
-  public List<EventResponse> getAllEvents() {
+  public List<GetEventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
-            .map(eventMapper::toEventResponse)
+            .map(eventMapper::toGetEventResponse)
             .toList();
   }
 
@@ -137,5 +137,13 @@ public class EventService {
 
   public Event findById(long id) {
     return eventRepository.findById(id).orElse(null);
+  }
+
+  public EventPictureResponse getEventPicture (long eventId) {
+    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId+ " (id)")).getEventImage();
+    return new EventPictureResponse(
+            eventImage.getData(),
+            eventImage.getContentType()
+    );
   }
 }

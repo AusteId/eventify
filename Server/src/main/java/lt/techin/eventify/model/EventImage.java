@@ -4,10 +4,12 @@ package lt.techin.eventify.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "category_icons")
+@Table(name = "event_images")
 @Data
-public class CategoryIcon {
+public class EventImage {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

@@ -1,26 +1,36 @@
 package lt.techin.eventify.dto.event;
 
+import lombok.AllArgsConstructor;
 import lt.techin.eventify.dto.category.CategoryMapper;
+import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
 import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.exception.CategoryNotFoundException;
+import lt.techin.eventify.exception.UserNotFoundException;
+import lt.techin.eventify.model.*;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.User;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @Component
 public class EventMapper {
 
   private final UserMapper userMapper;
   private final CategoryMapper categoryMapper;
-
-  public EventMapper(UserMapper userMapper, CategoryMapper categoryMapper) {
-    this.userMapper = userMapper;
-    this.categoryMapper = categoryMapper;
-  }
+  private final CategoryRepository categoryRepository;
+  private final UserRepository userRepository;
 
   public EventResponse toEventResponse(Event event) {
 
@@ -49,13 +59,15 @@ public class EventMapper {
   }
 
   public Event toEvent(CreateEventRequest createEventRequest) {
+    Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("category not found for id " + createEventRequest.categoryId()));
+    User organizer = userRepository.findById(createEventRequest.organizerId()).orElseThrow(() -> new UserNotFoundException("user not found for id " + createEventRequest.organizerId()));
+
     return new Event(
-            createEventRequest.category(),
-            createEventRequest.organizer(),
+            category,
+            organizer,
             createEventRequest.name(),
             createEventRequest.startDateTime(),
             createEventRequest.endDateTime(),
-            null,
             createEventRequest.description(),
             createEventRequest.minAge(),
             createEventRequest.maxAge(),
@@ -64,7 +76,6 @@ public class EventMapper {
             createEventRequest.city(),
             createEventRequest.address(),
             createEventRequest.photoPath()
-
     );
   }
 
@@ -82,6 +93,30 @@ public class EventMapper {
             event.getCity(),
             event.getPhotoPath()
     );
+  }
+
+  public EventImage imageToEntity(CreateEventRequest dto) throws IOException {
+    if (dto.picture() != null && !dto.picture().isEmpty()) {
+      EventImage eventImage = new EventImage();
+      eventImage.setFilename(dto.picture().getOriginalFilename());
+      eventImage.setContentType(dto.picture().getContentType());
+      eventImage.setFileSize(dto.picture().getSize());
+      eventImage.setData(dto.picture().getBytes());
+      return eventImage;
+    } else {
+      try {
+        Resource resource = new ClassPathResource("static/default-event.jpg");
+        byte[] imageBytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+        EventImage eventImage = new EventImage();
+        eventImage.setFilename("default-event");
+        eventImage.setContentType("image/png");
+        eventImage.setData(imageBytes);
+        eventImage.setFileSize((long) imageBytes.length);
+        return eventImage;
+      } catch (IOException e) {
+        throw new IOException("Could not load default event image" + e.getMessage());
+      }
+    }
   }
 
 }

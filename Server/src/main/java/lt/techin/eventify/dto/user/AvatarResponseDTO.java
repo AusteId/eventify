@@ -1,7 +1,7 @@
 package lt.techin.eventify.dto.user;
 
-public record AvatarResponseDTO (
+public record AvatarResponseDTO(
         byte[] data,
         String contentType
-){
+) {
 }

@@ -13,29 +13,29 @@ import java.time.LocalDateTime;
 @Component
 public class UserMapper {
 
-    public UserResponse toUserResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getCity(),
-                user.getBirthDate(),
-                user.getDescription(),
-                user.getFavoriteEventCategories(),
-                user.getPhotoPath(),
-                user.getRoles());
-    }
+  public UserResponse toUserResponse(User user) {
+    return new UserResponse(
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            user.getCity(),
+            user.getBirthDate(),
+            user.getDescription(),
+            user.getFavoriteEventCategories(),
+            user.getPhotoPath(),
+            user.getRoles());
+  }
 
-    public User toUser(CreateUserRequest dto) {
-        User user = new User();
-        user.setUsername(dto.username());
-        user.setEmail(dto.email());
-        user.setPassword(dto.password());
-        user.setCity(dto.city());
-        user.setDescription(dto.description());
-        user.setBirthDate(dto.birthDate());
-        return user;
-    }
+  public User toUser(CreateUserRequest dto) {
+    User user = new User();
+    user.setUsername(dto.username());
+    user.setEmail(dto.email());
+    user.setPassword(dto.password());
+    user.setCity(dto.city());
+    user.setDescription(dto.description());
+    user.setBirthDate(dto.birthDate());
+    return user;
+  }
 
     public static UserImage imageToEntity(CreateUserRequest dto) throws IOException {
         if (dto.avatar() != null && !dto.avatar().isEmpty()) {
