@@ -1,5 +1,8 @@
 package lt.techin.eventify.service;
 
+import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.EventMapper;
+import lt.techin.eventify.dto.event.EventResponse;
 import lombok.AllArgsConstructor;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.exception.CategoryNotFoundException;
@@ -16,11 +19,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import lt.techin.eventify.model.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -31,14 +37,25 @@ public class EventService {
   private final UserRepository userRepository;
   private final EventMapper eventMapper;
 
-  public Event saveEvent(CreateEventRequest dto) throws IOException {
-    EventImage image = eventMapper.imageToEntity(dto);
+//  public Event saveEvent(CreateEventRequest createEventRequest) throws IOException {
+//    Event newEvent = eventMapper.toEvent(createEventRequest);
 
-    Event newEvent = eventMapper.toEvent(dto);
+  public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) throws IOException {
+    JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+    Map<String, Object> claims = jwtAuth.getTokenAttributes();
+    Long userId = (Long) claims.get("userId");
 
-    newEvent.setEventImage(image);
+      EventImage image = eventMapper.imageToEntity(createEventRequest);
 
-    return eventRepository.save(newEvent);
+    User organizer = userRepository.findById(userId).orElseThrow(() ->
+            new UsernameNotFoundException("User does not exist"));
+
+    Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("Category does not exist"));
+    Event event = eventMapper.toEvent(createEventRequest, category, organizer);
+    Event savedEvent = eventRepository.save(event);
+    savedEvent.setEventImage(image);
+
+    return eventMapper.toEventResponse(savedEvent);
   }
 
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
@@ -66,7 +83,6 @@ public class EventService {
   }
 
   public void deleteEvent(long eventId, Principal principal) {
-
     Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
 
@@ -100,7 +116,7 @@ public class EventService {
   }
 
   public EventResponse getEventById(long eventId) {
-    Event event = eventRepository.findById(eventId).orElseThrow(()-> new EventNotFoundException("Event with ID " + eventId + " not found"));
+    Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
     return eventMapper.toEventResponse(event);
   }
 

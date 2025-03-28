@@ -18,8 +18,8 @@ public record CreateEventRequest(
         @NotNull(message = "Category ID cannot be null")
         long categoryId,
 
-        @NotNull(message = "Organizer ID cannot be null")
-        long organizerId,
+//        @NotNull(message = "Organizer cannot be null")
+//        User organizer,
 
         @NotBlank(message = "Event name cannot be empty or null")
         @Size(min = 3, max = 100, message = "Event name must be between 3 and 100 characters")

@@ -2,7 +2,11 @@ package lt.techin.eventify.model;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "categories")
 public class Category {
@@ -18,32 +22,11 @@ public class Category {
   @JoinColumn(name = "icon_id")
   private CategoryIcon icon;
 
+    public Category() {
+    }
 
-  public Category() {
-  }
-
-  public CategoryIcon getIcon() {
-    return icon;
-  }
-
-  public void setIcon(CategoryIcon icon) {
-    this.icon = icon;
-  }
-
-  public Category(String name) {
-    this.name = name;
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
+    public Category(String name) {
+        this.name = name;
+    }
 
 }

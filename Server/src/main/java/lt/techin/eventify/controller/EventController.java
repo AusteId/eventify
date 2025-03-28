@@ -1,18 +1,9 @@
 package lt.techin.eventify.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
-import lt.techin.eventify.dto.user.AvatarResponseDTO;
-import lt.techin.eventify.dto.user.CreateUserRequest;
-import lt.techin.eventify.dto.user.UserResponse;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.service.EventService;
@@ -28,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,8 +28,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
-
 
 @RestController
 @RequestMapping("/api/events")
@@ -59,7 +49,7 @@ public class EventController {
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<EventResponse> addEvent(@Valid @ModelAttribute CreateEventRequest createEventRequest) {
+  public ResponseEntity<EventResponse> addEvent(@Valid @ModelAttribute CreateEventRequest createEventRequest, Authentication authentication) {
 
     MultipartFile picture = createEventRequest.picture();
     logger.info("Received MultipartFile: {}", picture);
@@ -73,13 +63,13 @@ public class EventController {
               picture.isEmpty());
     }
     try {
-      Event newEvent = eventService.saveEvent(createEventRequest);
+      EventResponse newEvent = eventService.saveEvent(createEventRequest, authentication);
       return ResponseEntity.created(
                       ServletUriComponentsBuilder.fromCurrentRequest()
                               .path("/{id}")
-                              .buildAndExpand(newEvent.getId())
+                              .buildAndExpand(newEvent.id())
                               .toUri())
-              .body(eventMapper.toEventResponse(newEvent));
+              .body(newEvent);
     } catch (
             IOException e) {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -87,19 +77,14 @@ public class EventController {
   }
 
   // For testing purposes only, to add a lot of events at once
-  // disable in production
-
-  @PostMapping("/all")
-  public ResponseEntity<?> addEvent(@Valid @RequestBody List<CreateEventRequest> createEventRequest) {
-    createEventRequest.forEach(item -> {
-      try {
-        eventService.saveEvent(item);
-      } catch (IOException e) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-      }
-    });
-    return ResponseEntity.ok().build();
-  }
+  // For testing validations
+  // www.mockaroo.com
+//  @PostMapping("/all")
+//  public ResponseEntity<?> addEvent(@Valid @RequestBody List<CreateEventRequest> createEventRequest) {
+//    createEventRequest.forEach(item -> eventService.saveEvent(eventMapper.toEvent(item)));
+//    ;
+//    return ResponseEntity.ok().build();
+//  }
 
   @GetMapping
   public ResponseEntity<List<GetEventResponse>> getAllEvents() {

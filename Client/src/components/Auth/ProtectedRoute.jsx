@@ -3,22 +3,25 @@ import { useAuth } from './AuthContext';
 import LoadingScreen from '../message/LoadingScreen';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { isAuthenticated,roles,loading} = useAuth();
+  const { isAuthenticated, roles, loading } = useAuth();
+  console.log('ROLES:', roles);
 
   if (loading) {
-    return <div><LoadingScreen/></div>
+    return (
+      <div>
+        <LoadingScreen />
+      </div>
+    );
   }
-
-  if (isAuthenticated) {
-    return <Navigate to="/" replace/>
-   }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-
-  if (!isAuthenticated && !roles.includes("USER","ADMIN")) {
+  const isAllowed = roles.some(role => {
+    return allowedRoles.includes(role.name);
+  });
+  if (!isAllowed) {
     return <Navigate to="/" replace />;
   }
 
