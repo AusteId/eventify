@@ -67,7 +67,7 @@ const EventCard = ({
 
   const wordArr = description?.split(" ")
   let shortDesc
-  if (wordArr.length > 10) {
+  if (wordArr?.length > 10) {
     const lastWord = wordArr[9]
     const cleanedLastWord = lastWord.endsWith(".") || lastWord.endsWith(",") ? lastWord.slice(0, -1) : lastWord
     wordArr[9] = cleanedLastWord

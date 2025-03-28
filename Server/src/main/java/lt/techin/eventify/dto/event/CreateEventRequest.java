@@ -15,9 +15,11 @@ import java.time.LocalDateTime;
 @ValidAgeRange
 public record CreateEventRequest(
 
+        @Positive
         @NotNull(message = "Category ID cannot be null")
         long categoryId,
 
+        @Positive
         @NotNull(message = "Organizer ID cannot be null")
         long organizerId,
 
