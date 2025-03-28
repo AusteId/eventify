@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { CiSearch, CiCircleRemove } from "react-icons/ci";
-import { FaArrowUp, FaArrowDown, FaChevronDown, FaCheck } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaChevronDown, FaCheck, FaUser, FaMapMarkerAlt, FaStar, FaList, FaCalendar } from "react-icons/fa";
 import { FaArrowUpAZ, FaArrowDownZA, FaArrowUp19, FaArrowDown91, FaSort } from "react-icons/fa6";
 import { RiFilter2Fill } from "react-icons/ri";
 import { IoCalendarOutline } from "react-icons/io5";
@@ -21,6 +21,8 @@ const EventSearch = ({ onSearch }) => {
     const filterDropdownRef = useRef(null);
     const dropdownRef = useRef(null);
     const categoryDropdownRef = useRef(null);
+    const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
+    const experienceDropdownRef = useRef(null);
 
     const categories = [
         { id: 1, name: "Sports" },
@@ -43,6 +45,7 @@ const EventSearch = ({ onSearch }) => {
         clearErrors,
         reset,
         setValue,
+        trigger,
     } = useForm({
         defaultValues: {
             categoryName: "",
@@ -53,11 +56,12 @@ const EventSearch = ({ onSearch }) => {
             minAge: "",
             maxAge: "",
         },
-    })
+        mode: "onChange",
+        reValidateMode: "onChange",
+    });
 
     const categoryName = watch("categoryName");
     const startDateTime = watch("startDateTime");
-    const endDateTime = watch("endDateTime");
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -106,6 +110,22 @@ const EventSearch = ({ onSearch }) => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isCategoryDropdownOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (experienceDropdownRef.current && !experienceDropdownRef.current.contains(event.target)) {
+                setIsExperienceDropdownOpen(false);
+            }
+        };
+
+        if (isExperienceDropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isExperienceDropdownOpen]);
 
     const handleSearchChange = (event) => {
         setSearchInput(event.target.value)
@@ -193,7 +213,7 @@ const EventSearch = ({ onSearch }) => {
             return;
         }
 
-        clearErrors(["endDateTime", "minAge"])
+        clearErrors(["endDateTime", "minAge", "maxAge"])
         onSearch({
             searchTerm: searchInput,
             filters: {
@@ -228,9 +248,9 @@ const EventSearch = ({ onSearch }) => {
             sortBy,
             sortDirection,
         })
+        setActiveDateFilter("");
     }
 
-    // Greiti datos pasirinkimai
     const setDateFilter = (option) => {
 
         if (activeDateFilter === option) {
@@ -246,13 +266,11 @@ const EventSearch = ({ onSearch }) => {
 
         switch (option) {
             case "today":
-                // Šiandien - palikti tik šios dienos datą
                 startDate = new Date(today.setHours(0, 0, 0, 0));
                 endDate = new Date(today);
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case "tomorrow":
-                // Rytoj
                 startDate = new Date(today);
                 startDate.setDate(today.getDate() + 1);
                 startDate.setHours(0, 0, 0, 0);
@@ -260,7 +278,6 @@ const EventSearch = ({ onSearch }) => {
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case "thisWeek":
-                // Šią savaitę
                 const dayOfWeek = today.getDay(); // 0 = sekmadienis, 6 = šeštadienis
                 const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Pirmadienį padaryti savaitės pradžia
                 startDate = new Date(today.setDate(diff));
@@ -270,7 +287,6 @@ const EventSearch = ({ onSearch }) => {
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case "thisWeekend":
-                // Savaitgalį
                 const daysUntilSaturday = (6 - today.getDay()) % 7;
                 startDate = new Date(today);
                 startDate.setDate(today.getDate() + daysUntilSaturday);
@@ -280,7 +296,6 @@ const EventSearch = ({ onSearch }) => {
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case "nextWeek":
-                // Kitą savaitę
                 const nextMonday = today.getDate() + ((7 - today.getDay() + 1) % 7) + (today.getDay() === 1 ? 7 : 0);
                 startDate = new Date(today.setDate(nextMonday));
                 startDate.setHours(0, 0, 0, 0);
@@ -431,7 +446,6 @@ const EventSearch = ({ onSearch }) => {
                         )}
                     </div>
 
-                    {/* Filter mygtukas */}
                     <div className="relative" ref={filterDropdownRef}>
                         <button
                             onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
@@ -440,12 +454,14 @@ const EventSearch = ({ onSearch }) => {
                             <RiFilter2Fill className="text-btn" /> Filter <FaChevronDown className="text-btn" />
                         </button>
 
-                        {/* Filtravimo dropdown */}
                         {isFilterDropdownOpen && (
                             <div className="filter-dropdown absolute right-0 top-full mt-2 w-72 bg-white shadow-lg rounded-lg z-20">
                                 <div className="p-4 flex flex-col gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium text-body-medium">Category</label>
+                                        <div className="flex items-center gap-2">
+                                            <FaList className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">Category</label>
+                                        </div>
 
                                         <div className="relative" ref={categoryDropdownRef}>
                                             <button
@@ -507,7 +523,10 @@ const EventSearch = ({ onSearch }) => {
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium text-body-medium">Date Range</label>
+                                        <div className="flex items-center gap-2">
+                                            <FaCalendar className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">Date Range</label>
+                                        </div>
                                         <div className="flex flex-wrap gap-2 mb-2">
                                             <button
                                                 type="button"
@@ -559,6 +578,8 @@ const EventSearch = ({ onSearch }) => {
                                             <input
                                                 type="date"
                                                 {...register("startDateTime")}
+                                                lang="lt"
+                                                placeholder="yyyy-mm-dd"
                                                 className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
                                             />
                                         </div>
@@ -572,6 +593,7 @@ const EventSearch = ({ onSearch }) => {
                                                 type="date"
                                                 {...register("endDateTime")}
                                                 lang="lt"
+                                                placeholder="yyyy-mm-dd"
                                                 disabled={!startDateTime}
                                                 className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
                                             />
@@ -580,35 +602,60 @@ const EventSearch = ({ onSearch }) => {
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium text-body-medium">Age Range</label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="number"
-                                                {...register("minAge", {
-                                                    valueAsNumber: true,
-                                                    min: { value: 0, message: "Minimum age must be 0 or greater" },
-                                                    max: { value: 120, message: "Maximum age cannot be more than 120" },
-                                                })}
-                                                placeholder="From"
-                                                className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
-                                            />
-                                            <input
-                                                type="number"
-                                                {...register("maxAge", {
-                                                    valueAsNumber: true,
-                                                    min: { value: 0, message: "Maximum age must be 0 or greater" },
-                                                    max: { value: 120, message: "Maximum age cannot be more than 120" },
-                                                })}
-                                                placeholder="To"
-                                                className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
-                                            />
+                                        <div className="flex items-center gap-2">
+                                            <FaUser className="text-btn" />
+                                            <span className="text-sm font-medium text-body-medium">Age Range</span>
                                         </div>
-                                        {errors.minAge && <p className="text-red-500 text-xs">{errors.minAge.message}</p>}
-                                        {errors.maxAge && <p className="text-red-500 text-xs">{errors.maxAge.message}</p>}
+                                        <div className="flex gap-2">
+                                            <div className="flex flex-col gap-2 w-full">
+                                                <input
+                                                    type="number"
+                                                    {...register("minAge", {
+                                                        onChange: () => {
+                                                            trigger("minAge");
+                                                            trigger("maxAge");
+                                                        },
+                                                        validate: (value) => {
+                                                            if (value && Number.parseInt(value) < 0) {
+                                                                return "Minimum age cannot be negative";
+                                                            }
+                                                            return true;
+                                                        },
+                                                        valueAsNumber: true,
+                                                    })}
+                                                    placeholder="From"
+                                                    className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                                                />
+                                                {errors.minAge && <p className="text-red-500 text-xs">{errors.minAge.message}</p>}
+                                            </div>
+                                            <div className="flex flex-col gap-2 w-full">
+                                                <input
+                                                    type="number"
+                                                    {...register("maxAge", {
+                                                        onChange: () => {
+                                                            trigger("minAge");
+                                                            trigger("maxAge");
+                                                        },
+                                                        validate: (value) => {
+                                                            if (value && Number.parseInt(value) < 0) {
+                                                                return "Maximum age cannot be negative";
+                                                            }
+                                                            return true;
+                                                        },
+                                                    })}
+                                                    placeholder="To"
+                                                    className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                                                />
+                                                {errors.maxAge && <p className="text-red-500 text-xs">{errors.maxAge.message}</p>}
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium text-body-medium">City</label>
+                                        <div className="flex items-center gap-2">
+                                            <FaMapMarkerAlt className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">City</label>
+                                        </div>
                                         <input
                                             {...register("city", {
                                                 pattern: {
@@ -624,18 +671,59 @@ const EventSearch = ({ onSearch }) => {
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium text-body-medium">Experience Level</label>
-                                        <select
-                                            {...register("experienceLevel")}
-                                            className="select select-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
-                                        >
-                                            <option value="">Any Level</option>
-                                            <option value="Beginner">Beginner</option>
-                                            <option value="Intermediate">Intermediate</option>
-                                            <option value="Advanced">Advanced</option>
-                                            <option value="Extreme">Extreme</option>
-                                            <option value="All Welcome">All Welcome</option>
-                                        </select>
+                                        <div className="flex items-center gap-2">
+                                            <FaStar className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">Experience Level</label>
+                                        </div>
+                                        <div className="relative" ref={experienceDropdownRef}>
+                                            <button
+                                                onClick={() => setIsExperienceDropdownOpen(!isExperienceDropdownOpen)}
+                                                className={`bg-[#FFFFFF] text-body-medium rounded-lg border border-input-light flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 w-full justify-between ${watch("experienceLevel") ? "text-black" : "text-gray-400"
+                                                    }`}
+                                                aria-expanded={isExperienceDropdownOpen}
+                                                aria-controls="experience-dropdown"
+                                            >
+                                                <span>{watch("experienceLevel") || "Any Level"}</span>
+                                                <FaChevronDown className="text-btn" />
+                                            </button>
+
+                                            {isExperienceDropdownOpen && (
+                                                <div
+                                                    id="experience-dropdown"
+                                                    className="absolute left-0 top-full mt-2 w-full bg-white shadow-md rounded-lg z-10 font-inter text-body-medium"
+                                                >
+                                                    <div className="flex flex-col gap-1 p-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                setValue("experienceLevel", "");
+                                                                setIsExperienceDropdownOpen(false);
+                                                            }}
+                                                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                                        >
+                                                            <div className="flex items-center gap-3 text-sm">
+                                                                <span>Any Level</span>
+                                                            </div>
+                                                            {!watch("experienceLevel") && <FaCheck className="text-btn" />}
+                                                        </button>
+                                                        {["Beginner", "Intermediate", "Advanced", "Extreme", "All Welcome"].map((level) => (
+                                                            <button
+                                                                key={level}
+                                                                onClick={() => {
+                                                                    setValue("experienceLevel", level);
+                                                                    setIsExperienceDropdownOpen(false);
+                                                                }}
+                                                                className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                                            >
+                                                                <div className="flex items-center gap-3 text-sm">
+                                                                    <span>{level}</span>
+                                                                </div>
+                                                                {watch("experienceLevel") === level && <FaCheck className="text-btn" />}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="flex gap-2 mt-2">

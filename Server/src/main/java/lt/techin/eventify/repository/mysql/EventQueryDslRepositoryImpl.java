@@ -52,7 +52,7 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
     }
 
     if (city != null && !city.isEmpty()) {
-      builder.and(event.city.eq(city));
+      builder.and(event.city.containsIgnoreCase(city));
     }
 
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
