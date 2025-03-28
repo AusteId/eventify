@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @RestController
@@ -42,9 +43,14 @@ public class EventCommentController {
             return ResponseEntity.notFound().build();
         }
 
+        List<EventComment> comments = event.getComments();
+
+        comments.sort(Comparator.comparing(EventComment::getCreatedAt).reversed());
+
         List<EventCommentResponse> responses = new ArrayList<>();
 
-        for (EventComment eventComment : event.getComments()) {
+
+        for (EventComment eventComment : comments) {
             responses.add(EventCommentMapper.toResponse(eventComment));
         }
 

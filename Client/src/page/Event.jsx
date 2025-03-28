@@ -7,11 +7,14 @@ import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import ParticipantsSection from '../components/event/ParticipantsSection';
 import EditIcon from '../assets/editIcon.svg?react';
+import axios from 'axios';
+import { useAuth } from '../components/Auth/AuthContext';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
+  const { userId } = useAuth();
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -101,7 +104,10 @@ const Event = () => {
                 <p className="text-body-medium">{event.description}</p>
               </div>
 
-              <CommentSection />
+              <CommentSection
+                contextid={userId}
+                endpoint={'/events/' + event.id + '/comments'}
+              />
             </div>
           </div>
           <div className="flex flex-col gap-4">
