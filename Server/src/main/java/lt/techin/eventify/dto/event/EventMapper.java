@@ -31,11 +31,12 @@ public class EventMapper {
   private final CategoryMapper categoryMapper;
   private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
+  private final RegistrationToEventMapper registrationToEventMapper;
 
   public EventResponse toEventResponse(Event event) {
 
     List<RegistrationToEventResponse> registrations = event.getRegistrations().stream()
-            .map(RegistrationToEventMapper::toEventRegistrationResponse)
+            .map(registrationToEventMapper::toEventRegistrationResponse)
             .collect(Collectors.toList());
 
     return new EventResponse(

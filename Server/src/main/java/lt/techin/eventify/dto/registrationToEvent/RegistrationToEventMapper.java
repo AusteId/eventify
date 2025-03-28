@@ -5,12 +5,10 @@ import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.model.User;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
 public class RegistrationToEventMapper {
 
-//    public RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registration, UserJoinToEvent userJoinToEvent, JoinEventResponse joinEventResponse) {
+  //    public RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registration, UserJoinToEvent userJoinToEvent, JoinEventResponse joinEventResponse) {
 //        return new RegistrationToEventResponse(
 //                registration.getId(),
 //                new UserJoinToEvent(userJoinToEvent.userId(), userJoinToEvent.userAvatar(), userJoinToEvent.userName()),
@@ -18,40 +16,39 @@ public class RegistrationToEventMapper {
 //                registration.getRegisteredAt()
 //        );
 //    }
-    public static RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registration) {
+  public RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registrationToEvent) {
 
-        User user = registration.getUser();
-        UserJoinToEvent userJoinToEvent = new UserJoinToEvent(
-                user.getId(),
-                user.getAvatar(),
-                user.getUsername()
-        );
+    User user = registrationToEvent.getUser();
+    UserJoinToEvent userJoinToEvent = new UserJoinToEvent(
+            user.getId(),
+            user.getAvatar(),
+            user.getUsername()
+    );
+
+    Event event = registrationToEvent.getEvent();
+    JoinEventResponse joinEventResponse = new JoinEventResponse(
+            event.getCategory(),
+            new OrganizerResponse(event.getOrganizer().getId(), event.getOrganizer().getUsername(), event.getOrganizer().getAvatar()),
+            event.getName(),
+            event.getStartDateTime(),
+            event.getEndDateTime(),
+            event.getCreatedAt(),
+            event.getDescription(),
+            event.getMinAge(),
+            event.getMaxAge(),
+            event.getExperienceLevel(),
+            event.getMaxParticipants(),
+            event.getCity(),
+            event.getAddress(),
+            event.getPhotoPath()
+    );
 
 
-        Event event = registration.getEvent();
-        JoinEventResponse joinEventResponse = new JoinEventResponse(
-                event.getCategory(),
-                new OrganizerResponse(event.getOrganizer().getId(), event.getOrganizer().getUsername(), event.getOrganizer().getAvatar()),
-                event.getName(),
-                event.getStartDateTime(),
-                event.getEndDateTime(),
-                event.getCreatedAt(),
-                event.getDescription(),
-                event.getMinAge(),
-                event.getMaxAge(),
-                event.getExperienceLevel(),
-                event.getMaxParticipants(),
-                event.getCity(),
-                event.getAddress(),
-                event.getPhotoPath()
-        );
-
-
-        return new RegistrationToEventResponse(
-                registration.getId(),
-                userJoinToEvent,
-                joinEventResponse,
-                registration.getRegisteredAt()
-        );
-    }
+    return new RegistrationToEventResponse(
+            registrationToEvent.getId(),
+            userJoinToEvent,
+            joinEventResponse,
+            registrationToEvent.getRegisteredAt()
+    );
+  }
 }
