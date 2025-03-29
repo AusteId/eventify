@@ -145,15 +145,10 @@ public class EventController {
 
   @PostMapping("/{eventId}/register")
   public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal) {
-
-
     RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
-
-
     RegistrationToEventResponse registrationToEventResponse = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
-
+    
     return ResponseEntity.status(HttpStatus.CREATED).body(registrationToEventResponse);
-
   }
 
   @DeleteMapping("/{eventId}/register")

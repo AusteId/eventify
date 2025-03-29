@@ -5,8 +5,6 @@ import musicIcon from '../assets/music-category.svg';
 import WorkshopIcon from '../assets/workshop-category.svg';
 import SportsIcon from '../assets/sports-category.svg';
 import CategoryButton from '../components/CategoryButton';
-import BasicModal from '../components/BasicModal';
-import CreateEventForm from '../components/CreateEventForm';
 import EventCarousel from '../components/EventCarousel';
 import { useAuth } from '../components/Auth/AuthContext';
 import { useNavigate } from 'react-router';
