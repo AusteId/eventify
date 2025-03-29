@@ -9,7 +9,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   return (
-    <div className="relative h-[calc(100vh-72px)] w-full">
+    <div className="relative min-h-175 h-[calc(100vh-72px)] w-full">
       <section
         className="absolute w-full h-full bg-cover bg-bottom"
         style={{ backgroundImage: `url(${heroBanner})` }}
