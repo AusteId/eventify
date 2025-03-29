@@ -21,34 +21,33 @@ const EventCard = ({
   description,
   startDateTime,
   endDateTime,
-  city = "Location not provided",
+  city = 'Location not provided',
   isEnded,
   minAge,
   maxAge,
 }) => {
-  const navigate = useNavigate()
-  const normalizedExpLevel = experienceLevel ? experienceLevel : "All Welcome"
-  const [imageData, setImageData] = useState(null)
-  const [isImageLoading, setIsImageLoading] = useState(true)
+  const navigate = useNavigate();
+  const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
+  const [imageData, setImageData] = useState(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect(() => {
     const fetchImage = async () => {
       if (!id) {
-        setImageData("./src/assets/eventCardImgSample.png")
-        setIsImageLoading(false)
-        return
+        setImageData('./src/assets/eventCardImgSample.png');
+        setIsImageLoading(false);
+        return;
       }
       try {
-        setIsImageLoading(true)
-        const url = `${import.meta.env.VITE_BACK_URL}/api/events/${id}/picture`
-        console.log("Fetching from:", url)
+        setIsImageLoading(true);
+        const url = `${import.meta.env.VITE_BACK_URL}/api/events/${id}/picture`;
         const response = await axios.get(url, {
-          responseType: "blob",
-        })
-        console.log("API Response:", response.data)
-        const image = URL.createObjectURL(response.data)
-        console.log("API Response:", image)
-        setImageData(image)
+          responseType: 'blob',
+        });
+        console.log('API Response:', response.data);
+        const image = URL.createObjectURL(response.data);
+        console.log('API Response:', image);
+        setImageData(image);
       } catch (error) {
         console.error('Error fetching data:', error);
         console.log(
@@ -83,13 +82,13 @@ const EventCard = ({
     wordArr[9] = cleanedLastWord;
     shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
   } else {
-    wordArr?.join(" ")
+    wordArr?.join(' ');
   }
 
   const timeString =
     startDateTime && endDateTime
       ? `${convertToCompactEuDatetime(startDateTime)} - ${formatToOnlyTime(endDateTime)}`
-      : "N/A"
+      : 'N/A';
 
   const ageString =
     minAge !== null && maxAge !== null
@@ -98,11 +97,11 @@ const EventCard = ({
         ? `Min age: ${minAge}`
         : maxAge !== null
           ? `Max age: ${maxAge}`
-          : "All Welcome!"
+          : 'All Welcome!';
 
   return (
     <div
-      className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] ${isEnded && "grayscale-100"}`}
+      className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <a
@@ -120,7 +119,7 @@ const EventCard = ({
             )}
             {experienceLevel != 0 && (
               <div
-                className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ""} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
+                className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
               >
                 <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
               </div>
@@ -132,12 +131,12 @@ const EventCard = ({
               </div>
             ) : (
               <img
-                src={imageData || "./src/assets/eventCardImgSample.png"}
+                src={imageData || './src/assets/eventCardImgSample.png'}
                 alt="event photo"
                 className="rounded-t-[0.5rem] h-44 w-full object-cover"
                 onError={() => {
-                  console.log("Image failed to load, using fallback")
-                  setImageData("./src/assets/eventCardImgSample.png")
+                  console.log('Image failed to load, using fallback');
+                  setImageData('./src/assets/eventCardImgSample.png');
                 }}
               />
             )}

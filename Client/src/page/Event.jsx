@@ -11,6 +11,7 @@ import Modal from '../components/event/Modal';
 import CreateEventForm from '../components/CreateEventForm';
 import { useAuth } from '../components/Auth/AuthContext';
 import { prettifyDateTime } from '../utils/dateFunctions';
+import getEventImage from '../helpers/event/getEventImage';
 
 // const participants = [
 //   {
@@ -47,7 +48,9 @@ const Event = () => {
   useEffect(() => {
     const fetchdata = async () => {
       const data = await getEvent(params.id);
-      setEvent(data);
+      const pictureResponse = await getEventImage(params.id);
+
+      setEvent({ ...data, picture: URL.createObjectURL(pictureResponse) });
     };
     fetchdata();
   }, []);
@@ -68,6 +71,7 @@ const Event = () => {
       <div
         className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
+        <img src={event.picture} className="max-w-full h-auto" />
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
           <div className="flex flex-col gap-5">
             <h1
