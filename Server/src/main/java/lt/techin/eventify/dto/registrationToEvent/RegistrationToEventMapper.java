@@ -5,6 +5,8 @@ import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.model.User;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class RegistrationToEventMapper {
 
@@ -17,7 +19,6 @@ public class RegistrationToEventMapper {
 //        );
 //    }
   public RegistrationToEventResponse toEventRegistrationResponse(RegistrationToEvent registrationToEvent) {
-
     User user = registrationToEvent.getUser();
     UserJoinToEvent userJoinToEvent = new UserJoinToEvent(
             user.getId(),
@@ -51,4 +52,19 @@ public class RegistrationToEventMapper {
             registrationToEvent.getRegisteredAt()
     );
   }
+
+  public UserRegisteredToEventResponse toUserRegisteredToEvent(RegistrationToEvent registrationToEvent) {
+    UserJoinToEvent userJoinToEvent = new UserJoinToEvent(
+            registrationToEvent.getUser().getId(),
+            registrationToEvent.getUser().getAvatar(),
+            registrationToEvent.getUser().getUsername()
+    );
+
+    return new UserRegisteredToEventResponse(
+            registrationToEvent.getId(),
+            userJoinToEvent,
+            registrationToEvent.getRegisteredAt()
+    );
+  }
+
 }

@@ -2,6 +2,7 @@ package lt.techin.eventify.dto.event;
 
 import lt.techin.eventify.dto.category.CategoryResponse;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
+import lt.techin.eventify.dto.registrationToEvent.UserRegisteredToEventResponse;
 import lt.techin.eventify.dto.user.UserResponse;
 
 import java.time.LocalDateTime;
@@ -9,8 +10,6 @@ import java.util.List;
 
 public record EventResponse(
         long id,
-        CategoryResponse category,
-        UserResponse organizer,
         String name,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
@@ -23,7 +22,8 @@ public record EventResponse(
         String city,
         String address,
         String photoPath,
-        List<RegistrationToEventResponse> registrations
-
+        CategoryResponse category,
+        UserResponse organizer,
+        List<UserRegisteredToEventResponse> registrations
 ) {
 }

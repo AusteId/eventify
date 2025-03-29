@@ -1,10 +1,10 @@
 import { useForm } from 'react-hook-form';
 import FieldValidationError from './FieldValidationError';
-import FileDropzone from './FileDropzone';
 import createEvent from '../helpers/event/createEvent';
 import { useEffect, useState } from 'react';
 import getCategories from '../helpers/event/getCategories';
 import { LoaderIcon } from 'react-hot-toast';
+import ImageDropzone from './Registration/ImageDropZone';
 
 const CreateEventForm = () => {
   const {
@@ -12,10 +12,12 @@ const CreateEventForm = () => {
     handleSubmit,
     reset,
     clearErrors,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      image: null,
+      picture: null,
       name: 'qwe',
       city: 'asd',
       address: 'zxc',
@@ -29,7 +31,7 @@ const CreateEventForm = () => {
       experienceLevel: 'Beginner',
     },
     // defaultValues: {
-    //   image: null,
+    //   picture: null,
     //   name: '',
     //   city: '',
     //   address: '',
@@ -46,6 +48,7 @@ const CreateEventForm = () => {
 
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const picture = watch('picture');
 
   const onSubmit = async data => {
     try {
@@ -55,6 +58,7 @@ const CreateEventForm = () => {
         categoryId: data.category,
       });
       console.log('RESPONSE: ', response);
+      closeModal();
     } catch (error) {
       console.error('Event creation failed: ', error);
     }
@@ -65,6 +69,10 @@ const CreateEventForm = () => {
     clearErrors();
     document.getElementById('event_creation_modal').close();
   };
+
+  // const handleFileChange = file => {
+  //   setValue('picture', file);
+  // };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -99,7 +107,13 @@ const CreateEventForm = () => {
         >
           Event Image
         </label>
-        <FileDropzone id="filedrop" />
+        <ImageDropzone
+          onFileChange={file => setValue('picture', file)}
+          initialPreview={picture ? URL.createObjectURL(picture) : null}
+          fieldName="profilePicture"
+          acceptedTypes={['image/jpeg', 'image/png']}
+          maxSize={5 * 1024 * 1024}
+        />
       </div>
       <div className="flex mt-6 gap-6">
         <div className="w-full">

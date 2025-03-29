@@ -10,31 +10,39 @@ import EditIcon from '../assets/editIcon.svg?react';
 import Modal from '../components/event/Modal';
 import CreateEventForm from '../components/CreateEventForm';
 import { useAuth } from '../components/Auth/AuthContext';
+import { prettifyDateTime } from '../utils/dateFunctions';
 
-const participants = [
-  {
-    name: 'Kestas Bombonis',
-    rating: 4.3,
-  },
-  {
-    name: 'Tomas Kurtauskas',
-    rating: 2.8,
-  },
-  {
-    name: 'Marius Maironis',
-    rating: 3.5,
-  },
-  {
-    name: 'Jonas Petronis',
-    rating: 1.2,
-  },
-];
+// const participants = [
+//   {
+//     name: 'Kestas Bombonis',
+//     rating: 4.3,
+//   },
+//   {
+//     name: 'Tomas Kurtauskas',
+//     rating: 2.8,
+//   },
+//   {
+//     name: 'Marius Maironis',
+//     rating: 3.5,
+//   },
+//   {
+//     name: 'Jonas Petronis',
+//     rating: 1.2,
+//   },
+// ];
 
 const Event = () => {
   const [loading] = useState(true);
   const [event, setEvent] = useState();
   const params = useParams();
   const { userId } = useAuth();
+  const participants = event?.registrations.map(registration => {
+    return {
+      username: registration.userJoinToEvent.userName,
+      avatar: `data:image/png;base64,${registration.userJoinToEvent.userAvatar.data}`,
+    };
+  });
+  const organizer = { username: event?.organizer.username };
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -48,11 +56,12 @@ const Event = () => {
     return <p>LOADING</p>;
   }
 
-  console.log(event);
-
   const handleEdit = () => {
     document.getElementById('event_creation_modal').showModal();
   };
+
+  console.log(event);
+  console.log('EVENT DESCRIPTION: ', event.description ? 'TRUE' : 'FALSE');
 
   return (
     <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
@@ -66,10 +75,10 @@ const Event = () => {
             >
               {event.name}
             </h1>
-            <div className="flex flex-col tablet:flex-row gap-2 tablet:items-center text-body-m text-body-medium">
+            <div className="flex flex-col tablet:flex-row gap-5 tablet:items-center text-body-m text-body-medium">
               <div className="flex items-center gap-2">
                 <CalendarIcon />
-                <p>{event.startDateTime}</p>
+                <p>{prettifyDateTime(event.startDateTime)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <MarkIcon />
@@ -137,21 +146,25 @@ const Event = () => {
             </div>
           )}
 
-          <div className="tablet:hidden flex flex-col gap-4 tablet:gap-8">
-            <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
-              About the Event
-            </h2>
-            <p className="text-body-medium">{event.description}</p>
-          </div>
+          {event.description && (
+            <div className="tablet:hidden flex flex-col gap-4 tablet:gap-8">
+              <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
+                About the Event
+              </h2>
+              <p className="text-body-medium">{event.description}</p>
+            </div>
+          )}
 
           <div className="order-2 tablet:order-none col-span-2">
             <div className="flex flex-col gap-8">
-              <div className="hidden tablet:flex flex-col gap-4 tablet:gap-8">
-                <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
-                  About the Event
-                </h2>
-                <p className="text-body-medium">{event.description}</p>
-              </div>
+              {event.description && (
+                <div className="hidden tablet:flex flex-col gap-4 tablet:gap-8">
+                  <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
+                    About the Event
+                  </h2>
+                  <p className="text-body-medium">{event.description}</p>
+                </div>
+              )}
 
               <CommentSection
                 contextId={userId}
@@ -160,7 +173,10 @@ const Event = () => {
             </div>
           </div>
           <div className="order-1 tablet:order-none flex flex-col gap-4">
-            <ParticipantsSection participants={participants} />
+            <ParticipantsSection
+              organizer={organizer}
+              participants={participants}
+            />
             <div className="hidden tablet:flex justify-center px-6">
               <Button onClick={handleEdit}>{<EditIcon />} Manage event</Button>
             </div>

@@ -45,15 +45,15 @@ public class EventService {
     Map<String, Object> claims = jwtAuth.getTokenAttributes();
     Long userId = (Long) claims.get("userId");
 
-      EventImage image = eventMapper.imageToEntity(createEventRequest);
+    EventImage image = eventMapper.imageToEntity(createEventRequest);
 
     User organizer = userRepository.findById(userId).orElseThrow(() ->
             new UsernameNotFoundException("User does not exist"));
 
     Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("Category does not exist"));
     Event event = eventMapper.toEvent(createEventRequest, category, organizer);
+    event.setEventImage(image);
     Event savedEvent = eventRepository.save(event);
-    savedEvent.setEventImage(image);
 
     return eventMapper.toEventResponse(savedEvent);
   }
@@ -155,8 +155,8 @@ public class EventService {
     return eventRepository.findById(id).orElse(null);
   }
 
-  public EventPictureResponse getEventPicture (long eventId) {
-    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId+ " (id)")).getEventImage();
+  public EventPictureResponse getEventPicture(long eventId) {
+    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId + " (id)")).getEventImage();
     return new EventPictureResponse(
             eventImage.getData(),
             eventImage.getContentType()
