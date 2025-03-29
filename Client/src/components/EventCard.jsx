@@ -41,13 +41,10 @@ const EventCard = ({
       try {
         setIsImageLoading(true)
         const url = `${import.meta.env.VITE_BACK_URL}/api/events/${id}/picture`
-        console.log("Fetching from:", url)
         const response = await axios.get(url, {
           responseType: "blob",
         })
-        console.log("API Response:", response.data)
         const image = URL.createObjectURL(response.data)
-        console.log("API Response:", image)
         setImageData(image)
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -83,7 +80,7 @@ const EventCard = ({
     wordArr[9] = cleanedLastWord;
     shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
   } else {
-    wordArr?.join(" ")
+    shortDesc = wordArr?.join(" ") || "No description available"
   }
 
   const timeString =
@@ -102,7 +99,7 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] ${isEnded && "grayscale-100"}`}
+      className={`flex mt-0.5 mb-6 flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && "grayscale-100"}`}
     >
       <div>
         <a
@@ -118,7 +115,7 @@ const EventCard = ({
                 </p>
               </div>
             )}
-            {experienceLevel != 0 && (
+            {experienceLevel !== 0 && (
               <div
                 className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ""} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
               >
@@ -150,7 +147,7 @@ const EventCard = ({
           <h2 className="text-heading-xs font-[600] leading-[1.125rem] whitespace-nowrap overflow-hidden text-ellipsis">
             {name}
           </h2>
-          {description && <p className="h-12">{shortDesc}</p>}
+          <p className="h-12">{shortDesc}</p>
           <div className="flex flex-col gap-1">
             {startDateTime ? (
               <figure className="flex gap-2">

@@ -10,6 +10,7 @@ import CreateEventForm from '../components/CreateEventForm';
 import EventCarousel from '../components/EventCarousel';
 import { useAuth } from '../components/Auth/AuthContext';
 import { useNavigate } from 'react-router';
+import ScrollChevron from '../components/ScrollChevron';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -56,9 +57,10 @@ const Home = () => {
             </div>
           </div>
         </section>
+        <ScrollChevron />
       </div>
 
-      <div className="flex flex-col items-center justify-between py-16 px-20 gap-y-12 w-full bg-white">
+      <div id="categories-section" className="flex flex-col items-center justify-between py-16 px-20 gap-y-12 w-full bg-white">
         <h1 className="text-heading-l text-black font-[700] flex flex-col ">
           Explore Events By Category
         </h1>
