@@ -42,7 +42,6 @@ export default function EventCarousel() {
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data: ', error);
-        setData(staticEventLoader());
       } finally {
         setLoading(false);
       }
@@ -50,7 +49,7 @@ export default function EventCarousel() {
 
     fetchData();
   }, []);
-  
+
   // cutting slicing the fetched data,
   const currentEvents = useMemo(() => {
     const events = Array.isArray(data) ? data : [];
@@ -66,7 +65,6 @@ export default function EventCarousel() {
   // settings of carousel. more:
   // https://react-slick.neostack.com/docs/api
 
-  // FIXME: scrolls too fast back to beginning, might need to tweak index.css file
   var settings = useMemo(
     () => ({
       dots: true,
@@ -122,21 +120,25 @@ export default function EventCarousel() {
   }
 
   return (
-    <div className="w-full mx-auto overflow-hidden mb-26 relative z-20">
-      <CarouselButton
-        onPrevClick={() => slider?.slickPrev()}
-        onNextClick={() => slider?.slickNext()}
-      />
+    <div className="w-full mx-auto overflow-hidden pb-26 relative z-20">
       {currentEvents.length > 0 ? (
-        <Slider {...settings} ref={slider => setSlider(slider)}>
-          {currentEvents.map(event => (
-            <div key={event.id} className="px-2 flex justify-center">
-              <EventCard {...event} />
-            </div>
-          ))}
-        </Slider>
+        <>
+          <div className='hidden tablet:block'>
+            <CarouselButton
+              onPrevClick={() => slider?.slickPrev()}
+              onNextClick={() => slider?.slickNext()}
+            />
+          </div>
+          <Slider {...settings} ref={slider => setSlider(slider)}>
+            {currentEvents.map(event => (
+              <div key={event.id} className="px-2 flex justify-center">
+                <EventCard {...event} />
+              </div>
+            ))}
+          </Slider>
+        </>
       ) : (
-        <div className="text-center py-4">No events available.</div>
+        <div className="text-center py-4 mt-8 font-[600] text-heading-s">No events available.</div>
       )}
     </div>
   );
