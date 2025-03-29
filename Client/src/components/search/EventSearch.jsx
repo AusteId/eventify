@@ -73,13 +73,6 @@ const EventSearch = ({ onSearch }) => {
         }
     }, [startDateTime, isToDateManuallyEdited, isSettingDateFilter, setValue, trigger]);
 
-//     useEffect(() => {
-//         if (startDateTime && !endDateTime && !isToDateManuallyEdited && !isSettingDateFilter) {
-//             setValue("endDateTime", startDateTime);
-//             trigger("endDateTime");
-//         }
-//     }, [startDateTime, endDateTime, isToDateManuallyEdited, isSettingDateFilter, setValue, trigger]);
-
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -210,17 +203,6 @@ const EventSearch = ({ onSearch }) => {
     }
 
     const onSubmit = (data) => {
-        // if (data.startDateTime && data.endDateTime) {
-        //     const start = new Date(data.startDateTime);
-        //     const end = new Date(data.endDateTime);
-        //     if (end < start) {
-        //         setError("endDateTime", {
-        //             type: "manual",
-        //             message: "End date must be after start date",
-        //         });
-        //         return;
-        //     }
-        // }
 
         if (data.minAge !== "" && data.maxAge !== "" && Number.parseInt(data.minAge) > Number.parseInt(data.maxAge)) {
             setError("minAge", {
@@ -284,49 +266,6 @@ const EventSearch = ({ onSearch }) => {
         let startDate = new Date(today);
         let endDate = new Date(today);
 
-        // switch (option) {
-        //     case "today":
-        //         startDate = new Date(today.setHours(0, 0, 0, 0));
-        //         endDate = new Date(today);
-        //         endDate.setHours(23, 59, 59, 999);
-        //         break;
-        //     case "tomorrow":
-        //         startDate = new Date(today);
-        //         startDate.setDate(today.getDate() + 1);
-        //         startDate.setHours(0, 0, 0, 0);
-        //         endDate = new Date(startDate);
-        //         endDate.setHours(23, 59, 59, 999);
-        //         break;
-        //     case "thisWeek":
-        //         const dayOfWeek = today.getDay(); // 0 = sekmadienis, 6 = šeštadienis
-        //         const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Pirmadienį padaryti savaitės pradžia
-        //         startDate = new Date(today.setDate(diff));
-        //         startDate.setHours(0, 0, 0, 0);
-        //         endDate = new Date(startDate);
-        //         endDate.setDate(startDate.getDate() + 6);
-        //         endDate.setHours(23, 59, 59, 999);
-        //         break;
-        //     case "thisWeekend":
-        //         const daysUntilSaturday = (6 - today.getDay()) % 7;
-        //         startDate = new Date(today);
-        //         startDate.setDate(today.getDate() + daysUntilSaturday);
-        //         startDate.setHours(0, 0, 0, 0);
-        //         endDate = new Date(startDate);
-        //         endDate.setDate(startDate.getDate() + 1);
-        //         endDate.setHours(23, 59, 59, 999);
-        //         break;
-        //     case "nextWeek":
-        //         const nextMonday = today.getDate() + ((7 - today.getDay() + 1) % 7) + (today.getDay() === 1 ? 7 : 0);
-        //         startDate = new Date(today.setDate(nextMonday));
-        //         startDate.setHours(0, 0, 0, 0);
-        //         endDate = new Date(startDate);
-        //         endDate.setDate(startDate.getDate() + 6);
-        //         endDate.setHours(23, 59, 59, 999);
-        //         break;
-        //     default:
-        //         return;
-        // }
-
         switch (option) {
             case "today":
                 startDate.setHours(0, 0, 0, 0);
@@ -339,15 +278,13 @@ const EventSearch = ({ onSearch }) => {
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case "thisWeek":
-                // Nuo dabartinės dienos iki savaitės pabaigos (sekmadienio)
                 startDate.setHours(0, 0, 0, 0);
                 endDate = new Date(today);
-                const daysToSunday = (7 - today.getDay()) % 7; // Dienos iki sekmadienio
+                const daysToSunday = (7 - today.getDay()) % 7;
                 endDate.setDate(today.getDate() + daysToSunday);
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case "thisWeekend":
-                // Šeštadienis ir sekmadienis
                 const daysToSaturday = (6 - today.getDay() + 7) % 7;
                 startDate.setDate(today.getDate() + daysToSaturday);
                 startDate.setHours(0, 0, 0, 0);
@@ -356,7 +293,6 @@ const EventSearch = ({ onSearch }) => {
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case "nextWeek":
-                // Nuo kitos savaitės pirmadienio iki sekmadienio
                 const daysToNextMonday = (8 - today.getDay() + 7) % 7 || 7;
                 startDate.setDate(today.getDate() + daysToNextMonday);
                 startDate.setHours(0, 0, 0, 0);
@@ -380,9 +316,6 @@ const EventSearch = ({ onSearch }) => {
 
         setValue("endDateTime", formatDate(endDate));
         setValue("startDateTime", formatDate(startDate));
-        // if (endDate) {
-        //     setValue("endDateTime", formatDate(endDate));
-        // }
 
         setTimeout(() => {
             trigger("endDateTime");
@@ -649,9 +582,8 @@ const EventSearch = ({ onSearch }) => {
                                             </div>
                                             <input
                                                 type="date"
-                                                {...register("startDateTime", {onChange: () => setActiveDateFilter("")})}
+                                                {...register("startDateTime", { onChange: () => setActiveDateFilter("") })}
                                                 lang="lt"
-                                                // placeholder="yyyy-mm-dd"
                                                 className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
                                             />
                                         </div>
@@ -664,7 +596,7 @@ const EventSearch = ({ onSearch }) => {
                                             <input
                                                 type="date"
                                                 {...register("endDateTime", {
-                                                    onChange: () => { setActiveDateFilter(""); setIsToDateManuallyEdited(true)},
+                                                    onChange: () => { setActiveDateFilter(""); setIsToDateManuallyEdited(true) },
                                                     validate: (value) => {
                                                         if (!value || !startDateTime) return true;
                                                         const start = new Date(startDateTime);
@@ -673,7 +605,6 @@ const EventSearch = ({ onSearch }) => {
                                                     },
                                                 })}
                                                 lang="lt"
-                                                // placeholder="yyyy-mm-dd"
                                                 disabled={!startDateTime}
                                                 className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
                                             />
