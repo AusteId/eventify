@@ -1,13 +1,12 @@
 import { useNavigate } from 'react-router';
 import boardgamesIcon from '../assets/Boardgames-category.svg';
-import heroBanner from '../assets/HeroBanner.png';
 import musicIcon from '../assets/music-category.svg';
 import SportsIcon from '../assets/sports-category.svg';
 import WorkshopIcon from '../assets/workshop-category.svg';
 import { useAuth } from '../components/Auth/AuthContext';
-import Button from '../components/Button';
 import CategoryButton from '../components/CategoryButton';
 import EventCarousel from '../components/EventCarousel';
+import HeroSection from '../components/HeroSection';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -15,7 +14,8 @@ const Home = () => {
 
   return (
     <div>
-      <div className="relative w-full h-150">
+      <HeroSection />
+      {/* <div className="relative w-full h-150">
         <section
           className="absolute w-full h-full bg-cover bg-bottom"
           style={{ backgroundImage: `url(${heroBanner})` }}
@@ -57,7 +57,7 @@ const Home = () => {
             </div>
           </div>
         </section>
-      </div>
+      </div> */}
 
       <div className="flex flex-col items-center justify-between py-16 px-20 gap-y-12 w-full bg-white">
         <h1 className="text-heading-l text-black font-[700] flex flex-col ">
