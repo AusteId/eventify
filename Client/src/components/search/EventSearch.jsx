@@ -377,9 +377,10 @@ const EventSearch = ({ onSearch }) => {
         //     setValue("endDateTime", formatDate(endDate));
         // }
 
-        trigger("endDateTime");
-        trigger("startDateTime");
-
+        setTimeout(() => {
+            trigger("endDateTime");
+            trigger("startDateTime");
+        }, 0);
 
         setActiveDateFilter(option);
         setIsToDateManuallyEdited(false);
