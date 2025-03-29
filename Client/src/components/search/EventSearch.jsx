@@ -390,7 +390,7 @@ const EventSearch = ({ onSearch }) => {
     return (
         <div className="mb-6 flex flex-col gap-4">
             <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4">
-                <div className="relative w-full tablet:w-3/5 desktop:w-2/3 mx-auto">
+                <div className="relative tablet:w-3/5 desktop:w-2/3 mx-auto">
                     <button
                         onClick={handleSearchSubmit}
                         className="absolute left-2 rounded-full text-btn hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
@@ -419,14 +419,14 @@ const EventSearch = ({ onSearch }) => {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[120px]"
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[140px] h-10  w-[140px]"
                         >
                             <FaSort className="text-btn" />
                             Sort by <FaChevronDown className="text-btn" />
                         </button>
 
                         {isSortDropdownOpen && (
-                            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] bg-white shadow-md rounded-lg z-10 font-inter text-body-medium">
+                            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] bg-white shadow-md rounded-lg z-20 font-inter text-body-medium">
                                 <div className="flex flex-col gap-1 p-2">
                                     <button
                                         onClick={() => handleSortChange("name", "ASC")}
@@ -514,7 +514,7 @@ const EventSearch = ({ onSearch }) => {
                     <div className="relative" ref={filterDropdownRef}>
                         <button
                             onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[120px]"
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[120px] h-10"
                         >
                             <RiFilter2Fill className="text-btn" /> Filter <FaChevronDown className="text-btn" />
                         </button>
