@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import heroBanner from '../assets/hero.jpg';
 import { useAuth } from '../components/Auth/AuthContext';
+import ScrollChevron from '../components/ScrollChevron';
 import Button from './Button';
 
 const HeroSection = () => {
@@ -19,7 +20,7 @@ const HeroSection = () => {
             Connect, Create, Celebrate
           </h1>
           <p className="text-white min-w-96 text-heading-s/tight font-[400] mt-4">
-            Discover amazing events or create your own. Join a comminty of
+            Discover amazing events or create your own. Join a community of
             people who love to connect and share experiences.
           </p>
           <div className="flex gap-4 mt-16">
@@ -47,6 +48,7 @@ const HeroSection = () => {
               Join Event
             </Button>
           </div>
+          <ScrollChevron />
         </div>
         {/* <div className="absolute left-1/2 transform -translate-x-1/2 bottom-1/8 flex flex-col items-center">
           <button
