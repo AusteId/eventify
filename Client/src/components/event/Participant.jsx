@@ -1,9 +1,7 @@
-import React from 'react';
 import { PiStarFill } from 'react-icons/pi';
 
 const Participant = ({
   name,
-  isHost,
   profileImg = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
   rating,
 }) => {

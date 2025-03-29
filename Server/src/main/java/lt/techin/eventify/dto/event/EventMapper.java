@@ -2,6 +2,7 @@ package lt.techin.eventify.dto.event;
 
 import lombok.AllArgsConstructor;
 import lt.techin.eventify.dto.category.CategoryMapper;
+import lt.techin.eventify.dto.registrationToEvent.UserRegisteredToEventResponse;
 import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
@@ -36,14 +37,17 @@ public class EventMapper {
 
   public EventResponse toEventResponse(Event event) {
 
-    List<RegistrationToEventResponse> registrations = event.getRegistrations().stream()
-            .map(registrationToEventMapper::toEventRegistrationResponse)
-            .collect(Collectors.toList());
+//    List<RegistrationToEventResponse> registrations = event.getRegistrations().stream()
+//            .map(registrationToEventMapper::toEventRegistrationResponse)
+//            .collect(Collectors.toList());
+
+    List<UserRegisteredToEventResponse> registrations = event.getRegistrations()
+            .stream()
+            .map(registrationToEventMapper::toUserRegisteredToEvent)
+            .toList();
 
     return new EventResponse(
             event.getId(),
-            categoryMapper.toDTO(event.getCategory()),
-            userMapper.toUserResponse(event.getOrganizer()),
             event.getName(),
             event.getStartDateTime(),
             event.getEndDateTime(),
@@ -56,6 +60,8 @@ public class EventMapper {
             event.getCity(),
             event.getAddress(),
             event.getPhotoPath(),
+            categoryMapper.toDTO(event.getCategory()),
+            userMapper.toUserResponse(event.getOrganizer()),
             registrations
     );
   }
