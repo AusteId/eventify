@@ -67,11 +67,18 @@ const EventSearch = ({ onSearch }) => {
     const endDateTime = watch("endDateTime");
 
     useEffect(() => {
-        if (startDateTime && !endDateTime && !isToDateManuallyEdited && !isSettingDateFilter) {
+        if (startDateTime && !isToDateManuallyEdited && !isSettingDateFilter) {
             setValue("endDateTime", startDateTime);
             trigger("endDateTime");
         }
-    }, [startDateTime, endDateTime, isToDateManuallyEdited, isSettingDateFilter, setValue, trigger]);
+    }, [startDateTime, isToDateManuallyEdited, isSettingDateFilter, setValue, trigger]);
+
+//     useEffect(() => {
+//         if (startDateTime && !endDateTime && !isToDateManuallyEdited && !isSettingDateFilter) {
+//             setValue("endDateTime", startDateTime);
+//             trigger("endDateTime");
+//         }
+//     }, [startDateTime, endDateTime, isToDateManuallyEdited, isSettingDateFilter, setValue, trigger]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -383,7 +390,7 @@ const EventSearch = ({ onSearch }) => {
         }, 0);
 
         setActiveDateFilter(option);
-        setIsToDateManuallyEdited(false);
+        setIsToDateManuallyEdited(true);
         setIsSettingDateFilter(false);
     };
 
@@ -642,7 +649,7 @@ const EventSearch = ({ onSearch }) => {
                                             </div>
                                             <input
                                                 type="date"
-                                                {...register("startDateTime")}
+                                                {...register("startDateTime", {onChange: () => setActiveDateFilter("")})}
                                                 lang="lt"
                                                 // placeholder="yyyy-mm-dd"
                                                 className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
@@ -657,7 +664,7 @@ const EventSearch = ({ onSearch }) => {
                                             <input
                                                 type="date"
                                                 {...register("endDateTime", {
-                                                    onChange: () => setIsToDateManuallyEdited(true),
+                                                    onChange: () => { setActiveDateFilter(""); setIsToDateManuallyEdited(true)},
                                                     validate: (value) => {
                                                         if (!value || !startDateTime) return true;
                                                         const start = new Date(startDateTime);
