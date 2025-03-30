@@ -181,7 +181,7 @@ const Comment = props => {
                 </div>
               </form>
             ) : (
-              <p className="text-body-medium text-body-m font-inter mt-2 break-all">
+              <p className="text-body-medium text-body-m font-inter mt-2 break-all overflow-hidden">
                 {props.comment}
               </p>
             )}
