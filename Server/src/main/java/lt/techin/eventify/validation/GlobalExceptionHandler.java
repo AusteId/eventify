@@ -79,4 +79,9 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
   }
 
+  @ExceptionHandler(EventFullException.class)
+  public ResponseEntity<Map<String, String>> handleAlreadyRegister(EventFullException e) {
+    return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
 }

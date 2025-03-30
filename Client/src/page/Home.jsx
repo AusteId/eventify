@@ -5,8 +5,6 @@ import musicIcon from '../assets/music-category.svg';
 import WorkshopIcon from '../assets/workshop-category.svg';
 import SportsIcon from '../assets/sports-category.svg';
 import CategoryButton from '../components/CategoryButton';
-import BasicModal from '../components/BasicModal';
-import CreateEventForm from '../components/CreateEventForm';
 import EventCarousel from '../components/EventCarousel';
 import { useAuth } from '../components/Auth/AuthContext';
 import { useNavigate } from 'react-router';
@@ -59,8 +57,10 @@ const Home = () => {
         </section>
         <ScrollChevron />
       </div>
-
-      <div id="categories-section" className="flex flex-col items-center justify-between py-16 px-20 gap-y-12 w-full bg-white">
+      <div
+        id="categories-section"
+        className="flex flex-col items-center justify-between py-16 px-20 mb-20 gap-y-12 w-full bg-white"
+      >
         <h1 className="text-heading-l text-black font-[700] flex flex-col ">
           Explore Events By Category
         </h1>
@@ -72,15 +72,22 @@ const Home = () => {
           <CategoryButton text={'Board Games'} picture={boardgamesIcon} />
         </div>
       </div>
+      {isAuthenticated && (
+        <EventCarousel
+          fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/recommended`}
+          title={'Recommended for You'}
+        />
+      )}
 
-      <div className="flex flex-col  justify-center bg-light-gray">
-        <h2 className="text-heading-m text-center px-24 tablet:text-left mt-8 mb-6">
-          Recommended for You
-        </h2>
-        <div className="w-full overflow-hidden h-125">
-          <EventCarousel />
-        </div>
-      </div>
+      <EventCarousel
+        fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
+        title={'Upcoming events'}
+        needAuthorization={true}
+      />
+      {/* <EventCarousel
+        fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
+        title={"Recommended for You"}
+      /> */}
     </div>
   );
 };
