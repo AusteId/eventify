@@ -54,8 +54,6 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
     return `${year}-${month}-${day}`;
   };
 
-  const onSubmit = () => {};
-
   return (
     <form
       onSubmit={handleSubmit(nextStep)}
