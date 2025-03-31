@@ -74,15 +74,22 @@ const Home = () => {
           <CategoryButton text={'Board Games'} picture={boardgamesIcon} />
         </div>
       </div>
+      {isAuthenticated && (
+        <EventCarousel
+          fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/recommended`}
+          title={'Recommended for You'}
+        />
+      )}
 
-      <div className="flex flex-col  justify-center bg-light-gray">
-        <h2 className="text-heading-m text-center px-24 tablet:text-left mt-8 mb-6">
-          Recommended for You
-        </h2>
-        <div className="w-full overflow-hidden h-125">
-          <EventCarousel />
-        </div>
-      </div>
+      <EventCarousel
+        fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
+        title={'Upcoming events'}
+        needAuthorization={true}
+      />
+      {/* <EventCarousel
+        fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
+        title={"Recommended for You"}
+      /> */}
     </div>
   );
 };
