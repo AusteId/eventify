@@ -273,7 +273,7 @@ const ChatComponent = ({recipientId, recipientUsername}) => {
     return (
       
         <div className="flex flex-col h-full border rounded-lg shadow-lg">
-          <TypingDebugPanel recipientId={recipientId} conversationId={conversationIdRef.current} />
+          {/* <TypingDebugPanel recipientId={recipientId} conversationId={conversationIdRef.current} /> */}
             <div className="p-3 border-b flex items-center justify-between bg-gray-50">
                 <div className="flex items-center">
                     <UserStatusIndicator userId={recipientId} />
@@ -287,9 +287,9 @@ const ChatComponent = ({recipientId, recipientUsername}) => {
                     <span className="text-red-500 text-xs">Disconnected</span>
                 )}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            {/* <div className="text-xs text-gray-500 mt-1">
   Debug: {checkUserTyping() ? 'User is typing' : 'User is not typing'}
-</div>
+</div> */}
             <div 
                 ref={chatContainerRef}
                 className="flex-1 p-3 overflow-y-auto"
@@ -344,7 +344,7 @@ const ChatComponent = ({recipientId, recipientUsername}) => {
                 <div ref={messageEndRef} />
             </div>
 
-            <div className="p-2 bg-gray-100 border-b flex items-center">
+            {/* <div className="p-2 bg-gray-100 border-b flex items-center">
   <div className="text-sm">
     <span className="font-medium">Status: </span>
     {checkUserTyping() ? (
@@ -368,7 +368,7 @@ const ChatComponent = ({recipientId, recipientUsername}) => {
       Debug Typing
     </button>
   </div>
-</div>
+</div> */}
             
             <div className="p-3 border-t">
                 <div className="flex items-center">
