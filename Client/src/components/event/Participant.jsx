@@ -9,7 +9,7 @@ const Participant = ({
     <div className="flex justify-between max-h-14 items-center gap-3 p-2">
       <div className="flex items-center gap-3">
         <div className="h-14">
-          <img src={profileImg} className="h-full object-cover" />
+          <img src={profileImg} className="h-full object-cover rounded-full" />
         </div>
         <p className="font-[600]">{name}</p>
       </div>

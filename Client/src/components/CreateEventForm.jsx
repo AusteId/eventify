@@ -6,6 +6,7 @@ import getCategories from '../helpers/event/getCategories';
 import { LoaderIcon } from 'react-hot-toast';
 import ImageDropzone from './Registration/ImageDropZone';
 import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
+import toast from 'react-hot-toast';
 
 const CreateEventForm = () => {
   const {
@@ -59,6 +60,7 @@ const CreateEventForm = () => {
         categoryId: data.category,
       });
       console.log('RESPONSE: ', response);
+      toast.success('Event created successfully');
       closeModal();
     } catch (error) {
       console.error('Event creation failed: ', error);
