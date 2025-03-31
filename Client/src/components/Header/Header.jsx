@@ -78,6 +78,9 @@ const Header = () => {
                   <a onClick={() => navigate('/profile')}>Profile</a>
                 </li>
                 <li>
+                  <a onClick={() => navigate("/chat")}>Messages</a>
+                </li>
+                <li>
                   <a onClick={logout}>Logout</a>
                 </li>
               </ul>
