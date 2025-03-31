@@ -65,6 +65,10 @@ const Event = () => {
 
   console.log(event);
   console.log('EVENT DESCRIPTION: ', event.description ? 'TRUE' : 'FALSE');
+  console.log(userId);
+
+  console.log('Is owner? ', userId == event.organizer.id);
+  console.log('USER IDS: ', userId, event.organizer.id);
 
   return (
     <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
@@ -73,7 +77,7 @@ const Event = () => {
       >
         <div className="w-full flex justify-center">
           {/* <img src={event.picture} className="max-w-full h-auto" /> */}
-          <img src={event.picture} className="w-full h-full object-cover" />
+          <img src={event.picture} className="w-full h-full" />
         </div>
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
           <div className="flex flex-col gap-5">
@@ -95,9 +99,11 @@ const Event = () => {
           </div>
           <div className="flex justify-center gap-3">
             <Button>Join Event</Button>
-            <div className="tablet:hidden">
-              <Button>{<EditIcon />} Manage event</Button>
-            </div>
+            {userId == event.organizer.id && (
+              <div className="tablet:hidden">
+                <Button>{<EditIcon />} Manage event</Button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -184,9 +190,13 @@ const Event = () => {
               organizer={organizer}
               participants={participants}
             />
-            <div className="hidden tablet:flex justify-center px-6">
-              <Button onClick={handleEdit}>{<EditIcon />} Manage event</Button>
-            </div>
+            {userId == event.organizer.id && (
+              <div className="hidden tablet:flex justify-center px-6">
+                <Button onClick={handleEdit}>
+                  {<EditIcon />} Manage event
+                </Button>
+              </div>
+            )}
             <div className="absolute">
               <Modal modalName={'event_creation_modal'}>
                 <CreateEventForm />

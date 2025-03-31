@@ -44,21 +44,22 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
       }
     }
 
-        filterChain.doFilter(request, response);
-    }
-    private String extractTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt_token".equals(cookie.getName()) || "jwt_token_swagger".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
+    filterChain.doFilter(request, response);
+  }
+
+  private String extractTokenFromCookie(HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if ("jwt_token".equals(cookie.getName()) || "jwt_token_swagger".equals(cookie.getName())) {
+          return cookie.getValue();
         }
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-        return null;
+      }
     }
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      return authHeader.substring(7);
+    }
+    return null;
+  }
 }

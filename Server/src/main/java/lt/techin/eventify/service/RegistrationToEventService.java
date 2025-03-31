@@ -37,12 +37,10 @@ public class RegistrationToEventService {
 
   public RegistrationToEvent saveEventRegistration(Long eventId, String username) {
 
-   User user = userService.findByUsername(username)
+    User user = userService.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
 
     Event event = eventService.findEventById(eventId);
-
-
 
     if (registrationToEventRepository.existsByUserIdAndEventId(user.getId(), eventId)) {
       throw new AlreadyRegisterException("User is already registered for this event");
@@ -57,26 +55,26 @@ public class RegistrationToEventService {
     return registrationToEventRepository.save(registration);
   }
 
-    public void cancelEventRegistration(Long eventId, String username) {
+  public void cancelEventRegistration(Long eventId, String username) {
 
-        User user = userService.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
+    User user = userService.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
 
 
-        Event event = eventService.findEventById(eventId);
+    Event event = eventService.findEventById(eventId);
 
 //        if (LocalDateTime.now().isAfter(event.getStartDateTime())) {
 //            throw new RuntimeException("Cannot cancel registration after the event has started");
 //        }
 
 
-        RegistrationToEvent registration = registrationToEventRepository
-                .findByUserIdAndEventId(user.getId(), eventId)
-                .orElseThrow(() -> new RuntimeException("Registration not found for this user and event"));
+    RegistrationToEvent registration = registrationToEventRepository
+            .findByUserIdAndEventId(user.getId(), eventId)
+            .orElseThrow(() -> new RuntimeException("Registration not found for this user and event"));
 
 
-        registrationToEventRepository.delete(registration);
-    }
+    registrationToEventRepository.delete(registration);
+  }
 
 
 }

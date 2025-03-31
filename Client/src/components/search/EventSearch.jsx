@@ -1,17 +1,42 @@
+"use client"
+
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { CiSearch, CiCircleRemove } from "react-icons/ci";
-import { FaArrowUp, FaArrowDown, FaChevronDown, FaCheck } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaChevronDown, FaCheck, FaUser, FaMapMarkerAlt, FaStar, FaList, FaCalendar } from "react-icons/fa";
 import { FaArrowUpAZ, FaArrowDownZA, FaArrowUp19, FaArrowDown91, FaSort } from "react-icons/fa6";
 import { RiFilter2Fill } from "react-icons/ri";
+import { IoCalendarOutline } from "react-icons/io5";
+import CategoryImage from "../category/CategoryImage";
 
 const EventSearch = ({ onSearch }) => {
-    const [searchInput, setSearchInput] = useState('');
-    const [sortBy, setSortBy] = useState('startDateTime');
-    const [sortDirection, setSortDirection] = useState('ASC');
+    const [searchInput, setSearchInput] = useState("");
+    const [sortBy, setSortBy] = useState("startDateTime");
+    const [sortDirection, setSortDirection] = useState("ASC");
     const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+    const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+    const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+    const [activeDateFilter, setActiveDateFilter] = useState("");
+    const [isToDateManuallyEdited, setIsToDateManuallyEdited] = useState(false);
+    const [isSettingDateFilter, setIsSettingDateFilter] = useState(false);
 
+    const filterDropdownRef = useRef(null);
     const dropdownRef = useRef(null);
+    const categoryDropdownRef = useRef(null);
+    const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
+    const experienceDropdownRef = useRef(null);
+
+    const categories = [
+        { id: 1, name: "Sports" },
+        { id: 2, name: "Boardgames" },
+        { id: 3, name: "Music" },
+        { id: 4, name: "Arts and Culture" },
+        { id: 5, name: "Food and Drinks" },
+        { id: 6, name: "Outdoor" },
+        { id: 7, name: "Wellness" },
+        { id: 8, name: "Business" },
+        { id: 9, name: "Technology" },
+    ];
 
     const {
         register,
@@ -21,37 +46,100 @@ const EventSearch = ({ onSearch }) => {
         setError,
         clearErrors,
         reset,
+        setValue,
+        trigger,
     } = useForm({
         defaultValues: {
-            categoryName: '',
-            city: '',
-            startDateTime: '',
-            endDateTime: '',
-            experienceLevel: '',
-            minAge: '',
-            maxAge: '',
+            categoryName: "",
+            city: "",
+            startDateTime: "",
+            endDateTime: "",
+            experienceLevel: "",
+            minAge: "",
+            maxAge: "",
         },
+        mode: "onChange",
+        reValidateMode: "onChange",
     });
+
+    const categoryName = watch("categoryName");
+    const startDateTime = watch("startDateTime");
+    const endDateTime = watch("endDateTime");
+
+    useEffect(() => {
+        if (startDateTime && !isToDateManuallyEdited && !isSettingDateFilter) {
+            setValue("endDateTime", startDateTime);
+            trigger("endDateTime");
+        }
+    }, [startDateTime, isToDateManuallyEdited, isSettingDateFilter, setValue, trigger]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsSortDropdownOpen(false);
+                setIsSortDropdownOpen(false)
             }
         };
 
         if (isSortDropdownOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener("mousedown", handleClickOutside)
         }
 
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside)
         };
     }, [isSortDropdownOpen]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+                setIsFilterDropdownOpen(false)
+            }
+        };
+
+        if (isFilterDropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        };
+    }, [isFilterDropdownOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+                setIsCategoryDropdownOpen(false);
+            }
+        };
+
+        if (isCategoryDropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isCategoryDropdownOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (experienceDropdownRef.current && !experienceDropdownRef.current.contains(event.target)) {
+                setIsExperienceDropdownOpen(false);
+            }
+        };
+
+        if (isExperienceDropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isExperienceDropdownOpen]);
+
     const handleSearchChange = (event) => {
-        setSearchInput(event.target.value);
-    };
+        setSearchInput(event.target.value)
+    }
 
     const handleSearchSubmit = () => {
         onSearch({
@@ -62,42 +150,42 @@ const EventSearch = ({ onSearch }) => {
                 startDateTime: watch("startDateTime"),
                 endDateTime: watch("endDateTime"),
                 experienceLevel: watch("experienceLevel"),
-                minAge: watch("minAge") ? parseInt(watch("minAge")) : undefined,
-                maxAge: watch("maxAge") ? parseInt(watch("maxAge")) : undefined,
+                minAge: watch("minAge") ? Number.parseInt(watch("minAge")) : undefined,
+                maxAge: watch("maxAge") ? Number.parseInt(watch("maxAge")) : undefined,
             },
             sortBy,
             sortDirection,
-        });
-    };
+        })
+    }
 
     const handleKeyDown = (event) => {
-        if (event.key === 'Enter') {
-            handleSearchSubmit();
+        if (event.key === "Enter") {
+            handleSearchSubmit()
         }
     }
 
     const handleClearSearch = () => {
-        setSearchInput('');
+        setSearchInput("")
         onSearch({
-            searchTerm: '',
+            searchTerm: "",
             filters: {
                 categoryName: watch("categoryName"),
                 city: watch("city"),
                 startDateTime: watch("startDateTime"),
                 endDateTime: watch("endDateTime"),
                 experienceLevel: watch("experienceLevel"),
-                minAge: watch("minAge") ? parseInt(watch("minAge")) : undefined,
-                maxAge: watch("maxAge") ? parseInt(watch("maxAge")) : undefined,
+                minAge: watch("minAge") ? Number.parseInt(watch("minAge")) : undefined,
+                maxAge: watch("maxAge") ? Number.parseInt(watch("maxAge")) : undefined,
             },
             sortBy,
             sortDirection,
-        });
-    };
+        })
+    }
 
     const handleSortChange = (newSortBy, newSortDirection) => {
-        setSortBy(newSortBy);
-        setSortDirection(newSortDirection);
-        setIsSortDropdownOpen(false);
+        setSortBy(newSortBy)
+        setSortDirection(newSortDirection)
+        setIsSortDropdownOpen(false)
         onSearch({
             searchTerm: searchInput,
             filters: {
@@ -106,29 +194,17 @@ const EventSearch = ({ onSearch }) => {
                 startDateTime: watch("startDateTime"),
                 endDateTime: watch("endDateTime"),
                 experienceLevel: watch("experienceLevel"),
-                minAge: watch("minAge") ? parseInt(watch("minAge")) : undefined,
-                maxAge: watch("maxAge") ? parseInt(watch("maxAge")) : undefined,
+                minAge: watch("minAge") ? Number.parseInt(watch("minAge")) : undefined,
+                maxAge: watch("maxAge") ? Number.parseInt(watch("maxAge")) : undefined,
             },
             sortBy: newSortBy,
             sortDirection: newSortDirection,
-        });
-    };
+        })
+    }
 
     const onSubmit = (data) => {
 
-        if (data.startDateTime && data.endDateTime) {
-            const start = new Date(data.startDateTime);
-            const end = new Date(data.endDateTime);
-            if (end <= start) {
-                setError("endDateTime", {
-                    type: "manual",
-                    message: "End date must be after start date",
-                });
-                return;
-            }
-        }
-
-        if (data.minAge !== "" && data.maxAge !== "" && parseInt(data.minAge) > parseInt(data.maxAge)) {
+        if (data.minAge !== "" && data.maxAge !== "" && Number.parseInt(data.minAge) > Number.parseInt(data.maxAge)) {
             setError("minAge", {
                 type: "manual",
                 message: "Minimum age cannot be greater than maximum age",
@@ -136,25 +212,28 @@ const EventSearch = ({ onSearch }) => {
             return;
         }
 
-        clearErrors(["endDateTime", "minAge"]);
+        clearErrors(["endDateTime", "minAge", "maxAge"])
         onSearch({
             searchTerm: searchInput,
             filters: {
                 categoryName: data.categoryName || undefined,
                 city: data.city || undefined,
                 startDateTime: data.startDateTime || undefined,
-                endDateTime: data.endDateTime || undefined,
+                endDateTime: data.startDateTime && data.endDateTime ? data.endDateTime : undefined,
                 experienceLevel: data.experienceLevel || undefined,
-                minAge: data.minAge ? parseInt(data.minAge) : undefined,
-                maxAge: data.maxAge ? parseInt(data.maxAge) : undefined,
+                minAge: data.minAge ? Number.parseInt(data.minAge) : undefined,
+                maxAge: data.maxAge ? Number.parseInt(data.maxAge) : undefined,
             },
             sortBy,
             sortDirection,
-        });
-    };
+        })
+
+        setIsFilterDropdownOpen(false)
+    }
 
     const handleClearFilters = () => {
-        reset();
+        reset()
+        setIsToDateManuallyEdited(false);
         onSearch({
             searchTerm: searchInput,
             filters: {
@@ -168,18 +247,93 @@ const EventSearch = ({ onSearch }) => {
             },
             sortBy,
             sortDirection,
-        });
+        })
+        setActiveDateFilter("");
+    }
+
+    const setDateFilter = (option) => {
+
+        if (activeDateFilter === option) {
+            setValue("startDateTime", "");
+            setValue("endDateTime", "");
+            setActiveDateFilter("");
+            setIsToDateManuallyEdited(false);
+            return;
+        }
+
+        setIsSettingDateFilter(true);
+        const today = new Date();
+        let startDate = new Date(today);
+        let endDate = new Date(today);
+
+        switch (option) {
+            case "today":
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case "tomorrow":
+                startDate.setDate(today.getDate() + 1);
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date(startDate);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case "thisWeek":
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date(today);
+                const daysToSunday = (7 - today.getDay()) % 7;
+                endDate.setDate(today.getDate() + daysToSunday);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case "thisWeekend":
+                const daysToSaturday = (6 - today.getDay() + 7) % 7;
+                startDate.setDate(today.getDate() + daysToSaturday);
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 1);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case "nextWeek":
+                const daysToNextMonday = (8 - today.getDay() + 7) % 7 || 7;
+                startDate.setDate(today.getDate() + daysToNextMonday);
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            default:
+                return;
+        }
+
+        // Formatuoti datas į YYYY-MM-DD formatą
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+
+        console.log(`Option: ${option}, Start: ${formatDate(startDate)}, End: ${formatDate(endDate)}`);
+
+        setValue("endDateTime", formatDate(endDate));
+        setValue("startDateTime", formatDate(startDate));
+
+        setTimeout(() => {
+            trigger("endDateTime");
+            trigger("startDateTime");
+        }, 0);
+
+        setActiveDateFilter(option);
+        setIsToDateManuallyEdited(true);
+        setIsSettingDateFilter(false);
     };
 
     return (
         <div className="mb-6 flex flex-col gap-4">
-
             <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4">
-
-                <div className="relative w-full tablet:w-3/5 desktop:w-2/3 mx-auto">
+                <div className="relative tablet:w-3/5 desktop:w-2/3 mx-auto">
                     <button
                         onClick={handleSearchSubmit}
-                        className="absolute left-2 rounded-full text-[#f59e0b] hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
+                        className="absolute left-2 rounded-full text-btn hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
                     >
                         <CiSearch />
                     </button>
@@ -194,7 +348,7 @@ const EventSearch = ({ onSearch }) => {
                     {searchInput && (
                         <button
                             onClick={handleClearSearch}
-                            className="absolute right-2 btn-circle text-[#f59e0b] hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
+                            className="absolute right-2 btn-circle text-btn hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
                         >
                             <CiCircleRemove />
                         </button>
@@ -202,252 +356,412 @@ const EventSearch = ({ onSearch }) => {
                 </div>
 
                 <div className="flex gap-2 justify-center tablet:justify-end">
-
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-[#f59e0b]/8 px-4 py-2 min-w-[120px]"
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[140px] h-10  w-[140px]"
                         >
-                            <FaSort className="text-[#f59e0b]"/>Sort by <FaChevronDown className="text-[#f59e0b]" />
+                            <FaSort className="text-btn" />
+                            Sort by <FaChevronDown className="text-btn" />
                         </button>
 
                         {isSortDropdownOpen && (
-                            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] bg-white shadow-md rounded-lg z-10 font-inter text-body-medium">
+                            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] bg-white shadow-md rounded-lg z-20 font-inter text-body-medium">
                                 <div className="flex flex-col gap-1 p-2">
                                     <button
                                         onClick={() => handleSortChange("name", "ASC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowUpAZ className="text-[#f59e0b] text-lg" />
-                                            A to Z
+                                            <FaArrowUpAZ className="text-btn text-lg" />A to Z
                                         </div>
-                                        {sortBy === "name" && sortDirection === "ASC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "name" && sortDirection === "ASC" && <FaCheck className="text-btn" />}
                                     </button>
                                     <button
                                         onClick={() => handleSortChange("name", "DESC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowDownZA className="text-[#f59e0b] text-lg" />
-                                            Z to A
+                                            <FaArrowDownZA className="text-btn text-lg" />Z to A
                                         </div>
-                                        {sortBy === "name" && sortDirection === "DESC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "name" && sortDirection === "DESC" && <FaCheck className="text-btn" />}
                                     </button>
                                     <button
                                         onClick={() => handleSortChange("experienceLevel", "ASC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowUp className="text-[#f59e0b] text-lg" />
+                                            <FaArrowUp className="text-btn text-lg" />
                                             Beginner to Advanced
                                         </div>
-                                        {sortBy === "experienceLevel" && sortDirection === "ASC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "experienceLevel" && sortDirection === "ASC" && <FaCheck className="text-btn" />}
                                     </button>
                                     <button
                                         onClick={() => handleSortChange("experienceLevel", "DESC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowDown className="text-[#f59e0b] text-lg" />
+                                            <FaArrowDown className="text-btn text-lg" />
                                             Advanced to Beginner
                                         </div>
-                                        {sortBy === "experienceLevel" && sortDirection === "DESC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "experienceLevel" && sortDirection === "DESC" && <FaCheck className="text-btn" />}
                                     </button>
                                     <button
                                         onClick={() => handleSortChange("startDateTime", "ASC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowUp19 className="text-[#f59e0b] text-lg" />
+                                            <FaArrowUp19 className="text-btn text-lg" />
                                             Soonest to Latest
                                         </div>
-                                        {sortBy === "startDateTime" && sortDirection === "ASC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "startDateTime" && sortDirection === "ASC" && <FaCheck className="text-btn" />}
                                     </button>
                                     <button
                                         onClick={() => handleSortChange("startDateTime", "DESC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowDown91 className="text-[#f59e0b] text-lg" />
+                                            <FaArrowDown91 className="text-btn text-lg" />
                                             Latest to Soonest
                                         </div>
-                                        {sortBy === "startDateTime" && sortDirection === "DESC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "startDateTime" && sortDirection === "DESC" && <FaCheck className="text-btn" />}
                                     </button>
                                     <button
                                         onClick={() => handleSortChange("createdAt", "ASC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowUp19 className="text-[#f59e0b] text-lg" />
+                                            <FaArrowUp19 className="text-btn text-lg" />
                                             Newest to Latest
                                         </div>
-                                        {sortBy === "createdAt" && sortDirection === "ASC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "createdAt" && sortDirection === "ASC" && <FaCheck className="text-btn" />}
                                     </button>
                                     <button
                                         onClick={() => handleSortChange("createdAt", "DESC")}
-                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-[#f59e0b]/8 hover:text-black whitespace-nowrap"
+                                        className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
                                     >
                                         <div className="flex items-center gap-3 text-sm">
-                                            <FaArrowDown91 className="text-[#f59e0b] text-lg" />
+                                            <FaArrowDown91 className="text-btn text-lg" />
                                             Latest to Newest
                                         </div>
-                                        {sortBy === "createdAt" && sortDirection === "DESC" && (
-                                            <FaCheck className="text-[#f59e0b]" />
-                                        )}
+                                        {sortBy === "createdAt" && sortDirection === "DESC" && <FaCheck className="text-btn" />}
                                     </button>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Filter mygtukas */}
-                    <button
-                        className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-[#f59e0b]/8 px-4 py-2 min-w-[120px]"
-                    >
-                        <RiFilter2Fill className="text-[#f59e0b]" /> Filter <FaChevronDown className="text-[#f59e0b]" />
-                    </button>
+                    <div className="relative" ref={filterDropdownRef}>
+                        <button
+                            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[120px] h-10"
+                        >
+                            <RiFilter2Fill className="text-btn" /> Filter <FaChevronDown className="text-btn" />
+                        </button>
+
+                        {isFilterDropdownOpen && (
+                            <div className="filter-dropdown absolute right-0 top-full mt-2 w-72 bg-white shadow-lg rounded-lg z-20">
+                                <div className="p-4 flex flex-col gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <FaList className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">Category</label>
+                                        </div>
+
+                                        <div className="relative" ref={categoryDropdownRef}>
+                                            <button
+                                                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                                                className={`bg-[#FFFFFF] text-body-medium rounded-lg border border-input-light flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 w-full justify-between ${categoryName ? "text-black" : "text-gray-400"
+                                                    }`}
+                                                aria-expanded={isCategoryDropdownOpen}
+                                                aria-controls="category-dropdown"
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    {categoryName && (
+                                                        <CategoryImage
+                                                            categoryId={categories.find((cat) => cat.name === categoryName)?.id}
+                                                        />
+                                                    )}
+                                                    <span>{categoryName || "All Categories"}</span>
+                                                </div>
+                                                <FaChevronDown className="text-btn" />
+                                            </button>
+
+                                            {isCategoryDropdownOpen && (
+                                                <div
+                                                    id="category-dropdown"
+                                                    className="absolute left-0 top-full mt-2 w-full bg-white shadow-md rounded-lg z-10 font-inter text-body-medium"
+                                                >
+                                                    <div className="flex flex-col gap-1 p-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                setValue("categoryName", "");
+                                                                setIsCategoryDropdownOpen(false);
+                                                            }}
+                                                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                                        >
+                                                            <div className="flex items-center gap-3 text-sm">
+                                                                <span>All Categories</span>
+                                                            </div>
+                                                            {!categoryName && <FaCheck className="text-btn" />}
+                                                        </button>
+                                                        {categories.map((category) => (
+                                                            <button
+                                                                key={category.id}
+                                                                onClick={() => {
+                                                                    setValue("categoryName", category.name);
+                                                                    setIsCategoryDropdownOpen(false);
+                                                                }}
+                                                                className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                                            >
+                                                                <div className="flex items-center gap-3 text-sm">
+                                                                    <CategoryImage categoryId={category.id} />
+                                                                    <span>{category.name}</span>
+                                                                </div>
+                                                                {categoryName === category.name && <FaCheck className="text-btn" />}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <FaCalendar className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">Date Range</label>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 mb-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setDateFilter("today")}
+                                                className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${activeDateFilter === "today" ? "bg-btn text-white hover:bg-btn-hover" : "bg-white hover:bg-btn/8"
+                                                    }`}
+                                            >
+                                                Today
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDateFilter("tomorrow")}
+                                                className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${activeDateFilter === "tomorrow" ? "bg-btn text-white hover:bg-btn-hover" : "bg-white hover:bg-btn/8"
+                                                    }`}
+                                            >
+                                                Tomorrow
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDateFilter("thisWeek")}
+                                                className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${activeDateFilter === "thisWeek" ? "bg-btn text-white hover:bg-btn-hover" : "bg-white hover:bg-btn/8"
+                                                    }`}
+                                            >
+                                                This Week
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDateFilter("thisWeekend")}
+                                                className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${activeDateFilter === "thisWeekend" ? "bg-btn text-white hover:bg-btn-hover" : "bg-white hover:bg-btn/8"
+                                                    }`}
+                                            >
+                                                This Weekend
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDateFilter("nextWeek")}
+                                                className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${activeDateFilter === "nextWeek" ? "bg-btn text-white hover:bg-btn-hover" : "bg-white hover:bg-btn/8"
+                                                    }`}
+                                            >
+                                                Next Week
+                                            </button>
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <IoCalendarOutline className="text-btn" />
+                                                <span className="text-xs text-body-medium">{endDateTime && endDateTime !== startDateTime ? "From Date" : "Event Date"}</span>
+                                            </div>
+                                            <input
+                                                type="date"
+                                                {...register("startDateTime", { onChange: () => setActiveDateFilter("") })}
+                                                lang="lt"
+                                                className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <IoCalendarOutline className="text-btn" />
+                                                <span className="text-xs text-body-medium">To Date</span>
+                                            </div>
+                                            <input
+                                                type="date"
+                                                {...register("endDateTime", {
+                                                    onChange: () => { setActiveDateFilter(""); setIsToDateManuallyEdited(true) },
+                                                    validate: (value) => {
+                                                        if (!value || !startDateTime) return true;
+                                                        const start = new Date(startDateTime);
+                                                        const end = new Date(value);
+                                                        return end >= start || "End date must be on or after start date";
+                                                    },
+                                                })}
+                                                lang="lt"
+                                                disabled={!startDateTime}
+                                                className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                                            />
+                                        </div>
+                                        {errors.endDateTime && <p className="text-red-500 text-xs">{errors.endDateTime.message}</p>}
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <FaUser className="text-btn" />
+                                            <span className="text-sm font-medium text-body-medium">Age Range</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <div className="flex flex-col gap-2 w-full">
+                                                <input
+                                                    type="number"
+                                                    {...register("minAge", {
+                                                        onChange: () => {
+                                                            trigger("minAge");
+                                                            trigger("maxAge");
+                                                        },
+                                                        validate: (value) => {
+                                                            if (value && Number.parseInt(value) < 0) {
+                                                                return "Minimum age cannot be negative";
+                                                            }
+                                                            return true;
+                                                        },
+                                                        valueAsNumber: true,
+                                                    })}
+                                                    placeholder="From"
+                                                    className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                                                />
+                                                {errors.minAge && <p className="text-red-500 text-xs">{errors.minAge.message}</p>}
+                                            </div>
+                                            <div className="flex flex-col gap-2 w-full">
+                                                <input
+                                                    type="number"
+                                                    {...register("maxAge", {
+                                                        onChange: () => {
+                                                            trigger("minAge");
+                                                            trigger("maxAge");
+                                                        },
+                                                        validate: (value) => {
+                                                            if (value && Number.parseInt(value) < 0) {
+                                                                return "Maximum age cannot be negative";
+                                                            }
+                                                            return true;
+                                                        },
+                                                    })}
+                                                    placeholder="To"
+                                                    className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                                                />
+                                                {errors.maxAge && <p className="text-red-500 text-xs">{errors.maxAge.message}</p>}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <FaMapMarkerAlt className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">City</label>
+                                        </div>
+                                        <input
+                                            {...register("city", {
+                                                pattern: {
+                                                    value:
+                                                        /^([a-zA-Z0-9\u0080-\u02FF\u1E00-\u1EFF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF]+(?:[\s.\-''']){0,2})*[a-zA-Z0-9\u0080-\u02FF\u1E00-\u1EFF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF]*$|^$/,
+                                                    message: "City name can only contain letters, numbers, spaces, dots, or hyphens",
+                                                },
+                                            })}
+                                            placeholder="Enter location"
+                                            className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                                        />
+                                        {errors.city && <p className="text-red-500 text-xs">{errors.city.message}</p>}
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <FaStar className="text-btn" />
+                                            <label className="text-sm font-medium text-body-medium">Experience Level</label>
+                                        </div>
+                                        <div className="relative" ref={experienceDropdownRef}>
+                                            <button
+                                                onClick={() => setIsExperienceDropdownOpen(!isExperienceDropdownOpen)}
+                                                className={`bg-[#FFFFFF] text-body-medium rounded-lg border border-input-light flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 w-full justify-between ${watch("experienceLevel") ? "text-black" : "text-gray-400"
+                                                    }`}
+                                                aria-expanded={isExperienceDropdownOpen}
+                                                aria-controls="experience-dropdown"
+                                            >
+                                                <span>{watch("experienceLevel") || "Any Level"}</span>
+                                                <FaChevronDown className="text-btn" />
+                                            </button>
+
+                                            {isExperienceDropdownOpen && (
+                                                <div
+                                                    id="experience-dropdown"
+                                                    className="absolute left-0 top-full mt-2 w-full bg-white shadow-md rounded-lg z-10 font-inter text-body-medium"
+                                                >
+                                                    <div className="flex flex-col gap-1 p-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                setValue("experienceLevel", "");
+                                                                setIsExperienceDropdownOpen(false);
+                                                            }}
+                                                            className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                                        >
+                                                            <div className="flex items-center gap-3 text-sm">
+                                                                <span>Any Level</span>
+                                                            </div>
+                                                            {!watch("experienceLevel") && <FaCheck className="text-btn" />}
+                                                        </button>
+                                                        {["Beginner", "Intermediate", "Advanced", "Extreme", "All Welcome"].map((level) => (
+                                                            <button
+                                                                key={level}
+                                                                onClick={() => {
+                                                                    setValue("experienceLevel", level);
+                                                                    setIsExperienceDropdownOpen(false);
+                                                                }}
+                                                                className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                                            >
+                                                                <div className="flex items-center gap-3 text-sm">
+                                                                    <span>{level}</span>
+                                                                </div>
+                                                                {watch("experienceLevel") === level && <FaCheck className="text-btn" />}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2 mt-2">
+                                        <button
+                                            type="button"
+                                            onClick={handleSubmit(onSubmit)}
+                                            className="btn bg-btn hover:bg-btn-hover text-white rounded-lg flex-1"
+                                        >
+                                            Apply Filters
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleClearFilters}
+                                            className="btn bg-white hover:bg-gray-100 text-body-medium border border-input-light rounded-lg flex-1"
+                                        >
+                                            Clear Filters
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div >
-
-
-            {/* Laikina forma filtrams */}
-            < form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" >
-
-                <div>
-                    <select
-                        {...register("categoryName")}
-                        className="w-full p-2 border rounded-md"
-                    >
-                        <option value="">Select category</option>
-                        <option value="Sports">Sports</option>
-                        <option value="Boardgames">Boardgames</option>
-                        <option value="Music">Music</option>
-                        <option value="Arts and Culture">Arts and Culture</option>
-                        <option value="Food and Drinks">Food and Drinks</option>
-                        <option value="Outdoor">Outdoor</option>
-                        <option value="Wellness">Wellness</option>
-                        <option value="Business">Business</option>
-                        <option value="Technology">Technology</option>
-                    </select>
-                </div>
-
-                <div>
-                    <input
-                        {...register("city", {
-                            pattern: {
-                                value: /^([a-zA-Z0-9\u0080-\u02FF\u1E00-\u1EFF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF]+(?:[\s.\-'’‘]){0,2})*[a-zA-Z0-9\u0080-\u02FF\u1E00-\u1EFF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF]*$|^$/,
-                                message: "City name can only contain letters, numbers, spaces, dots, or hyphens (e.g., Vilnius, Kaunas)",
-                            },
-                        })}
-                        placeholder="Filter by city (e.g., Vilnius)"
-                        className="w-full p-2 border rounded-md"
-                    />
-                    {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
-                </div>
-
-                <div>
-                    <input
-                        {...register("startDateTime", {
-                            pattern: {
-                                value: /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$|^$/,
-                                message: "startDateTime must be in format yyyy-MM-dd, e.g., 2025-05-01",
-                            },
-                        })}
-                        placeholder="Filter by start date (yyyy-MM-dd, e.g., 2025-05-01)"
-                        className="w-full p-2 border rounded-md"
-                    />
-                    {errors.startDateTime && <p className="text-red-500 text-sm">{errors.startDateTime.message}</p>}
-                </div>
-
-                <div>
-                    <input
-                        {...register("endDateTime", {
-                            pattern: {
-                                value: /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$|^$/,
-                                message: "endDateTime must be in format yyyy-MM-dd, e.g., 2025-06-01",
-                            },
-                        })}
-                        placeholder="Filter by end date (yyyy-MM-dd, e.g., 2025-06-01)"
-                        className="w-full p-2 border rounded-md"
-                    />
-                    {errors.endDateTime && <p className="text-red-500 text-sm">{errors.endDateTime.message}</p>}
-                </div>
-
-                <div>
-                    <select
-                        {...register("experienceLevel")}
-                        className="w-full p-2 border rounded-md"
-                    >
-                        <option value="">Select experience level</option>
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Advanced">Advanced</option>
-                        <option value="Extreme">Extreme</option>
-                        <option value="All Welcome">All Welcome</option>
-                    </select>
-                </div>
-
-                <div>
-                    <input
-                        type="number"
-                        {...register("minAge", {
-                            valueAsNumber: true,
-                            min: { value: 0, message: "Minimum age must be 0 or greater" },
-                            max: { value: 120, message: "Minimum age cannot be more than 120" },
-                        })}
-                        placeholder="Filter by min age (e.g., 18)"
-                        className="w-full p-2 border rounded-md"
-                    />
-                    {errors.minAge && <p className="text-red-500 text-sm">{errors.minAge.message}</p>}
-                </div>
-
-                <div>
-                    <input
-                        type="number"
-                        {...register("maxAge", {
-                            valueAsNumber: true,
-                            min: { value: 0, message: "Maximum age must be 0 or greater" },
-                            max: { value: 120, message: "Maximum age cannot be more than 120" },
-                        })}
-                        placeholder="Filter by max age (e.g., 30)"
-                        className="w-full p-2 border rounded-md"
-                    />
-                    {errors.maxAge && <p className="text-red-500 text-sm">{errors.maxAge.message}</p>}
-                </div>
-
-                <div className="flex gap-2">
-                    <button
-                        type="submit"
-                        className="p-2 bg-amber-500 text-white rounded-md hover:bg-amber-600"
-                    >
-                        Apply Filters
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleClearFilters}
-                        className="p-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                    >
-                        Clear Filters
-                    </button>
-                </div>
-            </form >
+            </div>
         </div >
-    );
-};
+    )
+}
 
-export default EventSearch;
+export default EventSearch
+

@@ -41,7 +41,7 @@ const NotSignedInHeader = () => {
             <NavLink to="/about" className={setActive}>
               <h1 className="  hover:underline ">About Us</h1>
             </NavLink>
-          </section>{' '}
+          </section>
         </section>
         <div className="flex items-center gap-4">
           <NavLink tabIndex={-1} to={'/login'}>

@@ -12,14 +12,15 @@ import lt.techin.eventify.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -145,19 +146,28 @@ public class EventController {
 
   @PostMapping("/{eventId}/register")
   public ResponseEntity<RegistrationToEventResponse> registerForEvent(@PathVariable Long eventId, Principal principal) {
+
     RegistrationToEvent savedRegistration = registrationToEventService.saveEventRegistration(eventId, principal.getName());
+
     RegistrationToEventResponse registrationToEventResponse = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
-    
+
     return ResponseEntity.status(HttpStatus.CREATED).body(registrationToEventResponse);
   }
 
   @DeleteMapping("/{eventId}/register")
   public ResponseEntity<String> cancelRegistration(@PathVariable Long eventId, Principal principal) {
-    try {
-      registrationToEventService.cancelEventRegistration(eventId, principal.getName());
-      return ResponseEntity.ok("Registration successfully cancelled");
-    } catch (RuntimeException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
+    registrationToEventService.cancelEventRegistration(eventId, principal.getName());
+    return ResponseEntity.ok("Registration successfully cancelled");
+  }
+
+  @GetMapping("/upcoming")
+  public ResponseEntity<List<GetEventResponse>> getUpcomingEvents() {
+    return ResponseEntity.ok(eventService.findEventsInUpcoming14Days());
+  }
+
+  @GetMapping("/recommended")
+  public ResponseEntity<List<GetEventResponse>> getRecommendedEvents(Principal principal) {
+
+    return ResponseEntity.ok(eventService.findRecommendedEvents(principal.getName()));
   }
 }

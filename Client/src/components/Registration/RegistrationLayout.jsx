@@ -1,9 +1,9 @@
-import { Outlet, useLocation, useNavigate } from 'react-router';
-import RegistrationHeader from '../Header/RegistrationHeader';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import LoadingScreen from '../message/LoadingScreen';
 import toast from 'react-hot-toast';
+import { Outlet, useLocation, useNavigate } from 'react-router';
+import RegistrationHeader from '../Header/RegistrationHeader';
+import LoadingScreen from '../message/LoadingScreen';
 
 const RegistrationLayout = ({ formRefs }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -99,11 +99,23 @@ const RegistrationLayout = ({ formRefs }) => {
         },
       );
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        toast.error(
-          errorData?.message ||
-            `Server responded with ${response.status}: ${response.statusText}`,
-        );
+        let errorToDisplay = `Server responded with ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+
+          if (errorData && typeof errorData === 'object') {
+            const messages = Object.values(errorData);
+            if (messages.length > 0) {
+              errorToDisplay = messages.join('\n');
+            }
+          }
+        } catch (jsonError) {
+          console.error('Failed to parse error response JSON:', jsonError);
+        }
+
+        toast.error(errorToDisplay);
+
+        return;
       }
 
       await response.json();

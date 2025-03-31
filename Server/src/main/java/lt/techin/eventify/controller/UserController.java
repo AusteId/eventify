@@ -1,21 +1,14 @@
 package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
-import lt.techin.eventify.dto.user.*;
 import lt.techin.eventify.dto.event.EventResponse;
-import lt.techin.eventify.dto.user.CreateUserRequest;
-import lt.techin.eventify.dto.user.LoginUserRequest;
-import lt.techin.eventify.dto.user.UserMapper;
-import lt.techin.eventify.dto.user.UserResponse;
+import lt.techin.eventify.dto.user.*;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -23,9 +16,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +56,7 @@ public class UserController {
             .path("/")
             .build();
 
-    ResponseCookie swaggerCookie = ResponseCookie.from("jwt_token_swagger",token)
+    ResponseCookie swaggerCookie = ResponseCookie.from("jwt_token_swagger", token)
             .httpOnly(false)
             .secure(false)
             .sameSite("Strict")
@@ -75,9 +65,9 @@ public class UserController {
             .build();
 
     return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE,jwtCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
             .header(HttpHeaders.SET_COOKIE, swaggerCookie.toString())
-            .body(Map.of("success",true));
+            .body(Map.of("success", true));
   }
 
   @PostMapping("/logout")
@@ -98,9 +88,9 @@ public class UserController {
 
 
     return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE,cookie.toString())
-            .header(HttpHeaders.SET_COOKIE,swaggerCookie.toString())
-            .body(Map.of("success",true));
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .header(HttpHeaders.SET_COOKIE, swaggerCookie.toString())
+            .body(Map.of("success", true));
   }
 
   @GetMapping("/me")

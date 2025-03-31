@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import getCategories from '../helpers/event/getCategories';
 import { LoaderIcon } from 'react-hot-toast';
 import ImageDropzone from './Registration/ImageDropZone';
+import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
 
 const CreateEventForm = () => {
   const {
@@ -289,7 +290,7 @@ const CreateEventForm = () => {
             <option disabled={true}>Select Category</option>
             {categories.map((category, index) => (
               <option value={category.id} key={index}>
-                {category.name}
+                {capitalizeFirstLetter(category.name)}
               </option>
             ))}
           </select>

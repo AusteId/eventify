@@ -1,10 +1,10 @@
 package lt.techin.eventify.dto.category;
 
 import lt.techin.eventify.model.Category;
-import org.springframework.stereotype.Component;
 import lt.techin.eventify.model.CategoryIcon;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;

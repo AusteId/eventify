@@ -3,7 +3,6 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import axios from 'axios';
-import { staticEventLoader } from '../helpers/staticEventLoader';
 import EventCard from './EventCard';
 import { CarouselButton } from './CarouselButton';
 
@@ -19,39 +18,75 @@ const debounce = (func, wait) => {
   };
 };
 
-export default function EventCarousel() {
+const BREAKPOINTS = {
+  MOBILE: 764,
+  TABLET: 1440,
+};
+
+export default function EventCarousel({
+  fetchUrl,
+  title,
+  needAuthorization = false,
+}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(null);
   const [slider, setSlider] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1920,
+  );
 
-  // TODO: fetch only required amount, current setup inefficient
-  // fetching data:
+  const cardsPerView = useMemo(() => {
+    if (windowWidth < BREAKPOINTS.MOBILE) return 1;
+    if (windowWidth < BREAKPOINTS.TABLET) return 2;
+    return 3;
+  }, [windowWidth]);
+
+  useEffect(() => {
+    const handleResize = debounce(() => {
+      setWindowWidth(window.innerWidth);
+    }, 100);
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const api = axios.create({
+    baseURL: import.meta.env.VITE_BACK_URL + '/api',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    withCredentials: true,
+  });
+
+  // const deleteC = () => {
+  //   props.setComments([]);
+  //   props.setLoading(true);
+  //   const del = async () => {
+  //     try {
+  //       const response = await api.delete('/events/comments/' + props.id);
+  //     } catch (err) {
+  //       console.error('Error deleting comment:', err);
+  //     } finally {
+  //       props.fetchComments();
+  //     }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // const token = localStorage.getItem('token');
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events`,
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${token}`,
-          //   },
-          // },
-        );
+        // sutvarkyt sita suda
+        const response = await api.get(fetchUrl);
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data: ', error);
-        setData(staticEventLoader());
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
-  
-  // cutting slicing the fetched data,
+  }, [fetchUrl]);
+
   const currentEvents = useMemo(() => {
     const events = Array.isArray(data) ? data : [];
     return events.slice(0, 10);
@@ -59,26 +94,26 @@ export default function EventCarousel() {
 
   useEffect(() => {
     if (data) {
-      console.log(data[0]);
+      console.log(data);
     }
   }, [data]);
 
   // settings of carousel. more:
   // https://react-slick.neostack.com/docs/api
+  const settings = useMemo(() => {
+    const hasEnoughItems = currentEvents.length > cardsPerView;
 
-  // FIXME: scrolls too fast back to beginning, might need to tweak index.css file
-  var settings = useMemo(
-    () => ({
-      dots: true,
-      swipeToSlide: true,
-      infinite: true,
+    return {
+      dots: hasEnoughItems,
+      swipeToSlide: hasEnoughItems,
+      infinite: hasEnoughItems,
       speed: 500,
-      slidesToShow: 3,
+      slidesToShow: Math.min(currentEvents.length, cardsPerView),
       slide: 'div',
-      touchMove: true,
+      touchMove: hasEnoughItems,
       slidesToScroll: 1,
-      autoplay: true,
-      draggable: true,
+      autoplay: hasEnoughItems,
+      draggable: hasEnoughItems,
       autoplaySpeed: 3000,
       responsive: [
         {
@@ -90,13 +125,12 @@ export default function EventCarousel() {
         {
           breakpoint: 1440,
           settings: {
-            slidesToShow: 2,
+            slidesToShow: Math.min(2, currentEvents.length),
           },
         },
       ],
-    }),
-    [],
-  );
+    };
+  }, [currentEvents.length, cardsPerView]);
 
   const handleResize = useCallback(
     () =>
@@ -122,22 +156,46 @@ export default function EventCarousel() {
   }
 
   return (
-    <div className="w-full mx-auto overflow-hidden mb-26 relative z-20">
-      <CarouselButton
-        onPrevClick={() => slider?.slickPrev()}
-        onNextClick={() => slider?.slickNext()}
-      />
-      {currentEvents.length > 0 ? (
-        <Slider {...settings} ref={slider => setSlider(slider)}>
-          {currentEvents.map(event => (
-            <div key={event.id} className="px-2 flex justify-center">
-              <EventCard {...event} />
+    <div className="w-full mx-auto overflow-hidden relative z-20">
+      <h2 className={`text-heading-m text-center px-24 tablet:text-left mb-6`}>
+        {title}
+      </h2>
+
+      <div className="w-full overflow-hidden h-130">
+        {currentEvents.length > 0 ? (
+          <>
+            <div className="hidden tablet:block">
+              {currentEvents.length > cardsPerView && (
+                <CarouselButton
+                  onPrevClick={() => slider?.slickPrev()}
+                  onNextClick={() => slider?.slickNext()}
+                />
+              )}
             </div>
-          ))}
-        </Slider>
-      ) : (
-        <div className="text-center py-4">No events available.</div>
-      )}
+            {currentEvents.length <= cardsPerView ? (
+              <div className="flex justify-center">
+                {currentEvents.map(event => (
+                  <div key={event.id} className="px-2 flex justify-center pb-8">
+                    <EventCard {...event} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Slider {...settings} ref={slider => setSlider(slider)}>
+                {currentEvents.map(event => (
+                  <div key={event.id} className="px-2 flex justify-center pb-8">
+                    <EventCard {...event} />
+                  </div>
+                ))}
+              </Slider>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-4 mt-8 font-[600] text-heading-s">
+            No events available.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
