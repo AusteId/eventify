@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import getCategories from '../helpers/event/getCategories';
 import { LoaderIcon } from 'react-hot-toast';
 import ImageDropzone from './Registration/ImageDropZone';
+import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
 
 const CreateEventForm = () => {
   const {
@@ -16,34 +17,34 @@ const CreateEventForm = () => {
     watch,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      picture: null,
-      name: 'qwe',
-      city: 'asd',
-      address: 'zxc',
-      startDateTime: '2025-05-10T22:02',
-      endDateTime: '2025-06-25T03:33',
-      category: 1,
-      minAge: null,
-      maxAge: null,
-      maxParticipants: 5,
-      description: '',
-      experienceLevel: 'Beginner',
-    },
     // defaultValues: {
     //   picture: null,
-    //   name: '',
-    //   city: '',
-    //   address: '',
-    //   startDateTime: null,
-    //   endDateTime: null,
-    //   category: 'Select Category',
+    //   name: 'qwe',
+    //   city: 'asd',
+    //   address: 'zxc',
+    //   startDateTime: '2025-05-10T22:02',
+    //   endDateTime: '2025-06-25T03:33',
+    //   category: 1,
     //   minAge: null,
     //   maxAge: null,
-    //   maxParticipants: null,
+    //   maxParticipants: 5,
     //   description: '',
-    //   experienceLevel: 'Select Experience Level',
+    //   experienceLevel: 'Beginner',
     // },
+    defaultValues: {
+      picture: null,
+      name: '',
+      city: '',
+      address: '',
+      startDateTime: null,
+      endDateTime: null,
+      category: 'Select Category',
+      minAge: null,
+      maxAge: null,
+      maxParticipants: null,
+      description: '',
+      experienceLevel: 'Select Experience Level',
+    },
   });
 
   const [categories, setCategories] = useState([]);
@@ -289,7 +290,7 @@ const CreateEventForm = () => {
             <option disabled={true}>Select Category</option>
             {categories.map((category, index) => (
               <option value={category.id} key={index}>
-                {category.name}
+                {capitalizeFirstLetter(category.name)}
               </option>
             ))}
           </select>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import defaultAvatar from '../../assets/profile-picture.webp';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../Auth/AuthContext';
+
 const ProfilePictureButton = () => {
   const [avatar, setAvatar] = useState();
   const { timeourForError } = useNotification();

@@ -21,22 +21,22 @@ const EventCard = ({
   description,
   startDateTime,
   endDateTime,
-  city = "Location not provided",
+  city = 'Location not provided',
   isEnded,
   minAge,
   maxAge,
 }) => {
-  const navigate = useNavigate()
-  const normalizedExpLevel = experienceLevel ? experienceLevel : "All Welcome"
-  const [imageData, setImageData] = useState(null)
-  const [isImageLoading, setIsImageLoading] = useState(true)
+  const navigate = useNavigate();
+  const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
+  const [imageData, setImageData] = useState(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect(() => {
     const fetchImage = async () => {
       if (!id) {
-        setImageData("./src/assets/eventCardImgSample.png")
-        setIsImageLoading(false)
-        return
+        setImageData('./src/assets/eventCardImgSample.png');
+        setIsImageLoading(false);
+        return;
       }
       try {
         setIsImageLoading(true)
@@ -86,7 +86,7 @@ const EventCard = ({
   const timeString =
     startDateTime && endDateTime
       ? `${convertToCompactEuDatetime(startDateTime)} - ${formatToOnlyTime(endDateTime)}`
-      : "N/A"
+      : 'N/A';
 
   const ageString =
     minAge !== null && maxAge !== null
@@ -95,7 +95,7 @@ const EventCard = ({
         ? `Min age: ${minAge}`
         : maxAge !== null
           ? `Max age: ${maxAge}`
-          : "All Welcome!"
+          : 'All Welcome!';
 
   return (
     <div
@@ -117,7 +117,7 @@ const EventCard = ({
             )}
             {experienceLevel !== 0 && (
               <div
-                className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ""} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
+                className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
               >
                 <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
               </div>
@@ -129,12 +129,12 @@ const EventCard = ({
               </div>
             ) : (
               <img
-                src={imageData || "./src/assets/eventCardImgSample.png"}
+                src={imageData || './src/assets/eventCardImgSample.png'}
                 alt="event photo"
                 className="rounded-t-[0.5rem] h-44 w-full object-cover"
                 onError={() => {
-                  console.log("Image failed to load, using fallback")
-                  setImageData("./src/assets/eventCardImgSample.png")
+                  console.log('Image failed to load, using fallback');
+                  setImageData('./src/assets/eventCardImgSample.png');
                 }}
               />
             )}

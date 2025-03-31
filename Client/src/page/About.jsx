@@ -28,7 +28,7 @@ const About = () => {
         />
 
         <AboutUsCard
-          photo="https://media.licdn.com/dms/image/v2/D5635AQFPjzH5YJPBfw/profile-framedphoto-shrink_200_200/B56ZWQD1cPHoAg-/0/1741878679632?e=1742814000&v=beta&t=4tRZ6rsl0gpv1bALEddQtYfWH6_G1bV3akJsJ-r2CRM"
+          photo="https://media.licdn.com/dms/image/v2/D5635AQFPjzH5YJPBfw/profile-framedphoto-shrink_200_200/B56ZWQD1cPHoAg-/0/1741878679632?e=1743926400&v=beta&t=D3u24pOOBV2Yh7MtTA1bqser7PPrrzTm7r5vZUZnVAk"
           name="Deividas Morkūnas"
           linkedin="linkedin.com/in/deividas-mork%C5%ABnas/"
           github="github.com/TeaAddict"

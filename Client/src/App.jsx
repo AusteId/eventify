@@ -48,7 +48,7 @@ function App() {
               path="/register"
               element={
                 <ProtectedRouteLoggedIn>
-                  <RegistrationLayout formRefs={formRefs} />{' '}
+                  <RegistrationLayout formRefs={formRefs} />
                 </ProtectedRouteLoggedIn>
               }
             >

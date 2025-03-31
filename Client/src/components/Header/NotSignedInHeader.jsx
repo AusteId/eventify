@@ -1,13 +1,15 @@
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink } from 'react-router';
 import Button from '../Button';
 
-const setActive = ({ isActive }) =>
-  isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 const NotSignedInHeader = () => {
-  const navigate = useNavigate();
+  const setActive = ({ isActive }) =>
+    isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
+
   return (
-    <header className="bg-white shadow-md">
-      <nav className="flex justify-between items-center px-6 py-4 w-[100%] ">
+    // <header className="bg-white shadow-md">
+    <header className="sticky h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
+      {/* <nav className="flex justify-between items-center px-6 py-4 w-[100%] "> */}
+      <nav className="flex justify-between self-center items-center w-[100%] px-6">
         <NavLink tabIndex={-1} to={'/'}>
           <section className="flex items-center gap-[1rem]">
             <svg
