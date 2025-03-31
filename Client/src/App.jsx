@@ -17,6 +17,8 @@ import RegistrationFourthStep from './components/Registration/RegistrationFourth
 
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
+import { WebSocketProvider } from './components/chatting/WebSocketContext';
+import Chat from './components/chatting/Chat';
 import Event from './page/Event';
 
 import BasicModal from './components/BasicModal';
@@ -99,6 +101,14 @@ function App() {
                 <ProtectedRoute allowedRoles={['USER']}>
                   <Registrations />
                 </ProtectedRoute>
+              }
+            />
+                        <Route
+              path="/chat"
+              element={
+                  <WebSocketProvider>
+                    <Chat />
+                  </WebSocketProvider>
               }
             />
             <Route path="/about" element={<About />} />
