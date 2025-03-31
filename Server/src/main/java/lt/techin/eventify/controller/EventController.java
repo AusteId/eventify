@@ -152,7 +152,6 @@ public class EventController {
     RegistrationToEventResponse registrationToEventResponse = registrationToEventMapper.toEventRegistrationResponse(savedRegistration);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(registrationToEventResponse);
-
   }
 
   @DeleteMapping("/{eventId}/register")

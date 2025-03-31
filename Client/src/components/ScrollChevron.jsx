@@ -12,11 +12,11 @@ const ScrollChevron = () => {
 
   useEffect(() => {
     const bounceTimer = setTimeout(() => {
-      setIsBouncing(false)
-    }, 2530) // Bounce for 6 seconds (3 animations of 2 seconds each)
+      setIsBouncing(false);
+    }, 2530); // Bounce for 6 seconds (3 animations of 2 seconds each)
 
-    return () => clearTimeout(bounceTimer)
-  }, [])
+    return () => clearTimeout(bounceTimer);
+  }, []);
 
   // Hide chevron when user scrolls down
   useEffect(() => {
@@ -40,17 +40,17 @@ const ScrollChevron = () => {
 
   return (
     <div
-      className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-opacity duration-300 ${
+      className={`absolute bottom-20 left-1/2 transform -translate-x-1/2 transition-opacity duration-300  ${
         !isVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       ref={ref}
     >
       <button
         onClick={scrollToCategories}
-        className={`bg-white/80 hover:bg-white backdrop-blur-sm p-3 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.2)] transition-all ${isBouncing ? "animate-bounce" : ""}`}
+        className={`bg-white/80 hover:bg-white backdrop-blur-sm p-3 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.2)] transition-all ${isBouncing ? 'animate-bounce' : ''}`}
         aria-label="Scroll down"
       >
-        <ChevronDown className="text-black" size={12} />
+        <ChevronDown className="text-black" size={24} />
       </button>
     </div>
   );

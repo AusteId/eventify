@@ -1,7 +1,10 @@
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import Button from '../Button';
 
+const setActive = ({ isActive }) =>
+  isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 const NotSignedInHeader = () => {
+  const navigate = useNavigate();
   return (
     <header className="bg-white shadow-md">
       <nav className="flex justify-between items-center px-6 py-4 w-[100%] ">
@@ -25,6 +28,19 @@ const NotSignedInHeader = () => {
             </h1>
           </section>
         </NavLink>
+        <section className=" h-[1.5rem] w-[23rem] p-1 ">
+          <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
+            <NavLink to="/" className={setActive}>
+              <h1 className=" hover:underline hover">Home</h1>
+            </NavLink>
+            <NavLink to="/events" className={setActive}>
+              <h1 className="  hover:underline">Events</h1>
+            </NavLink>
+            <NavLink to="/about" className={setActive}>
+              <h1 className="  hover:underline ">About Us</h1>
+            </NavLink>
+          </section>
+        </section>
         <div className="flex items-center gap-4">
           <NavLink tabIndex={-1} to={'/login'}>
             <Button>Login</Button>

@@ -1,9 +1,9 @@
-import React from 'react';
 import Participant from './Participant';
 import Modal from './Modal';
 import ViewParticipants from './ViewParticipants';
+import capitalizeFirstLetter from '../../utils/capitalizeFirstLetter';
 
-const ParticipantsSection = ({ participants }) => {
+const ParticipantsSection = ({ organizer, participants }) => {
   const handleClickViewParticipants = () => {
     document.getElementById('view_all_participants_modal').showModal();
   };
@@ -12,7 +12,7 @@ const ParticipantsSection = ({ participants }) => {
     <div className="flex flex-col gap-6 p-6 bg-light-gray rounded-xl">
       <div className="flex flex-col gap-4 ">
         <h2 className="leading-5 text-heading-s font-[600]">Organizer</h2>
-        <Participant name={'Bossas Petronis'} />
+        <Participant name={capitalizeFirstLetter(organizer.username)} />
       </div>
       {participants.length != 0 && (
         <>
@@ -24,7 +24,11 @@ const ParticipantsSection = ({ participants }) => {
             </h2>
             <div className="flex flex-col gap-5">
               {participants.map((participant, index) => (
-                <Participant name={participant.name} key={index} />
+                <Participant
+                  name={capitalizeFirstLetter(participant.username)}
+                  profileImg={participant.avatar}
+                  key={index}
+                />
               ))}
             </div>
             <div>
@@ -40,7 +44,7 @@ const ParticipantsSection = ({ participants }) => {
       )}
       <div className="absolute">
         <Modal modalName={'view_all_participants_modal'}>
-          <ViewParticipants participants={participants} />
+          <ViewParticipants organizer={organizer} participants={participants} />
         </Modal>
       </div>
     </div>

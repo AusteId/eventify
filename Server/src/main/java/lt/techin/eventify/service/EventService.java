@@ -58,8 +58,8 @@ public class EventService {
 
     Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("Category does not exist"));
     Event event = eventMapper.toEvent(createEventRequest, category, organizer);
+    event.setEventImage(image);
     Event savedEvent = eventRepository.save(event);
-    savedEvent.setEventImage(image);
 
     return eventMapper.toEventResponse(savedEvent);
   }
