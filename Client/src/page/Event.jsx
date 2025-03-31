@@ -71,7 +71,10 @@ const Event = () => {
       <div
         className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
-        <img src={event.picture} className="max-w-full h-auto" />
+        <div className="w-full flex justify-center">
+          {/* <img src={event.picture} className="max-w-full h-auto" /> */}
+          <img src={event.picture} className="w-full h-full object-cover" />
+        </div>
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
           <div className="flex flex-col gap-5">
             <h1
