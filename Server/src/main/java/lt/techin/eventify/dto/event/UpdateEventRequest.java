@@ -1,6 +1,8 @@
 package lt.techin.eventify.dto.event;
 
 import jakarta.validation.constraints.*;
+import lt.techin.eventify.validation.file.ValidImage;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -44,6 +46,9 @@ public record UpdateEventRequest(
 
         @NotNull
         @Pattern(regexp = "^[\\w\\s ,.]+$", message = "Invalid event address.")
-        String address
+        String address,
+
+        @ValidImage
+        MultipartFile picture
 ) {
 }

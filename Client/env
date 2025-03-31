@@ -1,4 +1,0 @@
-VITE_API_URL_REGISTER_USER=http://localhost:8080/api/users/register
-VITE_API_URL_CHECK_AVAILABILITY=http://localhost:8080/api/users/check-availability
-VITE_API_URL_ALL_CATEGORIES=http://localhost:8080/api/categories/all
-VITE_BACK_URL=http://localhost:8080

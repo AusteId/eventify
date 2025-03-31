@@ -5,10 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { useNotification } from '../context/NotificationContext';
-import LoadingScreen from '../message/LoadingScreen';
-import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -23,12 +22,15 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const checkAuthStatus = useCallback(async () => {
-    //Constant agony of 401's if not logged in, so need to store shit in session to prevent it from checking the cookie
-    const stupidFuckingCheck =
-      isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
-    if (!stupidFuckingCheck) {
-      return;
-    }
+    //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
+    // const alreadyChecked =
+    //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
+    // if (!alreadyChecked) {
+    //   return;
+    // }
+
+    if (isAuthenticated) return;
+
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/me', {
@@ -64,10 +66,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuthStatus();
-  }, [checkAuthStatus]);
+  }, []);
 
   const login = async credentials => {
-    setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
@@ -81,15 +82,15 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       if (!response.ok) {
-        // timeoutForError('Login Failed');
-        toast.error('Login Failed');
+        toast.error('Incorrect email or password');
         return false;
       }
       sessionStorage.setItem('plsStahp', 'true');
       await checkAuthStatus();
+      setIsLoading(true);
       return true;
     } catch (error) {
-      timeoutForError(error.message || 'Failed to login');
+      toast.error(error.message || 'Login Failed');
       return false;
     } finally {
       setIsLoading(false);

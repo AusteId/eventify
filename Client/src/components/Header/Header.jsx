@@ -3,11 +3,12 @@ import { useAuth } from '../Auth/AuthContext';
 import Button from '../Button';
 import HeaderProfilePicture from './HeaderProfilePicture';
 
-const setActive = ({ isActive }) =>
-  isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 const Header = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+
+  const setActive = ({ isActive }) =>
+    isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 
   return (
     <header className="sticky h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
@@ -48,15 +49,21 @@ const Header = () => {
             </NavLink>
           </section>
         </section>
-        <section className=" h-[2.5rem]  flex justify-center items-center gap-[1rem] ">
-          <Button>Create Event</Button>
+        <section className=" h-[2.5rem] flex justify-center items-center gap-[1rem] ">
+          <Button
+            onClick={() => {
+              document.getElementById('event_creation_modal').showModal();
+            }}
+          >
+            Create Event
+          </Button>
           <section className=" flex ">
             <HeaderProfilePicture />
             <div className="dropdown dropdown-end flex items-center">
               <div
                 tabIndex={0}
                 role="button"
-                className="p-1 hover:bg-advanced rounded-full"
+                className="p-1 hover:bg-advanced rounded-full cursor-pointer"
               >
                 <img
                   src="src/assets/arrow_drop_down.svg"

@@ -10,7 +10,9 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidAgeRange {
-    String message() default "Minimum age cannot be greater than maximum age";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
+  String message() default "Minimum age cannot be greater than maximum age";
+
+  Class<?>[] groups() default {};
+
+  Class<? extends Payload>[] payload() default {};
 }

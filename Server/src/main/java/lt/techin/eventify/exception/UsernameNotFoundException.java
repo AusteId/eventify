@@ -1,7 +1,7 @@
 package lt.techin.eventify.exception;
 
 public class UsernameNotFoundException extends RuntimeException {
-    public UsernameNotFoundException(String message) {
-        super(message);
-    }
+  public UsernameNotFoundException(String message) {
+    super(message);
+  }
 }
