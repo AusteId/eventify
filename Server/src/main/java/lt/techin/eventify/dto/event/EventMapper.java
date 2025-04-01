@@ -62,7 +62,8 @@ public class EventMapper {
             event.getPhotoPath(),
             categoryMapper.toDTO(event.getCategory()),
             userMapper.toUserResponse(event.getOrganizer()),
-            registrations
+            registrations,
+            false
     );
   }
 

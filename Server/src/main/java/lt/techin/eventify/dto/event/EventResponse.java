@@ -24,6 +24,8 @@ public record EventResponse(
         String photoPath,
         CategoryResponse category,
         UserResponse organizer,
-        List<UserRegisteredToEventResponse> registrations
+        List<UserRegisteredToEventResponse> registrations,
+        boolean isRegistered
+
 ) {
 }

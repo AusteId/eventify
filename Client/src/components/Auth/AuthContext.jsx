@@ -5,9 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react';
-import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { useNotification } from '../context/NotificationContext';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -22,6 +22,8 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const checkAuthStatus = useCallback(async () => {
+    console.log('CHECKING AUTH');
+
     //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
     // const alreadyChecked =
     //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
@@ -82,6 +84,7 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       if (!response.ok) {
+        toast.error('Login Failed');
         toast.error('Incorrect email or password');
         return false;
       }
