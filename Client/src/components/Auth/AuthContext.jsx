@@ -71,7 +71,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async credentials => {
-    setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
@@ -86,10 +85,12 @@ export const AuthProvider = ({ children }) => {
       });
       if (!response.ok) {
         toast.error('Login Failed');
+        toast.error('Incorrect email or password');
         return false;
       }
       sessionStorage.setItem('plsStahp', 'true');
       await checkAuthStatus();
+      setIsLoading(true);
       return true;
     } catch (error) {
       toast.error(error.message || 'Login Failed');

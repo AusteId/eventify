@@ -14,28 +14,28 @@ import java.time.*;
 
 @Component
 public class EventCommentMapper {
-    private static final UserMapper userMapper = new UserMapper();
+  private static final UserMapper userMapper = new UserMapper();
 
-    public static EventCommentResponse toResponse(EventComment eventComment) {
+  public static EventCommentResponse toResponse(EventComment eventComment) {
 
-        String relativeTime = "Unknown time";
+    String relativeTime = "Unknown time";
 
-        LocalDateTime createdAt = eventComment.getCreatedAt();
+    LocalDateTime createdAt = eventComment.getCreatedAt();
 
-        if (createdAt != null) {
+    if (createdAt != null) {
 
-            ZoneId lithuaniaZone = ZoneId.of("Europe/Vilnius");
-            ZonedDateTime lithuaniaTime = createdAt.atZone(ZoneOffset.UTC)
-                    .withZoneSameInstant(lithuaniaZone);
+      ZoneId lithuaniaZone = ZoneId.of("Europe/Vilnius");
+      ZonedDateTime lithuaniaTime = createdAt.atZone(ZoneOffset.UTC)
+              .withZoneSameInstant(lithuaniaZone);
 
-            PrettyTime prettyTime = new PrettyTime();
-            relativeTime = prettyTime.format(lithuaniaTime.toLocalDateTime());
-        }
-
-        return new EventCommentResponse(eventComment.getId(), userMapper.toUserResponse(eventComment.getUser()) , eventComment.getEvent().getId(), eventComment.getComment(), relativeTime);
+      PrettyTime prettyTime = new PrettyTime();
+      relativeTime = prettyTime.format(lithuaniaTime.toLocalDateTime());
     }
 
-    public static EventComment toEventComment(CreateEventCommentRequest dto, User user, Event event) {
-        return new EventComment(user, event, dto.comment());
-    }
+    return new EventCommentResponse(eventComment.getId(), userMapper.toUserResponse(eventComment.getUser()), eventComment.getEvent().getId(), eventComment.getComment(), relativeTime);
+  }
+
+  public static EventComment toEventComment(CreateEventCommentRequest dto, User user, Event event) {
+    return new EventComment(user, event, dto.comment());
+  }
 }

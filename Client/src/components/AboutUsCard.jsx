@@ -1,11 +1,9 @@
-import React from 'react';
 import LinkedIn from '../assets/aboutUs/linkedin.svg';
 import Email from '../assets/aboutUs/email.svg';
 import Phone from '../assets/aboutUs/phone.svg';
 import GitHub from '../assets/aboutUs/github.svg';
 
 const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
-
   // FIXME: must be only 3 layouts for screens mobile tablet and desktop
   return (
     <div
@@ -56,9 +54,9 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
       {phone && (
         <div className="mt-2 text-white">
           <div className="flex items-center space-x-2">
-          <div>
-            <img src={Phone} alt="phone" />
-          </div>
+            <div>
+              <img src={Phone} alt="phone" />
+            </div>
             <span className="text-black">{phone}</span>
           </div>
         </div>
@@ -67,9 +65,9 @@ const AboutUsCard = ({ name, linkedin, github, phone, mail, photo }) => {
       {mail && (
         <div className="mt-2 text-white">
           <div className="flex items-center space-x-2">
-          <div>
-            <img src={Email} alt="email" />
-          </div>
+            <div>
+              <img src={Email} alt="email" />
+            </div>
             <span className="text-black">{mail}</span>
           </div>
         </div>

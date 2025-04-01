@@ -24,7 +24,7 @@ const CommentSection = props => {
   });
 
   const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: `${import.meta.env.VITE_BACK_URL}/api`,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -127,7 +127,7 @@ const CommentSection = props => {
           {comments.map(comment => (
             <Comment
               name={comment.userResponse.username}
-              contextid={props.contextid}
+              contextId={props.contextId}
               avatar={'src/assets/avatar.png'}
               comment={comment.comment}
               time={comment.createdAt}
@@ -141,7 +141,7 @@ const CommentSection = props => {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center mt-20">
+        <div className="flex flex-col items-center pt-10 pb-10">
           <MessageCircle className="h-20 w-20" />
           <p className="font-inter text-body-medium mt-2">No commets yet</p>
         </div>

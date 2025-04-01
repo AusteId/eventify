@@ -17,13 +17,21 @@ import RegistrationFourthStep from './components/Registration/RegistrationFourth
 
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
+import { WebSocketProvider } from './components/chatting/WebSocketContext';
+import Chat from './components/chatting/Chat';
 import Event from './page/Event';
+
+import BasicModal from './components/BasicModal';
+import CreateEventForm from './components/CreateEventForm';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
 
   return (
     <div className="">
+      <BasicModal id="event_creation_modal">
+        <CreateEventForm />
+      </BasicModal>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>
@@ -42,7 +50,7 @@ function App() {
               path="/register"
               element={
                 <ProtectedRouteLoggedIn>
-                  <RegistrationLayout formRefs={formRefs} />{' '}
+                  <RegistrationLayout formRefs={formRefs} />
                 </ProtectedRouteLoggedIn>
               }
             >
@@ -82,17 +90,25 @@ function App() {
             <Route
               path="/profile"
               element={
-                // <ProtectedRoute allowedRoles={['USER']}>
-                <Profile />
-                // </ProtectedRoute>
+                <ProtectedRoute allowedRoles={['USER']}>
+                  <Profile />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/myRegistrations"
               element={
-                <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                <ProtectedRoute allowedRoles={['USER']}>
                   <Registrations />
                 </ProtectedRoute>
+              }
+            />
+                        <Route
+              path="/chat"
+              element={
+                  <WebSocketProvider>
+                    <Chat />
+                  </WebSocketProvider>
               }
             />
             <Route path="/about" element={<About />} />

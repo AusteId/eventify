@@ -21,7 +21,7 @@ const Comment = props => {
   });
 
   const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: import.meta.env.VITE_BACK_URL + '/api',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -109,7 +109,7 @@ const Comment = props => {
                 </p>
               </div>
 
-              {props.contextid == props.userId ? (
+              {props.contextId == props.userId ? (
                 <div className="dropdown dropdown-end">
                   <label
                     tabIndex={0}
@@ -181,7 +181,7 @@ const Comment = props => {
                 </div>
               </form>
             ) : (
-              <p className="text-body-medium text-body-m font-inter mt-2 break-all">
+              <p className="text-body-medium text-body-m font-inter mt-2 break-all overflow-hidden">
                 {props.comment}
               </p>
             )}

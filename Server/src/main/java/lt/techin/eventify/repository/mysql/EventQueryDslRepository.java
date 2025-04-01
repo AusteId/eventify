@@ -9,5 +9,4 @@ public interface EventQueryDslRepository {
   public Page<Event> findEventsByFilters(String categoryName, String city, String startDateTime,
                                          String endDateTime, String experienceLevel,
                                          Integer minAge, Integer maxAge, String searchTerm, Pageable pageable);
-
 }
