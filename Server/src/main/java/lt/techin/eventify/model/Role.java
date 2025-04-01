@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "roles")
+// TODO: add @NoArgsConstructor @Getter @Setter
 public class Role {
 
   @Id
@@ -12,6 +13,7 @@ public class Role {
 
   @Column(unique = true, nullable = false)
   private String name;
+
 
   public Role() {
   }

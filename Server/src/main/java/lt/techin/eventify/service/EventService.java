@@ -176,7 +176,7 @@ public class EventService {
 
     final double MAX_SCORE_PER_FACTOR = 100.0;
 
-    // at least 80% reserved
+    // at least 80% reserved for reservation score to be counted
     final double RESERVATION_THRESHOLD = 0.8;
 
     // upcoming count is max 14 days old
@@ -187,6 +187,7 @@ public class EventService {
             LocalDateTime.now().plusDays((long) DATE_SCORE_DECAY_DAYS)
     );
 
+    // TODO: move duplicate out, make a helper function
     List<Long> eventIds = upcomingEvents.stream().map(Event::getId).toList();
     Map<Long, Long> registrationCounts = registrationToEventRepository.findCountsByEventIds(eventIds)
             .stream()
@@ -195,6 +196,7 @@ public class EventService {
                     array -> (Long) array[1]
             ));
 
+    // automatically sorts inserted items
     PriorityQueue<EventWithScore> topEvents = new PriorityQueue<>(
             10, Comparator.comparingDouble(EventWithScore::score)
     );
@@ -220,6 +222,7 @@ public class EventService {
       if (topEvents.size() < 10) {
         topEvents.offer(eventWithScore);
       } else if (totalScore > topEvents.peek().score()) {
+        // drop last item and add another
         topEvents.poll();
         topEvents.offer(eventWithScore);
       }
@@ -253,6 +256,7 @@ public class EventService {
             user.getCity(),
             LocalDateTime.now());
 
+    // TODO: move to a helper function
     List<Long> eventIds = recommendedEvents.stream().map(Event::getId).toList();
     Map<Long, Long> registrationCounts = registrationToEventRepository.findCountsByEventIds(eventIds)
             .stream().collect(Collectors.toMap(
@@ -267,7 +271,7 @@ public class EventService {
     Set<Category> favoriteCategories = user.getFavoriteEventCategories();
 
     for (Event event : recommendedEvents) {
-      // get scores for dates
+      // get scores for cities
 
       // TODO: when there is an API for location, add distance calculation instead
       double cityScore = user.getCity() != null && event.getCity().equals(user.getCity())

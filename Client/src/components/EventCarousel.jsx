@@ -165,6 +165,7 @@ export default function EventCarousel({
         {currentEvents.length > 0 ? (
           <>
             <div className="hidden tablet:block">
+              {/* sita reikia isskaidyti i du mygtukus geriau */}
               {currentEvents.length > cardsPerView && (
                 <CarouselButton
                   onPrevClick={() => slider?.slickPrev()}
@@ -172,15 +173,6 @@ export default function EventCarousel({
                 />
               )}
             </div>
-            {currentEvents.length <= cardsPerView ? (
-              <div className="flex justify-center">
-                {currentEvents.map(event => (
-                  <div key={event.id} className="px-2 flex justify-center pb-8">
-                    <EventCard {...event} />
-                  </div>
-                ))}
-              </div>
-            ) : (
               <Slider {...settings} ref={slider => setSlider(slider)}>
                 {currentEvents.map(event => (
                   <div key={event.id} className="px-2 flex justify-center pb-8">
@@ -188,7 +180,6 @@ export default function EventCarousel({
                   </div>
                 ))}
               </Slider>
-            )}
           </>
         ) : (
           <div className="text-center py-4 mt-8 font-[600] text-heading-s">
