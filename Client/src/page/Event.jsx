@@ -86,7 +86,7 @@ const Event = () => {
       <div
         className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
-        <div className="w-full flex justify-center">
+        <div className="w-full h-100 overflow-clip">
           {/* <img src={event.picture} className="max-w-full h-auto" /> */}
           <img
             src={eventImage}
@@ -94,7 +94,7 @@ const Event = () => {
               console.log('Image failed to load, using fallback');
               setEventImage('../src/assets/eventCardImgSample.png');
             }}
-            className="w-full h-full"
+            className="w-full h-full object-contain"
           />
         </div>
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
