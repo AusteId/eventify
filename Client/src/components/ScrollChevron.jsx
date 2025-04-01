@@ -47,7 +47,7 @@ const ScrollChevron = () => {
     >
       <button
         onClick={scrollToCategories}
-        className={`bg-white/80 hover:bg-white backdrop-blur-sm p-3 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.2)] transition-all ${isBouncing ? 'animate-bounce' : ''}`}
+        className={`cursor-pointer bg-white/80 hover:bg-white backdrop-blur-sm p-3 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.2)] transition-all ${isBouncing ? 'animate-bounce' : ''}`}
         aria-label="Scroll down"
       >
         <ChevronDown className="text-black" size={24} />
