@@ -16,9 +16,8 @@ const Login = () => {
   } = useForm();
 
   const { timeoutForSuccess, timeoutForError } = useNotification();
-  const { login } = useAuth();
-  const [isLoading, setIsloading] = useState(false);
-
+  const { login, loading } = useAuth();
+ 
   const navigate = useNavigate();
 
   const onSubmit = async data => {
@@ -26,23 +25,17 @@ const Login = () => {
       const success = await login(data);
       if (success) {
         // timeoutForSuccess("Successfully logged in");
-        setIsloading(true);
         toast.success('Successfully logged in!');
         reset();
-        setTimeout(() => {
-          navigate('/');
-        }, 1000);
       }
     } catch (error) {
       timeoutForError(error.message || 'Something went wrong');
-    } finally {
-      setIsloading(false);
     }
   };
 
   return (
     <>
-      {isLoading && <LoadingScreen />}
+      {loading && <LoadingScreen />}
       <div className="desktop:w-112 tablet:w-112 mx-auto px-6 pt-12 pb-12 mt-[1.5rem]">
         <div className="bg-[#FFFFFF] w-full h-auto rounded-2xl shadow-md">
           <div className="text-center px-8 pt-8 pb-8">
@@ -102,8 +95,11 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <button className="btn bg-btn w-full h-12 border-0 shadow-none text-white font-[500] hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg">
-              Sign In
+            <button 
+            className="btn bg-btn w-full h-12 border-0 shadow-none text-white font-[500] hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg"
+            disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Sign In'}
             </button>
           </form>
           <div className="flex justify-center gap-4 w-full text-center pt-6 pb-8">

@@ -1,24 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
 const backUrl = import.meta.env.VITE_BACK_URL;
 
-const cancelEvent = async (eventId) => {
-  try {
-    const response = await axios.delete(`${backUrl}/api/events/${eventId}/register`, 
-        {}, 
-        {
-          withCredentials: true,
-          headers: {
-              "Content-Type": "application/json"
-          }
-      }
-    
-      
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data || 'Error cancelling registration');
-  }
+const cancelEvent = async (eventId, token) => {
+  const response = await axios.delete(
+    `${backUrl}/api/events/${eventId}/register`,
+    { withCredentials: true }
+  );
+  return response.data;
 };
 
 export default cancelEvent;
