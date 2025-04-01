@@ -17,7 +17,8 @@ public interface EventRepository extends JpaRepository<Event, Long>, EventQueryD
   Optional<Event> findByNameAndStartDateTime(String name, LocalDateTime time);
 
   List<Event> findByStartDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
-
+  
+  // labai letas gal kazkaip perdaryt?
   @Query("SELECT e FROM Event e " +
           "WHERE (:age BETWEEN e.minAge AND e.maxAge OR :age IS NULL) " +
           "AND (e.city = :city or :city IS NULL)" +

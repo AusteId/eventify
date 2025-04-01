@@ -167,6 +167,7 @@ export default function EventCarousel({
             <div className="hidden tablet:block">
               {/* sita reikia isskaidyti i du mygtukus geriau */}
               {currentEvents.length > cardsPerView && (
+                // TODO: split carousel buttons into two 
                 <CarouselButton
                   onPrevClick={() => slider?.slickPrev()}
                   onNextClick={() => slider?.slickNext()}

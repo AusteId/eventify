@@ -174,6 +174,7 @@ public class EventService {
     final double WEIGHT_HOST = 2.0;
     final double WEIGHT_RESERVATION = 0.5;
 
+    //nebutinas
     final double MAX_SCORE_PER_FACTOR = 100.0;
 
     // at least 80% reserved for reservation score to be counted
@@ -202,8 +203,8 @@ public class EventService {
     );
     for (Event event : upcomingEvents) {
       // get scores for dates
-      Duration timeUntilEvent = Duration.between(LocalDateTime.now(), event.getStartDateTime());
-      double dateFactor = Math.max(0.0, 1.0 - (timeUntilEvent.toHours()) / (DATE_SCORE_DECAY_DAYS * 24) / 24);
+      Duration timeUntilEvent = Duration.between(LocalDateTime.now(), event.getStartDateTime()); // kiek dienu iki evento
+      double dateFactor = Math.max(0.0, 1.0 - (timeUntilEvent.toHours()) / (DATE_SCORE_DECAY_DAYS * 24) / 24); // jeigu 1 diena iki evento tada : 1 - 1/14 (dienos iki evento / galimu dienu)
       double dateScore = dateFactor * MAX_SCORE_PER_FACTOR;
 
       // TODO: Uncomment and implement when ratings are available

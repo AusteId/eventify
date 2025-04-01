@@ -2,8 +2,8 @@ package lt.techin.eventify.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name="events_comments")
 @Getter
 @Setter
-@NoArgsConstructor
+// @Data = @AllArgsConstructor + @NoArgsConstructor + @Setter + @Getter + @TosString + @HashCode
 public class EventComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
