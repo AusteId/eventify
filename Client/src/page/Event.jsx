@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import getEvent from '../helpers/event/getEvent';
+import EditIcon from '../assets/editIcon.svg?react';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
+import { useAuth } from '../components/Auth/AuthContext';
 import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
-import ParticipantsSection from '../components/event/ParticipantsSection';
-import EditIcon from '../assets/editIcon.svg?react';
-import Modal from '../components/event/Modal';
 import CreateEventForm from '../components/CreateEventForm';
-import { useAuth } from '../components/Auth/AuthContext';
-import { prettifyDateTime } from '../utils/dateFunctions';
+import Modal from '../components/event/Modal';
+import ParticipantsSection from '../components/event/ParticipantsSection';
+import getEvent from '../helpers/event/getEvent';
 import getEventImage from '../helpers/event/getEventImage';
+import { prettifyDateTime } from '../utils/dateFunctions';
 
 // const participants = [
 //   {
@@ -35,22 +35,33 @@ import getEventImage from '../helpers/event/getEventImage';
 const Event = () => {
   const [loading] = useState(true);
   const [event, setEvent] = useState();
+  const [eventImage, setEventImage] = useState(null);
   const params = useParams();
   const { userId } = useAuth();
   const participants = event?.registrations.map(registration => {
     return {
       username: registration.userJoinToEvent.userName,
-      avatar: `data:image/png;base64,${registration.userJoinToEvent.userAvatar.data}`,
+      avatar: `data:image/png;base64,src/assets/avatar.png`,
     };
   });
   const organizer = { username: event?.organizer.username };
 
   useEffect(() => {
     const fetchdata = async () => {
-      const data = await getEvent(params.id);
-      const pictureResponse = await getEventImage(params.id);
+      try {
+        const data = await getEvent(params.id);
+        setEvent(data);
+      } catch (err) {
+        console.error(err.message);
+      }
 
-      setEvent({ ...data, picture: URL.createObjectURL(pictureResponse) });
+      try {
+        const pictureResponse = await getEventImage(params.id);
+        setEventImage(URL.createObjectURL(pictureResponse));
+      } catch (err) {
+        console.error(err.message);
+        setEventImage([]);
+      }
     };
     fetchdata();
   }, []);
@@ -77,7 +88,14 @@ const Event = () => {
       >
         <div className="w-full flex justify-center">
           {/* <img src={event.picture} className="max-w-full h-auto" /> */}
-          <img src={event.picture} className="w-full h-full" />
+          <img
+            src={eventImage}
+            onError={() => {
+              console.log('Image failed to load, using fallback');
+              setEventImage('../src/assets/eventCardImgSample.png');
+            }}
+            className="w-full h-full"
+          />
         </div>
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
           <div className="flex flex-col gap-5">

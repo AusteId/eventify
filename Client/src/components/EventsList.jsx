@@ -1,7 +1,8 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import EventCard from './EventCard';
+import LoadingSection from './LoadingSection';
 import Pagination from './Pagination';
-import axios from 'axios';
 import EventSearch from './search/EventSearch';
 
 const EventsList = ({ setLoading, loading }) => {
@@ -11,20 +12,20 @@ const EventsList = ({ setLoading, loading }) => {
   const [searchParams, setSearchParams] = useState({
     searchTerm: '',
     filters: {
-    categoryName: '',
-    city: '',
-    startDateTime: '',
-    endDateTime: '',
-    experienceLevel: '',
-    minAge: '',
-    maxAge: '',
+      categoryName: '',
+      city: '',
+      startDateTime: '',
+      endDateTime: '',
+      experienceLevel: '',
+      minAge: '',
+      maxAge: '',
     },
     sortBy: 'startDateTime',
     sortDirection: 'ASC',
   });
   const eventsPerPage = 12;
 
-useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -42,9 +43,14 @@ useEffect(() => {
               city: searchParams.filters.city || undefined,
               startDateTime: searchParams.filters.startDateTime || undefined,
               endDateTime: searchParams.filters.endDateTime || undefined,
-              experienceLevel: searchParams.filters.experienceLevel || undefined,
-              minAge: searchParams.filters.minAge ? parseInt(searchParams.filters.minAge) : undefined,
-              maxAge: searchParams.filters.maxAge ? parseInt(searchParams.filters.maxAge) : undefined,
+              experienceLevel:
+                searchParams.filters.experienceLevel || undefined,
+              minAge: searchParams.filters.minAge
+                ? parseInt(searchParams.filters.minAge)
+                : undefined,
+              maxAge: searchParams.filters.maxAge
+                ? parseInt(searchParams.filters.maxAge)
+                : undefined,
             },
           },
         );
@@ -52,7 +58,11 @@ useEffect(() => {
         setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error('Error fetching data:', error);
-        console.log('Error details:', error.response?.data, error.response?.status);
+        console.log(
+          'Error details:',
+          error.response?.data,
+          error.response?.status,
+        );
         setEvents([]);
         setTotalPages(0);
       } finally {
@@ -73,34 +83,35 @@ useEffect(() => {
     }
   };
 
-  const handleSearch = (newSearchParams) => {
+  const handleSearch = newSearchParams => {
     setSearchParams(newSearchParams);
     setCurrentPage(0);
   };
 
   return (
-    <div className="h-full flex flex-col justify-between">
+    <div>
       <EventSearch onSearch={handleSearch} />
+      <div className="h-full flex flex-col justify-between">
+        {loading ? (
+          <LoadingSection />
+        ) : events.length === 0 ? (
+          <p>Events not found</p>
+        ) : (
+          <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
+            {events.map((event, index) => (
+              <EventCard key={index} {...event} />
+            ))}
+          </div>
+        )}
 
-      {loading ? (
-        <span className="loading loading-bars loading-xl"></span>
-      ) : events.length === 0 ? (
-        <p>Events not found</p>
-      ) : (
-        <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
-          {events.map((event, index) => (
-            <EventCard key={index} {...event} />
-          ))}
-        </div>
-      )}
-
-      {totalPages > 1 && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage + 1}
-          paginate={(page) => paginate(page - 1)}
-        />
-      )}
+        {totalPages > 1 && !loading && (
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage + 1}
+            paginate={page => paginate(page - 1)}
+          />
+        )}
+      </div>
     </div>
   );
 };
