@@ -8,6 +8,7 @@ import {
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router';
 import { useNotification } from '../context/NotificationContext';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -23,6 +24,8 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
 
   const checkAuthStatus = useCallback(async () => {
+    console.log('CHECKING AUTH');
+
     //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
     // const alreadyChecked =
     //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
@@ -84,14 +87,13 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       if (!response.ok) {
+        toast.error('Login Failed');
         toast.error('Incorrect email or password');
         return false;
       }
       sessionStorage.setItem('plsStahp', 'true');
       await checkAuthStatus();
-      const queryParams = new URLSearchParams(location.search);
-      const redirect = queryParams.get('redirect') || '/'; 
-      navigate(redirect);
+      setIsLoading(true);
       return true;
     } catch (error) {
       toast.error(error.message || 'Login Failed');

@@ -4,8 +4,10 @@ import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
+import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
@@ -94,8 +96,39 @@ public class EventController {
   }
 
   @GetMapping("/{eventId}")
-  public ResponseEntity<EventResponse> getEvent(@PathVariable Long eventId) {
+  public ResponseEntity<EventResponse> getEvent(@PathVariable Long eventId, Principal principal) {
     EventResponse event = eventService.getEventById(eventId);
+    boolean isRegistered = false;
+    if (principal != null) {
+      try {
+        User user = userService.findByUsername(principal.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User " + principal.getName() + " not found"));
+        isRegistered = registrationToEventService.countRegistrationsByEventIdAndUserId(eventId, user.getId()) > 0;
+      } catch (UsernameNotFoundException e) {
+
+      }
+      
+    }
+    event = new EventResponse(
+            event.id(),
+            event.name(),
+            event.startDateTime(),
+            event.endDateTime(),
+            event.createdAt(),
+            event.description(),
+            event.minAge(),
+            event.maxAge(),
+            event.experienceLevel(),
+            event.maxParticipants(),
+            event.city(),
+            event.address(),
+            event.photoPath(),
+            event.category(),
+            event.organizer(),
+            event.registrations(),
+            isRegistered 
+    );
+    
     return ResponseEntity.ok(event);
   }
 
