@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useNotification } from '../context/NotificationContext';
 
 const AuthContext = createContext();
@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   const { timeoutForError } = useNotification();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const checkAuthStatus = useCallback(async () => {
     //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
@@ -68,8 +69,9 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async credentials => {
+  const login = async (credentials) => {
     try {
+      setIsLoading(true);
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
         headers: {
@@ -87,7 +89,9 @@ export const AuthProvider = ({ children }) => {
       }
       sessionStorage.setItem('plsStahp', 'true');
       await checkAuthStatus();
-      setIsLoading(true);
+      const queryParams = new URLSearchParams(location.search);
+      const redirect = queryParams.get('redirect') || '/'; 
+      navigate(redirect);
       return true;
     } catch (error) {
       toast.error(error.message || 'Login Failed');

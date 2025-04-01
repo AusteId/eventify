@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate, Navigate } from 'react-router';
 import getEvent from '../helpers/event/getEvent';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
@@ -42,6 +42,7 @@ const Event = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const organizer = { username: event?.organizer.username };
   const [isRegistered, setIsRegistered] = useState(false);
+  const navigate = useNavigate();
 
   
   const isRegistrationOpen = () => {
@@ -55,7 +56,7 @@ const Event = () => {
 
   const handleRegister = async () => {
     if (!isAuthenticated) {
-      alert('You are not authenticated. Please log in.');
+      navigate(`/login?redirect=/event/${params.id}`);
       return;
     }
     try {
@@ -72,7 +73,6 @@ const Event = () => {
   
   const handleCancel = () => {
     if (!isAuthenticated) {
-      alert('You are not authenticated. Please log in.');
       return;
     }
     document.getElementById('cancel_confirmation_modal').showModal();
@@ -125,12 +125,9 @@ const Event = () => {
       }
     };
 
-    if (isAuthenticated && userId) {
-      fetchData();
-    } else {
-      setLoading(false); 
-    }
-  }, [params.id, userId, isAuthenticated]);
+    fetchData();
+    
+  }, [params.id, userId]);
 
   useEffect(() => {
   }, [isRegistered]);
