@@ -72,10 +72,10 @@ const Home = () => {
         </h1>
 
         <div className="flex gap-x-6 gap-y-6 tablet:gap-y-0 flex-col items-center tablet:flex-row justify-center">
-          <CategoryButton text={'Music'} picture={musicIcon} onClick={() => handleCategoryClick('Music')} />
-          <CategoryButton text={'Sports'} picture={SportsIcon} onClick={() => handleCategoryClick('Sports')} />
-          <CategoryButton text={'Workshop'} picture={WorkshopIcon} onClick={() => handleCategoryClick('Workshop')} />
-          <CategoryButton text={'Board Games'} picture={boardgamesIcon} onClick={() => handleCategoryClick('Board Games')} />
+          <CategoryButton text={'Music'} picture={musicIcon} onClick={() => handleCategoryClick('Music') } />
+          <CategoryButton text={'Sports'} picture={SportsIcon} onClick={() => handleCategoryClick('Sports') } />
+          <CategoryButton text={'Workshop'} picture={WorkshopIcon} onClick={() => handleCategoryClick('Workshop') }/>
+          <CategoryButton text={'Board Games'} picture={boardgamesIcon} onClick={() => handleCategoryClick('Boardgames') }/>
         </div>
       </div>
       {isAuthenticated && (
