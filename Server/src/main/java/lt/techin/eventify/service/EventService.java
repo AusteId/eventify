@@ -49,6 +49,7 @@ public class EventService {
 //  public Event saveEvent(CreateEventRequest createEventRequest) throws IOException {
 //    Event newEvent = eventMapper.toEvent(createEventRequest);
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
   @CachePut(value = "eventsCache", key = "#result.id")
   public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) throws IOException {
     JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
@@ -65,6 +66,7 @@ public class EventService {
     return eventMapper.toEventResponse(savedEvent);
   }
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
   @CachePut(value = "eventsCache", key = "#result.id")
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
 
@@ -90,7 +92,7 @@ public class EventService {
     return eventRepository.save(event);
   }
 
-  @CacheEvict(value = "eventsCache", key = "#eventId")
+  @CacheEvict(value = "eventsCache", allEntries = true)
   public void deleteEvent(long eventId, Principal principal) {
     Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
