@@ -328,7 +328,7 @@ const EventSearch = ({ onSearch }) => {
     };
 
     return (
-        <div className="mb-6 flex flex-col gap-4">
+        <div className="mb-4 flex flex-col gap-4">
             <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4">
                 <div className="relative tablet:w-3/5 desktop:w-2/3 mx-auto">
                     <button
@@ -359,7 +359,7 @@ const EventSearch = ({ onSearch }) => {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[140px] h-10  w-[140px]"
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[135px] h-10 w-[135px]"
                         >
                             <FaSort className="text-btn" />
                             Sort by <FaChevronDown className="text-btn" />
@@ -454,7 +454,7 @@ const EventSearch = ({ onSearch }) => {
                     <div className="relative" ref={filterDropdownRef}>
                         <button
                             onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[120px] h-10"
+                            className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-6 py-2 min-w-[135px] h-10"
                         >
                             <RiFilter2Fill className="text-btn" /> Filter <FaChevronDown className="text-btn" />
                         </button>
