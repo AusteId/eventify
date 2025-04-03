@@ -16,6 +16,8 @@ export const AuthProvider = ({ children }) => {
   const [roles, setRoles] = useState([]);
   const [userId, setUserId] = useState('');
   const [loading, setIsLoading] = useState(false);
+  const [profileImg, setProfileImg] = useState('');
+  const [birthDate, setBirthDate] = useState(null);
 
   const { timeoutForError } = useNotification();
 
@@ -42,6 +44,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
         setRoles(userData.roles || []);
         setUserId(userData.id || '');
+        setBirthDate(userData.birthDate || null);
         sessionStorage.setItem('plsStahp', 'true');
         console.log({
           authenticated: true,
@@ -52,6 +55,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
         setRoles([]);
         setUserId('');
+        setBirthDate(null);
         sessionStorage.removeItem('plsStahp');
       }
     } catch (error) {
@@ -59,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setRoles([]);
       setUserId('');
+      setBirthDate(null);
       sessionStorage.removeItem('plsStahp');
     } finally {
       setIsLoading(false);
@@ -155,6 +160,8 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         roles,
         userId,
+        profileImg,
+        birthDate,
         login,
         logout,
         authFetch,

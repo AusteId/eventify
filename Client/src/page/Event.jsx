@@ -20,13 +20,46 @@ const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState(null);
   const params = useParams();
-  const { userId, isAuthenticated} = useAuth();
+  const { userId, isAuthenticated, birthDate} = useAuth();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const organizer = { username: event?.organizer.username };
   const [isRegistered, setIsRegistered] = useState(false);
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+
+
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const isAgeValid = () => {
+    const userAge = calculateAge(birthDate);
+
+    if (!userAge && (!event?.minAge && !event?.maxAge)) return true;
+    if (!userAge) return false; 
+
+    const minAge = event?.minAge;
+    const maxAge = event?.maxAge;
+
+    if (!minAge && !maxAge) return true;
+
+    if (minAge && userAge < minAge) return false;
+    if (maxAge && userAge > maxAge) return false;
+    return true;
+  };
+
+  const isOrganizer = () => {
+    return String(userId) === String(event?.organizer.id);
+  };
 
   
   const isRegistrationOpen = () => {
@@ -43,6 +76,17 @@ const Event = () => {
       navigate(`/login?redirect=/event/${params.id}`);
       return;
     }
+
+    if (!isAgeValid()) {
+      toast.error('Your age does not meet the requirements of the event.');
+      return;
+    }
+
+    if (isOrganizer()) {
+      toast.error('An organizer cannot register for their own event.');
+      return;
+    }
+
     try {
       await joinEvent(params.id);
       setIsRegistered(true);
