@@ -115,7 +115,6 @@ export default function EventCarousel({
       autoplay: hasEnoughItems,
       draggable: hasEnoughItems,
       autoplaySpeed: 3000,
-      centerMode: true,
       responsive: [
         {
           breakpoint: 764,
