@@ -1,12 +1,12 @@
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useOutletContext } from 'react-router';
 import email from '../../assets/userRegistration/email-Icon.svg';
 import password from '../../assets/userRegistration/password-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
-import FieldValidationError from '../FieldValidationError';
-import { useOutletContext } from 'react-router';
 import Button from '../Button';
 import { useNotification } from '../context/NotificationContext';
+import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
@@ -221,9 +221,10 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                       message: 'Password cannot exceed 255 characters.',
                     },
                     pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[\S]+$/,
+                      value:
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+$/,
                       message:
-                        'Password must have an uppercase, lowercase, number',
+                        'The password must have an uppercase letter, lowercase letter, number, and a wildcard',
                     },
                   })}
                 />

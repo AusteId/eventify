@@ -84,4 +84,9 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(OrganizaeCannotRegisterException.class)
+  public ResponseEntity<Map<String, String>> handleOrganizaeCannotRegister(OrganizaeCannotRegisterException e) {
+    return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+  }
+
 }

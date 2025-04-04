@@ -5,9 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useNavigate } from 'react-router';
-import { useNotification } from '../context/NotificationContext';
 import toast from 'react-hot-toast';
+import { useNavigate, useLocation } from 'react-router';
+import { useNotification } from '../context/NotificationContext';
 
 const AuthContext = createContext();
 
@@ -16,14 +16,15 @@ export const AuthProvider = ({ children }) => {
   const [roles, setRoles] = useState([]);
   const [userId, setUserId] = useState('');
   const [loading, setIsLoading] = useState(false);
+  const [profileImg, setProfileImg] = useState('');
+  const [birthDate, setBirthDate] = useState(null);
 
   const { timeoutForError } = useNotification();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const checkAuthStatus = useCallback(async () => {
-    console.log('CHECKING AUTH');
-
     //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
     // const alreadyChecked =
     //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
@@ -43,6 +44,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
         setRoles(userData.roles || []);
         setUserId(userData.id || '');
+        setBirthDate(userData.birthDate || null);
         sessionStorage.setItem('plsStahp', 'true');
         console.log({
           authenticated: true,
@@ -53,6 +55,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
         setRoles([]);
         setUserId('');
+        setBirthDate(null);
         sessionStorage.removeItem('plsStahp');
       }
     } catch (error) {
@@ -60,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setRoles([]);
       setUserId('');
+      setBirthDate(null);
       sessionStorage.removeItem('plsStahp');
     } finally {
       setIsLoading(false);
@@ -70,8 +74,9 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async credentials => {
+  const login = async (credentials) => {
     try {
+      
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
         headers: {
@@ -84,13 +89,14 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       if (!response.ok) {
-        toast.error('Login Failed');
         toast.error('Incorrect email or password');
         return false;
       }
       sessionStorage.setItem('plsStahp', 'true');
       await checkAuthStatus();
-      setIsLoading(true);
+      const queryParams = new URLSearchParams(location.search);
+      const redirect = queryParams.get('redirect') || '/'; 
+      navigate(redirect);
       return true;
     } catch (error) {
       toast.error(error.message || 'Login Failed');
@@ -154,6 +160,8 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         roles,
         userId,
+        profileImg,
+        birthDate,
         login,
         logout,
         authFetch,

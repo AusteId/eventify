@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { FaList, FaMap } from 'react-icons/fa';
 import EventCard from './EventCard';
 import LoadingSection from './LoadingSection';
+import EventMap from './map/EventMap';
 import Pagination from './Pagination';
 import EventSearch from './search/EventSearch';
 
@@ -23,6 +25,7 @@ const EventsList = ({ setLoading, loading }) => {
     sortBy: 'startDateTime',
     sortDirection: 'ASC',
   });
+  const [showMap, setShowMap] = useState(false);
   const eventsPerPage = 12;
 
   useEffect(() => {
@@ -30,7 +33,6 @@ const EventsList = ({ setLoading, loading }) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          // sitas sukelia problemas
           `${import.meta.env.VITE_BACK_URL}/api/events/search`,
           {
             params: {
@@ -88,6 +90,10 @@ const EventsList = ({ setLoading, loading }) => {
     setCurrentPage(0);
   };
 
+  const toggleMapView = () => {
+    setShowMap(!showMap);
+  };
+
   return (
     <div>
       <EventSearch onSearch={handleSearch} />
@@ -103,15 +109,48 @@ const EventsList = ({ setLoading, loading }) => {
             ))}
           </div>
         )}
-
-        {totalPages > 1 && !loading && (
-          <Pagination
-            totalPages={totalPages}
-            currentPage={currentPage + 1}
-            paginate={page => paginate(page - 1)}
-          />
-        )}
       </div>
+
+      <div className="flex flex-col tablet:flex-row tablet:justify-end mb-4 gap-2 items-center tablet:items-start">
+        <button
+          onClick={toggleMapView}
+          className="text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 py-2 h-8 px-2 opacity-85 text-sm"
+        >
+          {showMap ? (
+            <>
+              <FaList className="text-btn" />
+              View as List
+            </>
+          ) : (
+            <>
+              <FaMap className="text-btn" />
+              View on Map
+            </>
+          )}
+        </button>
+      </div>
+
+      {loading ? (
+        <span className="loading loading-bars loading-xl"></span>
+      ) : showMap ? (
+        <EventMap />
+      ) : events.length === 0 ? (
+        <p>Events not found</p>
+      ) : (
+        <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
+          {events.map((event, index) => (
+            <EventCard key={index} {...event} />
+          ))}
+        </div>
+      )}
+
+      {!showMap && totalPages > 1 && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage + 1}
+          paginate={page => paginate(page - 1)}
+        />
+      )}
     </div>
   );
 };

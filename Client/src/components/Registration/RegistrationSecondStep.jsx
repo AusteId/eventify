@@ -33,7 +33,7 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     validateStep: async () => {
-      const fieldsValid = await trigger(['birthDate', 'city']);
+      const fieldsValid = await trigger(['city']);
       return fieldsValid;
     },
   }));
@@ -72,6 +72,14 @@ const RegistrationSecondStep = forwardRef((props, ref) => {
           className="input w-full"
           min={'1900-01-01'}
           max={getTodayString()}
+          {...register('birthDate', {
+            validate: value => {
+              if (!value) return true;
+              const today = new Date();
+              const birth = new Date(value);
+              return birth <= today || 'Дата рождения не может быть в будущем';
+            },
+          })}
         />
 
         {/* 

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import boardgamesIcon from '../assets/Boardgames-category.svg';
 import musicIcon from '../assets/music-category.svg';
 import SportsIcon from '../assets/sports-category.svg';
-import WorkshopIcon from '../assets/workshop-category.svg';
+import Outdoor from '../assets/categories/outdoor.svg';
 import { useAuth } from '../components/Auth/AuthContext';
 import CategoryButton from '../components/CategoryButton';
 import EventCarousel from '../components/EventCarousel';
@@ -11,6 +11,10 @@ import HeroSection from '../components/HeroSection';
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+
+  const handleCategoryClick = (category) => {
+    navigate(`/events?category=${encodeURIComponent(category.toLowerCase())}`);
+  };
 
   return (
     <div>
@@ -24,10 +28,10 @@ const Home = () => {
         </h1>
 
         <div className="flex gap-x-6 gap-y-6 tablet:gap-y-0 flex-col items-center tablet:flex-row justify-center">
-          <CategoryButton text={'Music'} picture={musicIcon} />
-          <CategoryButton text={'Sports'} picture={SportsIcon} />
-          <CategoryButton text={'Workshop'} picture={WorkshopIcon} />
-          <CategoryButton text={'Board Games'} picture={boardgamesIcon} />
+          <CategoryButton text={'Music'} picture={musicIcon} onClick={() => handleCategoryClick('Music') } />
+          <CategoryButton text={'Sports'} picture={SportsIcon} onClick={() => handleCategoryClick('Sports') } />
+          <CategoryButton text={'Outdoor'} picture={Outdoor} onClick={() => handleCategoryClick('Outdoor') }/>
+          <CategoryButton text={'Board Games'} picture={boardgamesIcon} onClick={() => handleCategoryClick('Boardgames') }/>
         </div>
       </div>
       {isAuthenticated && (

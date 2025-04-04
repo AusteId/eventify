@@ -143,7 +143,7 @@ const CommentSection = props => {
       ) : (
         <div className="flex flex-col items-center pt-10 pb-10">
           <MessageCircle className="h-20 w-20" />
-          <p className="font-inter text-body-medium mt-2">No commets yet</p>
+          <p className="font-inter text-body-medium mt-2">No comments yet</p>
         </div>
       )}
     </div>

@@ -12,7 +12,10 @@ const ParticipantsSection = ({ organizer, participants }) => {
     <div className="flex flex-col gap-6 p-6 bg-light-gray rounded-xl">
       <div className="flex flex-col gap-4 ">
         <h2 className="leading-5 text-heading-s font-[600]">Organizer</h2>
-        <Participant name={capitalizeFirstLetter(organizer.username)} />
+        <Participant 
+        name={capitalizeFirstLetter(organizer.username)}
+        profileImg={organizer.avatar}
+        />
       </div>
       {participants.length != 0 && (
         <>
