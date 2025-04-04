@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import Slider from 'react-slick';
 import axios from 'axios';
-import EventCard from './EventCard';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick-theme.css';
+import 'slick-carousel/slick/slick.css';
 import { CarouselButton } from './CarouselButton';
+import EventCard from './EventCard';
 
 const debounce = (func, wait) => {
   let timeout;
@@ -115,6 +115,7 @@ export default function EventCarousel({
       autoplay: hasEnoughItems,
       draggable: hasEnoughItems,
       autoplaySpeed: 3000,
+      centerMode: true,
       responsive: [
         {
           breakpoint: 764,

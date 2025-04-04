@@ -42,7 +42,11 @@ const HeroSection = () => {
               textColor="text-btn"
               hoverColor="hover:bg-[#fcf6b7]"
               onClick={() => {
-                navigate('/events');
+                if (isAuthenticated) {
+                  navigate('/events');
+                } else {
+                  navigate('/login');
+                }
               }}
             >
               Join Event

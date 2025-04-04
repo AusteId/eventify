@@ -7,7 +7,6 @@ import { useAuth } from '../components/Auth/AuthContext';
 import CategoryButton from '../components/CategoryButton';
 import EventCarousel from '../components/EventCarousel';
 import HeroSection from '../components/HeroSection';
-import EventCarousel2 from '../components/EventCarousel2';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -31,23 +30,25 @@ const Home = () => {
           <CategoryButton text={'Board Games'} picture={boardgamesIcon} />
         </div>
       </div>
-      {/* {isAuthenticated && (
+      {isAuthenticated && (
         <EventCarousel
           fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/recommended`}
           title={'Recommended for You'}
         />
-      )} */}
+      )}
 
-      <EventCarousel2 />
+      {/* <EventCarousel2
+        fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
+      /> */}
 
-      {/* <EventCarousel
+      <EventCarousel
         fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
         title={'Upcoming events'}
         needAuthorization={true}
-      /> */}
+      />
       {/* <EventCarousel
         fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
-        title={"Recommended for You"}
+        title={'Recommended for You'}
       /> */}
     </div>
   );
