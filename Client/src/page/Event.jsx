@@ -232,7 +232,7 @@ const Event = () => {
             )}
             {isRegistered && (
               <Button onClick={handleCancel} variant="secondary" disabled={isCanceling}>
-                {isCanceling ? 'Canceling...' : 'Cancel'}
+                {isCanceling ? 'Canceling...' : 'Leave Event'}
                 </Button>
             )}
             {userId == event.organizer.id && (
