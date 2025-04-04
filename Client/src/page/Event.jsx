@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Navigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import getEvent from '../helpers/event/getEvent';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
@@ -14,35 +14,52 @@ import { prettifyDateTime } from '../utils/dateFunctions';
 import getEventImage from '../helpers/event/getEventImage';
 import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
-
-// const participants = [
-//   {
-//     name: 'Kestas Bombonis',
-//     rating: 4.3,
-//   },
-//   {
-//     name: 'Tomas Kurtauskas',
-//     rating: 2.8,
-//   },
-//   {
-//     name: 'Marius Maironis',
-//     rating: 3.5,
-//   },
-//   {
-//     name: 'Jonas Petronis',
-//     rating: 1.2,
-//   },
-// ];
+import toast from 'react-hot-toast';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState(null);
   const params = useParams();
-  const { userId, isAuthenticated} = useAuth();
+  const { userId, isAuthenticated, birthDate} = useAuth();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const organizer = { username: event?.organizer.username };
   const [isRegistered, setIsRegistered] = useState(false);
   const navigate = useNavigate();
+  const [isJoining, setIsJoining] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+
+
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const isAgeValid = () => {
+    const userAge = calculateAge(birthDate);
+
+    if (!userAge && (!event?.minAge && !event?.maxAge)) return true;
+    if (!userAge) return false; 
+
+    const minAge = event?.minAge;
+    const maxAge = event?.maxAge;
+
+    if (!minAge && !maxAge) return true;
+
+    if (minAge && userAge < minAge) return false;
+    if (maxAge && userAge > maxAge) return false;
+    return true;
+  };
+
+  const isOrganizer = () => {
+    return String(userId) === String(event?.organizer.id);
+  };
 
   
   const isRegistrationOpen = () => {
@@ -59,19 +76,46 @@ const Event = () => {
       navigate(`/login?redirect=/event/${params.id}`);
       return;
     }
+
+    if (!isAgeValid()) {
+      toast.error('Your age does not meet the requirements of the event.');
+      return;
+    }
+
+    if (isOrganizer()) {
+      toast.error('An organizer cannot register for their own event.');
+      return;
+    }
+
     try {
       await joinEvent(params.id);
       setIsRegistered(true);
-      const updatedEventData = await getEvent(params.id);
-      const pictureResponse = await getEventImage(params.id);
+      const [updatedEventData, pictureResponse] = await Promise.all([
+        getEvent(params.id),
+        getEventImage(params.id),
+      ]);
       setEvent({ ...updatedEventData, picture: URL.createObjectURL(pictureResponse) });
+      
+      toast.success(
+        `Successfully registered for ${updatedEventData.name}! See you on ${prettifyDateTime(updatedEventData.startDateTime)}.`,
+        { 
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
     } catch (error) {
       console.error('Join to event error:', error.message);
-      alert('Registration is not possible. Check event conditions.');
+      toast.error('Registration failed. Please try again.');
     }
+      finally {
+    setIsJoining(false);
+  }
   };
   
   const handleCancel = () => {
+    
     if (!isAuthenticated) {
       return;
     }
@@ -79,17 +123,26 @@ const Event = () => {
   };
   
   const confirmCancel = async () => {
+    setIsCanceling(true);
     try {
       await cancelEvent(params.id);
       setIsRegistered(false);
-      const updatedEventData = await getEvent(params.id);
-      const pictureResponse = await getEventImage(params.id);
+      const [updatedEventData, pictureResponse] = await Promise.all([
+        getEvent(params.id),
+        getEventImage(params.id),
+      ]);
       setEvent({ ...updatedEventData, picture: URL.createObjectURL(pictureResponse) });
+    
+      toast.success(`Registration for ${updatedEventData.name} canceled.`, {
+      });
       document.getElementById('cancel_confirmation_modal').close();
     } catch (error) {
       console.error('Error canceling registration:', error.message);
-      alert('Failed to cancel registration.');
+      toast.error('Failed to cancel registration.');
     }
+      finally {
+      setIsCanceling(false);
+      }
   };
   
   const closeCancelModal = () => {
@@ -97,8 +150,6 @@ const Event = () => {
   };
   
   useEffect(() => {
-    console.log('User ID:', userId);
-    console.log('Authenticated:', isAuthenticated);
 
     const fetchData = async () => {
       try {
@@ -147,20 +198,12 @@ const Event = () => {
     document.getElementById('event_creation_modal').showModal();
   };
 
-  console.log(event);
-  console.log('EVENT DESCRIPTION: ', event.description ? 'TRUE' : 'FALSE');
-  console.log(userId);
-
-  console.log('Is owner? ', userId == event.organizer.id);
-  console.log('USER IDS: ', userId, event.organizer.id);
-
   return (
     <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
       <div
         className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
         <div className="w-full flex justify-center">
-          {/* <img src={event.picture} className="max-w-full h-auto" /> */}
           <img src={event.picture} className="w-full h-full" />
         </div>
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
@@ -183,11 +226,13 @@ const Event = () => {
           </div>
           <div className="flex justify-center gap-3">
             {isRegistrationOpen() && !isRegistered && (
-              <Button onClick={handleRegister}>Join Event</Button>
+              <Button onClick={handleRegister} disabled={isJoining}>
+                {isJoining ? 'Joining...' : 'Join Event'}
+              </Button>
             )}
             {isRegistered && (
-              <Button onClick={handleCancel} variant="secondary">
-                Cancel
+              <Button onClick={handleCancel} variant="secondary" disabled={isCanceling}>
+                {isCanceling ? 'Canceling...' : 'Cancel'}
                 </Button>
             )}
             {userId == event.organizer.id && (
@@ -202,7 +247,7 @@ const Event = () => {
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.minAge}-{event.maxAge}
+                {event.minAge}/{event.maxAge}
               </p>
             </div>
           ) : event.minAge && !event.maxAge ? (
@@ -225,7 +270,7 @@ const Event = () => {
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Participants</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.registrations.length}-{event.maxParticipants}
+                {event.registrations.length} / {event.maxParticipants}
               </p>
             </div>
           ) : (
@@ -295,11 +340,11 @@ const Event = () => {
                 <div className="p-4 flex flex-col gap-4">
                   <h2 className="text-xl flex justify-center font-bold">Cancel Confirmation</h2>
                   <p>Are you sure you want to cancel registration for this event?</p>
-                  <div className="flex justify-between gap-2">
-                    <Button onClick={confirmCancel} variant="primary">
+                  <div className="flex justify-evenly gap-2">
+                    <Button onClick={confirmCancel} variant="primary" >
                       Yes
                     </Button>
-                    <Button onClick={closeCancelModal} variant="secondary ">
+                    <Button onClick={closeCancelModal}  background='bg-white' textColor='text-body-medium' hoverColor='hover:bg-gray-100' border='border border-input-light'>
                       No
                     </Button>
                   </div>

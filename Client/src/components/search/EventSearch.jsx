@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import { CiSearch, CiCircleRemove } from "react-icons/ci";
 import { FaArrowUp, FaArrowDown, FaChevronDown, FaCheck, FaUser, FaMapMarkerAlt, FaStar, FaList, FaCalendar } from "react-icons/fa";
 import { FaArrowUpAZ, FaArrowDownZA, FaArrowUp19, FaArrowDown91, FaSort } from "react-icons/fa6";
@@ -25,6 +26,9 @@ const EventSearch = ({ onSearch }) => {
     const categoryDropdownRef = useRef(null);
     const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
     const experienceDropdownRef = useRef(null);
+
+    const [searchParams] = useSearchParams();
+    const isFirstRender = useRef(true);
 
     const categories = [
         { id: 1, name: "Sports" },
@@ -50,6 +54,7 @@ const EventSearch = ({ onSearch }) => {
         trigger,
     } = useForm({
         defaultValues: {
+            categoryName: searchParams.get("category") || "",
             categoryName: "",
             city: "",
             startDateTime: "",
@@ -65,6 +70,33 @@ const EventSearch = ({ onSearch }) => {
     const categoryName = watch("categoryName");
     const startDateTime = watch("startDateTime");
     const endDateTime = watch("endDateTime");
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      const initialCategory = searchParams.get("category");
+      if (initialCategory) {
+        const normalizedCategory = categories.find(
+          (cat) => cat.name.toLowerCase() === initialCategory.toLowerCase()
+        )?.name || initialCategory;
+        setValue("categoryName", normalizedCategory);
+        onSearch({
+          searchTerm: searchInput,
+          filters: {
+            categoryName: normalizedCategory,
+            city: watch("city"),
+            startDateTime: watch("startDateTime"),
+            endDateTime: watch("endDateTime"),
+            experienceLevel: watch("experienceLevel"),
+            minAge: watch("minAge") ? Number.parseInt(watch("minAge")) : undefined,
+            maxAge: watch("maxAge") ? Number.parseInt(watch("maxAge")) : undefined,
+          },
+          sortBy,
+          sortDirection,
+        });
+      }
+      isFirstRender.current = false; 
+    }
+  }, [searchParams, setValue, onSearch, watch, categories, searchInput, sortBy, sortDirection]);
 
     useEffect(() => {
         if (startDateTime && !isToDateManuallyEdited && !isSettingDateFilter) {
