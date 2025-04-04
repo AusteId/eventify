@@ -53,7 +53,7 @@ const EventCard = ({
           error.response?.data,
           error.response?.status,
         );
-        setImageData([]);
+        setImageData(null);
       } finally {
         setIsImageLoading(false);
       }
