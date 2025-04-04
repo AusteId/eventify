@@ -56,6 +56,7 @@ const EventsList = ({ setLoading, loading }) => {
             },
           },
         );
+        console.log(response.data);
         setEvents(response.data.content);
         setTotalPages(response.data.totalPages);
       } catch (error) {
@@ -95,21 +96,8 @@ const EventsList = ({ setLoading, loading }) => {
   };
 
   return (
-    <div>
+    <div className="h-full flex flex-col justify-between">
       <EventSearch onSearch={handleSearch} />
-      <div className="h-full flex flex-col justify-between">
-        {loading ? (
-          <LoadingSection />
-        ) : events.length === 0 ? (
-          <p>Events not found</p>
-        ) : (
-          <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
-            {events.map((event, index) => (
-              <EventCard key={index} {...event} />
-            ))}
-          </div>
-        )}
-      </div>
 
       <div className="flex flex-col tablet:flex-row tablet:justify-end mb-4 gap-2 items-center tablet:items-start">
         <button
@@ -131,7 +119,7 @@ const EventsList = ({ setLoading, loading }) => {
       </div>
 
       {loading ? (
-        <span className="loading loading-bars loading-xl"></span>
+        <LoadingSection />
       ) : showMap ? (
         <EventMap />
       ) : events.length === 0 ? (
