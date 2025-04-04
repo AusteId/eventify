@@ -14,10 +14,12 @@ import cancelEvent from '../helpers/event/cancelEvent';
 import getEvent from '../helpers/event/getEvent';
 import getEventImage from '../helpers/event/getEventImage';
 import joinEvent from '../helpers/event/joinEvent';
+import { prettifyDateTime } from '../utils/dateFunctions';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState(null);
+  const [eventImage, setEventImage] = useState(null);
   const params = useParams();
   const { userId, isAuthenticated, birthDate } = useAuth();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -153,10 +155,9 @@ const Event = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchdata = async () => {
       try {
         const data = await getEvent(params.id);
-        const pictureResponse = await getEventImage(params.id);
 
         if (!data) {
           console.error('Failed to load event data');
@@ -164,36 +165,20 @@ const Event = () => {
           return;
         }
 
-        const eventData = {
-          ...data,
-          picture: URL.createObjectURL(pictureResponse),
-        };
-        setEvent(eventData);
+        setEvent(data);
 
         const userRegistration =
-          eventData.registrations && Array.isArray(eventData.registrations)
-            ? eventData.registrations.some(
+          event.registrations && Array.isArray(event.registrations)
+            ? event.registrations.some(
                 reg => String(reg.userJoinToEvent?.userId) === String(userId),
               )
             : false;
+
         setIsRegistered(userRegistration);
-      } catch (error) {
-        console.error('Error loading event data', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [params.id, userId]);
-
-  useEffect(() => {
-    const fetchdata = async () => {
-      try {
-        const data = await getEvent(params.id);
-        setEvent(data);
       } catch (err) {
         console.error(err.message);
+      } finally {
+        setLoading(false);
       }
 
       try {
@@ -201,11 +186,13 @@ const Event = () => {
         setEventImage(URL.createObjectURL(pictureResponse));
       } catch (err) {
         console.error(err.message);
-        setEventImage([]);
+        setEventImage('../src/assets/eventCardImgSample.png');
       }
     };
     fetchdata();
-  }, [isRegistered]);
+  }, [params.id, userId]);
+
+  useEffect(() => {}, [isRegistered]);
 
   if (!event) {
     return <p>LOADING</p>;
@@ -228,15 +215,7 @@ const Event = () => {
         className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
         <div className="w-full h-100 overflow-clip">
-          {/* <img src={event.picture} className="max-w-full h-auto" /> */}
-          <img
-            src={eventImage}
-            onError={() => {
-              console.log('Image failed to load, using fallback');
-              setEventImage('../src/assets/eventCardImgSample.png');
-            }}
-            className="w-full h-full object-contain"
-          />
+          <img src={eventImage} className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
           <div className="flex flex-col gap-5">
