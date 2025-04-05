@@ -7,6 +7,7 @@ import { LoaderIcon } from 'react-hot-toast';
 import ImageDropzone from './Registration/ImageDropZone';
 import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
 import toast from 'react-hot-toast';
+import { OpenStreetMapProvider } from 'leaflet-geosearch';
 
 const CreateEventForm = () => {
   const {
@@ -45,12 +46,51 @@ const CreateEventForm = () => {
       maxParticipants: null,
       description: '',
       experienceLevel: 'Select Experience Level',
+      latitude: null,
+      longitude: null,
     },
   });
 
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [geocodingError, setGeocodingError] = useState(null);
   const picture = watch('picture');
+  const city = watch('city');
+  const address = watch('address');
+
+  const provider = new OpenStreetMapProvider();
+
+  const fetchCoordinates = async () => {
+    if (!city || !address) {
+      setValue('latitude', null);
+      setValue('longitude', null);
+      setGeocodingError(null);
+      return;
+    }
+
+    const query = `${city}, ${address}`;
+    try {
+      const results = await provider.search({ query });
+      if (results.length > 0) {
+        const { x, y } = results[0];
+        setValue('latitude', y);
+        setValue('longitude', x);
+        setGeocodingError(null);
+      } else {
+        setValue('latitude', null);
+        setValue('longitude', null);
+        setGeocodingError('Could not find coordinates for this address');
+      }
+    } catch (err) {
+      setValue('latitude', null);
+      setValue('longitude', null);
+      setGeocodingError('Error fetching coordinates');
+    }
+  };
+
+  useEffect(() => {
+    fetchCoordinates();
+  }, [city, address]);
 
   const onSubmit = async data => {
     try {
@@ -58,12 +98,15 @@ const CreateEventForm = () => {
       const response = await createEvent({
         ...data,
         categoryId: data.category,
+        latitude: data.latitude,
+        longitude: data.longitude,
       });
       console.log('RESPONSE: ', response);
       toast.success('Event created successfully');
       closeModal();
     } catch (error) {
       console.error('Event creation failed: ', error);
+      toast.error('Failed to create event');
     }
   };
 

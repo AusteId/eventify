@@ -19,6 +19,9 @@ import org.springframework.util.FileCopyUtils;
 import java.io.IOException;
 import java.util.List;
 
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.GeometryFactory;
+
 @AllArgsConstructor
 @Component
 public class EventMapper {
@@ -70,6 +73,12 @@ public class EventMapper {
 //    Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("category not found for id " + createEventRequest.categoryId()));
 //    User organizer = userRepository.findById(createEventRequest.organizerId()).orElseThrow(() -> new UserNotFoundException("user not found for id " + createEventRequest.organizerId()));
 
+    GeometryFactory geometryFactory = new GeometryFactory();
+    Point location = null;
+    if (event.latitude() != null && event.longitude() != null) {
+      location = geometryFactory.createPoint(new org.locationtech.jts.geom.Coordinate(event.longitude(), event.latitude()));
+    }
+
     return new Event(
             category,
             organizer,
@@ -84,7 +93,7 @@ public class EventMapper {
             event.city(),
             event.address(),
             event.photoPath(),
-            null
+            location
     );
   }
 
