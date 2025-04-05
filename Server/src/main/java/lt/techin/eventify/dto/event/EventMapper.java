@@ -40,6 +40,9 @@ public class EventMapper {
             .map(registrationToEventMapper::toUserRegisteredToEvent)
             .toList();
 
+    Double latitude = event.getLocation() != null ? event.getLocation().getY() : null;
+    Double longitude = event.getLocation() != null ? event.getLocation().getX() : null;
+
     return new EventResponse(
             event.getId(),
             event.getName(),
@@ -57,7 +60,9 @@ public class EventMapper {
             categoryMapper.toDTO(event.getCategory()),
             userMapper.toUserResponse(event.getOrganizer()),
             registrations,
-            false
+            false,
+            latitude,
+            longitude
     );
   }
 
