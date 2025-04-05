@@ -43,8 +43,12 @@ public class EventMapper {
             .map(registrationToEventMapper::toUserRegisteredToEvent)
             .toList();
 
+    System.out.println("Event ID: " + event.getId() + ", Location: " + event.getLocation());
+
     Double latitude = event.getLocation() != null ? event.getLocation().getX() : null;
     Double longitude = event.getLocation() != null ? event.getLocation().getY() : null;
+
+    System.out.println("Latitude: " + latitude + ", Longitude: " + longitude);
 
     return new EventResponse(
             event.getId(),
