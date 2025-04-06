@@ -15,7 +15,7 @@ const EventMap = ({ events }) => {
         <MapContainer
             center={[54.6892, 25.2798]}
             zoom={13}
-            className="w-full desktop:w-[69.5rem] mx-auto rounded-[0.5rem]"
+            className="w-full desktop:w-[69.5rem] mx-auto rounded-[0.5rem] z-10"
             style={{
                 height: 'calc(100vh - 18.75rem)',
                 minHeight: '25rem',

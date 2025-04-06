@@ -61,6 +61,7 @@ const CreateEventForm = () => {
   const provider = new OpenStreetMapProvider();
 
   const fetchCoordinates = async () => {
+
     if (!city || !address) {
       setValue('latitude', null);
       setValue('longitude', null);
@@ -69,6 +70,7 @@ const CreateEventForm = () => {
     }
 
     const query = `${city}, ${address}`;
+    
     try {
       const results = await provider.search({ query });
       if (results.length > 0) {
