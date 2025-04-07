@@ -25,7 +25,8 @@ public record EventResponse(
         CategoryResponse category,
         UserResponse organizer,
         List<UserRegisteredToEventResponse> registrations,
-        boolean isRegistered
-
+        boolean isRegistered,
+        Double latitude,
+        Double longitude
 ) {
 }

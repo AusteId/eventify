@@ -444,7 +444,7 @@ const EventSearch = ({ onSearch }) => {
                                     >
                                         <div className="flex items-center gap-3 text-sm">
                                             <FaArrowUp19 className="text-btn text-lg" />
-                                            Soonest to Latest
+                                            Earliest to Latest
                                         </div>
                                         {sortBy === "startDateTime" && sortDirection === "ASC" && <FaCheck className="text-btn" />}
                                     </button>
@@ -454,7 +454,7 @@ const EventSearch = ({ onSearch }) => {
                                     >
                                         <div className="flex items-center gap-3 text-sm">
                                             <FaArrowDown91 className="text-btn text-lg" />
-                                            Latest to Soonest
+                                            Latest to Earliest
                                         </div>
                                         {sortBy === "startDateTime" && sortDirection === "DESC" && <FaCheck className="text-btn" />}
                                     </button>
@@ -464,7 +464,7 @@ const EventSearch = ({ onSearch }) => {
                                     >
                                         <div className="flex items-center gap-3 text-sm">
                                             <FaArrowUp19 className="text-btn text-lg" />
-                                            Newest to Latest
+                                            Newest to Oldest
                                         </div>
                                         {sortBy === "createdAt" && sortDirection === "ASC" && <FaCheck className="text-btn" />}
                                     </button>
@@ -474,7 +474,7 @@ const EventSearch = ({ onSearch }) => {
                                     >
                                         <div className="flex items-center gap-3 text-sm">
                                             <FaArrowDown91 className="text-btn text-lg" />
-                                            Latest to Newest
+                                            Oldest to Newest
                                         </div>
                                         {sortBy === "createdAt" && sortDirection === "DESC" && <FaCheck className="text-btn" />}
                                     </button>

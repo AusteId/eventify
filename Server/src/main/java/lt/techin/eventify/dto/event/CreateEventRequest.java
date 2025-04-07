@@ -42,7 +42,7 @@ public record CreateEventRequest(
         @Max(value = 120, message = "Minimum age cannot be more than 120")
         Integer minAge,
 
-        @Min(value = 0, message = "The age must be greater than zer")
+        @Min(value = 0, message = "The age must be greater than zero")
         @Max(value = 120, message = "Maximum age cannot be more than 120")
         Integer maxAge,
 
@@ -69,6 +69,9 @@ public record CreateEventRequest(
 
         @ValidImage
         @Schema(type = "string", format = "binary")
-        MultipartFile picture
+        MultipartFile picture,
+
+        Double latitude,
+        Double longitude
 ) {
 }
