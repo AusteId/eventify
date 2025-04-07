@@ -247,7 +247,7 @@ const Event = () => {
                 variant="secondary"
                 disabled={isCanceling}
               >
-                {isCanceling ? 'Canceling...' : 'Cancel'}
+                {isCanceling ? 'Canceling...' : 'Leave Event'}
               </Button>
             )}
             {userId == event.organizer.id && (
@@ -262,7 +262,7 @@ const Event = () => {
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.minAge}/{event.maxAge}
+                {event.minAge} - {event.maxAge}
               </p>
             </div>
           ) : event.minAge && !event.maxAge ? (

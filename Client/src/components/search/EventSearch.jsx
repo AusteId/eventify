@@ -1,28 +1,29 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { CiCircleRemove, CiSearch } from 'react-icons/ci';
+import { useSearchParams } from 'react-router-dom';
+import { CiSearch, CiCircleRemove } from 'react-icons/ci';
 import {
-  FaArrowDown,
   FaArrowUp,
-  FaCalendar,
-  FaCheck,
+  FaArrowDown,
   FaChevronDown,
-  FaList,
+  FaCheck,
+  FaUser,
   FaMapMarkerAlt,
   FaStar,
-  FaUser,
+  FaList,
+  FaCalendar,
 } from 'react-icons/fa';
 import {
-  FaArrowDown91,
+  FaArrowUpAZ,
   FaArrowDownZA,
   FaArrowUp19,
-  FaArrowUpAZ,
+  FaArrowDown91,
   FaSort,
 } from 'react-icons/fa6';
-import { IoCalendarOutline } from 'react-icons/io5';
 import { RiFilter2Fill } from 'react-icons/ri';
+import { IoCalendarOutline } from 'react-icons/io5';
 import CategoryImage from '../category/CategoryImage';
 
 const EventSearch = ({ onSearch }) => {
@@ -42,6 +43,9 @@ const EventSearch = ({ onSearch }) => {
   const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] =
     useState(false);
   const experienceDropdownRef = useRef(null);
+
+  const [searchParams] = useSearchParams();
+  const isFirstRender = useRef(true);
 
   const categories = [
     { id: 1, name: 'Sports' },
@@ -67,6 +71,7 @@ const EventSearch = ({ onSearch }) => {
     trigger,
   } = useForm({
     defaultValues: {
+      categoryName: searchParams.get('category') || '',
       categoryName: '',
       city: '',
       startDateTime: '',
@@ -82,6 +87,47 @@ const EventSearch = ({ onSearch }) => {
   const categoryName = watch('categoryName');
   const startDateTime = watch('startDateTime');
   const endDateTime = watch('endDateTime');
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      const initialCategory = searchParams.get('category');
+      if (initialCategory) {
+        const normalizedCategory =
+          categories.find(
+            cat => cat.name.toLowerCase() === initialCategory.toLowerCase(),
+          )?.name || initialCategory;
+        setValue('categoryName', normalizedCategory);
+        onSearch({
+          searchTerm: searchInput,
+          filters: {
+            categoryName: normalizedCategory,
+            city: watch('city'),
+            startDateTime: watch('startDateTime'),
+            endDateTime: watch('endDateTime'),
+            experienceLevel: watch('experienceLevel'),
+            minAge: watch('minAge')
+              ? Number.parseInt(watch('minAge'))
+              : undefined,
+            maxAge: watch('maxAge')
+              ? Number.parseInt(watch('maxAge'))
+              : undefined,
+          },
+          sortBy,
+          sortDirection,
+        });
+      }
+      isFirstRender.current = false;
+    }
+  }, [
+    searchParams,
+    setValue,
+    onSearch,
+    watch,
+    categories,
+    searchInput,
+    sortBy,
+    sortDirection,
+  ]);
 
   useEffect(() => {
     if (startDateTime && !isToDateManuallyEdited && !isSettingDateFilter) {
@@ -365,9 +411,9 @@ const EventSearch = ({ onSearch }) => {
   };
 
   return (
-    <div className="mb-6 flex flex-col gap-4">
-      <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4 ">
-        <div className="relative w-full mx-auto desktop:w-210 tablet:w-110">
+    <div className="mb-4 flex flex-col gap-4">
+      <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4">
+        <div className="relative tablet:w-3/5 desktop:w-2/3 mx-auto">
           <button
             onClick={handleSearchSubmit}
             className="absolute left-2 rounded-full text-btn hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
@@ -396,7 +442,7 @@ const EventSearch = ({ onSearch }) => {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-              className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[140px] h-10  w-[140px]"
+              className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[135px] h-10 w-[135px]"
             >
               <FaSort className="text-btn" />
               Sort by <FaChevronDown className="text-btn" />
@@ -459,7 +505,7 @@ const EventSearch = ({ onSearch }) => {
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowUp19 className="text-btn text-lg" />
-                      Soonest to Latest
+                      Earliest to Latest
                     </div>
                     {sortBy === 'startDateTime' && sortDirection === 'ASC' && (
                       <FaCheck className="text-btn" />
@@ -471,7 +517,7 @@ const EventSearch = ({ onSearch }) => {
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowDown91 className="text-btn text-lg" />
-                      Latest to Soonest
+                      Latest to Earliest
                     </div>
                     {sortBy === 'startDateTime' && sortDirection === 'DESC' && (
                       <FaCheck className="text-btn" />
@@ -483,7 +529,7 @@ const EventSearch = ({ onSearch }) => {
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowUp19 className="text-btn text-lg" />
-                      Newest to Latest
+                      Newest to Oldest
                     </div>
                     {sortBy === 'createdAt' && sortDirection === 'ASC' && (
                       <FaCheck className="text-btn" />
@@ -495,7 +541,7 @@ const EventSearch = ({ onSearch }) => {
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowDown91 className="text-btn text-lg" />
-                      Latest to Newest
+                      Oldest to Newest
                     </div>
                     {sortBy === 'createdAt' && sortDirection === 'DESC' && (
                       <FaCheck className="text-btn" />
@@ -509,7 +555,7 @@ const EventSearch = ({ onSearch }) => {
           <div className="relative" ref={filterDropdownRef}>
             <button
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[120px] h-10"
+              className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-6 py-2 min-w-[135px] h-10"
             >
               <RiFilter2Fill className="text-btn" /> Filter{' '}
               <FaChevronDown className="text-btn" />

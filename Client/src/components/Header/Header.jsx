@@ -11,7 +11,7 @@ const Header = () => {
     isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
 
   return (
-    <header className="sticky h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
+    <header className="fixed min-w-full h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
       <nav className=" flex justify-between  self-center items-center w-[100%] px-6">
         <NavLink tabIndex={-1} to={'/'}>
           <section className=" flex items-center gap-[1rem]">

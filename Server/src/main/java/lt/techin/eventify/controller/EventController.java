@@ -125,7 +125,7 @@ public class EventController {
       } catch (UsernameNotFoundException e) {
 
       }
-      
+
     }
     event = new EventResponse(
             event.id(),
@@ -144,9 +144,11 @@ public class EventController {
             event.category(),
             event.organizer(),
             event.registrations(),
-            isRegistered 
+            isRegistered,
+            event.latitude(),
+            event.longitude()
     );
-    
+
     return ResponseEntity.ok(event);
   }
 

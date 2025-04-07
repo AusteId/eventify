@@ -56,7 +56,7 @@ const EventsList = ({ setLoading, loading }) => {
             },
           },
         );
-        console.log(response.data);
+        console.log('API Response:', response.data);
         setEvents(response.data.content);
         setTotalPages(response.data.totalPages);
       } catch (error) {
@@ -121,7 +121,7 @@ const EventsList = ({ setLoading, loading }) => {
       {loading ? (
         <LoadingSection />
       ) : showMap ? (
-        <EventMap />
+        <EventMap events={events} />
       ) : events.length === 0 ? (
         <p>Events not found</p>
       ) : (
