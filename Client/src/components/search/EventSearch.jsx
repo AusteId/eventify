@@ -413,7 +413,7 @@ const EventSearch = ({ onSearch }) => {
   return (
     <div className="mb-4 flex flex-col gap-4">
       <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4">
-        <div className="relative tablet:w-3/5 desktop:w-2/3 mx-auto">
+        <div className="relative w-full tablet:w-3/5 desktop:w-2/3 mx-auto">
           <button
             onClick={handleSearchSubmit}
             className="absolute left-2 rounded-full text-btn hover:opacity-80 text-xl top-1/2 -translate-y-1/2"
