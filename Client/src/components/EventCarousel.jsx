@@ -159,7 +159,9 @@ export default function EventCarousel({
 
   return (
     <div className="w-full mx-auto overflow-hidden relative z-20 bg-white">
-      <h2 className={`text-heading-m text-center px-24 tablet:text-left mb-6`}>
+      <h2
+        className={`text-heading-l text-header-dark font-bold text-center pb-12`}
+      >
         {title}
       </h2>
 
