@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class EventService {
+
   private static final Logger logger = LoggerFactory.getLogger(EventService.class);
 
   private final EventRepository eventRepository;
@@ -303,6 +304,24 @@ public class EventService {
     return topEvents.stream()
             .sorted(Comparator.comparingDouble(EventWithScore::score).reversed())
             .map(eventWithScore -> eventMapper.toGetEventResponse(eventWithScore.event()))
+            .toList();
+  }
+
+  public List<EventMapResponse> findAllEventsForMap(String categoryName, String city, String startDateTime,
+                                                    String endDateTime, String experienceLevel,
+                                                    Integer minAge, Integer maxAge, String searchTerm) {
+
+    if (categoryName != null && !categoryName.isEmpty()) {
+
+      categoryRepository.findByName(categoryName)
+              .orElseThrow(() -> new CategoryNotFoundException("Category '" + categoryName + "' not found"));
+    }
+
+    List<Event> events = eventRepository.findAllEventsForMap(categoryName, city, startDateTime, endDateTime,
+            experienceLevel, minAge, maxAge, searchTerm);
+
+    return events.stream()
+            .map(eventMapper::toEventMapResponse)
             .toList();
   }
 }

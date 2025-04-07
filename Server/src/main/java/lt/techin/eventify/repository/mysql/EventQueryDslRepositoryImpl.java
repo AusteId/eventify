@@ -188,7 +188,7 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
     }
 
     OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.ASC, event.startDateTime);
-    
+
     return queryFactory.selectFrom(event)
             .where(builder)
             .orderBy(orderSpecifier)
