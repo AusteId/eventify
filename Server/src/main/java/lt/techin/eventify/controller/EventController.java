@@ -218,7 +218,7 @@ public class EventController {
             request.maxAge(),
             request.searchTerm()
     );
-    
+
     return ResponseEntity.ok(events);
   }
 }
