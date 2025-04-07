@@ -12,7 +12,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  const handleCategoryClick = (category) => {
+  const handleCategoryClick = category => {
     navigate(`/events?category=${encodeURIComponent(category.toLowerCase())}`);
   };
 
@@ -72,10 +72,26 @@ const Home = () => {
         </h1>
 
         <div className="flex gap-x-6 gap-y-6 tablet:gap-y-0 flex-col items-center tablet:flex-row justify-center">
-          <CategoryButton text={'Music'} picture={musicIcon} onClick={() => handleCategoryClick('Music') } />
-          <CategoryButton text={'Sports'} picture={SportsIcon} onClick={() => handleCategoryClick('Sports') } />
-          <CategoryButton text={'Outdoor'} picture={Outdoor} onClick={() => handleCategoryClick('Outdoor') }/>
-          <CategoryButton text={'Board Games'} picture={boardgamesIcon} onClick={() => handleCategoryClick('Boardgames') }/>
+          <CategoryButton
+            text={'Music'}
+            picture={musicIcon}
+            onClick={() => handleCategoryClick('Music')}
+          />
+          <CategoryButton
+            text={'Sports'}
+            picture={SportsIcon}
+            onClick={() => handleCategoryClick('Sports')}
+          />
+          <CategoryButton
+            text={'Outdoor'}
+            picture={Outdoor}
+            onClick={() => handleCategoryClick('Outdoor')}
+          />
+          <CategoryButton
+            text={'Board Games'}
+            picture={boardgamesIcon}
+            onClick={() => handleCategoryClick('Boardgames')}
+          />
         </div>
       </div>
       {isAuthenticated && (
@@ -85,11 +101,14 @@ const Home = () => {
         />
       )}
 
-      <EventCarousel
-        fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
-        title={'Upcoming events'}
-        needAuthorization={true}
-      />
+      {!isAuthenticated && (
+        <EventCarousel
+          fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/hot`}
+          title={'Hot events'}
+          needAuthorization={true}
+        />
+      )}
+
       {/* <EventCarousel
         fetchUrl={`${import.meta.env.VITE_BACK_URL}/api/events/upcoming`}
         title={"Recommended for You"}

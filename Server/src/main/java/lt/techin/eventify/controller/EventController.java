@@ -205,4 +205,9 @@ public class EventController {
 
     return ResponseEntity.ok(eventService.findRecommendedEvents(principal.getName()));
   }
+
+  @GetMapping("/hot")
+  public ResponseEntity<List<GetEventResponse>> getHotEvents() {
+    return ResponseEntity.ok(eventService.findHotEvents());
+  }
 }

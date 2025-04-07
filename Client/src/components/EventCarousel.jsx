@@ -21,6 +21,7 @@ const debounce = (func, wait) => {
 const BREAKPOINTS = {
   MOBILE: 764,
   TABLET: 1440,
+  DEKSTOP: 2000,
 };
 
 export default function EventCarousel({
@@ -38,7 +39,8 @@ export default function EventCarousel({
   const cardsPerView = useMemo(() => {
     if (windowWidth < BREAKPOINTS.MOBILE) return 1;
     if (windowWidth < BREAKPOINTS.TABLET) return 2;
-    return 3;
+    if (windowWidth < BREAKPOINTS.DEKSTOP) return 3;
+    return 5;
   }, [windowWidth]);
 
   useEffect(() => {
@@ -156,7 +158,7 @@ export default function EventCarousel({
   }
 
   return (
-    <div className="w-full mx-auto overflow-hidden relative z-20">
+    <div className="w-full mx-auto overflow-hidden relative z-20 bg-white">
       <h2 className={`text-heading-m text-center px-24 tablet:text-left mb-6`}>
         {title}
       </h2>
