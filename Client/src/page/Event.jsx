@@ -210,9 +210,9 @@ const Event = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
+    <div className="flex flex-col items-center mt-16 gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
       <div
-        className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
+        className={`flex flex-col w-125 desktop:w-200 tablet:w-150 justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
         <div className="w-full h-100 overflow-clip">
           <img src={eventImage} className="w-full h-full object-contain" />
@@ -271,31 +271,31 @@ const Event = () => {
               <p className="text-[#1F2937] font-[600]">from {event.minAge}</p>
             </div>
           ) : !event.minAge && event.maxAge ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s ">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">up to {event.maxAge}</p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">All ages</p>
             </div>
           )}
           {event.maxParticipants ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Participants</p>
               <p className="text-[#1F2937] font-[600]">
                 {event.registrations.length} / {event.maxParticipants}
               </p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Participants</p>
               <p className="text-[#1F2937] font-[600]">No limits</p>
             </div>
           )}
           {event.category.name ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Category</p>
               <p className="text-[#1F2937] font-[600]">
                 {event?.category.name.charAt(0).toUpperCase() +
@@ -303,7 +303,7 @@ const Event = () => {
               </p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Category</p>
               <p className="text-[#1F2937] font-[600]">Any</p>
             </div>
