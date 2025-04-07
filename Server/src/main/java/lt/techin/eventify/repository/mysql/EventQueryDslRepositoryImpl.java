@@ -3,9 +3,11 @@ package lt.techin.eventify.repository.mysql;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lt.techin.eventify.dto.event.EventMapSummary;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.QEvent;
@@ -136,9 +138,9 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
   }
 
   @Override
-  public List<Event> findAllEventsForMap(String categoryName, String city, String startDateTime,
-                                         String endDateTime, String experienceLevel,
-                                         Integer minAge, Integer maxAge, String searchTerm) {
+  public List<EventMapSummary> findAllEventsForMap(String categoryName, String city, String startDateTime,
+                                                   String endDateTime, String experienceLevel,
+                                                   Integer minAge, Integer maxAge, String searchTerm) {
 
     QEvent event = QEvent.event;
     BooleanBuilder builder = new BooleanBuilder();
@@ -189,7 +191,15 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
 
     OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.ASC, event.startDateTime);
 
-    return queryFactory.selectFrom(event)
+    return queryFactory
+            .select(Projections.constructor(EventMapSummary.class,
+                    event.id,
+                    event.name,
+                    event.city,
+                    event.address,
+                    event.location,
+                    event.startDateTime))
+            .from(event)
             .where(builder)
             .orderBy(orderSpecifier)
             .fetch();

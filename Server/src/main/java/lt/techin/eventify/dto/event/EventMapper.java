@@ -136,26 +136,23 @@ public class EventMapper {
     }
   }
 
-  public EventMapResponse toEventMapResponse(Event event) {
+  public EventMapResponse toEventMapResponse(EventMapSummary event) {
 
     if (event == null) {
       return null;
     }
 
-    int registeredParticipants = event.getRegistrations() != null ? event.getRegistrations().size() : 0;
-    Double latitude = event.getLocation() != null ? event.getLocation().getY() : null;
-    Double longitude = event.getLocation() != null ? event.getLocation().getX() : null;
+    Double latitude = event.location() != null ? event.location().getY() : null;
+    Double longitude = event.location() != null ? event.location().getX() : null;
 
     return new EventMapResponse(
-            event.getId(),
-            event.getName(),
-            event.getCity(),
-            event.getAddress(),
+            event.id(),
+            event.name(),
+            event.city(),
+            event.address(),
             latitude,
             longitude,
-            event.getStartDateTime(),
-            registeredParticipants,
-            event.getMaxParticipants()
+            event.startDateTime()
     );
   }
 }

@@ -10,10 +10,7 @@ import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.EventImage;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.mysql.CategoryRepository;
-import lt.techin.eventify.repository.mysql.EventRepository;
-import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
-import lt.techin.eventify.repository.mysql.UserRepository;
+import lt.techin.eventify.repository.mysql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -317,7 +314,7 @@ public class EventService {
               .orElseThrow(() -> new CategoryNotFoundException("Category '" + categoryName + "' not found"));
     }
 
-    List<Event> events = eventRepository.findAllEventsForMap(categoryName, city, startDateTime, endDateTime,
+    List<EventMapSummary> events = eventRepository.findAllEventsForMap(categoryName, city, startDateTime, endDateTime,
             experienceLevel, minAge, maxAge, searchTerm);
 
     return events.stream()
