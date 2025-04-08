@@ -266,6 +266,7 @@ const EventSearch = ({ onSearch }) => {
     const handleClearFilters = () => {
         reset()
         setIsToDateManuallyEdited(false);
+        setIsFilterDropdownOpen(false);
         onSearch({
             searchTerm: searchInput,
             filters: {

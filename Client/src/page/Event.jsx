@@ -220,7 +220,7 @@ const Event = () => {
               </div>
               <div className="flex items-center gap-2">
                 <MarkIcon />
-                <Link to={`/events?eventId=${event.id}`} className="text-body-medium text-btn hover:text-btn-hover">
+                <Link to={`/events?eventId=${event.id}`} className="text-body-medium text-btn hover:text-btn-hover hover:underline">
                   {event.address}
                 </Link>
               </div>
