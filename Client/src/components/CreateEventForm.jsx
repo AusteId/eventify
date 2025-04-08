@@ -220,7 +220,7 @@ const CreateEventForm = () => {
             {...register('address', {
               required: 'Address is required',
               pattern: {
-                value: /^[\w\s ,.]+$/,
+                value: /^[A-Za-ząčęėįšųūž\s\d,.-]+$/i,
                 message: 'Invalid address',
               },
             })}
