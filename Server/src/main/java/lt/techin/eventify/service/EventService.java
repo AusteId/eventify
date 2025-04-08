@@ -166,6 +166,27 @@ public class EventService {
     );
   }
 
+  // Events that will start in less than 24 hours
+  public List<GetEventResponse> findHotEvents() {
+    List<Event> allEvents = eventRepository.findAll();
+    List<GetEventResponse> sortedEvents = new ArrayList<>();
+
+    LocalDateTime currentTime = LocalDateTime.now();
+    LocalDateTime futureTime = currentTime.plusHours(24);
+
+    for (Event event : allEvents) {
+      LocalDateTime startTime = event.getStartDateTime();
+
+      boolean isHot = startTime.isBefore(futureTime) && startTime.isAfter(currentTime);
+
+      if (isHot) {
+          sortedEvents.add(eventMapper.toGetEventResponse(event));
+      }
+    }
+
+    return sortedEvents;
+  }
+
   public List<GetEventResponse> findEventsInUpcoming14Days() {
     // weight constants for calculating scores
     final double WEIGHT_DATE = 3.0;
