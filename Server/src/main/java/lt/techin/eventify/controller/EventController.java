@@ -1,17 +1,9 @@
 package lt.techin.eventify.controller;
 
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.service.EventService;
-import lt.techin.eventify.service.RegistrationToEventService;
-import lt.techin.eventify.service.UserService;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +28,25 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.EventMapResponse;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.event.EventSearchRequest;
 import lt.techin.eventify.dto.event.GetEventResponse;
 import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
+import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.R2Service;
-
-import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
+import lt.techin.eventify.service.RegistrationToEventService;
+import lt.techin.eventify.service.UserService;
 
 
 @Slf4j
@@ -252,4 +252,5 @@ public class EventController {
     );
 
     return ResponseEntity.ok(events);
+  }
   }
