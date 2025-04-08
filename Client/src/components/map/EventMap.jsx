@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
 const defaultIcon = L.icon({
@@ -33,7 +33,14 @@ const EventMap = ({ events }) => {
                         key={index}
                         position={[event.latitude, event.longitude]}
                         icon={defaultIcon}
-                    />
+                    >
+      <Popup>
+        {event.name} <br />
+        {event.description}
+      </Popup>
+
+
+                    </Marker>
                 ))}
         </MapContainer>
     );

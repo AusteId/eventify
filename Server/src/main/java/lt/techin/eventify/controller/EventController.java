@@ -1,9 +1,17 @@
 package lt.techin.eventify.controller;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
-
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import lt.techin.eventify.dto.event.*;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
+import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.service.EventService;
+import lt.techin.eventify.service.RegistrationToEventService;
+import lt.techin.eventify.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +54,7 @@ import lt.techin.eventify.service.R2Service;
 import lt.techin.eventify.service.RegistrationToEventService;
 import lt.techin.eventify.service.UserService;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
@@ -58,7 +67,7 @@ public class EventController {
   private final R2Service r2Service;
 
   @Autowired
-  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService, R2Service r2Service) {
+  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService) {
     this.eventService = eventService;
     this.eventMapper = eventMapper;
     this.registrationToEventMapper = registrationToEventMapper;
@@ -225,5 +234,22 @@ public class EventController {
   public ResponseEntity<List<GetEventResponse>> getRecommendedEvents(Principal principal) {
 
     return ResponseEntity.ok(eventService.findRecommendedEvents(principal.getName()));
+  }
+
+  @GetMapping("/map")
+  public ResponseEntity<List<EventMapResponse>> getEventsForMap(@Valid EventSearchRequest request) {
+
+    List<EventMapResponse> events = eventService.findAllEventsForMap(
+            request.categoryName(),
+            request.city(),
+            request.startDateTime(),
+            request.endDateTime(),
+            request.experienceLevel(),
+            request.minAge(),
+            request.maxAge(),
+            request.searchTerm()
+    );
+
+    return ResponseEntity.ok(events);
   }
 }
