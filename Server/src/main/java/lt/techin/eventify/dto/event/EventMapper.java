@@ -11,6 +11,8 @@ import lt.techin.eventify.model.EventImage;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.repository.mysql.CategoryRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -18,9 +20,6 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.util.List;
-
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.GeometryFactory;
 
 @AllArgsConstructor
 @Component
@@ -137,4 +136,23 @@ public class EventMapper {
     }
   }
 
+  public EventMapResponse toEventMapResponse(EventMapSummary event) {
+
+    if (event == null) {
+      return null;
+    }
+
+    Double latitude = event.location() != null ? event.location().getY() : null;
+    Double longitude = event.location() != null ? event.location().getX() : null;
+
+    return new EventMapResponse(
+            event.id(),
+            event.name(),
+            event.city(),
+            event.address(),
+            latitude,
+            longitude,
+            event.startDateTime()
+    );
+  }
 }

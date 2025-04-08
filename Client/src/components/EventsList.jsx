@@ -8,6 +8,7 @@ import { FaMap, FaList } from 'react-icons/fa';
 
 const EventsList = ({ setLoading, loading }) => {
   const [events, setEvents] = useState([]);
+  const [eventsForMap, setEventsForMap] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [searchParams, setSearchParams] = useState({
@@ -66,6 +67,39 @@ const EventsList = ({ setLoading, loading }) => {
     fetchData();
   }, [currentPage, searchParams, setLoading]);
 
+  useEffect(() => {
+    const fetchDataForMap = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/map`,
+          {
+            params: {
+              searchTerm: searchParams.searchTerm || undefined,
+              categoryName: searchParams.filters.categoryName || undefined,
+              city: searchParams.filters.city || undefined,
+              startDateTime: searchParams.filters.startDateTime || undefined,
+              endDateTime: searchParams.filters.endDateTime || undefined,
+              experienceLevel: searchParams.filters.experienceLevel || undefined,
+              minAge: searchParams.filters.minAge ? parseInt(searchParams.filters.minAge) : undefined,
+              maxAge: searchParams.filters.maxAge ? parseInt(searchParams.filters.maxAge) : undefined,
+            },
+          },
+        );
+        console.log("API Response (Map):", response.data);
+        setEventsForMap(response.data);
+      } catch (error) {
+        console.error('Error fetching data for map:', error);
+        console.log('Error details:', error.response?.data, error.response?.status);
+        setEventsForMap([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDataForMap();
+  }, [searchParams, setLoading]);
+
   const paginate = pageNumber => {
     if (pageNumber >= 0 && pageNumber < totalPages) {
       setCurrentPage(pageNumber);
@@ -111,7 +145,7 @@ const EventsList = ({ setLoading, loading }) => {
       {loading ? (
         <span className="loading loading-bars loading-xl"></span>
       ) : showMap ? (
-        <EventMap events={events} />
+        <EventMap events={eventsForMap} />
       ) : events.length === 0 ? (
         <p>Events not found</p>
       ) : (

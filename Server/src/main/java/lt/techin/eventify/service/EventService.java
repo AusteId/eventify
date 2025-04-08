@@ -10,10 +10,7 @@ import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.EventImage;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.mysql.CategoryRepository;
-import lt.techin.eventify.repository.mysql.EventRepository;
-import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
-import lt.techin.eventify.repository.mysql.UserRepository;
+import lt.techin.eventify.repository.mysql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -35,6 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class EventService {
+
   private static final Logger logger = LoggerFactory.getLogger(EventService.class);
 
   private final EventRepository eventRepository;
@@ -324,6 +322,24 @@ public class EventService {
     return topEvents.stream()
             .sorted(Comparator.comparingDouble(EventWithScore::score).reversed())
             .map(eventWithScore -> eventMapper.toGetEventResponse(eventWithScore.event()))
+            .toList();
+  }
+
+  public List<EventMapResponse> findAllEventsForMap(String categoryName, String city, String startDateTime,
+                                                    String endDateTime, String experienceLevel,
+                                                    Integer minAge, Integer maxAge, String searchTerm) {
+
+    if (categoryName != null && !categoryName.isEmpty()) {
+
+      categoryRepository.findByName(categoryName)
+              .orElseThrow(() -> new CategoryNotFoundException("Category '" + categoryName + "' not found"));
+    }
+
+    List<EventMapSummary> events = eventRepository.findAllEventsForMap(categoryName, city, startDateTime, endDateTime,
+            experienceLevel, minAge, maxAge, searchTerm);
+
+    return events.stream()
+            .map(eventMapper::toEventMapResponse)
             .toList();
   }
 }
