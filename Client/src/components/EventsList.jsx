@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import EventCard from './EventCard';
 import Pagination from './Pagination';
 import axios from 'axios';
@@ -26,7 +27,15 @@ const EventsList = ({ setLoading, loading }) => {
     sortDirection: 'ASC',
   });
   const [showMap, setShowMap] = useState(false);
+  const [searchParamsUrl] = useSearchParams();
+  const eventId = searchParamsUrl.get('eventId');
   const eventsPerPage = 12;
+
+  useEffect(() => {
+    if (eventId) {
+      setShowMap(true);
+    }
+  }, [eventId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,7 +154,7 @@ const EventsList = ({ setLoading, loading }) => {
       {loading ? (
         <span className="loading loading-bars loading-xl"></span>
       ) : showMap ? (
-        <EventMap events={eventsForMap} />
+        <EventMap events={eventsForMap} eventId={eventId} />
       ) : events.length === 0 ? (
         <p>Events not found</p>
       ) : (
