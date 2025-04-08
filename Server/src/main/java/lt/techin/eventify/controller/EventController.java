@@ -36,23 +36,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.CreateEventRequest;
 import lt.techin.eventify.dto.event.EventMapper;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.event.EventSearchRequest;
 import lt.techin.eventify.dto.event.GetEventResponse;
 import lt.techin.eventify.dto.event.UpdateEventRequest;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.R2Service;
-import lt.techin.eventify.service.RegistrationToEventService;
-import lt.techin.eventify.service.UserService;
+
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -67,13 +62,13 @@ public class EventController {
   private final R2Service r2Service;
 
   @Autowired
-  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService) {
+  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService, R2Service r2Service) {
     this.eventService = eventService;
     this.eventMapper = eventMapper;
     this.registrationToEventMapper = registrationToEventMapper;
     this.registrationToEventService = registrationToEventService;
     this.userService = userService;
-    this.r2Service = r2Service;
+      this.r2Service = r2Service;
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
