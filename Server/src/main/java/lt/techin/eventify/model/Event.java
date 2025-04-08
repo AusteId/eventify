@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -74,6 +75,9 @@ public class Event {
   @JoinColumn(name = "picture_id", nullable = false)
   private EventImage eventImage;
 
+  @Column(name = "location", columnDefinition = "POINT")
+  private Point location;
+
   @PrePersist
   public void prePersist() {
     if (this.createdAt == null) {
@@ -87,7 +91,7 @@ public class Event {
   public Event(Category category, User organizer, String name, LocalDateTime startDateTime,
                LocalDateTime endDateTime, String description,
                Integer minAge, Integer maxAge, String experienceLevel, int maxParticipants,
-               String city, String address, String photoPath) {
+               String city, String address, String photoPath, Point location) {
     this.category = category;
     this.organizer = organizer;
     this.name = name;
@@ -102,6 +106,7 @@ public class Event {
     this.address = address;
     this.photoPath = photoPath;
     this.registrations = new ArrayList<>();
+    this.location = location;
   }
 
   public Event() {

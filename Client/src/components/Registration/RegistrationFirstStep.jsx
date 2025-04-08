@@ -189,8 +189,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                     minLength: { value: 8, message: 'Password must be at least 8 characters long.' },
                     maxLength: { value: 255, message: 'Password cannot exceed 255 characters.' },
                     pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[\S]+$/,
-                      message: 'Password must have an uppercase, lowercase, number',
+                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+$/,
+                      message: 'The password must have an uppercase letter, lowercase letter, number, and a wildcard',
                     },
                   })}
                 />

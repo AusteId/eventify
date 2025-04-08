@@ -3,9 +3,11 @@ package lt.techin.eventify.repository.mysql;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lt.techin.eventify.dto.event.EventMapSummary;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.QEvent;
@@ -133,5 +135,73 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
             .fetch();
 
     return new PageImpl<>(events, pageable, totalNumberOfEvents);
+  }
+
+  @Override
+  public List<EventMapSummary> findAllEventsForMap(String categoryName, String city, String startDateTime,
+                                                   String endDateTime, String experienceLevel,
+                                                   Integer minAge, Integer maxAge, String searchTerm) {
+
+    QEvent event = QEvent.event;
+    BooleanBuilder builder = new BooleanBuilder();
+
+    if (categoryName != null && !categoryName.isEmpty()) {
+      Optional<Category> categoryOptional = categoryRepository.findByName(categoryName);
+      if (categoryOptional.isEmpty()) {
+        return new ArrayList<>();
+      }
+      categoryOptional.ifPresent(category -> builder.and(event.category.eq(category)));
+    }
+
+    if (city != null && !city.isEmpty()) {
+      builder.and(event.city.containsIgnoreCase(city));
+    }
+
+    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+    if (startDateTime != null && !startDateTime.isEmpty()) {
+      LocalDateTime startOfDay = LocalDate.parse(startDateTime).atStartOfDay();
+      builder.and(event.startDateTime.goe(startOfDay));
+    } else {
+      builder.and(event.startDateTime.goe(now));
+    }
+
+    if (endDateTime != null && !endDateTime.isEmpty()) {
+      LocalDateTime endOfDay = LocalDate.parse(endDateTime).atTime(23, 59, 59);
+      builder.and(event.startDateTime.loe(endOfDay));
+    }
+
+    if (experienceLevel != null && !experienceLevel.isEmpty()) {
+      builder.and(event.experienceLevel.equalsIgnoreCase(experienceLevel));
+    }
+
+    if (minAge != null) {
+      builder.and(event.minAge.isNotNull().and(event.minAge.gt(0)).and(event.minAge.goe(minAge)));
+    }
+
+    if (maxAge != null) {
+      builder.and(event.maxAge.isNotNull().and(event.maxAge.gt(0)).and(event.maxAge.loe(maxAge)));
+    }
+
+    if (searchTerm != null && !searchTerm.isEmpty()) {
+      builder.andAnyOf(
+              event.name.containsIgnoreCase(searchTerm),
+              event.description.containsIgnoreCase(searchTerm)
+      );
+    }
+
+    OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.ASC, event.startDateTime);
+
+    return queryFactory
+            .select(Projections.constructor(EventMapSummary.class,
+                    event.id,
+                    event.name,
+                    event.city,
+                    event.address,
+                    event.location,
+                    event.startDateTime))
+            .from(event)
+            .where(builder)
+            .orderBy(orderSpecifier)
+            .fetch();
   }
 }

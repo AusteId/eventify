@@ -1,6 +1,7 @@
 package lt.techin.eventify.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import lt.techin.eventify.dto.event.*;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
 import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
@@ -22,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
@@ -107,7 +108,7 @@ public class EventController {
       } catch (UsernameNotFoundException e) {
 
       }
-      
+
     }
     event = new EventResponse(
             event.id(),
@@ -126,9 +127,11 @@ public class EventController {
             event.category(),
             event.organizer(),
             event.registrations(),
-            isRegistered 
+            isRegistered,
+            event.latitude(),
+            event.longitude()
     );
-    
+
     return ResponseEntity.ok(event);
   }
 
@@ -202,5 +205,22 @@ public class EventController {
   public ResponseEntity<List<GetEventResponse>> getRecommendedEvents(Principal principal) {
 
     return ResponseEntity.ok(eventService.findRecommendedEvents(principal.getName()));
+  }
+
+  @GetMapping("/map")
+  public ResponseEntity<List<EventMapResponse>> getEventsForMap(@Valid EventSearchRequest request) {
+
+    List<EventMapResponse> events = eventService.findAllEventsForMap(
+            request.categoryName(),
+            request.city(),
+            request.startDateTime(),
+            request.endDateTime(),
+            request.experienceLevel(),
+            request.minAge(),
+            request.maxAge(),
+            request.searchTerm()
+    );
+
+    return ResponseEntity.ok(events);
   }
 }

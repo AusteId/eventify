@@ -6,7 +6,10 @@ const ViewParticipants = ({ organizer, participants }) => {
     <div className="flex flex-col gap-6 p-2 rounded-xl min-w-64">
       <div className="flex flex-col gap-4 ">
         <h2 className="leading-5 text-heading-s font-[600]">Organizer</h2>
-        <Participant name={capitalizeFirstLetter(organizer.username)} />
+        <Participant 
+        name={capitalizeFirstLetter(organizer.username)}
+        profileImg={organizer.avatar}
+        />
       </div>
       {participants.length != 0 && (
         <>
@@ -20,6 +23,7 @@ const ViewParticipants = ({ organizer, participants }) => {
               {participants.map((participant, index) => (
                 <Participant
                   name={capitalizeFirstLetter(participant.username)}
+                  profileImg={participant.avatar}
                   rating={participant.rating}
                   key={index}
                 />

@@ -125,7 +125,7 @@ const EventCard = ({
     wordArr[9] = cleanedLastWord;
     shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
   } else {
-    shortDesc = wordArr?.join(" ") || "No description available"
+    shortDesc = wordArr?.join(" ") || "Welcome to my event!"
   }
 
   const timeString =
