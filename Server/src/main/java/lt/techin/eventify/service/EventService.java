@@ -1,16 +1,19 @@
 package lt.techin.eventify.service;
 
-import lombok.AllArgsConstructor;
-import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.exception.CategoryNotFoundException;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.ForbiddenException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.EventImage;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.mysql.*;
+import java.io.IOException;
+import java.security.Principal;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,14 +26,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.EventMapResponse;
+import lt.techin.eventify.dto.event.EventMapSummary;
+import lt.techin.eventify.dto.event.EventMapper;
+import lt.techin.eventify.dto.event.EventResponse;
+import lt.techin.eventify.dto.event.EventWithScore;
+import lt.techin.eventify.dto.event.GetEventResponse;
+import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lt.techin.eventify.exception.CategoryNotFoundException;
+import lt.techin.eventify.exception.EventNotFoundException;
+import lt.techin.eventify.exception.ForbiddenException;
+import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.model.Category;
+import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.EventRepository;
+import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
 
 @Service
 @AllArgsConstructor
@@ -169,13 +184,34 @@ public class EventService {
     return eventRepository.findById(id).orElse(null);
   }
 
-//  public EventPictureResponse getEventPicture(long eventId) {
-//    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId + " (id)")).getEventImage();
-//    return new EventPictureResponse(
-//            eventImage.getData(),
-//            eventImage.getContentType()
-//    );
-//  }
+//   public EventPictureResponse getEventPicture(long eventId) {
+//     EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId + " (id)")).getEventImage();
+//     return new EventPictureResponse(
+//             eventImage.getData(),
+//             eventImage.getContentType()
+//     );
+//   }
+
+  // Events that will start in less than 24 hours
+  public List<GetEventResponse> findHotEvents() {
+    List<Event> allEvents = eventRepository.findAll();
+    List<GetEventResponse> sortedEvents = new ArrayList<>();
+
+    LocalDateTime currentTime = LocalDateTime.now();
+    LocalDateTime futureTime = currentTime.plusHours(24);
+
+    for (Event event : allEvents) {
+      LocalDateTime startTime = event.getStartDateTime();
+
+      boolean isHot = startTime.isBefore(futureTime) && startTime.isAfter(currentTime);
+
+      if (isHot) {
+          sortedEvents.add(eventMapper.toGetEventResponse(event));
+      }
+    }
+
+    return sortedEvents;
+  }
 
   @Cacheable("eventsCache")
   public List<GetEventResponse> findEventsInUpcoming14Days() {
