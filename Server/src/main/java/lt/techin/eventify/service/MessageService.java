@@ -20,7 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MessageService {
@@ -30,6 +31,9 @@ public class MessageService {
     private final UserRepository userRepository;
     private final MessageMapper messageMapper;
     private final SimpMessagingTemplate messagingTemplate;
+
+    private final Map<Long, User> userCache = new ConcurrentHashMap<>();
+    private final Map<String, String> usernameToIdCache = new ConcurrentHashMap<>();
 
     public MessageService(MessageRepository messageRepository, UserRepository userRepository, MessageMapper messageMapper, SimpMessagingTemplate messagingTemplate) {
         this.messageRepository = messageRepository;
@@ -48,21 +52,46 @@ public class MessageService {
         }
 
         String username = authentication.getName();
-        logger.debug("Authenticating user: {}", username);
 
-        return userRepository.findByUsername(username)
+        if (usernameToIdCache.containsKey(username)) {
+            Long userId = Long.valueOf(usernameToIdCache.get(username));
+            if (userCache.containsKey(userId)) {
+                return userCache.get(userId);
+            }
+        }
+
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
                     logger.error("User not found: {}", username);
                     return new UsernameNotFoundException("User not found: " + username);
                 });
+
+        userCache.put(user.getId(), user);
+        usernameToIdCache.put(username, user.getId().toString());
+
+        return user;
+    }
+
+    private User getUserById(Long userId) {
+        if (userCache.containsKey(userId)) {
+            return userCache.get(userId);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+
+        userCache.put(userId, user);
+        usernameToIdCache.put(user.getUsername(), userId.toString());
+
+        return user;
     }
 
     public Message sendMessage(Long recipientId, MessageRequest request, Authentication auth) {
         User sender = authenticate(auth);
-        logger.debug("Sending message from user: {} to recipient: {}", sender.getUsername(), recipientId);
+        User recipient = getUserById(recipientId);
 
-        User recipient = userRepository.findById(recipientId)
-                .orElseThrow(() -> new NotFoundException("Recipient not found: " + recipientId));
+        logger.debug("Sending message from user: {} to recipient: {}",
+                sender.getUsername(), recipient.getUsername());
 
         Message message = MessageMapper.toEntity(request);
         message.setSenderId(sender.getId());
@@ -74,11 +103,12 @@ public class MessageService {
         message.setConversationId(conversationId);
 
         try {
-            message = messageRepository.save(message);
-            logger.debug("Message saved to MongoDB with ID: {}", message.getId());
-            return message;
+            Message savedMessage = messageRepository.save(message);
+            logger.debug("Message saved to MongoDB with ID: {}", savedMessage.getId());
+
+            return savedMessage;
         } catch (Exception e) {
-            logger.error("Error saving message to MongoDB: ", e);
+            logger.error("Error saving message: ", e);
             throw e;
         }
     }
@@ -89,9 +119,11 @@ public class MessageService {
                 : userId2 + "_" + userId1;
     }
 
-    public Page<MessageResponse> getConversation(Long userId1, Long userId2, Pageable pageable,Authentication auth) {
+    public Page<MessageResponse> getConversation(Long userId1, Long userId2, Pageable pageable, Authentication auth) {
+
         User currentUser = authenticate(auth);
-        if (currentUser.getId() != userId1 && currentUser.getId() != userId2) {
+
+        if (!Objects.equals(currentUser.getId(), userId1) && !Objects.equals(currentUser.getId(), userId2)) {
             logger.error("User {} attempted to access conversation between {} and {}",
                     currentUser.getId(), userId1, userId2);
             throw new IllegalArgumentException("Cannot access conversation for other users");
@@ -101,18 +133,60 @@ public class MessageService {
         logger.debug("Getting conversation with ID: {}", conversationId);
 
         Page<Message> messages = messageRepository.findByConversationIdOrderByTimestampDesc(conversationId, pageable);
-        List<MessageResponse> responses = messages
-                .stream()
+
+        User user1 = getUserById(userId1);
+        User user2 = getUserById(userId2);
+
+        List<MessageResponse> responses = messages.getContent().parallelStream()
                 .map(messageMapper::toDTO)
                 .toList();
 
+        if (currentUser.getId().equals(userId2)) {
+            markMessagesAsReadInBackground(userId1, userId2, conversationId);
+        }
+
         return new PageImpl<>(responses, pageable, messages.getTotalElements());
+    }
+
+
+    private void markMessagesAsReadInBackground(Long senderId, Long recipientId, String conversationId) {
+        List<Message> unreadMessages = messageRepository.findByConversationIdAndRecipientIdAndReadFalse(
+                conversationId, recipientId
+        );
+
+        if (unreadMessages.isEmpty()) {
+            logger.debug("No unread messages to mark as read");
+            return;
+        }
+
+        logger.debug("Found {} unread messages to mark as read", unreadMessages.size());
+
+        new Thread(() -> {
+            try {
+                for (Message message : unreadMessages) {
+                    message.setRead(true);
+                }
+                messageRepository.saveAll(unreadMessages);
+
+                User sender = getUserById(senderId);
+
+                messagingTemplate.convertAndSendToUser(
+                        sender.getUsername(),
+                        "/queue/read-receipts",
+                        conversationId
+                );
+
+                logger.debug("Read receipt sent to: {}", sender.getUsername());
+            } catch (Exception e) {
+                logger.error("Error marking messages as read: ", e);
+            }
+        }).start();
     }
 
     public void markMessagesAsRead(Long senderId, Long recipientId, Authentication auth) {
         User currentUser = authenticate(auth);
 
-        if (currentUser.getId() != recipientId) {
+        if (!currentUser.getId().equals(recipientId)) {
             logger.error("User {} attempted to mark messages as read for recipient {}",
                     currentUser.getId(), recipientId);
             throw new IllegalArgumentException("Cannot mark messages as read for other users");
@@ -125,21 +199,57 @@ public class MessageService {
                 conversationId, recipientId
         );
 
+        if (unreadMessages.isEmpty()) {
+            logger.debug("No unread messages to mark as read");
+            return;
+        }
+
         logger.debug("Found {} unread messages to mark as read", unreadMessages.size());
 
-        unreadMessages.forEach(message -> {
+        for (Message message : unreadMessages) {
             message.setRead(true);
-            messageRepository.save(message);
+        }
+        messageRepository.saveAll(unreadMessages);
+        logger.debug("All messages marked as read");
 
-            MessageResponse response = messageMapper.toDTO(message);
-            User sender = userRepository.findById(message.getSenderId())
-                    .orElseThrow(() -> new NotFoundException("Sender not found: " + message.getSenderId()));
+        User sender = getUserById(senderId);
 
-            messagingTemplate.convertAndSendToUser(
-                    sender.getUsername(),
-                    "/queue/read-receipts",
-                    response
-            );
-        });
+        messagingTemplate.convertAndSendToUser(
+                sender.getUsername(),
+                "/queue/read-receipts",
+                conversationId
+        );
+
+        messagingTemplate.convertAndSend(
+                "/topic/conversations/" + conversationId + "/read",
+                recipientId
+        );
+
+        logger.debug("Read receipts sent");
+    }
+
+    public void clearUserCache() {
+        userCache.clear();
+        usernameToIdCache.clear();
+        logger.debug("User cache cleared");
+    }
+
+    public Map<String, Integer> getUnreadMessageCounts(Authentication auth) {
+        User currentUser = authenticate(auth);
+        Long userId = currentUser.getId();
+
+        logger.debug("Getting unread message counts for user: {}", userId);
+
+        Map<String, Integer> unreadCounts = new HashMap<>();
+
+        List<Message> unreadMessages = messageRepository.findByRecipientIdAndReadFalse(userId);
+
+        for (Message message : unreadMessages) {
+            String senderId = String.valueOf(message.getSenderId());
+            unreadCounts.put(senderId, unreadCounts.getOrDefault(senderId, 0) + 1);
+        }
+
+        logger.debug("Found unread message counts: {}", unreadCounts);
+        return unreadCounts;
     }
 }

@@ -17,7 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class UserStatusController {
@@ -58,14 +60,6 @@ public class UserStatusController {
                     user.getId(), request.getConversationId(), request.isTyping());
 
 
-            UserStatusDTO statusDTO = userStatusService.getUserStatusWithDetails(user.getId());
-
-            logger.debug("Broadcasting typing status to /topic/typing/{}: {}",
-                    request.getConversationId(), statusDTO);
-
-
-            messagingTemplate.convertAndSend("/topic/typing/" + request.getConversationId(), statusDTO);
-
             Map<String, Object> simpleStatus = Map.of(
                     "userId", user.getId(),
                     "typing", request.isTyping(),
@@ -79,6 +73,22 @@ public class UserStatusController {
         } catch (Exception e) {
             logger.error("Error updating typing status: ", e);
         }
+    }
+
+    @MessageMapping("/status/get-all")
+    public void getAllUserStatuses(Authentication authentication) {
+        if (authentication == null) {
+            logger.error("Authentication is null in getAllUserStatuses");
+            return;
+        }
+
+        logger.debug("Request for all user statuses from: {}", authentication.getName());
+
+        List<UserStatusDTO> allStatuses = userStatusService.getAllOnlineUsers().stream()
+                .map(status -> userStatusService.getUserStatusWithDetails(status.getUserId()))
+                .toList();
+
+        messagingTemplate.convertAndSend("/topic/status/all", allStatuses);
     }
 
 

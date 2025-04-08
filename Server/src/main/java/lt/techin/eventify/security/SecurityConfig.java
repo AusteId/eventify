@@ -48,6 +48,11 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests((authorize) -> authorize
+                    .requestMatchers("/ws/**").permitAll()
+                    .requestMatchers("/topic/**").permitAll()
+                    .requestMatchers("/queue/**").permitAll()
+                    .requestMatchers("/app/**").permitAll()
+                    .requestMatchers("/user/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/check-availability").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/avatar").hasAnyAuthority("ADMIN", "USER")

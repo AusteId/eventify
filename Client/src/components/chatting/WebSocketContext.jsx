@@ -8,655 +8,893 @@ const WebSocketContext = createContext();
 
 export const useWebSocket = () => useContext(WebSocketContext);
 
-export const WebSocketProvider = ({children}) => {
-    const {isAuthenticated, userId} = useAuth();
-    const {url, timeoutForError} = useNotification();
-    const [stompClient, setStompClient] = useState(null);
-    const [connected, setConnected] = useState(false);
-    const [userStatuses, setUserStatuses] = useState({});
-    const [messages, setMessages] = useState({});
-    const [typingUsers, setTypingUsers] = useState({});
-    const [unreadMessages, setUnreadMessages] = useState({});
-    const [reconnectAttempt, setReconnectAttempt] = useState(0);
-    const [typingSubscriptions, setTypingSubscriptions] = useState({});
-    const loadingHistoryRef = useRef(new Set());
-    
-    const clientRef = useRef(null);
-    const connectedRef = useRef(false);
-    const statusUpdateTimeoutRef = useRef(null);
-    const subscriptionsRef = useRef({});
-    
-    const lastStatusUpdateRef = useRef(Date.now());
-    const recentTypingUpdates = useRef(new Map());
+export const WebSocketProvider = ({ children }) => {
+  const { isAuthenticated, userId,authFetch } = useAuth();
+  const { url, timeoutForError } = useNotification();
+  const [connected, setConnected] = useState(false);
+  const [messages, setMessages] = useState({});
+  const [typingUsers, setTypingUsers] = useState({});
+  const [unreadMessages, setUnreadMessages] = useState({});
+  const [userStatuses, setUserStatuses] = useState({});
+  const [selectedConversationId, setSelectedConversationId] = useState(null);
 
-    const cleanupWebSocket = useCallback(() => {
-        console.log("Cleaning up WebSocket connection");
-        
-        try {
-            if (clientRef.current && connectedRef.current) {
-                try {
-                    clientRef.current.publish({
-                        destination: "/app/status/update",
-                        body: "OFFLINE"
-                    });
-                } catch (e) {
-                    console.error("Error sending offline status during cleanup:", e);
-                }
-                
-                clientRef.current.deactivate();
-            }
-        } catch (error) {
-            console.error("Error during WebSocket cleanup:", error);
-        } finally {
-            setConnected(false);
-            connectedRef.current = false;
-            clientRef.current = null;
-        }
-    }, []);
+  const clientRef = useRef(null);
+  const statusSubscriptionRef = useRef(null);
+  const allStatusesSubscriptionRef = useRef(null);
+  const typingSubscriptions = useRef({});
+  const lastActivityRef = useRef(Date.now());
+  const statusTimeoutRef = useRef(null);
+  const lastStatusUpdateRef = useRef(Date.now());
+  const messageSubscriptionRef = useRef(null)
+  const readReceiptSubscriptionRef = useRef(null);
+  const ackSubscriptionRef = useRef(null);
+  const conversationSubscriptions = useRef({});
+  const reconnectAttempts = useRef(0);
+  const STATUS_UPDATE_INTERVAL_MS = 60000;
+  const lastUnreadFetchTimeRef = useRef(0);
+  const FETCH_THROTTLE_MS = 2000;
 
-    useEffect(() => {
-        if (!isAuthenticated || !userId) return cleanupWebSocket();
+  const cleanupWebSocket = useCallback(() => {
+    console.log("Deactivating STOMP client...");
+    if (clientRef.current) {
+      clientRef.current.deactivate();
+      clientRef.current = null;
+    }
+    setConnected(false);
+  }, []);
 
-        console.log("Attempting to connect to WebSocket");
-
-        const getJwtTokenFromCookie = () => {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.startsWith('jwt_token=')) {
-                    return cookie.substring('jwt_token='.length, cookie.length);
-                }
-                if (cookie.startsWith('jwt_token_swagger=')) {
-                    return cookie.substring('jwt_token_swagger='.length, cookie.length);
-                }
-            }
-            return null;
-        };
-
-        const jwtToken = getJwtTokenFromCookie();
-        
-        if (!jwtToken) {
-            console.warn("No JWT token found in cookies");
-            return cleanupWebSocket();
-        }
-        cleanupWebSocket();
-
-        const client = new Client({
-            webSocketFactory: () => {
-                console.log(`Creating SockJS connection to ${url}/ws`);
-                return new SockJS(`${url}/ws`);
-            },
-            connectHeaders: {
-                Authorization: `Bearer ${jwtToken}`
-            },
-            debug: (str) => {
-                if (str.includes("ERROR") || str.includes("CONNECT") || str.includes("DISCONNECT")) {
-                    console.log("STOMP DEBUG", str);
-                }
-            },
-            reconnectDelay: 5000,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
-        });
-
-        client.onConnect = (frame) => {
-            console.log("WebSocket connected successfully");
-            setConnected(true);
-            connectedRef.current = true;
-            setReconnectAttempt(0);
-            
-            subscriptionsRef.current = {};
-            
-            try {
-                const messagesSub = client.subscribe(`/user/queue/messages`, handleNewMessage);
-                subscriptionsRef.current["messages"] = messagesSub;
-                
-                const readSub = client.subscribe(`/user/queue/read-receipts`, handleReadReceipt);
-                subscriptionsRef.current["readReceipts"] = readSub;
-                
-                const statusSub = client.subscribe(`/topic/status`, handleStatusUpdate);
-                subscriptionsRef.current["status"] = statusSub;
-                
-                console.log("Successfully subscribed to base topics");
-                
-                setTimeout(() => {
-                    try {
-                        if (connectedRef.current) {
-                            updateOnlineStatus("ONLINE");
-                        }
-                    } catch (e) {
-                        console.error("Error sending initial online status:", e);
-                    }
-                }, 1000);
-            } catch (error) {
-                console.error("Error subscribing to topics:", error);
-            }
-        };
-
-        client.onStompError = (frame) => {
-            console.error("STOMP error:", frame.headers.message);
-            timeoutForError("Lost connection to chat server");
-            setConnected(false);
-            connectedRef.current = false;
-            setReconnectAttempt(prev => prev + 1);
-        };
-        
-        client.onWebSocketClose = () => {
-            console.log("WebSocket connection closed");
-            setConnected(false);
-            connectedRef.current = false;
-            
-            if (connectedRef.current) {
-                setReconnectAttempt(prev => prev + 1);
-            }
-        };
-        
-        client.onWebSocketError = (event) => {
-            console.error("WebSocket error:", event);
-            setConnected(false);
-            connectedRef.current = false;
-        };
-
-        try {
-            client.activate();
-            setStompClient(client);
-            clientRef.current = client;
-        } catch (error) {
-            console.error("Error activating STOMP client:", error);
-            timeoutForError("Failed to connect to chat server");
-            setConnected(false);
-            connectedRef.current = false;
-        }
-
-        return cleanupWebSocket;
-    }, [isAuthenticated, userId, url, timeoutForError, reconnectAttempt, cleanupWebSocket]);
-
-    const handleNewMessage = useCallback((message) => {
-      try {
-          const messageData = JSON.parse(message.body);
-          const messageId = messageData.id;
-          const conversationId = messageData.conversationId;
-          
-          setMessages(prevMessages => {
-              const currentConversation = prevMessages[conversationId] || [];
-
-              if (currentConversation.some(msg => msg.id === messageId)) {
-                  return prevMessages;
-              }
-
-              const updatedConversation = [...currentConversation, messageData].sort(
-                  (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-              );
-
-              return {
-                  ...prevMessages,
-                  [conversationId]: updatedConversation
-              };
-          });
- 
-          if (messageData.senderId !== userId && !messageData.read) {
-              setUnreadMessages(prev => {
-                  const senderId = messageData.senderId;
-                  const currentCount = prev[senderId] || 0;
-
-                  return {
-                      ...prev,
-                      [senderId]: currentCount + 1
-                  };
-              });
-          }
-      } catch (error) {
-          console.error("Error processing new message:", error);
-      }
-  }, [userId]);
-
-    const handleReadReceipt = useCallback((message) => {
-        try {
-            const messageData = JSON.parse(message.body);
-
-            setMessages((prevMessages) => {
-                const conversationId = messageData.conversationId;
-                const conversation = prevMessages[conversationId] || [];
-
-                const updatedConversation = conversation.map(msg => 
-                    msg.id === messageData.id ? { ...msg, read: true} : msg
-                );
-
-                return {
-                    ...prevMessages,
-                    [conversationId]: updatedConversation
-                };
-            });
-        } catch (error) {
-            console.error("Error processing read receipt:", error);
-        }
-    }, []);
-
-    const lastStatusMap = useRef(new Map());
-    
-    const handleStatusUpdate = useCallback((message) => {
-        try {
-            const statusData = JSON.parse(message.body);
-            
-            const userId = statusData.userId;
-            const now = Date.now();
-            const lastUpdate = lastStatusMap.current.get(userId) || 0;
-            
-            if (now - lastUpdate > 2000) {
-                lastStatusMap.current.set(userId, now);
-                
-                setUserStatuses((prev) => ({
-                    ...prev,
-                    [statusData.userId]: statusData
-                }));
-            }
-        } catch (error) {
-            console.error("Error processing status update:", error);
-        }
-    }, []);
-
-    const subscribeToTypingIndicator = useCallback((conversationId) => {
-      if (!clientRef.current || !connectedRef.current) {
-          console.warn("Can't subscribe to typing indicators: not connected");
-          return null;
-      }
-
-      if (typingSubscriptions[conversationId]) {
-          console.log(`Already subscribed to typing indicators for: ${conversationId}`);
-          return () => {}; 
-      }
-      
-      console.log(`Subscribing to typing indicator for conversation: ${conversationId}`);
-      
-      try {
-          const subscription = clientRef.current.subscribe(`/topic/typing/${conversationId}`, (message) => {
-              try {
-                  console.log(`Received typing update for ${conversationId}:`, message.body);
-                  const statusData = JSON.parse(message.body);
-                  console.log("Parsed typing status data:", statusData);
+  const updateOnlineStatus = useCallback((status) => {
+    if (!clientRef.current || !connected) return;
   
-                  const isTyping = statusData.typing !== undefined ? 
-                      statusData.typing : 
-                      (statusData.isTyping !== undefined ? statusData.isTyping : false);
-                  
-                  const userId = statusData.userId;
-                  
-                  if (userId) {
-                      console.log(`Setting typing state for user ${userId} to ${isTyping}`);
-                      
+    try {
+      console.log("Updating online status to:", status);
+      clientRef.current.publish({
+        destination: "/app/status/update",
+        body: JSON.stringify(status),
+        headers: { "content-type": "application/json" },
+      });
+    } catch (e) {
+      console.error("Status update error:", e);
+    }
+  }, [connected]);
 
-                      setTypingUsers(prev => {
-                          const newState = {...prev};
-                          
-                          if (isTyping) {
-                              newState[userId] = {
-                                  userId,
-                                  typing: true,
-                                  typingInConversation: statusData.typingInConversation || conversationId
-                              };
-                          } else {
-                              delete newState[userId];
-                          }
-                          
-                          console.log("Updated typing users state:", newState);
-                          return newState;
-                      });
-                  } else {
-                      console.warn("Received typing status with missing userId:", statusData);
-                  }
-              } catch (error) {
-                  console.error("Error processing typing indicator:", error);
-              }
-          });
-          
-          console.log(`Successfully subscribed to typing topic: /topic/typing/${conversationId}`);
+  const handleActivity = useCallback(() => {
+    const now = Date.now();
+    lastActivityRef.current = now;
 
-          setTypingSubscriptions(prev => {
-              const newState = {...prev};
-              newState[conversationId] = subscription;
-              return newState;
-          });
-
-          return () => {
-              try {
-                  if (subscription && connectedRef.current) {
-                      console.log(`Unsubscribing from typing indicators for: ${conversationId}`);
-                      subscription.unsubscribe();
-                  }
-                  
-                  setTypingSubscriptions(prev => {
-                      const newState = {...prev};
-                      delete newState[conversationId];
-                      return newState;
-                  });
-              } catch (error) {
-                  console.error(`Error unsubscribing from typing indicators for ${conversationId}:`, error);
-              }
-          };
-      } catch (error) {
-          console.error(`Error subscribing to typing indicators for ${conversationId}:`, error);
-          return null;
-      }
-  }, [typingSubscriptions]);
-  
-  const hasTypingSubscription = useCallback((conversationId) => {
-      return Boolean(typingSubscriptions[conversationId]);
-  }, [typingSubscriptions]);
-
-    const sendMessage = useCallback((recipientId, content) => {
-        if (!clientRef.current || !connectedRef.current) {
-            console.warn("Can't send message: not connected");
-            timeoutForError("Not connected to chat server");
-            return false;
-        }
-
-        try {
-            const destination = `/app/chat/${recipientId}`;
-            const message = {
-                recipientId,
-                content
-            };
-
-            clientRef.current.publish({
-                destination,
-                body: JSON.stringify(message)
-            });
-            return true;
-        } catch (error) {
-            console.error("Error sending message:", error);
-            timeoutForError("Failed to send message");
-            return false;
-        }
-    }, [timeoutForError]);
-
-    const updateTypingStatus = useCallback((conversationId, isTyping) => {
-      if (!clientRef.current || !connectedRef.current) {
-          console.warn("Can't update typing status: not connected");
-          return;
-      }
-      
-      const now = Date.now();
-      const userId = window.currentUserId; 
-      const key = `${userId}_${conversationId}_${isTyping}`;
-      
-      const lastUpdate = recentTypingUpdates.current.get(key) || 0;
-      if (now - lastUpdate < 2000) {
-          console.log(`Skipping duplicate typing=${isTyping} update (throttled)`);
-          return;
-      }
-      
-      console.log(`Sending typing status: conversationId=${conversationId}, isTyping=${isTyping}`);
-      recentTypingUpdates.current.set(key, now);
-      
-      try {
-          const destination = "/app/status/typing";
-          const message = {
-              conversationId,
-              isTyping
-          };
-
-          if (isTyping) {
-              setTypingUsers(prev => ({
-                  ...prev,
-                  [userId]: {
-                      userId,
-                      typing: true,
-                      typingInConversation: conversationId
-                  }
-              }));
-          } else {
-              if (typingUsers[userId]?.typing) {
-                  setTypingUsers(prev => {
-                      const newState = {...prev};
-                      delete newState[userId];
-                      return newState;
-                  });
-              }
-          }
-
-          clientRef.current.publish({
-              destination,
-              body: JSON.stringify(message),
-              headers: {
-                  'content-type': 'application/json',
-                  'x-typing-update': 'direct' 
-              }
-          });
-          
-          console.log(`Typing status sent: ${isTyping ? 'typing' : 'stopped typing'} in ${conversationId}`);
-          
-          if (isTyping) {
-              setTimeout(() => {
-                  if (clientRef.current && connectedRef.current) {
-                      if (typingUsers[userId]?.typing) {
-                          console.log("Sending typing heartbeat");
-                          updateTypingStatus(conversationId, true);
-                      }
-                  }
-              }, 2000);
-          }
-      } catch (error) {
-          console.error("Error updating typing status:", error);
-      }
-  }, [typingUsers]);
-
-    const updateOnlineStatus = useCallback((status) => {
-      if (!clientRef.current || !connectedRef.current) {
-          console.warn("Can't update online status: not connected");
-          return;
-      }
-      
-      const now = Date.now();
-      if (now - lastStatusUpdateRef.current < 5000) {
-          console.log("Skipping status update (throttled)");
-          return;
-      }
-      
-      console.log(`Updating online status to: ${status}`);
+    if (connected && (now - lastStatusUpdateRef.current) > STATUS_UPDATE_INTERVAL_MS) {
+      console.log("Sending status update (rate limited)");
+      updateOnlineStatus("ONLINE");
       lastStatusUpdateRef.current = now;
-      
-      try {
-          const destination = "/app/status/update";
-          
-          clientRef.current.publish({
-              destination,
-              body: status,
-              headers: {
-                  'content-type': 'text/plain'
-              }
-          });
-
-          if (userId) {
-              setUserStatuses(prev => ({
-                  ...prev,
-                  [userId]: {
-                      ...prev[userId],
-                      status: status,
-                      lastSeen: new Date().toISOString()
-                  }
-              }));
-          }
-      } catch (error) {
-          console.error("Error updating online status:", error);
-      }
-  }, [userId]);
-
-    const markMessagesAsRead = useCallback((senderId) => {
-        if (!clientRef.current || !connectedRef.current) {
-            console.warn("Can't mark messages as read: not connected");
-            return;
-        }
-
-        try {
-            const destination = `/app/messages/${senderId}/read`;
-
-            clientRef.current.publish({
-                destination,
-                body: JSON.stringify({})
-            });
-
-            setUnreadMessages((prev) => {
-                const newState = {...prev};
-                delete newState[senderId];
-                return newState;
-            });
-        } catch (error) {
-            console.error("Error marking messages as read:", error);
-        }
-    }, []);
-
-    const loadConversationHistory = useCallback(async (otherUserId, page = 0, size = 20) => {
-      const requestKey = `${userId}_${otherUserId}_${page}`;
-      if (loadingHistoryRef.current.has(requestKey)) {
-          console.log(`Already loading history for: ${requestKey}`);
-          return null;
-      }
-      
-      if (!isAuthenticated || !userId) {
-          console.warn("Cannot load conversation history: not authenticated");
-          return null;
-      }
-      
-      try {
-          console.log(`Loading conversation history: ${userId}/${otherUserId} (page ${page})`);
-
-          loadingHistoryRef.current.add(requestKey);
-          
-          const response = await fetch(`${url}/api/messages/${userId}/${otherUserId}?page=${page}&size=${size}`, {
-              credentials: "include"
-          });
-          
-          if (!response.ok) {
-              throw new Error(`Failed to load conversation history: ${response.status}`);
-          }
+    }
+    
+    if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
   
-          const data = await response.json();
-          
-          const conversationId = userId < otherUserId
-              ? `${userId}_${otherUserId}`
-              : `${otherUserId}_${userId}`;
+    statusTimeoutRef.current = setTimeout(() => {
+      if (Date.now() - lastActivityRef.current >= 60000) {
+        updateOnlineStatus("AWAY");
+      }
+    }, 60000);
+  }, [connected, updateOnlineStatus]);
 
-          if (data.content && data.content.length > 0) {
-              setMessages(prevMessages => {
-                  const existingMessages = prevMessages[conversationId] || [];
-                  const existingIds = new Set(existingMessages.map(msg => msg.id));
-                  const newMessages = data.content.filter(msg => !existingIds.has(msg.id));
-                  if (newMessages.length === 0) {
-                      return prevMessages;
-                  }
-                  const combinedMessages = [...existingMessages, ...newMessages].sort(
-                      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-                  );
-                  return {
-                      ...prevMessages,
-                      [conversationId]: combinedMessages
-                  };
-              });
+
+  const fetchUnreadMessageCounts = useCallback(async () => {
+    if (!isAuthenticated) return;
+    
+    const now = Date.now();
+    if (now - lastUnreadFetchTimeRef.current < FETCH_THROTTLE_MS) {
+      console.log("Skipping unread count fetch - throttled");
+      return;
+    }
+    
+    lastUnreadFetchTimeRef.current = now;
+    
+    try {
+      console.log("Fetching unread message counts");
+      const response = await authFetch(`${url}/api/messages/unread`);
+      
+      if (!response || !response.ok) {
+        console.error("Failed to fetch unread message counts");
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (Object.keys(data).length > 0) {
+        console.log("Received unread message counts:", data);
+      }
+      
+      const formattedCounts = {};
+      Object.keys(data).forEach(senderId => {
+        formattedCounts[parseInt(senderId)] = data[senderId];
+      });
+      
+      setUnreadMessages(formattedCounts);
+    } catch (e) {
+      console.error("Error fetching unread message counts:", e);
+    }
+  }, [isAuthenticated, authFetch, url]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUnreadMessageCounts();
+    }
+    
+    const intervalId = setInterval(() => {
+      if (isAuthenticated && connected) {
+        fetchUnreadMessageCounts();
+      }
+    }, 30000);
+    
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated, connected, fetchUnreadMessageCounts]);
+
+
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    try {
+      const savedMessages = localStorage.getItem('eventify_messages');
+      const savedUnread = localStorage.getItem('eventify_unread');
+      
+      if (savedMessages) {
+        setMessages(JSON.parse(savedMessages));
+      }
+      
+      if (savedUnread) {
+        setUnreadMessages(JSON.parse(savedUnread));
+      }
+    } catch (e) {
+      console.error("Error loading messages from localStorage:", e);
+    }
+  }, [isAuthenticated]);
+
+  const playNotificationSound = useCallback(() => {
+    console.log("Play this while my lazy ass finds a sound to play")
+    // try {
+    //   const audio = new Audio("/notification.mp3");
+    //   audio.volume = 0.5;
+    //   audio.play().catch(e => console.log("Audio playback prevented:", e));
+    // } catch (e) {
+    //   console.log("Unable to play notification sound:", e);
+    // }
+  }, []);
+
+  const handleReadReceipt = useCallback((message) => {
+    try {
+      console.log("Received read receipt:", message.body);
+      const conversationId = message.body;
+      
+      setMessages((prev) => {
+        const existingMessages = prev[conversationId] || [];
+        
+        const updatedMessages = existingMessages.map(msg => ({
+          ...msg,
+          read: true
+        }));
+        
+        return {
+          ...prev,
+          [conversationId]: updatedMessages
+        };
+      });
+    } catch (e) {
+      console.error("Read receipt error:", e);
+    }
+  }, []);
+
+  const handleStatusUpdate = useCallback((message) => {
+    try {
+      const statusData = JSON.parse(message.body);
+      console.log("Received status update for user:", statusData.userId, statusData.status);
+      
+      setUserStatuses((prev) => ({
+        ...prev,
+        [statusData.userId]: statusData,
+      }));
+    } catch (e) {
+      console.error("Status update error:", e);
+    }
+  }, []);
+
+  
+
+  const subscribeToTypingIndicator = useCallback((conversationId) => {
+    if (!clientRef.current || !connected || !conversationId) return null;
+  
+    console.log("Subscribing to typing indicators for:", conversationId);
+    
+    if (typingSubscriptions.current[conversationId]) {
+      typingSubscriptions.current[conversationId].unsubscribe();
+    }
+    
+    const sub = clientRef.current.subscribe(`/topic/typing/${conversationId}`, (msg) => {
+      try {
+        console.log("Typing update received:", msg.body);
+        const data = JSON.parse(msg.body);
+        
+        setTypingUsers((prev) => {
+          const newState = { ...prev };
+          const userList = newState[conversationId] || [];
+          
+          if (data.typing) {
+            if (!userList.includes(data.userId)) {
+              newState[conversationId] = [...userList, data.userId];
+            }
+          } else {
+            newState[conversationId] = userList.filter(id => id !== data.userId);
+
+            if (newState[conversationId].length === 0) {
+              delete newState[conversationId];
+            }
           }
           
-          return data;
-      } catch (error) {
-          console.error("Error loading conversation history:", error);
-          timeoutForError(error.message);
-          return null;
-      } finally {
-          loadingHistoryRef.current.delete(requestKey);
+          return newState;
+        });
+      } catch (e) {
+        console.error("Typing indicator error:", e);
       }
-  }, [isAuthenticated, userId, url, timeoutForError]);
+    });
+  
+    typingSubscriptions.current[conversationId] = sub;
+    
+    return () => {
+      if (typingSubscriptions.current[conversationId]) {
+        typingSubscriptions.current[conversationId].unsubscribe();
+        delete typingSubscriptions.current[conversationId];
+      }
+    };
+  }, [connected]);
 
-    const getUserStatus = useCallback((userId) => {
-        return userStatuses[userId] || { status: "OFFLINE", typing: false, lastSeen: null };
-    }, [userStatuses]);
+  const updateTypingStatus = useCallback((conversationId, isTyping) => {
+    if (!clientRef.current || !connected || !conversationId) return;
+  
+    try {
+      console.log("Updating typing status:", { conversationId, isTyping });
+      clientRef.current.publish({
+        destination: "/app/status/typing",
+        body: JSON.stringify({ 
+          conversationId, 
+          isTyping
+        }),
+        headers: { "content-type": "application/json" },
+      });
+    } catch (e) {
+      console.error("Typing update error:", e);
+    }
+  }, [connected]);
 
-    const isUserTyping = useCallback((checkUserId, conversationId) => {
-      const debug = false;
-      
-      if (debug) {
-          console.log(`Checking if user ${checkUserId} is typing in ${conversationId}`);
-          console.log('Current typing users:', typingUsers);
+  const messageHandler = useCallback((message) => {
+    try {
+      console.log("Processing raw message:", message.body);
+      const data = JSON.parse(message.body);
+      return data;
+    } catch (e) {
+      console.error("Error parsing message:", e);
+      return null;
+    }
+  }, []);
+
+  const subscribeToConversation = useCallback((conversationId) => {
+    if (!clientRef.current || !connected) return null;
+    
+    console.log("Subscribing to conversation:", conversationId);
+    
+    const conversationSubscription = clientRef.current.subscribe(
+      `/topic/conversations/${conversationId}`, 
+      (message) => {
+        const data = messageHandler(message);
+        if (data && data.conversationId) {
+          processIncomingMessage(data);
+        }
       }
-      const user = typingUsers[checkUserId];
-      
-      const result = Boolean(user && user.typing && 
-                            (user.typingInConversation === conversationId || 
-                             !user.typingInConversation)); 
-      
-      if (debug) {
-          console.log(`User ${checkUserId} typing status: ${result}`);
+    );
+    
+    const readReceiptSubscription = clientRef.current.subscribe(
+      `/topic/conversations/${conversationId}/read`,
+      (message) => {
+        try {
+          const userId = parseInt(message.body);
+          console.log(`User ${userId} read messages in conversation ${conversationId}`);
+
+          setMessages(prev => {
+            const conversationMessages = prev[conversationId] || [];
+
+            if (conversationMessages.length === 0) return prev;
+
+            const updatedMessages = conversationMessages.map(msg => {
+              if (msg.recipientId === userId) {
+                return { ...msg, read: true };
+              }
+              return msg;
+            });
+            
+            return {
+              ...prev,
+              [conversationId]: updatedMessages
+            };
+          });
+        } catch (e) {
+          console.error("Error handling read status update", e);
+        }
       }
+    );
+    
+    if (!conversationSubscriptions.current) {
+      conversationSubscriptions.current = {};
+    }
+    
+    conversationSubscriptions.current[conversationId] = {
+      conversation: conversationSubscription,
+      readReceipt: readReceiptSubscription
+    };
+    
+    return () => {
+      if (conversationSubscriptions.current?.[conversationId]) {
+        conversationSubscriptions.current[conversationId].conversation.unsubscribe();
+        conversationSubscriptions.current[conversationId].readReceipt.unsubscribe();
+        delete conversationSubscriptions.current[conversationId];
+      }
+    };
+  }, [connected,messageHandler]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (isAuthenticated && !connected && clientRef.current) {
+        console.log("Connection appears lost, attempting to reconnect...");
+        try {
+          clientRef.current.activate();
+        } catch (e) {
+          console.error("Reconnection attempt failed:", e);
+        }
+      }
+    }, 10000);
+    
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated, connected]);
+
+
+  const sendMessage = useCallback((recipientId, content) => {
+    if (!clientRef.current || !connected || !recipientId || !content.trim()) {
+      console.error("Cannot send message, invalid state:", { 
+        connected, 
+        hasRecipient: Boolean(recipientId),
+        hasContent: Boolean(content.trim())
+      });
+      return false;
+    }
+  
+    try {
+      console.log("Sending message to:", recipientId);
+      const conversationId = userId < recipientId 
+        ? `${userId}_${recipientId}` 
+        : `${recipientId}_${userId}`;
+        
+      const placeholderMsg = {
+        id: "temp-" + Date.now(),
+        senderId: userId,
+        recipientId: recipientId,
+        content: content.trim(),
+        timestamp: new Date().toISOString(),
+        conversationId: conversationId,
+        read: false,
+        senderName: "You", 
+        isLocal: true,
+        status: "sending" 
+      };
+
+      if (!conversationSubscriptions.current?.[conversationId]) {
+        subscribeToConversation(conversationId);
+      }
+  
+      setMessages(prev => ({
+        ...prev,
+        [conversationId]: [...(prev[conversationId] || []), placeholderMsg]
+      }));
+
+      clientRef.current.publish({
+        destination: `/app/chat/${recipientId}`,
+        body: JSON.stringify({ recipientId, content: content.trim() }),
+        headers: { "content-type": "application/json" },
+      });
       
-      return result;
+      return true;
+    } catch (e) {
+      console.error("Send message error:", e);
+
+      timeoutForError("Failed to send message. Please try again.");
+      return false;
+    }
+  }, [connected, userId, subscribeToConversation, timeoutForError]);
+
+  const setActiveConversation = useCallback((conversationId) => {
+    setSelectedConversationId(conversationId);
+
+    if (connected && conversationId && !conversationSubscriptions.current?.[conversationId]) {
+      subscribeToConversation(conversationId);
+    }
+  }, [connected, subscribeToConversation]);
+
+  const markMessagesAsRead = useCallback((senderId) => {
+    if (!clientRef.current || !connected) return;
+  
+    try {
+      console.log("Marking messages as read from sender:", senderId);
+      clientRef.current.publish({
+        destination: `/app/messages/${senderId}/read`,
+        body: JSON.stringify({}),
+        headers: { "content-type": "application/json" },
+      });
+  
+      if (userId) {
+        const conversationId = userId < senderId 
+          ? `${userId}_${senderId}` 
+          : `${senderId}_${userId}`;
+          
+        setMessages(prev => {
+          const conversationMessages = prev[conversationId] || [];
+          
+          if (conversationMessages.length === 0) return prev;
+          
+          const updatedMessages = conversationMessages.map(msg => {
+            if (msg.senderId === senderId && !msg.read) {
+              return { ...msg, read: true };
+            }
+            return msg;
+          });
+          
+          return {
+            ...prev,
+            [conversationId]: updatedMessages
+          };
+        });
+      }
+  
+      setUnreadMessages((prev) => {
+        const newState = { ...prev };
+        delete newState[senderId];
+        return newState;
+      });
+    } catch (e) {
+      console.error("Read receipt error:", e);
+    }
+  }, [connected, userId]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    try {
+      localStorage.setItem('eventify_messages', JSON.stringify(messages));
+      localStorage.setItem('eventify_unread', JSON.stringify(unreadMessages));
+    } catch (e) {
+      console.error("Error saving messages to localStorage:", e);
+    }
+  }, [isAuthenticated, messages, unreadMessages]);
+
+  const isUserTyping = useCallback((userId, conversationId) => {
+    if (!userId || !conversationId) return false;
+
+    return typingUsers[conversationId]?.includes(userId);
   }, [typingUsers]);
 
-    const debugTypingUsers = useCallback(() => {
-      console.log("Current typing users state:", typingUsers);
-      console.log("Current typing subscriptions:", typingSubscriptions);
-    }, [typingUsers, typingSubscriptions]);
 
-    const getUnreadCount = useCallback((userId) => {
-        return unreadMessages[userId] || 0;
-    }, [unreadMessages]);
 
-    const getTotalUnreadCount = useCallback(() => {
-        return Object.values(unreadMessages).reduce((total, count) => total + count, 0);
-    }, [unreadMessages]);
+  const getUnreadCount = useCallback((senderId) => {
+    return unreadMessages[senderId] || 0;
+  }, [unreadMessages]);
 
-    useEffect(() => {
-        if (!isAuthenticated || !userId || !connected) return;
+  const getTotalUnreadCount = useCallback(() => {
+    return Object.values(unreadMessages).reduce((total, count) => total + count, 0);
+  }, [unreadMessages]);
+
+  const getUserStatus = useCallback((userId) => {
+    const status = userStatuses[userId] || { 
+      status: "OFFLINE", 
+      lastSeen: null,
+      isTyping: false 
+    };
+    
+    return status;
+  }, [userStatuses]);
+
+  const fetchAllUserStatuses = useCallback(async () => {
+
+    if (!isAuthenticated || connected) return;
+    
+    try {
+      console.log("Fetching user statuses via REST (fallback)");
+    } catch (err) {
+      console.error("Failed to load statuses", err);
+    }
+  }, [isAuthenticated, url, connected]);
+
+  useEffect(() => {
+    if (isAuthenticated && !connected) {
+      fetchAllUserStatuses();
+    }
+  }, [isAuthenticated, connected, fetchAllUserStatuses]);
+
+ 
+
+  const processIncomingMessage = useCallback((data) => {
+    const conversationId = data.conversationId;
+    
+    if (!conversationId) {
+      console.error("Message missing conversationId:", data);
+      return;
+    }
+  
+    if (!conversationSubscriptions.current?.[conversationId]) {
+      subscribeToConversation(conversationId);
+    }
+    
+    console.log("Processing message for conversation:", conversationId);
+    
+    setMessages((prev) => {
+      const existingMessages = prev[conversationId] || [];
+    
+      const isDuplicate = existingMessages.some(m => 
+        (m.id === data.id) || 
+        (m.isLocal && 
+         m.senderId === data.senderId && 
+         m.recipientId === data.recipientId && 
+         m.content === data.content && 
+         Math.abs(new Date(m.timestamp) - new Date(data.timestamp)) < 10000)
+      );
+    
+      if (isDuplicate) {
+        console.log("Duplicate message detected, updating existing", data.id);
+        return {
+          ...prev,
+          [conversationId]: existingMessages.map(msg => 
+            (msg.id === data.id || 
+             (msg.isLocal && msg.senderId === data.senderId && 
+              msg.recipientId === data.recipientId && 
+              msg.content === data.content)) 
+              ? { ...data, id: data.id || msg.id } 
+              : msg
+          )
+        };
+      }
+    
+      console.log("Adding message to state:", data.id);
+      return {
+        ...prev,
+        [conversationId]: [...existingMessages, data],
+      };
+    });
+  
+    if (data.recipientId === userId && !data.read) {
+      console.log("Incrementing unread count for sender:", data.senderId);
+      setUnreadMessages((prev) => ({
+        ...prev,
+        [data.senderId]: (prev[data.senderId] || 0) + 1,
+      }));
+      
+      if (data.senderId !== userId && data.senderId !== selectedConversationId) {
+        playNotificationSound();
+      }
+    }
+  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound]);
+
+  // const handleNewMessage = useCallback((message) => {
+  //   try {
+  //     console.log("Received message:", message.body);
+  //     const data = messageHandler(message);
+  //     if (data) {
+  //       processIncomingMessage(data);
+  //     }
+  //   } catch (e) {
+  //     console.error("New message handling error:", e);
+  //   }
+  // }, [messageHandler, processIncomingMessage]);
+
+  const handleNewMessage = useCallback((message) => {
+    try {
+      console.log("Received message:", message.body);
+      const data = JSON.parse(message.body);
+      const conversationId = data.conversationId;
+      
+      if (!conversationId) {
+        console.error("Message missing conversationId:", data);
+        return;
+      }
+  
+      if (!conversationSubscriptions.current?.[conversationId]) {
+        subscribeToConversation(conversationId);
+      }
+      
+      console.log("Processing message for conversation:", conversationId);
+      
+      setMessages((prev) => {
+        const existingMessages = prev[conversationId] || [];
         
-        const heartbeatInterval = setInterval(() => {
-            try {
-                const now = Date.now();
-                if (now - lastStatusUpdateRef.current >= 30000) { 
-                    updateOnlineStatus("ONLINE");
+        const isDuplicate = existingMessages.some(m => 
+          (m.id === data.id) || 
+          (m.isLocal && 
+           m.senderId === data.senderId && 
+           m.recipientId === data.recipientId && 
+           m.content === data.content && 
+           Math.abs(new Date(m.timestamp) - new Date(data.timestamp)) < 10000)
+        );
+        
+        if (isDuplicate) {
+          console.log("Duplicate message detected, updating existing:", data.id);
+          return {
+            ...prev,
+            [conversationId]: existingMessages.map(msg => 
+              (msg.id === data.id || 
+               (msg.isLocal && msg.senderId === data.senderId && 
+                msg.recipientId === data.recipientId && 
+                msg.content === data.content)) 
+                ? { ...msg, ...data, id: data.id || msg.id } 
+                : msg
+            )
+          };
+        }
+
+        return {
+          ...prev,
+          [conversationId]: [...existingMessages, data],
+        };
+      });
+    } catch (e) {
+      console.error("New message handling error:", e);
+    }
+  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !userId) {
+      console.log("Not authenticated, cleaning up WebSocket");
+      return cleanupWebSocket();
+    }
+
+    const wsUrl = `${url}/ws`;
+    console.log("Attempting to connect to WebSocket at:", wsUrl);
+    
+    const socket = new SockJS(wsUrl);
+    
+    const client = new Client({
+      webSocketFactory: () => socket,
+      connectHeaders: {}, 
+      debug: function(str) {
+        if (str.includes('Web Socket Opened') || 
+            str.includes('Connected') || 
+            str.includes('Error') || 
+            str.includes('Closed')) {
+          console.log("STOMP: " + str);
+        }
+      },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000
+    });
+    
+    let isComponentMounted = true;
+  
+    client.onConnect = (frame) => {
+      if (!isComponentMounted) return;
+      
+      console.log("WebSocket Connected!", frame);
+      setConnected(true);
+      // Status subscriptions, ONLINE, OFFLINE, AWAY
+
+      const statusSubscription = client.subscribe('/topic/status', (message) => {
+        try {
+          const statusData = JSON.parse(message.body);
+          console.log("Received status update for user:", statusData.userId, statusData.status);
+          
+          setUserStatuses((prev) => ({
+            ...prev,
+            [statusData.userId]: statusData,
+          }));
+        } catch (e) {
+          console.error("Status update error:", e);
+        }
+      });
+
+      const allStatusesSubscription = client.subscribe('/topic/status/all', (message) => {
+        try {
+          const statusList = JSON.parse(message.body);
+          console.log("Received all statuses:", statusList.length);
+          
+          const newStatuses = {};
+          statusList.forEach((status) => {
+            newStatuses[status.userId] = status;
+          });
+          
+          setUserStatuses(prev => ({
+            ...prev,
+            ...newStatuses
+          }));
+        } catch (e) {
+          console.error("Error processing status list:", e);
+        }
+      });
+
+      // Messages subscription
+      
+      messageSubscriptionRef.current = client.subscribe(`/user/queue/messages`, (message) => {
+        try {
+          handleNewMessage(message);
+        } catch (e) {
+          console.error("Error handling message", e);
+        }
+      });
+
+      // Is message read subscription
+
+      readReceiptSubscriptionRef.current = client.subscribe(`/user/queue/read-receipts`, (message) => {
+        try {
+          handleReadReceipt(message);
+        } catch (e) {
+          console.error("Error handling read receipt", e);
+        }
+      });
+
+      ackSubscriptionRef.current = client.subscribe(`/user/queue/ack`, (ack) => {
+        try {
+          const data = JSON.parse(ack.body);
+          console.log("Message acknowledgment received:", data);
+          
+          setMessages((prev) => {
+            const updatedMessages = { ...prev };
+            
+            Object.keys(updatedMessages).forEach(conversationId => {
+              const conversationMessages = updatedMessages[conversationId];
+              
+              const updatedConversation = conversationMessages.map(msg => {
+                if (msg.isLocal) {
+                  return {
+                    ...msg,
+                    id: data.messageId, 
+                    isLocal: false,     
+                    timestamp: data.timestamp 
+                  };
                 }
-            } catch (error) {
-                console.error("Error sending heartbeat:", error);
-            }
-        }, 45000);
-        
-        return () => clearInterval(heartbeatInterval);
-    }, [isAuthenticated, userId, connected, updateOnlineStatus]);
+                return msg;
+              });
+              
+              updatedMessages[conversationId] = updatedConversation;
+            });
+            
+            return updatedMessages;
+          });
+        } catch (e) {
+          console.error("Error handling acknowledgment", e);
+        }
+      });
 
-    useEffect(() => {
-        if (!isAuthenticated || !userId) return;
-        
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === "hidden") {
-                updateOnlineStatus("AWAY");
-            } else if (document.visibilityState === "visible" && connectedRef.current) {
-                updateOnlineStatus("ONLINE");
-            }
-        };
-        
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-        
-        return () => {
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
-        };
-    }, [isAuthenticated, userId, updateOnlineStatus]);
+      Object.keys(messages).forEach(conversationId => {
+        subscribeToConversation(conversationId);
+      });
+      
+      client.publish({
+        destination: "/app/status/get-all",
+        body: JSON.stringify({}),
+        headers: { "content-type": "application/json" }
+      });
+      
+      updateOnlineStatus("ONLINE");
+    };
 
-    return (
-        <WebSocketContext.Provider
-            value={{
-                connected,
-                stompClient: clientRef.current,
-                sendMessage,
-                updateTypingStatus,
-                updateOnlineStatus,
-                markMessagesAsRead,
-                loadConversationHistory,
-                subscribeToTypingIndicator,
-                getUserStatus,
-                isUserTyping,
-                getUnreadCount,
-                getTotalUnreadCount,
-                messages
-            }}
-        >
-            {children}
-        </WebSocketContext.Provider>
-    );
+    console.log("Activating STOMP client...");
+    client.activate();
+    clientRef.current = client;
+
+    return () => {
+      console.log("Component unmounting, cleaning up WebSocket");
+
+      if (conversationSubscriptions.current) {
+        Object.keys(conversationSubscriptions.current).forEach(conversationId => {
+          const subs = conversationSubscriptions.current[conversationId];
+          if (subs.conversation) subs.conversation.unsubscribe();
+          if (subs.readReceipt) subs.readReceipt.unsubscribe();
+        });
+        conversationSubscriptions.current = {};
+      }
+
+      if (messageSubscriptionRef.current) {
+        messageSubscriptionRef.current.unsubscribe();
+        messageSubscriptionRef.current = null;
+      }
+      
+      if (readReceiptSubscriptionRef.current) {
+        readReceiptSubscriptionRef.current.unsubscribe();
+        readReceiptSubscriptionRef.current = null;
+      }
+      
+      if (ackSubscriptionRef.current) {
+        ackSubscriptionRef.current.unsubscribe();
+        ackSubscriptionRef.current = null;
+      }
+      
+      if (statusSubscriptionRef.current) {
+        statusSubscriptionRef.current.unsubscribe();
+        statusSubscriptionRef.current = null;
+      }
+      
+      if (allStatusesSubscriptionRef.current) {
+        allStatusesSubscriptionRef.current.unsubscribe();
+        allStatusesSubscriptionRef.current = null;
+      }
+      
+      if (clientRef.current) {
+        clientRef.current.deactivate();
+        clientRef.current = null;
+      }
+      
+      setConnected(false);
+    };
+  }, [isAuthenticated, userId, url, cleanupWebSocket]);
+
+
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      try {
+        console.log("Fetching user statuses");
+        const response = await fetch(`${url}/api/users/status/all`, {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const statusMap = {};
+          data.forEach((s) => (statusMap[s.userId] = s));
+          setUserStatuses(statusMap);
+          console.log("User statuses loaded:", Object.keys(statusMap).length);
+        } else {
+          console.error("Failed to load statuses:", response.status);
+        }
+      } catch (err) {
+        console.error("Failed to load statuses", err);
+      }
+    };
+    
+    if (isAuthenticated) fetchStatuses();
+  }, [isAuthenticated, url]);
+
+  useEffect(() => {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        updateOnlineStatus("AWAY");
+      } else {
+        handleActivity();
+      }
+    });
+    
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleActivity);
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+      if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
+    };
+  }, [handleActivity, updateOnlineStatus]);
+
+  return (
+    <WebSocketContext.Provider
+      value={{
+        connected,
+        sendMessage,
+        updateTypingStatus,
+        markMessagesAsRead,
+        subscribeToTypingIndicator,
+        isUserTyping,
+        getUnreadCount,
+        getTotalUnreadCount,
+        getUserStatus,
+        messages,
+        setActiveConversation,
+        setMessages,
+        fetchUnreadMessageCounts
+      }}
+    >
+      {children}
+    </WebSocketContext.Provider>
+  );
 };
 
 export default WebSocketContext;

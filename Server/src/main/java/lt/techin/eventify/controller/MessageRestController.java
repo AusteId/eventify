@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/messages")
@@ -58,6 +59,25 @@ public class MessageRestController {
             return ResponseEntity.ok(messages);
         } catch (Exception e) {
             logger.error("Error getting messages: ", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/unread")
+    public ResponseEntity<Map<String, Integer>> getUnreadMessageCounts(Authentication authentication) {
+        logger.debug("GET request for unread message counts");
+
+        if (authentication == null) {
+            logger.error("Authentication is null in getUnreadMessageCounts");
+            return ResponseEntity.status(401).build();
+        }
+
+        try {
+            Map<String, Integer> unreadCounts = messageService.getUnreadMessageCounts(authentication);
+            logger.debug("Returning unread message counts: {}", unreadCounts);
+            return ResponseEntity.ok(unreadCounts);
+        } catch (Exception e) {
+            logger.error("Error getting unread message counts: ", e);
             return ResponseEntity.badRequest().build();
         }
     }
