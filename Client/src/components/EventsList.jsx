@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaList, FaMap } from 'react-icons/fa';
+import { useSearchParams } from 'react-router-dom';
 import EventCard from './EventCard';
 import LoadingSection from './LoadingSection';
 import EventMap from './map/EventMap';
@@ -27,7 +28,15 @@ const EventsList = ({ setLoading, loading }) => {
     sortDirection: 'ASC',
   });
   const [showMap, setShowMap] = useState(false);
+  const [searchParamsUrl] = useSearchParams();
+  const eventId = searchParamsUrl.get('eventId');
   const eventsPerPage = 12;
+
+  useEffect(() => {
+    if (eventId) {
+      setShowMap(true);
+    }
+  }, [eventId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,17 +99,26 @@ const EventsList = ({ setLoading, loading }) => {
               city: searchParams.filters.city || undefined,
               startDateTime: searchParams.filters.startDateTime || undefined,
               endDateTime: searchParams.filters.endDateTime || undefined,
-              experienceLevel: searchParams.filters.experienceLevel || undefined,
-              minAge: searchParams.filters.minAge ? parseInt(searchParams.filters.minAge) : undefined,
-              maxAge: searchParams.filters.maxAge ? parseInt(searchParams.filters.maxAge) : undefined,
+              experienceLevel:
+                searchParams.filters.experienceLevel || undefined,
+              minAge: searchParams.filters.minAge
+                ? parseInt(searchParams.filters.minAge)
+                : undefined,
+              maxAge: searchParams.filters.maxAge
+                ? parseInt(searchParams.filters.maxAge)
+                : undefined,
             },
           },
         );
-        console.log("API Response (Map):", response.data);
+        console.log('API Response (Map):', response.data);
         setEventsForMap(response.data);
       } catch (error) {
         console.error('Error fetching data for map:', error);
-        console.log('Error details:', error.response?.data, error.response?.status);
+        console.log(
+          'Error details:',
+          error.response?.data,
+          error.response?.status,
+        );
         setEventsForMap([]);
       } finally {
         setLoading(false);
@@ -155,7 +173,7 @@ const EventsList = ({ setLoading, loading }) => {
       {loading ? (
         <LoadingSection />
       ) : showMap ? (
-        <EventMap events={eventsForMap} />
+        <EventMap events={eventsForMap} eventId={eventId} />
       ) : events.length === 0 ? (
         <p>Events not found</p>
       ) : (

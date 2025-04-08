@@ -1,29 +1,29 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSearchParams } from 'react-router-dom';
-import { CiSearch, CiCircleRemove } from 'react-icons/ci';
+import { CiCircleRemove, CiSearch } from 'react-icons/ci';
 import {
-  FaArrowUp,
   FaArrowDown,
-  FaChevronDown,
+  FaArrowUp,
+  FaCalendar,
   FaCheck,
-  FaUser,
+  FaChevronDown,
+  FaList,
   FaMapMarkerAlt,
   FaStar,
-  FaList,
-  FaCalendar,
+  FaUser,
 } from 'react-icons/fa';
 import {
-  FaArrowUpAZ,
+  FaArrowDown91,
   FaArrowDownZA,
   FaArrowUp19,
-  FaArrowDown91,
+  FaArrowUpAZ,
   FaSort,
 } from 'react-icons/fa6';
-import { RiFilter2Fill } from 'react-icons/ri';
 import { IoCalendarOutline } from 'react-icons/io5';
+import { RiFilter2Fill } from 'react-icons/ri';
+import { useSearchParams } from 'react-router-dom';
 import CategoryImage from '../category/CategoryImage';
 
 const EventSearch = ({ onSearch }) => {
@@ -316,6 +316,7 @@ const EventSearch = ({ onSearch }) => {
   const handleClearFilters = () => {
     reset();
     setIsToDateManuallyEdited(false);
+    setIsFilterDropdownOpen(false);
     onSearch({
       searchTerm: searchInput,
       filters: {

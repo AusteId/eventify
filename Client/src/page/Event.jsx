@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import EditIcon from '../assets/editIcon.svg?react';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
@@ -231,7 +231,12 @@ const Event = () => {
               </div>
               <div className="flex items-center gap-2">
                 <MarkIcon />
-                <p>{event.address}</p>
+                <Link
+                  to={`/events?eventId=${event.id}`}
+                  className="text-body-medium text-btn hover:text-btn-hover hover:underline"
+                >
+                  {event.address}
+                </Link>
               </div>
             </div>
           </div>
