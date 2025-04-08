@@ -1,16 +1,11 @@
 package lt.techin.eventify.service;
 
-import lt.techin.eventify.dto.user.AvatarResponseDTO;
-import lt.techin.eventify.dto.user.CreateUserRequest;
-import lt.techin.eventify.dto.user.LoginUserRequest;
-import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.dto.user.*;
 import lt.techin.eventify.exception.EmailAlreadyExistsException;
 import lt.techin.eventify.exception.InvalidCredentialsException;
 import lt.techin.eventify.exception.UsernameAlreadyExistsException;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.model.Role;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.model.UserImage;
+import lt.techin.eventify.model.*;
+import lt.techin.eventify.repository.mongodb.MessageRepository;
 import lt.techin.eventify.repository.mysql.CategoryRepository;
 import lt.techin.eventify.repository.mysql.RoleRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
@@ -22,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,15 +29,18 @@ public class UserService {
   private final RoleRepository roleRepository;
   private final CategoryRepository categoryRepository;
   private final TokenService tokenService;
+  private final MessageRepository messageRepository;
 
   public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper,
-                     RoleRepository roleRepository, CategoryRepository categoryRepository, TokenService tokenService) {
+                     RoleRepository roleRepository, CategoryRepository categoryRepository, TokenService tokenService,
+                     MessageRepository messageRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.userMapper = userMapper;
     this.roleRepository = roleRepository;
     this.categoryRepository = categoryRepository;
     this.tokenService = tokenService;
+    this.messageRepository = messageRepository;
   }
 
   public boolean existsByUsername(String username) {
@@ -122,5 +117,63 @@ public class UserService {
             user.getAvatar().getData(),
             user.getAvatar().getContentType()
     );
+  }
+
+  public List<UserSearchDTO> searchUsers(String query, Long currentUserId, int limit) {
+
+    return userRepository.findAll().stream()
+            .filter(user -> !user.getId().equals(currentUserId))
+            .filter(user -> user.getUsername().toLowerCase().contains(query.toLowerCase()))
+            .limit(limit)
+            .map(user -> new UserSearchDTO(user.getId(), user.getUsername()))
+            .collect(Collectors.toList());
+  }
+
+  public List<ChatContactDTO> findChatContacts(Long currentUserId, int limit) {
+
+    try {
+      List<Message> allUserMessages = messageRepository.findBySenderIdOrRecipientId(currentUserId, currentUserId);
+
+      if (allUserMessages.isEmpty()) {
+        return Collections.emptyList();
+      }
+
+      Set<Long> contactUserIds = new HashSet<>();
+      Map<Long, LocalDateTime> lastInteractionMap = new HashMap<>();
+
+      for (Message message : allUserMessages) {
+        Long contactUserId;
+
+        if (message.getSenderId().equals(currentUserId)) {
+          contactUserId = message.getRecipientId();
+        } else {
+          contactUserId = message.getSenderId();
+        }
+
+        contactUserIds.add(contactUserId);
+
+        LocalDateTime timestamp = message.getTimestamp();
+        if (!lastInteractionMap.containsKey(contactUserId)
+                || lastInteractionMap.get(contactUserId).isBefore(timestamp)) {
+          lastInteractionMap.put(contactUserId, timestamp);
+        }
+      }
+
+      List<User> contactUsers = userRepository.findByIdIn(new ArrayList<>(contactUserIds));
+
+      List<ChatContactDTO> result = contactUsers.stream()
+              .map(user -> new ChatContactDTO(
+                      user.getId(),
+                      user.getUsername(),
+                      lastInteractionMap.getOrDefault(user.getId(), LocalDateTime.now().minusYears(10))
+              ))
+              .sorted(Comparator.comparing(ChatContactDTO::lastInteraction).reversed())
+              .limit(limit)
+              .toList();
+
+      return result;
+    } catch (Exception e) {
+      return Collections.emptyList();
+    }
   }
 }

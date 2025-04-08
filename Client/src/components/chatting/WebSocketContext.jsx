@@ -29,10 +29,9 @@ export const WebSocketProvider = ({ children }) => {
   const readReceiptSubscriptionRef = useRef(null);
   const ackSubscriptionRef = useRef(null);
   const conversationSubscriptions = useRef({});
-  const reconnectAttempts = useRef(0);
   const STATUS_UPDATE_INTERVAL_MS = 60000;
   const lastUnreadFetchTimeRef = useRef(0);
-  const FETCH_THROTTLE_MS = 2000;
+  const FETCH_THROTTLE_MS = 1000;
 
   const cleanupWebSocket = useCallback(() => {
     console.log("Deactivating STOMP client...");
@@ -83,13 +82,13 @@ export const WebSocketProvider = ({ children }) => {
     
     const now = Date.now();
     if (now - lastUnreadFetchTimeRef.current < FETCH_THROTTLE_MS) {
-      console.log("Skipping unread count fetch - throttled");
       return;
     }
     
     lastUnreadFetchTimeRef.current = now;
     
     try {
+
       console.log("Fetching unread message counts");
       const response = await authFetch(`${url}/api/messages/unread`);
       
@@ -99,7 +98,7 @@ export const WebSocketProvider = ({ children }) => {
       }
       
       const data = await response.json();
-      
+
       if (Object.keys(data).length > 0) {
         console.log("Received unread message counts:", data);
       }
@@ -116,6 +115,7 @@ export const WebSocketProvider = ({ children }) => {
   }, [isAuthenticated, authFetch, url]);
 
   useEffect(() => {
+
     if (isAuthenticated) {
       fetchUnreadMessageCounts();
     }
@@ -124,7 +124,7 @@ export const WebSocketProvider = ({ children }) => {
       if (isAuthenticated && connected) {
         fetchUnreadMessageCounts();
       }
-    }, 30000);
+    }, 60000); 
     
     return () => clearInterval(intervalId);
   }, [isAuthenticated, connected, fetchUnreadMessageCounts]);
@@ -150,14 +150,21 @@ export const WebSocketProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const playNotificationSound = useCallback(() => {
-    console.log("Play this while my lazy ass finds a sound to play")
-    // try {
-    //   const audio = new Audio("/notification.mp3");
-    //   audio.volume = 0.5;
-    //   audio.play().catch(e => console.log("Audio playback prevented:", e));
-    // } catch (e) {
-    //   console.log("Unable to play notification sound:", e);
-    // }
+    try {
+      const audio = new Audio("/assets/messages/notification.wav");
+      audio.volume = 0.5;
+  
+      const playPromise = audio.play();
+  
+      if (playPromise !== undefined) {
+        playPromise
+          .catch(error => {
+            console.log("Audio playback prevented:", error.message);
+          });
+      }
+    } catch (error) {
+      console.log("Unable to play notification sound:", error.message);
+    }
   }, []);
 
   const handleReadReceipt = useCallback((message) => {
@@ -420,6 +427,17 @@ export const WebSocketProvider = ({ children }) => {
   
     try {
       console.log("Marking messages as read from sender:", senderId);
+      
+      setUnreadMessages((prev) => {
+        const newState = { ...prev };
+        delete newState[senderId];
+        return newState;
+      });
+
+      if (fetchUnreadMessageCounts) {
+        setTimeout(fetchUnreadMessageCounts, 100);
+      }
+      
       clientRef.current.publish({
         destination: `/app/messages/${senderId}/read`,
         body: JSON.stringify({}),
@@ -449,12 +467,6 @@ export const WebSocketProvider = ({ children }) => {
           };
         });
       }
-  
-      setUnreadMessages((prev) => {
-        const newState = { ...prev };
-        delete newState[senderId];
-        return newState;
-      });
     } catch (e) {
       console.error("Read receipt error:", e);
     }
@@ -576,18 +588,6 @@ export const WebSocketProvider = ({ children }) => {
       }
     }
   }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound]);
-
-  // const handleNewMessage = useCallback((message) => {
-  //   try {
-  //     console.log("Received message:", message.body);
-  //     const data = messageHandler(message);
-  //     if (data) {
-  //       processIncomingMessage(data);
-  //     }
-  //   } catch (e) {
-  //     console.error("New message handling error:", e);
-  //   }
-  // }, [messageHandler, processIncomingMessage]);
 
   const handleNewMessage = useCallback((message) => {
     try {
@@ -874,6 +874,48 @@ export const WebSocketProvider = ({ children }) => {
     };
   }, [handleActivity, updateOnlineStatus]);
 
+  const updateMessage = useCallback((messageId, content) => {
+    if (!clientRef.current || !connected) {
+      console.error("Cannot update message: WebSocket not connected");
+      return false;
+    }
+    
+    try {
+      console.log("Updating message:", messageId);
+      clientRef.current.publish({
+        destination: "/app/message/update",
+        body: JSON.stringify({ messageId, content }),
+        headers: { "content-type": "application/json" },
+      });
+      return true;
+    } catch (e) {
+      console.error("Message update error:", e);
+      timeoutForError("Failed to update message. Please try again.");
+      return false;
+    }
+  }, [connected, timeoutForError]);
+
+  const deleteMessage = useCallback((messageId) => {
+    if (!clientRef.current || !connected) {
+      console.error("Cannot delete message: WebSocket not connected");
+      return false;
+    }
+    
+    try {
+      console.log("Deleting message:", messageId);
+      clientRef.current.publish({
+        destination: "/app/message/delete",
+        body: JSON.stringify({ messageId }),
+        headers: { "content-type": "application/json" },
+      });
+      return true;
+    } catch (e) {
+      console.error("Message deletion error:", e);
+      timeoutForError("Failed to delete message. Please try again.");
+      return false;
+    }
+  }, [connected, timeoutForError]);
+
   return (
     <WebSocketContext.Provider
       value={{
@@ -889,7 +931,9 @@ export const WebSocketProvider = ({ children }) => {
         messages,
         setActiveConversation,
         setMessages,
-        fetchUnreadMessageCounts
+        fetchUnreadMessageCounts,
+        updateMessage,
+        deleteMessage,
       }}
     >
       {children}

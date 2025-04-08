@@ -4,6 +4,7 @@ import { useWebSocket } from "./WebSocketContext";
 import UserStatusIndicator from "./UserStatusIndicator";
 import { format } from "date-fns";
 import { useNotification } from "../context/NotificationContext";
+import MessageComponent from "./MessageComponent";
 
 const ChatComponent = ({ recipientId, recipientUsername }) => {
   const [message, setMessage] = useState("");
@@ -490,29 +491,12 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
             )}
             
             {sortedMessages.map((msg) => (
-              <div
-                key={msg.id || `temp-${msg.timestamp}`}
-                className={`mb-3 flex ${msg.senderId == userId ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[70%] rounded-lg px-3 py-2 ${
-                    msg.senderId == userId
-                      ? `bg-blue-500 text-white rounded-br-none ${msg.isLocal ? "opacity-70" : ""}`
-                      : "bg-gray-200 text-gray-800 rounded-bl-none"
-                  }`}
-                >
-                  <div>{msg.content}</div>
-                  <div
-                    className={`text-xs ${
-                      msg.senderId == userId ? "text-blue-100" : "text-gray-500"
-                    } text-right mt-1 flex items-center justify-end`}
-                  >
-                    {formatMessageTime(msg.timestamp)}
-                    {renderMessageStatus(msg)}
-                  </div>
-                </div>
-              </div>
-            ))}
+  <MessageComponent
+    key={msg.id || `temp-${msg.timestamp}`}
+    message={msg}
+    userId={userId}
+  />
+))}
           </>
         )}
 

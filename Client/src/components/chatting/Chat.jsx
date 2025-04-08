@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useWebSocket } from "./WebSocketContext";
-import { Helmet } from "react-helmet";
 import ChatUsersList from "./ChatUsersList";
 import ChatComponent from "./ChatComponent";
 import WebSocketStatusBadge from "./WebSocketStatusBadge";
@@ -10,9 +9,9 @@ const Chat = () => {
   const { getTotalUnreadCount } = useWebSocket();
   const totalUnread = getTotalUnreadCount();
 
-  const handleSelectUser = (user) => {
+  const handleSelectUser = useCallback((user) => {
     setSelectedUser(user);
-  };
+  }, []);
 
   useEffect(() => {
     document.title = totalUnread > 0
@@ -22,9 +21,6 @@ const Chat = () => {
 
   return (
     <div className="container mx-auto mt-8 px-4">
-      <Helmet>
-        <title>{totalUnread > 0 ? `(${totalUnread}) Eventify - Chat` : 'Eventify - Chat'}</title>
-      </Helmet>
       <h1 className="text-2xl font-bold mb-4">
         Messages{" "}
         {totalUnread > 0 && (

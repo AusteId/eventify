@@ -252,4 +252,63 @@ public class MessageService {
         logger.debug("Found unread message counts: {}", unreadCounts);
         return unreadCounts;
     }
+
+    public Message updateMessage(String messageId, String newContent, Authentication auth) {
+        User currentUser = authenticate(auth);
+
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NotFoundException("Message not found: " + messageId));
+
+        if (!message.getSenderId().equals(currentUser.getId())) {
+            logger.error("User {} attempted to edit a message they didn't send: {}",
+                    currentUser.getId(), messageId);
+            throw new IllegalArgumentException("Cannot edit messages sent by other users");
+        }
+
+        if (message.isDeleted()) {
+            logger.error("User {} attempted to edit a deleted message: {}",
+                    currentUser.getId(), messageId);
+            throw new IllegalArgumentException("Cannot edit a deleted message");
+        }
+
+        if (!message.isEdited()) {
+            message.setOriginalContent(message.getContent());
+        }
+
+        message.setContent(newContent);
+        message.setEdited(true);
+        message.setEditedAt(LocalDateTime.now());
+
+        Message updatedMessage = messageRepository.save(message);
+        logger.debug("Message updated: {}", messageId);
+
+        return updatedMessage;
+    }
+
+    public Message deleteMessage(String messageId, Authentication auth) {
+        User currentUser = authenticate(auth);
+
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NotFoundException("Message not found: " + messageId));
+
+        if (!message.getSenderId().equals(currentUser.getId())) {
+            logger.error("User {} attempted to delete a message they didn't send: {}",
+                    currentUser.getId(), messageId);
+            throw new IllegalArgumentException("Cannot delete messages sent by other users");
+        }
+
+        if (message.isDeleted()) {
+            logger.error("User {} attempted to delete an already deleted message: {}",
+                    currentUser.getId(), messageId);
+            throw new IllegalArgumentException("Message is already deleted");
+        }
+
+        message.setDeleted(true);
+        message.setDeletedAt(LocalDateTime.now());
+
+        Message deletedMessage = messageRepository.save(message);
+        logger.debug("Message deleted: {}", messageId);
+
+        return deletedMessage;
+    }
 }

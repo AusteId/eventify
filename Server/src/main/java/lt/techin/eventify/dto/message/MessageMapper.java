@@ -40,7 +40,11 @@ public class MessageMapper {
             message.isRead(),
             senderStatus.getStatus(),
             senderStatus.isTyping(),
-            senderStatus.getLastSeen()
+            senderStatus.getLastSeen(),
+            message.isDeleted(),
+            message.getDeletedAt(),
+            message.isEdited(),
+            message.getEditedAt()
     );
   }
 

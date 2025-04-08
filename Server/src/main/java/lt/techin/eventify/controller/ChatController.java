@@ -1,8 +1,6 @@
 package lt.techin.eventify.controller;
 
-import lt.techin.eventify.dto.message.MessageMapper;
-import lt.techin.eventify.dto.message.MessageRequest;
-import lt.techin.eventify.dto.message.MessageResponse;
+import lt.techin.eventify.dto.message.*;
 import lt.techin.eventify.exception.NotFoundException;
 import lt.techin.eventify.model.Message;
 import lt.techin.eventify.model.User;
@@ -143,6 +141,108 @@ public class ChatController {
             );
         } catch (Exception e) {
             logger.error("Error marking messages as read: ", e);
+        }
+    }
+
+    @MessageMapping("/message/update")
+    public void updateMessage(@Payload MessageUpdateRequest request, Authentication authentication) {
+        if (authentication == null) {
+            logger.error("Authentication is null in updateMessage");
+            return;
+        }
+
+        String username = authentication.getName();
+        logger.debug("Processing message update from user: {} for message: {}",
+                username, request.messageId());
+
+        try {
+            Message updatedMessage = messageService.updateMessage(request.messageId(), request.content(), authentication);
+            MessageResponse messageResponse = messageMapper.toDTO(updatedMessage);
+
+            String conversationId = messageResponse.conversationId();
+            logger.debug("Updated message: {}, in conversation: {}",
+                    updatedMessage.getId(), conversationId);
+
+            messagingTemplate.convertAndSend(
+                    "/topic/conversations/" + conversationId,
+                    messageResponse
+            );
+
+            User recipient = userRepository.findById(updatedMessage.getRecipientId())
+                    .orElseThrow(() -> new NotFoundException("Recipient not found"));
+
+            messagingTemplate.convertAndSendToUser(
+                    recipient.getUsername(),
+                    "/queue/messages",
+                    messageResponse
+            );
+
+            logger.debug("Message update broadcast successfully");
+        } catch (Exception e) {
+            logger.error("Error processing message update: ", e);
+
+            if (authentication != null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("status", "error");
+                error.put("message", "Failed to update message: " + e.getMessage());
+
+                messagingTemplate.convertAndSendToUser(
+                        authentication.getName(),
+                        "/queue/errors",
+                        error
+                );
+            }
+        }
+    }
+
+    @MessageMapping("/message/delete")
+    public void deleteMessage(@Payload MessageDeleteRequest request, Authentication authentication) {
+        if (authentication == null) {
+            logger.error("Authentication is null in deleteMessage");
+            return;
+        }
+
+        String username = authentication.getName();
+        logger.debug("Processing message deletion from user: {} for message: {}",
+                username, request.messageId());
+
+        try {
+            Message deletedMessage = messageService.deleteMessage(request.messageId(), authentication);
+            MessageResponse messageResponse = messageMapper.toDTO(deletedMessage);
+
+            String conversationId = messageResponse.conversationId();
+            logger.debug("Deleted message: {}, in conversation: {}",
+                    deletedMessage.getId(), conversationId);
+
+            messagingTemplate.convertAndSend(
+                    "/topic/conversations/" + conversationId,
+                    messageResponse
+            );
+
+            User recipient = userRepository.findById(deletedMessage.getRecipientId())
+                    .orElseThrow(() -> new NotFoundException("Recipient not found"));
+
+            messagingTemplate.convertAndSendToUser(
+                    recipient.getUsername(),
+                    "/queue/messages",
+                    messageResponse
+            );
+
+            logger.debug("Message deletion broadcast successfully");
+        } catch (Exception e) {
+            logger.error("Error processing message deletion: ", e);
+
+            if (authentication != null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("status", "error");
+                error.put("message", "Failed to delete message: " + e.getMessage());
+
+                messagingTemplate.convertAndSendToUser(
+                        authentication.getName(),
+                        "/queue/errors",
+                        error
+                );
+            }
         }
     }
 }
