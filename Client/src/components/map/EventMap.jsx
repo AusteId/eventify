@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -13,7 +14,40 @@ const defaultIcon = L.icon({
     shadowSize: [41, 41]
 });
 
-const EventMap = ({ events }) => {
+const EventMap = ({ events, eventId }) => {
+
+    const mapRef = useRef();
+
+    const MapController = ({ eventId, events }) => {
+        const map = useMap();
+
+        useEffect(() => {
+            if (!eventId || !events) return;
+
+            const selectedEvent = events.find((event) => String(event.id) === String(eventId));
+            if (!selectedEvent || !selectedEvent.latitude || !selectedEvent.longitude) {
+                map.setView([54.6892, 25.2798], 13);
+                return;
+            }
+
+            const { latitude, longitude } = selectedEvent;
+            map.setView([latitude, longitude], 13);
+
+            const markerLayer = map._layers;
+            Object.values(markerLayer).forEach((layer) => {
+                if (
+                    layer instanceof L.Marker &&
+                    layer.getLatLng().lat === latitude &&
+                    layer.getLatLng().lng === longitude
+                ) {
+                    layer.openPopup();
+                }
+            });
+        }, [eventId, events, map]);
+
+        return null;
+    };
+
     return (
         <MapContainer
             center={[54.6892, 25.2798]}
@@ -24,11 +58,13 @@ const EventMap = ({ events }) => {
                 minHeight: '25rem',
                 minWidth: '22rem',
             }}
+            ref={mapRef}
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
+            <MapController eventId={eventId} events={events} />
             {events
                 .filter(event => event.latitude != null && event.longitude != null)
                 .map((event, index) => (
