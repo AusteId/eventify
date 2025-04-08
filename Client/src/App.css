@@ -65,3 +65,12 @@
 
 @layer base {
 }
+
+.custom-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.custom-popup-content p {
+  margin: 0 !important;
+}
