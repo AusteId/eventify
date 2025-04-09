@@ -4,7 +4,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lt.techin.eventify.dto.event.EventMapSummary;
@@ -215,7 +217,13 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
     builder.and(event.organizer.id.eq(userId));
     LocalDateTime now = LocalDateTime.now();
     List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
-    orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.endDateTime.lt(now).or(event.endDateTime.isNull())));
+    BooleanExpression isEndedExpression = event.endDateTime.lt(now).or(event.endDateTime.isNull());
+    OrderSpecifier<?> isEndedOrder = new OrderSpecifier<>(Order.ASC,
+            Expressions.cases()
+                    .when(isEndedExpression).then(1)
+                    .otherwise(0));
+
+    orderSpecifiers.add(isEndedOrder);
 
     for (Sort.Order order : pageable.getSort()) {
       Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
@@ -261,7 +269,13 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
 
     LocalDateTime now = LocalDateTime.now();
     List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
-    orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.endDateTime.lt(now).or(event.endDateTime.isNull())));
+    BooleanExpression isEndedExpression = event.endDateTime.lt(now).or(event.endDateTime.isNull());
+    OrderSpecifier<?> isEndedOrder = new OrderSpecifier<>(Order.ASC,
+            Expressions.cases()
+                    .when(isEndedExpression).then(1)
+                    .otherwise(0));
+
+    orderSpecifiers.add(isEndedOrder);
 
     for (Sort.Order order : pageable.getSort()) {
       Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;

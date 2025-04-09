@@ -2,10 +2,7 @@ package lt.techin.eventify.service;
 
 import lombok.AllArgsConstructor;
 import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.exception.CategoryNotFoundException;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.ForbiddenException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.exception.*;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.User;
@@ -359,20 +356,22 @@ public class EventService {
 
   public Page<EventSummaryResponse> getUserCreatedEvents(Long userId, Pageable pageable) {
 
+    userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
     Page<Event> eventPage = eventRepository.findEventsByOrganizer(userId, pageable);
 
     if (eventPage.isEmpty()) {
       throw new EventNotFoundException("It looks like you haven't created any events so far. Why not create one now?");
     }
 
-    List<EventSummaryResponse> eventSummaries = eventPage.getContent().stream()
-            .map(eventMapper::toEventSummaryResponse)
-            .toList();
-
-    return new PageImpl<>(eventSummaries, pageable, eventPage.getTotalElements());
+    return eventPage.map(eventMapper::toEventSummaryResponse);
   }
 
   public Page<EventSummaryResponse> getUserRegisteredEvents(Long userId, Pageable pageable) {
+
+    userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
     Page<Event> eventPage = eventRepository.findEventsByParticipant(userId, pageable);
 
@@ -380,10 +379,6 @@ public class EventService {
       throw new EventNotFoundException("It looks like you haven’t joined any events yet. Start by browsing upcoming events!");
     }
 
-    List<EventSummaryResponse> eventSummaries = eventPage.getContent().stream()
-            .map(eventMapper::toEventSummaryResponse)
-            .toList();
-
-    return new PageImpl<>(eventSummaries, pageable, eventPage.getTotalElements());
+    return eventPage.map(eventMapper::toEventSummaryResponse);
   }
 }
