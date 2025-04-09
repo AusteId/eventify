@@ -156,7 +156,7 @@ const EventsList = ({ setLoading, loading }) => {
       ) : showMap ? (
         <EventMap events={eventsForMap} eventId={eventId} />
       ) : events.length === 0 ? (
-        <p>Events not found</p>
+        <p>Loading...</p>
       ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {events.map((event, index) => (

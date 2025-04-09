@@ -21,4 +21,6 @@ public interface RegistrationToEventRepository extends JpaRepository<Registratio
 
   @Query("SELECT r.event.id, COUNT(r) FROM RegistrationToEvent r WHERE r.event.id IN :eventIds GROUP BY r.event.id")
   List<Object[]> findCountsByEventIds(@Param("eventIds") List<Long> eventIds);
+
+
 }

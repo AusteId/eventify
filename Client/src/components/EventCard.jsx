@@ -13,6 +13,7 @@ import {IoPersonAdd } from "react-icons/io5";
 import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
+import toast from 'react-hot-toast';
 
 const EventCard = ({
   id,
@@ -34,11 +35,20 @@ const EventCard = ({
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
   const [imageData, setImageData] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(true);
-  const [registered, setRegistered] = useState(isRegistered); 
-  const [participants, setParticipants] = useState(currentParticipants); 
+  const [participants, setParticipants] = useState(() => {
+    const saved = localStorage.getItem(`event_${id}_participants`);
+    return saved !== null ? parseInt(saved, 10) : currentParticipants;
+  }); 
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated, loading: authLoading } = useAuth() || { isAuthenticated: false, loading: false };
-
+  const { isAuthenticated, loading: authLoading, birthDate } = useAuth() || {
+    isAuthenticated: false,
+    loading: false,
+    birthDate: null,
+  };
+  const [registered, setRegistered] = useState(() => {
+    const saved = localStorage.getItem(`event_${id}_registered`);
+    return saved !== null ? parseInt(saved, 10) : isRegistered;
+  });
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -71,26 +81,32 @@ const EventCard = ({
     fetchImage();
   }, [id]);
 
-  // useEffect(() => {
-  //   const fetchUserAge = async () => {
-  //     if (isAuthenticated && userId) {
-  //       try {
-  //         const response = await axios.get(`${import.meta.env.VITE_BACK_URL}/api/users/me`, {
-  //           withCredentials: true,
-  //         });
-  //         setUserAge(response.data.age);
-  //       } catch (error) {
-  //         console.error('Error fetching user age:', error);
-  //       }
-  //     }
-  //   };
-  //   fetchUserAge();
-  // }, [isAuthenticated, userId]);
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const isAgeValid = () => {
+    const userAge = calculateAge(birthDate);
+
+    if (!userAge && (!minAge && !maxAge)) return true;
+    if (!userAge) return false;
+
+    if (minAge && userAge < minAge) return false;
+    if (maxAge && userAge > maxAge) return false;
+    return true;
+  };
 
   const handleRegistration = async () => {
-  
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/events/${id}` } }); 
+      navigate('/login', { state: { from: `/events/${id}` } });
       return;
     }
 
@@ -98,27 +114,38 @@ const EventCard = ({
       return;
     }
 
+    if (!isAgeValid()) {
+      toast.error('Your age does not meet the requirements of the event.');
+      return;
+    }
+
     setLoading(true);
     try {
       if (registered) {
-        
         await cancelEvent(id);
         setRegistered(0);
         setParticipants(prev => prev - 1);
+        toast.success('Registration has been successfully canceled.');
       } else {
-        
         if (participants < maxParticipants) {
           await joinEvent(id);
           setRegistered(1);
           setParticipants(prev => prev + 1);
+          toast.success(`You're registered to ${name}!`);
         } else {
-          alert('Event is full!');
+          toast.error('Places at the event have run out!');
         }
       }
       if (eventHandler) eventHandler();
     } catch (error) {
-      console.error('Error handling registration:', error);
-      alert('Something went wrong. Please try again.');
+      const errorMessage = error.error || 'Something went wrong. Try it again.';
+      toast.error(errorMessage);
+      if (error.error) {
+        const isUserRegistered = registered ? 0 : 1;
+        setRegistered(isUserRegistered);
+        setParticipants(prev => (isUserRegistered ? prev + 1 : prev - 1));
+        localStorage.setItem(`event_${id}_registered`, isUserRegistered.toString());
+      }
     } finally {
       setLoading(false);
     }
@@ -166,6 +193,11 @@ const EventCard = ({
       </div>
     );
   }
+
+  useEffect(() => {
+    localStorage.setItem(`event_${id}_registered`, registered.toString());
+    localStorage.setItem(`event_${id}_participants`, participants.toString());
+  }, [id, registered, participants]);
 
   return (
     <div

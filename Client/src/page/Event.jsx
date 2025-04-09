@@ -80,7 +80,7 @@ const Event = () => {
     if (!isAgeValid()) {
       toast.error('Your age does not meet the requirements of the event.');
       return;
-    }
+  }
 
     if (isOrganizer()) {
       toast.error('An organizer cannot register for their own event.');
@@ -106,8 +106,8 @@ const Event = () => {
         }
       );
     } catch (error) {
-      console.error('Join to event error:', error.message);
-      toast.error('Registration failed. Please try again.');
+      const errorMessage = error.error || 'Failed to register. Try again.';
+      toast.error(errorMessage);
     }
       finally {
     setIsJoining(false);

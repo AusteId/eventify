@@ -77,9 +77,12 @@ public class User implements UserDetails {
           inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "avatar_id")
   private UserImage avatar;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<RegistrationToEvent> registrations = new HashSet<>();
 
   public User(String username, String email, String password, String city, LocalDate birthDate, String description,
               Set<Category> favoriteEventCategories, String photoPath, Set<Role> roles, UserImage avatar) {
@@ -93,6 +96,7 @@ public class User implements UserDetails {
     this.photoPath = photoPath;
     this.roles = roles;
     this.avatar = avatar;
+    this.registrations = new HashSet<>();
   }
 
   @Override

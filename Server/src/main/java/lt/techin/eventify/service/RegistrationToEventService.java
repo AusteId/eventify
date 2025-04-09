@@ -10,7 +10,9 @@ import lt.techin.eventify.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 @Service
 public class RegistrationToEventService {
@@ -57,6 +59,25 @@ public class RegistrationToEventService {
 
     RegistrationToEvent registration = new RegistrationToEvent(user, event, LocalDateTime.now());
     return registrationToEventRepository.save(registration);
+  }
+
+  private boolean isAgeValid(LocalDate birthDate, Integer minAge, Integer maxAge) {
+    if (birthDate == null && (minAge == null && maxAge == null)) {
+      return true;
+    }
+    if (birthDate == null) {
+      return false;
+    }
+
+    int userAge = Period.between(birthDate, LocalDate.now()).getYears();
+
+    if (minAge != null && userAge < minAge) {
+      return false;
+    }
+    if (maxAge != null && userAge > maxAge) {
+      return false;
+    }
+    return true;
   }
 
   public void cancelEventRegistration(Long eventId, String username) {
