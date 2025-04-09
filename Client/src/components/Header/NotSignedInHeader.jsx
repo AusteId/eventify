@@ -7,7 +7,7 @@ const NotSignedInHeader = () => {
 
   return (
     // <header className="bg-white shadow-md">
-    <header className="sticky h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
+    <header className="sticky h-16 bg-[#FFFFFF] shadow-md flex z-50">
       {/* <nav className="flex justify-between items-center px-6 py-4 w-[100%] "> */}
       <nav className="flex justify-between self-center items-center w-[100%] px-6">
         <NavLink tabIndex={-1} to={'/'}>

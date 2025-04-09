@@ -2,8 +2,10 @@ import { NavLink } from 'react-router';
 import StepIndicator from '../StepIndicator';
 
 const RegistrationHeader = ({ currentStep }) => {
+  const setActive = ({ isActive }) =>
+    isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
   return (
-    <header className="flex items-center justify-between px-6 py-[1.3rem] bg-white shadow-md">
+    <header className="flex items-center h-16 justify-between px-6 bg-white shadow-md">
       <NavLink tabIndex={-1} to={'/'}>
         <section className="flex items-center gap-4">
           <svg
@@ -22,6 +24,19 @@ const RegistrationHeader = ({ currentStep }) => {
           <h1 className="text-title text-heading-s font-[700]">Eventify</h1>
         </section>
       </NavLink>
+      <section className=" h-[1.5rem] w-[23rem] p-1 ">
+        <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
+          <NavLink to="/" className={setActive}>
+            <h1 className=" hover:underline hover">Home</h1>
+          </NavLink>
+          <NavLink to="/events" className={setActive}>
+            <h1 className="  hover:underline">Events</h1>
+          </NavLink>
+          <NavLink to="/about" className={setActive}>
+            <h1 className="  hover:underline ">About Us</h1>
+          </NavLink>
+        </section>
+      </section>
       <section className="flex items-center gap-2 text-sm text-gray-600">
         <StepIndicator step={currentStep} totalSteps={4} />
       </section>
