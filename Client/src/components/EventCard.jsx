@@ -38,7 +38,7 @@ const EventCard = ({
   const [participants, setParticipants] = useState(() => {
     const saved = localStorage.getItem(`event_${id}_participants`);
     return saved !== null ? parseInt(saved, 10) : currentParticipants;
-  }); 
+  });
   const [loading, setLoading] = useState(false);
   const { isAuthenticated, loading: authLoading, birthDate } = useAuth() || {
     isAuthenticated: false,
@@ -58,14 +58,13 @@ const EventCard = ({
         return;
       }
       try {
-        setIsImageLoading(true)
-        const url = `${import.meta.env.VITE_BACK_URL}/api/events/${id}/picture`
+        setIsImageLoading(true);
+        const url = `${import.meta.env.VITE_BACK_URL}/api/events/${id}/picture`;
         const response = await axios.get(url, {
-          responseType: "blob",
-          withCredentials: true,
-        })
-        const image = URL.createObjectURL(response.data)
-        setImageData(image)
+          responseType: 'blob',
+        });
+        const image = URL.createObjectURL(response.data);
+        setImageData(image);
       } catch (error) {
         console.error('Error fetching data:', error);
         console.log(
@@ -73,7 +72,7 @@ const EventCard = ({
           error.response?.data,
           error.response?.status,
         );
-        setImageData([]);
+        setImageData(null);
       } finally {
         setIsImageLoading(false);
       }
@@ -169,7 +168,7 @@ const EventCard = ({
     wordArr[9] = cleanedLastWord;
     shortDesc = wordArr?.slice(0, 10).join(' ') + '...';
   } else {
-    shortDesc = wordArr?.join(" ") || "Welcome to my event!"
+    shortDesc = wordArr?.join(' ') || 'Welcome to my event!';
   }
 
   const timeString =
@@ -201,7 +200,7 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex mt-0.5 mb-6 flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && "grayscale-100"}`}
+      className={`flex mt-0.5 mb-6 flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <a
@@ -288,8 +287,8 @@ const EventCard = ({
           <p className="p-3">Completed</p>
         ) : (
           registered && isAuthenticated ? (
-            <ButtonCancel 
-              isFull={true} 
+            <ButtonCancel
+              isFull={true}
               onClick={handleRegistration}
               disabled={loading}
             >
@@ -297,8 +296,8 @@ const EventCard = ({
               {loading ? 'Processing...' : 'Cancel Registration'}
             </ButtonCancel>
           ) : (
-            <Button 
-              isFull={true} 
+            <Button
+              isFull={true}
               onClick={handleRegistration}
               disabled={loading || participants >= maxParticipants}
             >

@@ -1,18 +1,24 @@
 package lt.techin.eventify.service;
 
-import lombok.AllArgsConstructor;
-import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.exception.CategoryNotFoundException;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.ForbiddenException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.EventImage;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.mysql.*;
+import java.io.IOException;
+import java.security.Principal;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,14 +26,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.EventMapResponse;
+import lt.techin.eventify.dto.event.EventMapSummary;
+import lt.techin.eventify.dto.event.EventMapper;
+import lt.techin.eventify.dto.event.EventResponse;
+import lt.techin.eventify.dto.event.EventWithScore;
+import lt.techin.eventify.dto.event.GetEventResponse;
+import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lt.techin.eventify.exception.CategoryNotFoundException;
+import lt.techin.eventify.exception.EventNotFoundException;
+import lt.techin.eventify.exception.ForbiddenException;
+import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.model.Category;
+import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.EventRepository;
+import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
 
 @Service
 @AllArgsConstructor
@@ -44,24 +62,25 @@ public class EventService {
 //  public Event saveEvent(CreateEventRequest createEventRequest) throws IOException {
 //    Event newEvent = eventMapper.toEvent(createEventRequest);
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
+  @CachePut(value = "eventsCache", key = "#result.id")
   public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) throws IOException {
     JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
     Map<String, Object> claims = jwtAuth.getTokenAttributes();
     Long userId = (Long) claims.get("userId");
-
-    EventImage image = eventMapper.imageToEntity(createEventRequest);
 
     User organizer = userRepository.findById(userId).orElseThrow(() ->
             new UsernameNotFoundException("User does not exist"));
 
     Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("Category does not exist"));
     Event event = eventMapper.toEvent(createEventRequest, category, organizer);
-    event.setEventImage(image);
     Event savedEvent = eventRepository.save(event);
 
     return eventMapper.toEventResponse(savedEvent);
   }
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
+  @CachePut(value = "eventsCache", key = "#result.id")
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
 
     Event event = eventRepository.findById(eventId).orElseThrow(() ->
@@ -86,6 +105,7 @@ public class EventService {
     return eventRepository.save(event);
   }
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
   public void deleteEvent(long eventId, Principal principal) {
     Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
@@ -107,6 +127,7 @@ public class EventService {
 
   }
 
+  @Cacheable("eventsCache")
   public List<EventResponse> getUserEvents(long userId) {
 
     User user = userRepository.findById(userId)
@@ -119,17 +140,20 @@ public class EventService {
             .toList();
   }
 
+  @Cacheable(value = "eventsCache", key = "#eventId")
   public EventResponse getEventById(long eventId) {
     Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
     return eventMapper.toEventResponse(event);
   }
 
+  @Cacheable("eventsCache")
   public List<GetEventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
             .map(eventMapper::toGetEventResponse)
             .toList();
   }
 
+  @Cacheable("eventsCache")
   public Page<EventResponse> findEventsByFilters(String categoryName, String city, String startDateTime,
                                                  String endDateTime, String experienceLevel,
                                                  Integer minAge, Integer maxAge, String searchTerm, Pageable pageable) {
@@ -149,22 +173,24 @@ public class EventService {
     return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
   }
 
+  @Cacheable(value = "eventsCache", key = "#eventId")
   public Event findEventById(Long eventId) {
     return eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
   }
 
+  @Cacheable(value = "eventsCache", key = "#id")
   public Event findById(long id) {
     return eventRepository.findById(id).orElse(null);
   }
 
-  public EventPictureResponse getEventPicture(long eventId) {
-    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId + " (id)")).getEventImage();
-    return new EventPictureResponse(
-            eventImage.getData(),
-            eventImage.getContentType()
-    );
-  }
+//   public EventPictureResponse getEventPicture(long eventId) {
+//     EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId + " (id)")).getEventImage();
+//     return new EventPictureResponse(
+//             eventImage.getData(),
+//             eventImage.getContentType()
+//     );
+//   }
 
   // Events that will start in less than 24 hours
   public List<GetEventResponse> findHotEvents() {
@@ -187,6 +213,7 @@ public class EventService {
     return sortedEvents;
   }
 
+  @Cacheable("eventsCache")
   public List<GetEventResponse> findEventsInUpcoming14Days() {
     // weight constants for calculating scores
     final double WEIGHT_DATE = 3.0;
@@ -250,7 +277,7 @@ public class EventService {
             .toList();
   }
 
-
+  @Cacheable("eventsCache")
   public List<GetEventResponse> findRecommendedEvents(String username) {
     User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));

@@ -1,11 +1,12 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { FaList, FaMap } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import EventCard from './EventCard';
-import Pagination from './Pagination';
-import axios from 'axios';
-import EventSearch from './search/EventSearch';
+import LoadingSection from './LoadingSection';
 import EventMap from './map/EventMap';
-import { FaMap, FaList } from 'react-icons/fa';
+import Pagination from './Pagination';
+import EventSearch from './search/EventSearch';
 
 const EventsList = ({ setLoading, loading }) => {
   const [events, setEvents] = useState([]);
@@ -54,18 +55,27 @@ const EventsList = ({ setLoading, loading }) => {
               city: searchParams.filters.city || undefined,
               startDateTime: searchParams.filters.startDateTime || undefined,
               endDateTime: searchParams.filters.endDateTime || undefined,
-              experienceLevel: searchParams.filters.experienceLevel || undefined,
-              minAge: searchParams.filters.minAge ? parseInt(searchParams.filters.minAge) : undefined,
-              maxAge: searchParams.filters.maxAge ? parseInt(searchParams.filters.maxAge) : undefined,
+              experienceLevel:
+                searchParams.filters.experienceLevel || undefined,
+              minAge: searchParams.filters.minAge
+                ? parseInt(searchParams.filters.minAge)
+                : undefined,
+              maxAge: searchParams.filters.maxAge
+                ? parseInt(searchParams.filters.maxAge)
+                : undefined,
             },
           },
         );
-        console.log("API Response:", response.data);
+        console.log('API Response:', response.data);
         setEvents(response.data.content);
         setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error('Error fetching data:', error);
-        console.log('Error details:', error.response?.data, error.response?.status);
+        console.log(
+          'Error details:',
+          error.response?.data,
+          error.response?.status,
+        );
         setEvents([]);
         setTotalPages(0);
       } finally {
@@ -89,17 +99,26 @@ const EventsList = ({ setLoading, loading }) => {
               city: searchParams.filters.city || undefined,
               startDateTime: searchParams.filters.startDateTime || undefined,
               endDateTime: searchParams.filters.endDateTime || undefined,
-              experienceLevel: searchParams.filters.experienceLevel || undefined,
-              minAge: searchParams.filters.minAge ? parseInt(searchParams.filters.minAge) : undefined,
-              maxAge: searchParams.filters.maxAge ? parseInt(searchParams.filters.maxAge) : undefined,
+              experienceLevel:
+                searchParams.filters.experienceLevel || undefined,
+              minAge: searchParams.filters.minAge
+                ? parseInt(searchParams.filters.minAge)
+                : undefined,
+              maxAge: searchParams.filters.maxAge
+                ? parseInt(searchParams.filters.maxAge)
+                : undefined,
             },
           },
         );
-        console.log("API Response (Map):", response.data);
+        console.log('API Response (Map):', response.data);
         setEventsForMap(response.data);
       } catch (error) {
         console.error('Error fetching data for map:', error);
-        console.log('Error details:', error.response?.data, error.response?.status);
+        console.log(
+          'Error details:',
+          error.response?.data,
+          error.response?.status,
+        );
         setEventsForMap([]);
       } finally {
         setLoading(false);
@@ -119,7 +138,7 @@ const EventsList = ({ setLoading, loading }) => {
     }
   };
 
-  const handleSearch = (newSearchParams) => {
+  const handleSearch = newSearchParams => {
     setSearchParams(newSearchParams);
     setCurrentPage(0);
   };
@@ -152,7 +171,7 @@ const EventsList = ({ setLoading, loading }) => {
       </div>
 
       {loading ? (
-        <span className="loading loading-bars loading-xl"></span>
+        <LoadingSection />
       ) : showMap ? (
         <EventMap events={eventsForMap} eventId={eventId} />
       ) : events.length === 0 ? (
@@ -169,7 +188,7 @@ const EventsList = ({ setLoading, loading }) => {
         <Pagination
           totalPages={totalPages}
           currentPage={currentPage + 1}
-          paginate={(page) => paginate(page - 1)}
+          paginate={page => paginate(page - 1)}
         />
       )}
     </div>

@@ -1,12 +1,12 @@
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useOutletContext } from 'react-router';
 import email from '../../assets/userRegistration/email-Icon.svg';
 import password from '../../assets/userRegistration/password-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
-import FieldValidationError from '../FieldValidationError';
-import { useOutletContext } from 'react-router';
 import Button from '../Button';
 import { useNotification } from '../context/NotificationContext';
+import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
@@ -16,9 +16,9 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
   const { timeoutForError, url } = useNotification();
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
-  RegistrationFirstStep.displayName = "RegistrationFirstStep";
+  RegistrationFirstStep.displayName = 'RegistrationFirstStep';
 
   const {
     register,
@@ -53,14 +53,17 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     setUsernameError('');
     setEmailError('');
     clearErrors(['username', 'email']);
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await fetch(`${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await fetch(
+        `${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
       if (!response.ok) {
         timeoutForError('Failed to check username/email availability');
@@ -73,42 +76,60 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
 
       if (data.usernameExists) {
         setUsernameError('This username is already taken');
-        setFormError('username', { type: 'manual', message: 'This username is already taken' });
+        setFormError('username', {
+          type: 'manual',
+          message: 'This username is already taken',
+        });
         isValid = false;
       }
 
       if (data.emailExists) {
         setEmailError('This email is already registered');
-        setFormError('email', { type: 'manual', message: 'This email is already registered' });
+        setFormError('email', {
+          type: 'manual',
+          message: 'This email is already registered',
+        });
         isValid = false;
       }
 
       return isValid;
     } catch (error) {
-      timeoutForError(error.message || "Failure checking credentials")
+      timeoutForError(error.message || 'Failure checking credentials');
       return false;
     } finally {
       setIsValidating(false);
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
+  const zalgoRegex =
+    /[\u0300-\u036f\u0483-\u0489\u0610-\u0615\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/;
+
   useImperativeHandle(ref, () => ({
     validateStep: async () => {
-      const fieldsValid = await trigger(["username", "email", "password", "passwordConfirm"]);
-      const passwordsMatch = validatePasswordsMatch(passwordValue, passwordConfirmValue);
+      const fieldsValid = await trigger([
+        'username',
+        'email',
+        'password',
+        'passwordConfirm',
+      ]);
 
-      if (!fieldsValid || !passwordsMatch) {
+      const passwordsMatch = validatePasswordsMatch(
+        passwordValue,
+        passwordConfirmValue,
+      );
+
+      if (!fieldsValid || !passwordsMatch || zalgoRegex.test(passwordValue)) {
         return false;
       }
       return await checkExistingCredentials();
-    }
+    },
   }));
 
   const onNext = () => {
     nextStep();
   };
-  
+
   return (
     <>
       {isLoading && <LoadingScreen />}
@@ -145,12 +166,15 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                     },
                     pattern: {
                       value: /^[a-zA-Z0-9]+$/g,
-                      message: 'Username can contain lowercase, uppercase and numbers',
+                      message:
+                        'Username can contain lowercase, uppercase and numbers',
                     },
                   })}
                 />
               </label>
-              <FieldValidationError>{errors.username?.message || usernameError}</FieldValidationError>
+              <FieldValidationError>
+                {errors.username?.message || usernameError}
+              </FieldValidationError>
             </div>
 
             <div>
@@ -172,7 +196,9 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                   })}
                 />
               </label>
-              <FieldValidationError>{errors.email?.message || emailError}</FieldValidationError>
+              <FieldValidationError>
+                {errors.email?.message || emailError}
+              </FieldValidationError>
             </div>
 
             <div>
@@ -186,16 +212,26 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
                   placeholder="Create a password"
                   {...register('password', {
                     required: 'Password is required.',
-                    minLength: { value: 8, message: 'Password must be at least 8 characters long.' },
-                    maxLength: { value: 255, message: 'Password cannot exceed 255 characters.' },
+                    minLength: {
+                      value: 8,
+                      message: 'Password must be at least 8 characters long.',
+                    },
+                    maxLength: {
+                      value: 255,
+                      message: 'Password cannot exceed 255 characters.',
+                    },
                     pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+$/,
-                      message: 'The password must have an uppercase letter, lowercase letter, number, and a wildcard',
+                      value:
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+$/,
+                      message:
+                        'The password must have an uppercase letter, lowercase letter, number, and a wildcard',
                     },
                   })}
                 />
               </label>
-              <FieldValidationError>{errors.password?.message}</FieldValidationError>
+              <FieldValidationError>
+                {errors.password?.message}
+              </FieldValidationError>
             </div>
 
             <div>
@@ -225,10 +261,10 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
           </div>
           <div className="flex justify-center gap-4 w-full text-center pt-6 ">
             <p className="font-inter text-body-medium">
-            Already have an account?
+              Already have an account?
             </p>
             <a className="text-btn-hover" href="/login">
-            Sign in
+              Sign in
             </a>
           </div>
         </div>
