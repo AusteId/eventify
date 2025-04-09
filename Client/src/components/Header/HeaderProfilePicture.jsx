@@ -28,15 +28,13 @@ const ProfilePictureButton = () => {
   }, []);
 
   return (
-    <>
-      <section>
-        <img
-          src={avatar || defaultAvatar}
-          alt="profile-photo"
-          className="border-movie-fifth w-[3rem] h-[3rem] rounded-[1.5rem] mx-[0.3rem]"
-        />
-      </section>
-    </>
+    <section>
+      <img
+        src={avatar || defaultAvatar}
+        alt="profile-photo"
+        className="border-movie-fifth w-[3rem] h-[3rem] rounded-[1.5rem] mx-[0.3rem]"
+      />
+    </section>
   );
 };
 

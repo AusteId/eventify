@@ -103,12 +103,12 @@ function App() {
                 </ProtectedRoute>
               }
             />
-                        <Route
+            <Route
               path="/chat"
               element={
-                  <WebSocketProvider>
-                    <Chat />
-                  </WebSocketProvider>
+                <WebSocketProvider>
+                  <Chat />
+                </WebSocketProvider>
               }
             />
             <Route path="/about" element={<About />} />

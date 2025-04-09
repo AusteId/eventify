@@ -1,93 +1,161 @@
+import React, { useEffect, useState } from 'react';
+import { CalendarDays, User, ChevronDown } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router';
-import { useAuth } from '../Auth/AuthContext';
 import Button from '../Button';
+import { useAuth } from '../Auth/AuthContext';
+import { useLocation } from 'react-router-dom';
 import HeaderProfilePicture from './HeaderProfilePicture';
 
-const Header = () => {
-  const { logout } = useAuth();
+const Header = ({ loading }) => {
+  const [activeLink, setActiveLink] = useState('');
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
-  const setActive = ({ isActive }) =>
-    isActive ? 'text-btn' : 'text-body-medium hover:text-btn hover:underline';
+  const navLinks = [
+    { name: 'Home', href: '/' },
+    { name: 'Events', href: '/events' },
+    { name: 'My Registrations', href: '/myRegistrations' },
+    { name: 'About Us', href: '/about' },
+  ];
+
+  const location = useLocation();
+
+  useEffect(() => {
+    setActiveLink(location.pathname);
+  });
 
   return (
-    <header className="fixed min-w-full h-[4rem] bg-[#FFFFFF] shadow-md flex z-50">
-      <nav className=" flex justify-between  self-center items-center w-[100%] px-6">
-        <NavLink tabIndex={-1} to={'/'}>
-          <section className=" flex items-center gap-[1rem]">
-            <svg
-              width="21"
-              height="24"
-              viewBox="0 0 21 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                id="Vector"
-                d="M6 0C6.82969 0 7.5 0.670312 7.5 1.5V3H13.5V1.5C13.5 0.670312 14.1703 0 15 0C15.8297 0 16.5 0.670312 16.5 1.5V3H18.75C19.9922 3 21 4.00781 21 5.25V7.5H0V5.25C0 4.00781 1.00781 3 2.25 3H4.5V1.5C4.5 0.670312 5.17031 0 6 0ZM0 9H21V21.75C21 22.9922 19.9922 24 18.75 24H2.25C1.00781 24 0 22.9922 0 21.75V9ZM3 12.75V14.25C3 14.6625 3.3375 15 3.75 15H5.25C5.6625 15 6 14.6625 6 14.25V12.75C6 12.3375 5.6625 12 5.25 12H3.75C3.3375 12 3 12.3375 3 12.75ZM9 12.75V14.25C9 14.6625 9.3375 15 9.75 15H11.25C11.6625 15 12 14.6625 12 14.25V12.75C12 12.3375 11.6625 12 11.25 12H9.75C9.3375 12 9 12.3375 9 12.75ZM15.75 12C15.3375 12 15 12.3375 15 12.75V14.25C15 14.6625 15.3375 15 15.75 15H17.25C17.6625 15 18 14.6625 18 14.25V12.75C18 12.3375 17.6625 12 17.25 12H15.75ZM3 18.75V20.25C3 20.6625 3.3375 21 3.75 21H5.25C5.6625 21 6 20.6625 6 20.25V18.75C6 18.3375 5.6625 18 5.25 18H3.75C3.3375 18 3 18.3375 3 18.75ZM9.75 18C9.3375 18 9 18.3375 9 18.75V20.25C9 20.6625 9.3375 21 9.75 21H11.25C11.6625 21 12 20.6625 12 20.25V18.75C12 18.3375 11.6625 18 11.25 18H9.75ZM15 18.75V20.25C15 20.6625 15.3375 21 15.75 21H17.25C17.6625 21 18 20.6625 18 20.25V18.75C18 18.3375 17.6625 18 17.25 18H15.75C15.3375 18 15 18.3375 15 18.75Z"
-                fill="#F59E0B"
-              />
-            </svg>
-            <h1 className=" text-title text-heading-s  not-italic font-[700] ">
-              Eventify
-            </h1>
-          </section>
-        </NavLink>
-        <section className=" h-[1.5rem] w-[23rem] p-1 ">
-          <section className=" flex justify-evenly  text-body-m not-italic font-[400] leading-4 items-center  ">
-            <NavLink to="/" className={setActive}>
-              <h1 className=" hover:underline hover">Home</h1>
-            </NavLink>
-            <NavLink to="/events" className={setActive}>
-              <h1 className="  hover:underline">Events</h1>
-            </NavLink>
-            <NavLink to="/myRegistrations" className={setActive}>
-              <h1 className="  hover:underline ">My Registrations</h1>
-            </NavLink>
-            <NavLink to="/about" className={setActive}>
-              <h1 className="  hover:underline ">About Us</h1>
-            </NavLink>
-          </section>
-        </section>
-        <section className=" h-[2.5rem] flex justify-center items-center gap-[1rem] ">
-          <Button
-            onClick={() => {
-              document.getElementById('event_creation_modal').showModal();
-            }}
-          >
-            Create Event
-          </Button>
-          <section className=" flex ">
-            <HeaderProfilePicture />
-            <div className="dropdown dropdown-end flex items-center">
-              <div
-                tabIndex={0}
-                role="button"
-                className="p-1 hover:bg-advanced rounded-full cursor-pointer"
-              >
-                <img
-                  src="src/assets/arrow_drop_down.svg"
-                  alt="arrow_drop_down"
-                />
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {!loading && (
+            <>
+              {/* Logo Section */}
+              <div className="flex-shrink-0 flex items-center">
+                <a href="/" className="flex items-center gap-4">
+                  <svg
+                    width="21"
+                    height="24"
+                    viewBox="0 0 21 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      id="Vector"
+                      d="M6 0C6.82969 0 7.5 0.670312 7.5 1.5V3H13.5V1.5C13.5 0.670312 14.1703 0 15 0C15.8297 0 16.5 0.670312 16.5 1.5V3H18.75C19.9922 3 21 4.00781 21 5.25V7.5H0V5.25C0 4.00781 1.00781 3 2.25 3H4.5V1.5C4.5 0.670312 5.17031 0 6 0ZM0 9H21V21.75C21 22.9922 19.9922 24 18.75 24H2.25C1.00781 24 0 22.9922 0 21.75V9ZM3 12.75V14.25C3 14.6625 3.3375 15 3.75 15H5.25C5.6625 15 6 14.6625 6 14.25V12.75C6 12.3375 5.6625 12 5.25 12H3.75C3.3375 12 3 12.3375 3 12.75ZM9 12.75V14.25C9 14.6625 9.3375 15 9.75 15H11.25C11.6625 15 12 14.6625 12 14.25V12.75C12 12.3375 11.6625 12 11.25 12H9.75C9.3375 12 9 12.3375 9 12.75ZM15.75 12C15.3375 12 15 12.3375 15 12.75V14.25C15 14.6625 15.3375 15 15.75 15H17.25C17.6625 15 18 14.6625 18 14.25V12.75C18 12.3375 17.6625 12 17.25 12H15.75ZM3 18.75V20.25C3 20.6625 3.3375 21 3.75 21H5.25C5.6625 21 6 20.6625 6 20.25V18.75C6 18.3375 5.6625 18 5.25 18H3.75C3.3375 18 3 18.3375 3 18.75ZM9.75 18C9.3375 18 9 18.3375 9 18.75V20.25C9 20.6625 9.3375 21 9.75 21H11.25C11.6625 21 12 20.6625 12 20.25V18.75C12 18.3375 11.6625 18 11.25 18H9.75ZM15 18.75V20.25C15 20.6625 15.3375 21 15.75 21H17.25C17.6625 21 18 20.6625 18 20.25V18.75C18 18.3375 17.6625 18 17.25 18H15.75C15.3375 18 15 18.3375 15 18.75Z"
+                      fill="#F59E0B"
+                    />
+                  </svg>
+                  <span className="text-2xl font-bold text-title">
+                    Eventify
+                  </span>
+                </a>
               </div>
-              <ul
-                tabIndex={0}
-                className="dropdown-content menu bg-base-100 rounded-box bottom-[-98px] w-52 p-2 shadow-sm z-[1000]"
-              >
-                <li>
-                  <a onClick={() => navigate('/profile')}>Profile</a>
-                </li>
-                <li>
-                  <a onClick={() => navigate('/chat')}>Messages</a>
-                </li>
-                <li>
-                  <a onClick={logout}>Logout</a>
-                </li>
-              </ul>
-            </div>
-          </section>
-        </section>
+
+              {/* Desktop Navigation Links */}
+              <div className="hidden desktop:flex desktop:ml-6">
+                <ul className="flex space-x-4 lg:space-x-6">
+                  {navLinks.map(link => (
+                    <li key={link.name}>
+                      <NavLink
+                        to={link.href}
+                        onClick={() => setActiveLink(link.name)}
+                        className={`
+                      px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors duration-150 ease-in-out
+                      ${
+                        activeLink === link.href
+                          ? 'text-btn bg-yellow-50' // Active link style
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' // Inactive link style
+                      }
+                    `}
+                        aria-current={
+                          activeLink === link.name ? 'page' : undefined
+                        }
+                      >
+                        {link.name}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Right Section: Actions & User Menu */}
+              <div className="flex items-center gap-3 sm:gap-4">
+                {isAuthenticated && (
+                  <Button
+                    onClick={() => {
+                      document
+                        .getElementById('event_creation_modal')
+                        .showModal();
+                    }}
+                  >
+                    Create Event
+                  </Button>
+                )}
+                {!isAuthenticated && (
+                  <div className="space-x-3">
+                    <NavLink tabIndex={-1} to={'/login'}>
+                      <Button>Login</Button>
+                    </NavLink>
+                    <NavLink tabIndex={-1} to={'/register'}>
+                      <Button>Sign Up</Button>
+                    </NavLink>
+                  </div>
+                )}
+                {isAuthenticated && (
+                  <div>
+                    <div className="dropdown dropdown-end flex items-center">
+                      <div
+                        tabIndex={0}
+                        role="button"
+                        className="p-1 hover:bg-advanced rounded-full cursor-pointer"
+                      >
+                        <div className="avatar avatar-placeholder">
+                          <div className="bg-neutral text-neutral-content w-12 rounded-full">
+                            <span className="text-3xl">D</span>
+                          </div>
+                        </div>
+                      </div>
+                      <ul
+                        tabIndex={0}
+                        className="dropdown-content menu bg-base-100 rounded-box bottom-[-98px] w-52 p-2 shadow-sm z-[1000]"
+                      >
+                        <li>
+                          <a onClick={() => navigate('/profile')}>Profile</a>
+                        </li>
+                        <li>
+                          <a onClick={() => navigate('/chat')}>Messages</a>
+                        </li>
+                        <li>
+                          <a onClick={logout}>Logout</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile Menu Button (placeholder if needed) */}
+                {/* <div className="md:hidden">
+               <button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                 <span className="sr-only">Open main menu</span>
+                 {/* Icon when menu is closed: Menu, Icon when menu is open: X */}
+                {/* </button>
+             </div> */}
+              </div>
+            </>
+          )}
+        </div>
       </nav>
+
+      {/* Mobile Menu Panel (would go here, conditionally rendered) */}
+      {/* <div className="md:hidden" id="mobile-menu">
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          {navLinks.map((link) => (...))}
+        </div>
+        <div className="pt-4 pb-3 border-t border-gray-200">
+           User info and mobile-specific actions
+        </div>
+      </div> */}
     </header>
   );
 };
