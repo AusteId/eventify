@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarDays, User, ChevronDown } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router';
 import Button from '../Button';
 import { useAuth } from '../Auth/AuthContext';
@@ -82,18 +82,20 @@ const Header = ({ loading }) => {
               {/* Right Section: Actions & User Menu */}
               <div className="flex items-center gap-3 sm:gap-4">
                 {isAuthenticated && (
-                  <Button
-                    onClick={() => {
-                      document
-                        .getElementById('event_creation_modal')
-                        .showModal();
-                    }}
-                  >
-                    Create Event
-                  </Button>
+                  <div className="hidden md:block lg:block">
+                    <Button
+                      onClick={() => {
+                        document
+                          .getElementById('event_creation_modal')
+                          .showModal();
+                      }}
+                    >
+                      Create Event
+                    </Button>
+                  </div>
                 )}
                 {!isAuthenticated && (
-                  <div className="space-x-3">
+                  <div className="hidden md:flex lg:flex space-x-3">
                     <NavLink tabIndex={-1} to={'/login'}>
                       <Button>Login</Button>
                     </NavLink>
@@ -133,6 +135,38 @@ const Header = ({ loading }) => {
                     </div>
                   </div>
                 )}
+
+                <div className="md:hidden lg:hidden">
+                  <div className="drawer drawer-end">
+                    <input
+                      id="mobilenav"
+                      type="checkbox"
+                      className="drawer-toggle"
+                    />
+                    <div className="drawer-content">
+                      {/* Page content here */}
+                      <label htmlFor="mobilenav" className="drawer-button btn">
+                        <Menu />
+                      </label>
+                    </div>
+                    <div className="drawer-side">
+                      <label
+                        htmlFor="mobilenav"
+                        aria-label="close sidebar"
+                        className="drawer-overlay"
+                      ></label>
+                      <ul className="menu bg-base-200 text-base-content min-h-full w-70 m-4 ">
+                        {/* Sidebar content here */}
+                        <li>
+                          <a className="py-4">Home</a>
+                        </li>
+                        <li>
+                          <a className="py-4">Events</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Mobile Menu Button (placeholder if needed) */}
                 {/* <div className="md:hidden">
