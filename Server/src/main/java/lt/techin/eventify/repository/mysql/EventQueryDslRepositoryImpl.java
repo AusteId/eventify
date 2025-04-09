@@ -285,7 +285,7 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
             .join(registration).on(registration.event.eq(event))
             .where(builder)
             .fetchCount();
-    
+
     List<Event> events = queryFactory.selectFrom(event)
             .join(registration).on(registration.event.eq(event))
             .where(builder)
