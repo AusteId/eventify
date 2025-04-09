@@ -11,6 +11,7 @@ import lt.techin.eventify.dto.event.EventMapSummary;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.QEvent;
+import lt.techin.eventify.model.QRegistrationToEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -203,5 +204,96 @@ public class EventQueryDslRepositoryImpl implements EventQueryDslRepository {
             .where(builder)
             .orderBy(orderSpecifier)
             .fetch();
+  }
+
+  @Override
+  public Page<Event> findEventsByOrganizer(Long userId, Pageable pageable) {
+
+    QEvent event = QEvent.event;
+    BooleanBuilder builder = new BooleanBuilder();
+
+    builder.and(event.organizer.id.eq(userId));
+    LocalDateTime now = LocalDateTime.now();
+    List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+    orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.endDateTime.lt(now).or(event.endDateTime.isNull())));
+
+    for (Sort.Order order : pageable.getSort()) {
+      Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
+      switch (order.getProperty()) {
+        case "startDateTime":
+          orderSpecifiers.add(new OrderSpecifier<>(direction, event.startDateTime));
+          break;
+        case "name":
+          orderSpecifiers.add(new OrderSpecifier<>(direction, event.name));
+          break;
+        case "createdAt":
+          orderSpecifiers.add(new OrderSpecifier<>(direction, event.createdAt));
+          break;
+        default:
+          orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.startDateTime));
+          break;
+      }
+    }
+
+    long totalNumberOfEvents = queryFactory.selectFrom(event)
+            .where(builder)
+            .fetchCount();
+
+    List<Event> events = queryFactory.selectFrom(event)
+            .where(builder)
+            .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+    return new PageImpl<>(events, pageable, totalNumberOfEvents);
+  }
+
+  @Override
+  public Page<Event> findEventsByParticipant(Long userId, Pageable pageable) {
+
+    QEvent event = QEvent.event;
+    QRegistrationToEvent registration = QRegistrationToEvent.registrationToEvent;
+    BooleanBuilder builder = new BooleanBuilder();
+
+    builder.and(registration.user.id.eq(userId));
+    builder.and(registration.event.eq(event));
+
+    LocalDateTime now = LocalDateTime.now();
+    List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+    orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.endDateTime.lt(now).or(event.endDateTime.isNull())));
+
+    for (Sort.Order order : pageable.getSort()) {
+      Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
+      switch (order.getProperty()) {
+        case "startDateTime":
+          orderSpecifiers.add(new OrderSpecifier<>(direction, event.startDateTime));
+          break;
+        case "name":
+          orderSpecifiers.add(new OrderSpecifier<>(direction, event.name));
+          break;
+        case "createdAt":
+          orderSpecifiers.add(new OrderSpecifier<>(direction, event.createdAt));
+          break;
+        default:
+          orderSpecifiers.add(new OrderSpecifier<>(Order.ASC, event.startDateTime));
+          break;
+      }
+    }
+
+    long totalNumberOfEvents = queryFactory.selectFrom(event)
+            .join(registration).on(registration.event.eq(event))
+            .where(builder)
+            .fetchCount();
+    
+    List<Event> events = queryFactory.selectFrom(event)
+            .join(registration).on(registration.event.eq(event))
+            .where(builder)
+            .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+    return new PageImpl<>(events, pageable, totalNumberOfEvents);
   }
 }
