@@ -25,7 +25,7 @@ const Header = ({ loading }) => {
   });
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm sticky top-0 z-50 overflow-clip">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {!loading && (
@@ -53,15 +53,15 @@ const Header = ({ loading }) => {
               </div>
 
               {/* Desktop Navigation Links */}
-              <div className="hidden desktop:flex desktop:ml-6">
-                <ul className="flex space-x-4 lg:space-x-6">
+              <div className="hidden desktop:flex desktop:px-6 tablet:flex tablet:px-6">
+                <ul className="flex space-x-4 lg:space-x-6 items-center">
                   {navLinks.map(link => (
                     <li key={link.name}>
                       <NavLink
                         to={link.href}
                         onClick={() => setActiveLink(link.name)}
                         className={`
-                      px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors duration-150 ease-in-out
+                      px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors duration-150 ease-in-out text-nowrap
                       ${
                         activeLink === link.href
                           ? 'text-btn bg-yellow-50' // Active link style
