@@ -25,7 +25,7 @@ const Header = ({ loading }) => {
   });
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50 overflow-clip">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {!loading && (
@@ -53,7 +53,7 @@ const Header = ({ loading }) => {
               </div>
 
               {/* Desktop Navigation Links */}
-              <div className="hidden desktop:flex desktop:px-6 tablet:flex tablet:px-6">
+              <div className="hidden lg:flex lg:px-6 md:flex md:px-6">
                 <ul className="flex space-x-4 lg:space-x-6 items-center">
                   {navLinks.map(link => (
                     <li key={link.name}>
