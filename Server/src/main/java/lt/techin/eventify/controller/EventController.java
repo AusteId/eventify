@@ -207,6 +207,12 @@ public class EventController {
     return ResponseEntity.ok(eventService.findRecommendedEvents(principal.getName()));
   }
 
+
+  @GetMapping("/hot")
+  public ResponseEntity<List<GetEventResponse>> getHotEvents() {
+    return ResponseEntity.ok(eventService.findHotEvents());
+  }
+
   @GetMapping("/map")
   public ResponseEntity<List<EventMapResponse>> getEventsForMap(@Valid EventSearchRequest request) {
 

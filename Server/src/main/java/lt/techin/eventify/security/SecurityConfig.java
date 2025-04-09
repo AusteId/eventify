@@ -76,6 +76,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/events/{eventId}").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/events/recommended").hasAnyAuthority("ADMIN", "USER")
+                            .requestMatchers(HttpMethod.GET, "/api/events/hot").hasAnyAuthority("ADMIN", "USER")
                     .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")

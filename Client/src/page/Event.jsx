@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, Link } from 'react-router';
 import getEvent from '../helpers/event/getEvent';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
@@ -220,7 +220,9 @@ const Event = () => {
               </div>
               <div className="flex items-center gap-2">
                 <MarkIcon />
-                <p>{event.address}</p>
+                <Link to={`/events?eventId=${event.id}`} className="text-body-medium text-btn hover:text-btn-hover hover:underline">
+                  {event.address}
+                </Link>
               </div>
             </div>
           </div>
