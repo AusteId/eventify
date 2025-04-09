@@ -77,7 +77,6 @@ public class UserService {
 
     UserImage avatar = UserMapper.imageToEntity(dto);
 
-    newUser.setAvatar(avatar);
     newUser.setPassword(passwordEncoder.encode(dto.password()));
     newUser.setRoles(Set.of(roleUser));
 
@@ -111,12 +110,13 @@ public class UserService {
   }
 
   public AvatarResponseDTO getUserPrivateAvatar() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    return new AvatarResponseDTO(
-            user.getAvatar().getData(),
-            user.getAvatar().getContentType()
-    );
+//    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//    User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//    return new AvatarResponseDTO(
+//            user.getAvatar().getData(),
+//            user.getAvatar().getContentType()
+//    );
+    return null;
   }
 
   public List<UserSearchDTO> searchUsers(String query, Long currentUserId, int limit) {

@@ -4,7 +4,6 @@ import lt.techin.eventify.model.UserImage;
 
 public record UserJoinToEvent(
         long userId,
-        UserImage userAvatar,
         String userName
 ) {
 }
