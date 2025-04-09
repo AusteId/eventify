@@ -28,16 +28,26 @@ public class UserStatusService {
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    private static final int TYPING_TIMEOUT_SECONDS = 5;
+    private static final int TYPING_TIMEOUT_SECONDS = 15;
     private static final int AWAY_TIMEOUT_MINUTES = 5;
 
     private final Map<Long, LocalDateTime> lastStatusUpdate = new ConcurrentHashMap<>();
-    private static final int MIN_STATUS_UPDATE_INTERVAL_SECONDS = 5;
+    private static final int MIN_STATUS_UPDATE_INTERVAL_SECONDS = 10;
+
+    private final Map<Long, LocalDateTime> lastStatusBroadcast = new ConcurrentHashMap<>();
+    private static final int MIN_BROADCAST_INTERVAL_SECONDS = 30;
 
     public UserStatusService(UserStatusRepository userStatusRepository, UserRepository userRepository, SimpMessagingTemplate messagingTemplate) {
         this.userStatusRepository = userStatusRepository;
         this.userRepository = userRepository;
         this.messagingTemplate = messagingTemplate;
+    }
+
+    public List<UserStatus> getAllOnlineUsers() {
+        List<UserStatus> onlineUsers = userStatusRepository.findByStatus(OnlineStatus.ONLINE);
+        List<UserStatus> awayUsers = userStatusRepository.findByStatus(OnlineStatus.AWAY);
+        onlineUsers.addAll(awayUsers);
+        return onlineUsers;
     }
 
     public UserStatusDTO getUserStatusWithDetails(Long userId) {
@@ -82,25 +92,12 @@ public class UserStatusService {
     public UserStatus updateStatus(Long userId, OnlineStatus status) {
         logger.debug("Updating status for user: {} to: {}", userId, status);
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime lastUpdate = lastStatusUpdate.getOrDefault(userId, LocalDateTime.MIN);
-
         UserStatus userStatus = getUserStatus(userId);
-
-        if (userStatus.getStatus() == status &&
-                ChronoUnit.SECONDS.between(lastUpdate, now) < MIN_STATUS_UPDATE_INTERVAL_SECONDS) {
-            logger.debug("Skipping status update for user: {} (throttled)", userId);
-            return userStatus;
-        }
-
         userStatus.setStatus(status);
-        userStatus.setLastSeen(now);
+        userStatus.setLastSeen(LocalDateTime.now());
 
         UserStatus savedStatus = userStatusRepository.save(userStatus);
         logger.debug("Status updated successfully for user: {}", userId);
-
-        lastStatusUpdate.put(userId, now);
-
         broadcastStatusUpdate(userId);
 
         return savedStatus;
@@ -112,8 +109,13 @@ public class UserStatusService {
 
         UserStatus userStatus = getUserStatus(userId);
 
-        logger.debug("Previous typing state: isTyping={}, conversation={}",
-                userStatus.isTyping(), userStatus.getTypingInConversation());
+        boolean needsUpdate = userStatus.isTyping() != isTyping ||
+                (isTyping && !conversationId.equals(userStatus.getTypingInConversation()));
+
+        if (!needsUpdate) {
+            logger.debug("Skipping typing update (no change)");
+            return userStatus;
+        }
 
         LocalDateTime now = LocalDateTime.now();
         userStatus.setLastSeen(now);
@@ -134,12 +136,17 @@ public class UserStatusService {
             UserStatusDTO statusDTO = getUserStatusWithDetails(userId);
             logger.debug("Broadcasting status update for user: {}", userId);
             messagingTemplate.convertAndSend("/topic/status", statusDTO);
+            List<UserStatusDTO> allStatuses = getAllOnlineUsers().stream()
+                    .map(status -> getUserStatusWithDetails(status.getUserId()))
+                            .toList();
+            messagingTemplate.convertAndSend("/topic/status/all", allStatuses);
         } catch (Exception e) {
             logger.error("Error broadcasting status update: ", e);
         }
     }
 
-    @Scheduled(fixedRate = 2000)
+
+    @Scheduled(fixedRate = 10000)
     public void checkTypingTimeouts() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -150,7 +157,6 @@ public class UserStatusService {
         }
 
         for (UserStatus status : typingUsers) {
-
             long secondsSinceLastSeen = 0;
             if (status.getLastSeen() != null) {
                 secondsSinceLastSeen = ChronoUnit.SECONDS.between(status.getLastSeen(), now);
@@ -171,34 +177,21 @@ public class UserStatusService {
 
                 if (conversationId != null) {
                     try {
-                        User user = userRepository.findById(status.getUserId())
-                                .orElse(null);
-
-                        if (user != null) {
-                            UserStatusDTO statusDTO = getUserStatusWithDetails(user.getId());
-                            logger.debug("Broadcasting typing timeout for user: {} in conversation: {}",
-                                    user.getId(), conversationId);
-                            messagingTemplate.convertAndSend("/topic/typing/" + conversationId, statusDTO);
-
-                            Map<String, Object> simpleStatus = Map.of(
-                                    "userId", user.getId(),
-                                    "typing", false,
-                                    "typingInConversation", conversationId
-                            );
-                            messagingTemplate.convertAndSend("/topic/typing/" + conversationId, simpleStatus);
-                        }
+                        Map<String, Object> simpleStatus = Map.of(
+                                "userId", status.getUserId(),
+                                "typing", false,
+                                "typingInConversation", conversationId
+                        );
+                        messagingTemplate.convertAndSend("/topic/typing/" + conversationId, simpleStatus);
                     } catch (Exception e) {
                         logger.error("Error broadcasting typing timeout", e);
                     }
                 }
-            } else {
-                logger.debug("User {} still typing (last seen: {} - {} seconds ago)",
-                        status.getUserId(), status.getLastSeen(), secondsSinceLastSeen);
             }
         }
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 120000)
     public void checkInactiveUsers() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -215,7 +208,6 @@ public class UserStatusService {
 
                 status.setStatus(OnlineStatus.AWAY);
                 userStatusRepository.save(status);
-
                 broadcastStatusUpdate(status.getUserId());
             }
         }
@@ -226,24 +218,5 @@ public class UserStatusService {
         userStatus.setLastSeen(LocalDateTime.now());
         userStatusRepository.save(userStatus);
         logger.debug("Updated lastSeen for user: {}", userId);
-    }
-
-    @Scheduled(fixedRate = 3600000)
-    public void cleanupStatusUpdateMap() {
-        LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
-
-        Map<Long, LocalDateTime> toRemove = new HashMap<>();
-
-        lastStatusUpdate.forEach((userId, timestamp) -> {
-            if (timestamp.isBefore(oneHourAgo)) {
-                toRemove.put(userId, timestamp);
-            }
-        });
-
-        toRemove.keySet().forEach(lastStatusUpdate::remove);
-
-        if (!toRemove.isEmpty()) {
-            logger.debug("Cleaned up {} old entries from status update tracking", toRemove.size());
-        }
     }
 }
