@@ -52,7 +52,6 @@ public class RolesAndUsersLoader implements CommandLineRunner {
       user.setDescription("User description");
       user.setBirthDate(LocalDate.EPOCH);
       user.setRoles(Set.of(userRole));
-      user.setAvatar(avatar);
       userRepository.save(user);
     }
 
@@ -67,7 +66,6 @@ public class RolesAndUsersLoader implements CommandLineRunner {
       admin.setDescription("Admin description");
       admin.setBirthDate(LocalDate.EPOCH);
       admin.setRoles(Set.of(userRole, adminRole));
-      admin.setAvatar(adminAvatar);
       userRepository.save(admin);
     }
   }
