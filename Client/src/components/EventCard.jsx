@@ -9,7 +9,7 @@ import {
 } from '../utils/dateFunctions';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
-import {IoPersonAdd } from "react-icons/io5";
+import { IoPersonAdd } from 'react-icons/io5';
 import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
@@ -40,7 +40,11 @@ const EventCard = ({
     return saved !== null ? parseInt(saved, 10) : currentParticipants;
   });
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated, loading: authLoading, birthDate } = useAuth() || {
+  const {
+    isAuthenticated,
+    loading: authLoading,
+    birthDate,
+  } = useAuth() || {
     isAuthenticated: false,
     loading: false,
     birthDate: null,
@@ -80,13 +84,16 @@ const EventCard = ({
     fetchImage();
   }, [id]);
 
-  const calculateAge = (birthDate) => {
+  const calculateAge = birthDate => {
     if (!birthDate) return null;
     const today = new Date();
     const birth = new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
       age--;
     }
     return age;
@@ -95,7 +102,7 @@ const EventCard = ({
   const isAgeValid = () => {
     const userAge = calculateAge(birthDate);
 
-    if (!userAge && (!minAge && !maxAge)) return true;
+    if (!userAge && !minAge && !maxAge) return true;
     if (!userAge) return false;
 
     if (minAge && userAge < minAge) return false;
@@ -143,7 +150,10 @@ const EventCard = ({
         const isUserRegistered = registered ? 0 : 1;
         setRegistered(isUserRegistered);
         setParticipants(prev => (isUserRegistered ? prev + 1 : prev - 1));
-        localStorage.setItem(`event_${id}_registered`, isUserRegistered.toString());
+        localStorage.setItem(
+          `event_${id}_registered`,
+          isUserRegistered.toString(),
+        );
       }
     } finally {
       setLoading(false);
@@ -193,10 +203,10 @@ const EventCard = ({
     );
   }
 
-  useEffect(() => {
-    localStorage.setItem(`event_${id}_registered`, registered.toString());
-    localStorage.setItem(`event_${id}_participants`, participants.toString());
-  }, [id, registered, participants]);
+  // useEffect(() => {
+  //   localStorage.setItem(`event_${id}_registered`, registered.toString());
+  //   localStorage.setItem(`event_${id}_participants`, participants.toString());
+  // }, [id, registered, participants]);
 
   return (
     <div
@@ -285,26 +295,24 @@ const EventCard = ({
       <div className="flex justify-center py-[0.38rem] px-[0.75rem]">
         {isEnded ? (
           <p className="p-3">Completed</p>
+        ) : registered && isAuthenticated ? (
+          <ButtonCancel
+            isFull={true}
+            onClick={handleRegistration}
+            disabled={loading}
+          >
+            <img src="src/assets/xIcon.svg" className="border-0" />
+            {loading ? 'Processing...' : 'Cancel Registration'}
+          </ButtonCancel>
         ) : (
-          registered && isAuthenticated ? (
-            <ButtonCancel
-              isFull={true}
-              onClick={handleRegistration}
-              disabled={loading}
-            >
-              <img src="src/assets/xIcon.svg" className="border-0" />
-              {loading ? 'Processing...' : 'Cancel Registration'}
-            </ButtonCancel>
-          ) : (
-            <Button
-              isFull={true}
-              onClick={handleRegistration}
-              disabled={loading || participants >= maxParticipants}
-            >
-              <IoPersonAdd />
-              {loading ? 'Processing...' : 'Register'}
-            </Button>
-          )
+          <Button
+            isFull={true}
+            onClick={handleRegistration}
+            disabled={loading || participants >= maxParticipants}
+          >
+            <IoPersonAdd />
+            {loading ? 'Processing...' : 'Register'}
+          </Button>
         )}
       </div>
     </div>
