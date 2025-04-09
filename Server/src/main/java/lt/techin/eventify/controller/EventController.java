@@ -1,16 +1,9 @@
 package lt.techin.eventify.controller;
 
-import jakarta.validation.Valid;
-import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.service.EventService;
-import lt.techin.eventify.service.RegistrationToEventService;
-import lt.techin.eventify.service.UserService;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +15,41 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import lt.techin.eventify.dto.event.CreateEventRequest;
+import lt.techin.eventify.dto.event.EventMapResponse;
+import lt.techin.eventify.dto.event.EventMapper;
+import lt.techin.eventify.dto.event.EventResponse;
+import lt.techin.eventify.dto.event.EventSearchRequest;
+import lt.techin.eventify.dto.event.GetEventResponse;
+import lt.techin.eventify.dto.event.UpdateEventRequest;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
+import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.service.EventService;
+import lt.techin.eventify.service.R2Service;
+import lt.techin.eventify.service.RegistrationToEventService;
+import lt.techin.eventify.service.UserService;
 
+
+@Slf4j
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
@@ -41,14 +59,16 @@ public class EventController {
   private final RegistrationToEventService registrationToEventService;
   private final UserService userService;
   private static final Logger logger = LoggerFactory.getLogger(EventController.class);
+  private final R2Service r2Service;
 
   @Autowired
-  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService) {
+  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService, R2Service r2Service) {
     this.eventService = eventService;
     this.eventMapper = eventMapper;
     this.registrationToEventMapper = registrationToEventMapper;
     this.registrationToEventService = registrationToEventService;
     this.userService = userService;
+      this.r2Service = r2Service;
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -67,6 +87,8 @@ public class EventController {
     }
     try {
       EventResponse newEvent = eventService.saveEvent(createEventRequest, authentication);
+        assert picture != null;
+        r2Service.uploadEventImage(picture, newEvent.id());
       return ResponseEntity.created(
                       ServletUriComponentsBuilder.fromCurrentRequest()
                               .path("/{id}")
@@ -107,7 +129,7 @@ public class EventController {
       } catch (UsernameNotFoundException e) {
 
       }
-      
+
     }
     event = new EventResponse(
             event.id(),
@@ -126,9 +148,11 @@ public class EventController {
             event.category(),
             event.organizer(),
             event.registrations(),
-            isRegistered 
+            isRegistered,
+            event.latitude(),
+            event.longitude()
     );
-    
+
     return ResponseEntity.ok(event);
   }
 
@@ -142,15 +166,18 @@ public class EventController {
   @DeleteMapping("/{eventId}")
   public ResponseEntity<String> deleteEvent(@PathVariable long eventId, Principal principal) {
     eventService.deleteEvent(eventId, principal);
+    r2Service.deleteFile(String.format("events/%s/image.jpg", eventId));
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/{id}/picture")
   public ResponseEntity<byte[]> getUserPrivateAvatar(@PathVariable long id) {
-    EventPictureResponse eventPicture = eventService.getEventPicture(id);
-    return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(eventPicture.contentType()))
-            .body(eventPicture.data());
+//    EventPictureResponse eventPicture = eventService.getEventPicture(id);
+//    return ResponseEntity.ok()
+//            .contentType(MediaType.parseMediaType(eventPicture.contentType()))
+//            .body(eventPicture.data());
+
+    return ResponseEntity.ok(r2Service.downloadFile(String.format("events/%s/image.jpg", id)));
   }
 
   @GetMapping("/search")
@@ -202,5 +229,28 @@ public class EventController {
   public ResponseEntity<List<GetEventResponse>> getRecommendedEvents(Principal principal) {
 
     return ResponseEntity.ok(eventService.findRecommendedEvents(principal.getName()));
+  }
+
+
+  @GetMapping("/hot")
+  public ResponseEntity<List<GetEventResponse>> getHotEvents() {
+    return ResponseEntity.ok(eventService.findHotEvents());
+  }
+
+  @GetMapping("/map")
+  public ResponseEntity<List<EventMapResponse>> getEventsForMap(@Valid EventSearchRequest request) {
+
+    List<EventMapResponse> events = eventService.findAllEventsForMap(
+            request.categoryName(),
+            request.city(),
+            request.startDateTime(),
+            request.endDateTime(),
+            request.experienceLevel(),
+            request.minAge(),
+            request.maxAge(),
+            request.searchTerm()
+    );
+
+    return ResponseEntity.ok(events);
   }
 }

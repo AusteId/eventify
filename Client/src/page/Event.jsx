@@ -1,56 +1,76 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Navigate } from 'react-router';
-import getEvent from '../helpers/event/getEvent';
+import toast from 'react-hot-toast';
+import { Link, useNavigate, useParams } from 'react-router';
+import EditIcon from '../assets/editIcon.svg?react';
 import CalendarIcon from '../assets/event/calendar.svg?react';
 import MarkIcon from '../assets/mapMarker.svg?react';
+import { useAuth } from '../components/Auth/AuthContext';
 import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
-import ParticipantsSection from '../components/event/ParticipantsSection';
-import EditIcon from '../assets/editIcon.svg?react';
-import Modal from '../components/event/Modal';
 import CreateEventForm from '../components/CreateEventForm';
-import { useAuth } from '../components/Auth/AuthContext';
-import { prettifyDateTime } from '../utils/dateFunctions';
+import Modal from '../components/event/Modal';
+import ParticipantsSection from '../components/event/ParticipantsSection';
+import cancelEvent from '../helpers/event/cancelEvent';
+import getEvent from '../helpers/event/getEvent';
 import getEventImage from '../helpers/event/getEventImage';
 import joinEvent from '../helpers/event/joinEvent';
-import cancelEvent from '../helpers/event/cancelEvent';
-
-// const participants = [
-//   {
-//     name: 'Kestas Bombonis',
-//     rating: 4.3,
-//   },
-//   {
-//     name: 'Tomas Kurtauskas',
-//     rating: 2.8,
-//   },
-//   {
-//     name: 'Marius Maironis',
-//     rating: 3.5,
-//   },
-//   {
-//     name: 'Jonas Petronis',
-//     rating: 1.2,
-//   },
-// ];
+import { prettifyDateTime } from '../utils/dateFunctions';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState(null);
+  const [eventImage, setEventImage] = useState(null);
   const params = useParams();
-  const { userId, isAuthenticated} = useAuth();
+  const { userId, isAuthenticated, birthDate } = useAuth();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const organizer = { username: event?.organizer.username };
   const [isRegistered, setIsRegistered] = useState(false);
   const navigate = useNavigate();
+  const [isJoining, setIsJoining] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
 
-  
+  const calculateAge = birthDate => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
+
+  const isAgeValid = () => {
+    const userAge = calculateAge(birthDate);
+
+    if (!userAge && !event?.minAge && !event?.maxAge) return true;
+    if (!userAge) return false;
+
+    const minAge = event?.minAge;
+    const maxAge = event?.maxAge;
+
+    if (!minAge && !maxAge) return true;
+
+    if (minAge && userAge < minAge) return false;
+    if (maxAge && userAge > maxAge) return false;
+    return true;
+  };
+
+  const isOrganizer = () => {
+    return String(userId) === String(event?.organizer.id);
+  };
+
   const isRegistrationOpen = () => {
     if (!event) return false;
     const now = new Date();
     const startDate = new Date(event?.startDateTime);
     return (
-      event?.maxParticipants > (event?.registrations?.length || 0) && now < startDate
+      event?.maxParticipants > (event?.registrations?.length || 0) &&
+      now < startDate
     );
   };
 
@@ -59,51 +79,85 @@ const Event = () => {
       navigate(`/login?redirect=/event/${params.id}`);
       return;
     }
+
+    if (!isAgeValid()) {
+      toast.error('Your age does not meet the requirements of the event.');
+      return;
+    }
+
+    if (isOrganizer()) {
+      toast.error('An organizer cannot register for their own event.');
+      return;
+    }
+
     try {
       await joinEvent(params.id);
       setIsRegistered(true);
-      const updatedEventData = await getEvent(params.id);
-      const pictureResponse = await getEventImage(params.id);
-      setEvent({ ...updatedEventData, picture: URL.createObjectURL(pictureResponse) });
+      const [updatedEventData, pictureResponse] = await Promise.all([
+        getEvent(params.id),
+        getEventImage(params.id),
+      ]);
+      setEvent({
+        ...updatedEventData,
+        picture: URL.createObjectURL(pictureResponse),
+      });
+
+      toast.success(
+        `Successfully registered for ${updatedEventData.name}! See you on ${prettifyDateTime(updatedEventData.startDateTime)}.`,
+        {
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        },
+      );
     } catch (error) {
       console.error('Join to event error:', error.message);
-      alert('Registration is not possible. Check event conditions.');
+      toast.error('Registration failed. Please try again.');
+    } finally {
+      setIsJoining(false);
     }
   };
-  
+
   const handleCancel = () => {
     if (!isAuthenticated) {
       return;
     }
     document.getElementById('cancel_confirmation_modal').showModal();
   };
-  
+
   const confirmCancel = async () => {
+    setIsCanceling(true);
     try {
       await cancelEvent(params.id);
       setIsRegistered(false);
-      const updatedEventData = await getEvent(params.id);
-      const pictureResponse = await getEventImage(params.id);
-      setEvent({ ...updatedEventData, picture: URL.createObjectURL(pictureResponse) });
+      const [updatedEventData, pictureResponse] = await Promise.all([
+        getEvent(params.id),
+        getEventImage(params.id),
+      ]);
+      setEvent({
+        ...updatedEventData,
+        picture: URL.createObjectURL(pictureResponse),
+      });
+
+      toast.success(`Registration for ${updatedEventData.name} canceled.`, {});
       document.getElementById('cancel_confirmation_modal').close();
     } catch (error) {
       console.error('Error canceling registration:', error.message);
-      alert('Failed to cancel registration.');
+      toast.error('Failed to cancel registration.');
+    } finally {
+      setIsCanceling(false);
     }
   };
-  
+
   const closeCancelModal = () => {
     document.getElementById('cancel_confirmation_modal').close();
   };
-  
-  useEffect(() => {
-    console.log('User ID:', userId);
-    console.log('Authenticated:', isAuthenticated);
 
-    const fetchData = async () => {
+  useEffect(() => {
+    const fetchdata = async () => {
       try {
         const data = await getEvent(params.id);
-        const pictureResponse = await getEventImage(params.id);
 
         if (!data) {
           console.error('Failed to load event data');
@@ -111,32 +165,40 @@ const Event = () => {
           return;
         }
 
-        const eventData = { ...data, picture: URL.createObjectURL(pictureResponse) };
-        setEvent(eventData);
+        setEvent(data);
 
-        const userRegistration = eventData.registrations && Array.isArray(eventData.registrations)
-          ? eventData.registrations.some((reg) => String(reg.userJoinToEvent?.userId) === String(userId))
-          : false;
+        const userRegistration =
+          event.registrations && Array.isArray(event.registrations)
+            ? event.registrations.some(
+                reg => String(reg.userJoinToEvent?.userId) === String(userId),
+              )
+            : false;
+
         setIsRegistered(userRegistration);
-      } catch (error) {
-        console.error('Error loading event data', error);
+      } catch (err) {
+        console.error(err.message);
       } finally {
         setLoading(false);
       }
-    };
 
-    fetchData();
-    
+      try {
+        const pictureResponse = await getEventImage(params.id);
+        setEventImage(URL.createObjectURL(pictureResponse));
+      } catch (err) {
+        console.error(err.message);
+        setEventImage('../src/assets/eventCardImgSample.png');
+      }
+    };
+    fetchdata();
   }, [params.id, userId]);
 
-  useEffect(() => {
-  }, [isRegistered]);
+  useEffect(() => {}, [isRegistered]);
 
   if (!event) {
     return <p>LOADING</p>;
   }
 
-  const participants = (event.registrations || []).map((registration) => ({
+  const participants = (event.registrations || []).map(registration => ({
     username: registration.userJoinToEvent.userName,
     avatar: registration.userJoinToEvent.userAvatar?.data
       ? `data:image/png;base64,${registration.userJoinToEvent.userAvatar.data}`
@@ -147,21 +209,13 @@ const Event = () => {
     document.getElementById('event_creation_modal').showModal();
   };
 
-  console.log(event);
-  console.log('EVENT DESCRIPTION: ', event.description ? 'TRUE' : 'FALSE');
-  console.log(userId);
-
-  console.log('Is owner? ', userId == event.organizer.id);
-  console.log('USER IDS: ', userId, event.organizer.id);
-
   return (
-    <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
+    <div className="flex flex-col items-center mt-16 gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
       <div
-        className={`flex flex-col justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
+        className={`flex flex-col w-125 desktop:w-200 tablet:w-150 justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >
-        <div className="w-full flex justify-center">
-          {/* <img src={event.picture} className="max-w-full h-auto" /> */}
-          <img src={event.picture} className="w-full h-full" />
+        <div className="w-full h-100 overflow-clip">
+          <img src={eventImage} className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col tablet:flex-row tablet:items-center gap-5 tablet:gap-10 w-full justify-between">
           <div className="flex flex-col gap-5">
@@ -177,18 +231,29 @@ const Event = () => {
               </div>
               <div className="flex items-center gap-2">
                 <MarkIcon />
-                <p>{event.address}</p>
+                <Link
+                  to={`/events?eventId=${event.id}`}
+                  className="text-body-medium text-btn hover:text-btn-hover hover:underline"
+                >
+                  {event.address}
+                </Link>
               </div>
             </div>
           </div>
           <div className="flex justify-center gap-3">
             {isRegistrationOpen() && !isRegistered && (
-              <Button onClick={handleRegister}>Join Event</Button>
+              <Button onClick={handleRegister} disabled={isJoining}>
+                {isJoining ? 'Joining...' : 'Join Event'}
+              </Button>
             )}
             {isRegistered && (
-              <Button onClick={handleCancel} variant="secondary">
-                Cancel
-                </Button>
+              <Button
+                onClick={handleCancel}
+                variant="secondary"
+                disabled={isCanceling}
+              >
+                {isCanceling ? 'Canceling...' : 'Leave Event'}
+              </Button>
             )}
             {userId == event.organizer.id && (
               <div className="tablet:hidden">
@@ -202,7 +267,7 @@ const Event = () => {
             <div className="bg-light-gray rounded-lg p-4 text-heading-s">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.minAge}-{event.maxAge}
+                {event.minAge} - {event.maxAge}
               </p>
             </div>
           ) : event.minAge && !event.maxAge ? (
@@ -211,31 +276,31 @@ const Event = () => {
               <p className="text-[#1F2937] font-[600]">from {event.minAge}</p>
             </div>
           ) : !event.minAge && event.maxAge ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s ">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">up to {event.maxAge}</p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Age Requirement</p>
               <p className="text-[#1F2937] font-[600]">All ages</p>
             </div>
           )}
           {event.maxParticipants ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Participants</p>
               <p className="text-[#1F2937] font-[600]">
-                {event.registrations.length}-{event.maxParticipants}
+                {event.registrations.length} / {event.maxParticipants}
               </p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Participants</p>
               <p className="text-[#1F2937] font-[600]">No limits</p>
             </div>
           )}
           {event.category.name ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Category</p>
               <p className="text-[#1F2937] font-[600]">
                 {event?.category.name.charAt(0).toUpperCase() +
@@ -243,7 +308,7 @@ const Event = () => {
               </p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
+            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
               <p className="text-[#6B7280]">Category</p>
               <p className="text-[#1F2937] font-[600]">Any</p>
             </div>
@@ -291,15 +356,28 @@ const Event = () => {
               <Modal modalName={'event_creation_modal'}>
                 <CreateEventForm />
               </Modal>
-              <Modal modalName="cancel_confirmation_modal" isOpen={isCancelModalOpen}>
+              <Modal
+                modalName="cancel_confirmation_modal"
+                isOpen={isCancelModalOpen}
+              >
                 <div className="p-4 flex flex-col gap-4">
-                  <h2 className="text-xl flex justify-center font-bold">Cancel Confirmation</h2>
-                  <p>Are you sure you want to cancel registration for this event?</p>
-                  <div className="flex justify-between gap-2">
+                  <h2 className="text-xl flex justify-center font-bold">
+                    Cancel Confirmation
+                  </h2>
+                  <p>
+                    Are you sure you want to cancel registration for this event?
+                  </p>
+                  <div className="flex justify-evenly gap-2">
                     <Button onClick={confirmCancel} variant="primary">
                       Yes
                     </Button>
-                    <Button onClick={closeCancelModal} variant="secondary ">
+                    <Button
+                      onClick={closeCancelModal}
+                      background="bg-white"
+                      textColor="text-body-medium"
+                      hoverColor="hover:bg-gray-100"
+                      border="border border-input-light"
+                    >
                       No
                     </Button>
                   </div>

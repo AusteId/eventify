@@ -42,6 +42,10 @@ public class RegistrationToEventService {
 
     Event event = eventService.findEventById(eventId);
 
+    if (user.getId().equals(event.getOrganizer().getId())) {
+      throw new OrganizaeCannotRegisterException("An organizer cannot register for their own event.");
+    }
+
     if (registrationToEventRepository.existsByUserIdAndEventId(user.getId(), eventId)) {
       throw new AlreadyRegisterException("User is already registered for this event");
     }

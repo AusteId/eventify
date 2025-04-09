@@ -22,7 +22,7 @@ public record CreateUserRequest(
 
         @NotNull(message = "Password cannot be null")
         @Pattern(
-                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_])[\\S]{8,255}$",
+                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+-=\\[\\]{};:'\"\\\\|,.<>/?])[A-Za-z\\d!@#$%^&*()_+-=\\[\\]{};:'\"\\\\|,.<>/?]+$",
                 message = "Password must contain at least one lowercase letter, one uppercase letter, " +
                         "one number, one special character, and be 8-255 characters long"
         )
