@@ -26,7 +26,7 @@ const MessageComponent = ({ message, userId }) => {
     if (message.isLocal) {
       return <span className="ml-1 text-xs text-blue-200">Sending</span>; 
     } else if (message.read) {
-      return <span className="ml-1 text-xs text-blue-200">Read</span>; 
+      return <span className="ml-1 text-xs text-blue-200">Seen</span>; 
     } else {
       return <span className="ml-1 text-xs text-blue-200">Delivered</span>;
     }
