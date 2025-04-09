@@ -112,11 +112,12 @@ const Event = () => {
         },
       );
     } catch (error) {
-      console.error('Join to event error:', error.message);
-      toast.error('Registration failed. Please try again.');
-    } finally {
-      setIsJoining(false);
+      const errorMessage = error.error || 'Failed to register. Try again.';
+      toast.error(errorMessage);
     }
+      finally {
+    setIsJoining(false);
+  }
   };
 
   const handleCancel = () => {
@@ -158,6 +159,7 @@ const Event = () => {
     const fetchdata = async () => {
       try {
         const data = await getEvent(params.id);
+        const pictureResponse = await getEventImage(params.id);
 
         if (!data) {
           console.error('Failed to load event data');
@@ -165,7 +167,8 @@ const Event = () => {
           return;
         }
 
-        setEvent(data);
+        const eventData = { ...data, picture: URL.createObjectURL(pictureResponse) };
+        setEvent(eventData);
 
         const userRegistration =
           event.registrations && Array.isArray(event.registrations)
