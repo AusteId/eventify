@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import EventsList from './EventsList';
+import MyEventsList from './MyEventsList';
 
 const MyRegistrations = () => {
     const [activeTab, setActiveTab] = useState('registered');
@@ -32,7 +32,7 @@ const MyRegistrations = () => {
                 </button>
             </div>
 
-            <EventsList endpoint={endpoint} />
+            <MyEventsList endpoint={endpoint} />
         </div>
     );
 };

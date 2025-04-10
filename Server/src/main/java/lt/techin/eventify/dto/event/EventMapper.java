@@ -21,7 +21,9 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Component
@@ -163,6 +165,12 @@ public class EventMapper {
 
     boolean isEnded = event.getEndDateTime() != null && event.getEndDateTime().isBefore(LocalDateTime.now());
     int currentParticipants = registrationToEventRepository.countByEventId(event.getId());
+
+    String experienceLevel = event.getExperienceLevel() != null
+            ? Arrays.stream(event.getExperienceLevel().split("_"))
+            .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+            .collect(Collectors.joining(" "))
+            : "All Welcome";
 
     return new EventSummaryResponse(
             event.getId(),
