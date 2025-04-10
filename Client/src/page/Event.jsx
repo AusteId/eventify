@@ -114,10 +114,9 @@ const Event = () => {
     } catch (error) {
       const errorMessage = error.error || 'Failed to register. Try again.';
       toast.error(errorMessage);
+    } finally {
+      setIsJoining(false);
     }
-      finally {
-    setIsJoining(false);
-  }
   };
 
   const handleCancel = () => {
@@ -159,7 +158,6 @@ const Event = () => {
     const fetchdata = async () => {
       try {
         const data = await getEvent(params.id);
-        const pictureResponse = await getEventImage(params.id);
 
         if (!data) {
           console.error('Failed to load event data');
@@ -167,8 +165,7 @@ const Event = () => {
           return;
         }
 
-        const eventData = { ...data, picture: URL.createObjectURL(pictureResponse) };
-        setEvent(eventData);
+        setEvent(data);
 
         const userRegistration =
           event.registrations && Array.isArray(event.registrations)
