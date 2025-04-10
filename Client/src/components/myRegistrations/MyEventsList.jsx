@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import EventCard from './EventCard';
-import LoadingSection from './LoadingSection';
-import Pagination from './Pagination';
-import { useAuth } from './Auth/AuthContext';
+import EventCard from '../EventCard';
+import LoadingSection from '../LoadingSection';
+import Pagination from '../Pagination';
+import { useAuth } from '../Auth/AuthContext';
 
 const MyEventsList = ({ endpoint }) => {
   const { authFetch } = useAuth();

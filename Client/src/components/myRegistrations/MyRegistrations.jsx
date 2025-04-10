@@ -9,8 +9,8 @@ const MyRegistrations = () => {
     };
 
     const endpoint = activeTab === 'created'
-        ? '/api/user/created-events'
-        : '/api/user/registered-events';
+        ? '/api/events/user/created-events'
+        : '/api/events/user/registered-events';
 
     return (
         <div className="my-registrations container mx-auto p-4">
