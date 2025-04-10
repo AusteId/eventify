@@ -1,19 +1,15 @@
 package lt.techin.eventify.service;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import lombok.AllArgsConstructor;
+import lt.techin.eventify.dto.event.*;
+import lt.techin.eventify.exception.*;
+import lt.techin.eventify.model.Category;
+import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.EventRepository;
+import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,26 +22,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
-import lt.techin.eventify.dto.event.CreateEventRequest;
-import lt.techin.eventify.dto.event.EventMapResponse;
-import lt.techin.eventify.dto.event.EventMapSummary;
-import lt.techin.eventify.dto.event.EventMapper;
-import lt.techin.eventify.dto.event.EventResponse;
-import lt.techin.eventify.dto.event.EventWithScore;
-import lt.techin.eventify.dto.event.GetEventResponse;
-import lt.techin.eventify.dto.event.UpdateEventRequest;
-import lt.techin.eventify.exception.CategoryNotFoundException;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.ForbiddenException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.mysql.CategoryRepository;
-import lt.techin.eventify.repository.mysql.EventRepository;
-import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
-import lt.techin.eventify.repository.mysql.UserRepository;
+import java.io.IOException;
+import java.security.Principal;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -206,7 +190,7 @@ public class EventService {
       boolean isHot = startTime.isBefore(futureTime) && startTime.isAfter(currentTime);
 
       if (isHot) {
-          sortedEvents.add(eventMapper.toGetEventResponse(event));
+        sortedEvents.add(eventMapper.toGetEventResponse(event));
       }
     }
 
@@ -368,5 +352,33 @@ public class EventService {
     return events.stream()
             .map(eventMapper::toEventMapResponse)
             .toList();
+  }
+
+  public Page<EventSummaryResponse> getUserCreatedEvents(Long userId, Pageable pageable) {
+
+    userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+    Page<Event> eventPage = eventRepository.findEventsByOrganizer(userId, pageable);
+
+    if (eventPage.isEmpty()) {
+      throw new EventNotFoundException("It looks like you haven't created any events so far. Why not create one now?");
+    }
+
+    return eventPage.map(eventMapper::toEventSummaryResponse);
+  }
+
+  public Page<EventSummaryResponse> getUserRegisteredEvents(Long userId, Pageable pageable) {
+
+    userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+    Page<Event> eventPage = eventRepository.findEventsByParticipant(userId, pageable);
+
+    if (eventPage.isEmpty()) {
+      throw new EventNotFoundException("It looks like you haven’t joined any events yet. Start by browsing upcoming events!");
+    }
+
+    return eventPage.map(eventMapper::toEventSummaryResponse);
   }
 }

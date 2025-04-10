@@ -1,9 +1,18 @@
 package lt.techin.eventify.controller;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
-
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import lt.techin.eventify.dto.event.*;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
+import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
+import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.model.Event;
+import lt.techin.eventify.model.RegistrationToEvent;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.service.EventService;
+import lt.techin.eventify.service.R2Service;
+import lt.techin.eventify.service.RegistrationToEventService;
+import lt.techin.eventify.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,38 +24,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-import lt.techin.eventify.dto.event.CreateEventRequest;
-import lt.techin.eventify.dto.event.EventMapResponse;
-import lt.techin.eventify.dto.event.EventMapper;
-import lt.techin.eventify.dto.event.EventResponse;
-import lt.techin.eventify.dto.event.EventSearchRequest;
-import lt.techin.eventify.dto.event.GetEventResponse;
-import lt.techin.eventify.dto.event.UpdateEventRequest;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventMapper;
-import lt.techin.eventify.dto.registrationToEvent.RegistrationToEventResponse;
-import lt.techin.eventify.exception.UsernameNotFoundException;
-import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.RegistrationToEvent;
-import lt.techin.eventify.model.User;
-import lt.techin.eventify.service.EventService;
-import lt.techin.eventify.service.R2Service;
-import lt.techin.eventify.service.RegistrationToEventService;
-import lt.techin.eventify.service.UserService;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -68,7 +55,7 @@ public class EventController {
     this.registrationToEventMapper = registrationToEventMapper;
     this.registrationToEventService = registrationToEventService;
     this.userService = userService;
-      this.r2Service = r2Service;
+    this.r2Service = r2Service;
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -87,8 +74,8 @@ public class EventController {
     }
     try {
       EventResponse newEvent = eventService.saveEvent(createEventRequest, authentication);
-        assert picture != null;
-        r2Service.uploadEventImage(picture, newEvent.id());
+      assert picture != null;
+      r2Service.uploadEventImage(picture, newEvent.id());
       return ResponseEntity.created(
                       ServletUriComponentsBuilder.fromCurrentRequest()
                               .path("/{id}")
@@ -227,10 +214,8 @@ public class EventController {
 
   @GetMapping("/recommended")
   public ResponseEntity<List<GetEventResponse>> getRecommendedEvents(Principal principal) {
-
     return ResponseEntity.ok(eventService.findRecommendedEvents(principal.getName()));
   }
-
 
   @GetMapping("/hot")
   public ResponseEntity<List<GetEventResponse>> getHotEvents() {
@@ -252,5 +237,41 @@ public class EventController {
     );
 
     return ResponseEntity.ok(events);
+  }
+
+  @GetMapping("/user/created-events")
+  public ResponseEntity<Page<EventSummaryResponse>> getUserCreatedEvents(@Valid EventSearchRequest request, Authentication authentication) {
+
+    JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+    Map<String, Object> claims = jwtAuth.getTokenAttributes();
+    Long userId = (Long) claims.get("userId");
+
+    Pageable pageable = PageRequest.of(
+            request.page(),
+            request.size(),
+            Sort.by(Sort.Direction.fromString(request.sortDirection()), request.sortBy())
+    );
+
+    Page<EventSummaryResponse> eventPage = eventService.getUserCreatedEvents(userId, pageable);
+
+    return ResponseEntity.ok(eventPage);
+  }
+
+  @GetMapping("/user/registered-events")
+  public ResponseEntity<Page<EventSummaryResponse>> getUserRegisteredEvents(@Valid EventSearchRequest request, Authentication authentication) {
+
+    JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+    Map<String, Object> claims = jwtAuth.getTokenAttributes();
+    Long userId = (Long) claims.get("userId");
+
+    Pageable pageable = PageRequest.of(
+            request.page(),
+            request.size(),
+            Sort.by(Sort.Direction.fromString(request.sortDirection()), request.sortBy())
+    );
+
+    Page<EventSummaryResponse> eventPage = eventService.getUserRegisteredEvents(userId, pageable);
+
+    return ResponseEntity.ok(eventPage);
   }
 }
