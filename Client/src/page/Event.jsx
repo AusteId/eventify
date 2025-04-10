@@ -112,8 +112,8 @@ const Event = () => {
         },
       );
     } catch (error) {
-      console.error('Join to event error:', error.message);
-      toast.error('Registration failed. Please try again.');
+      const errorMessage = error.error || 'Failed to register. Try again.';
+      toast.error(errorMessage);
     } finally {
       setIsJoining(false);
     }

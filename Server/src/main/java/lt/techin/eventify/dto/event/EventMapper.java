@@ -10,6 +10,7 @@ import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.EventImage;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -30,6 +32,7 @@ public class EventMapper {
   private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
   private final RegistrationToEventMapper registrationToEventMapper;
+  private final RegistrationToEventRepository registrationToEventRepository;
 
   public EventResponse toEventResponse(Event event) {
 
@@ -153,6 +156,27 @@ public class EventMapper {
             latitude,
             longitude,
             event.startDateTime()
+    );
+  }
+
+  public EventSummaryResponse toEventSummaryResponse(Event event) {
+
+    boolean isEnded = event.getEndDateTime() != null && event.getEndDateTime().isBefore(LocalDateTime.now());
+    int currentParticipants = registrationToEventRepository.countByEventId(event.getId());
+
+    return new EventSummaryResponse(
+            event.getId(),
+            event.getName(),
+            event.getStartDateTime(),
+            event.getEndDateTime(),
+            event.getDescription(),
+            event.getCity(),
+            event.getMinAge(),
+            event.getMaxAge(),
+            event.getExperienceLevel(),
+            isEnded,
+            currentParticipants,
+            event.getMaxParticipants()
     );
   }
 }

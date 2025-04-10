@@ -19,13 +19,14 @@ public class Message {
     private String conversationId;
     private boolean read;
 
-    // Something123 some@something.com
-    // Something1234 some1@thing.com
+    private boolean deleted;
+    private LocalDateTime deletedAt;
+    private boolean edited;
+    private LocalDateTime editedAt;
+    private String originalContent;
 
     public Message() {
-
     }
-
 
     public String getId() {
         return id;
@@ -79,4 +80,43 @@ public class Message {
         this.read = read;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
+    }
+
+    public LocalDateTime getEditedAt() {
+        return editedAt;
+    }
+
+    public void setEditedAt(LocalDateTime editedAt) {
+        this.editedAt = editedAt;
+    }
+
+    public String getOriginalContent() {
+        return originalContent;
+    }
+
+    public void setOriginalContent(String originalContent) {
+        this.originalContent = originalContent;
+    }
 }

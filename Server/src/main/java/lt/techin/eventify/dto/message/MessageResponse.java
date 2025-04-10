@@ -16,5 +16,9 @@ public record MessageResponse(
         boolean read,
         OnlineStatus senderStatus,
         boolean isSenderTyping,
-        LocalDateTime senderLastSeen
+        LocalDateTime senderLastSeen,
+        boolean deleted,
+        LocalDateTime deletedAt,
+        boolean edited,
+        LocalDateTime editedAt
 ) {}

@@ -89,4 +89,9 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
   }
 
+  @ExceptionHandler(AgeRestrictionException.class)
+  public ResponseEntity<Map<String, String>> handleAgeRestriction(AgeRestrictionException e) {
+    return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
 }
