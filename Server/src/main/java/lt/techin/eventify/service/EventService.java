@@ -175,6 +175,7 @@ public class EventService {
 //   }
 
   // Events that will start in less than 24 hours
+  @Cacheable("eventsCache")
   public List<GetEventResponse> findHotEvents() {
     List<Event> allEvents = eventRepository.findAll();
     List<GetEventResponse> sortedEvents = new ArrayList<>();
