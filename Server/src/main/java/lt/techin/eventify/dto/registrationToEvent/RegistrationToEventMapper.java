@@ -39,8 +39,7 @@ public class RegistrationToEventMapper {
             event.getExperienceLevel(),
             event.getMaxParticipants(),
             event.getCity(),
-            event.getAddress(),
-            event.getPhotoPath()
+            event.getAddress()
     );
 
 

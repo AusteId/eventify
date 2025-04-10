@@ -24,4 +24,9 @@ public interface EventRepository extends JpaRepository<Event, Long>, EventQueryD
           "AND (e.startDateTime >= :date)"
   )
   List<Event> findRecommendedEvents(@Param("age") Integer age, @Param("city") String city, @Param("date") LocalDateTime date);
+
+  // For defaults
+  @Query("SELECT e.imageKey FROM Event e WHERE e.id = :eventId")
+  String findImageKeyById(@Param("eventId") Long eventId);
+
 }

@@ -2,14 +2,25 @@ import { PiStarFill } from 'react-icons/pi';
 
 const Participant = ({
   name,
-  profileImg = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
   rating,
+  organizerId,
 }) => {
+// {`http://localhost:8080/api/users/${id}/avatar`}
+
   return (
     <div className="flex justify-between max-h-14 items-center gap-3 p-2">
       <div className="flex items-center gap-3">
         <div className="h-14">
-          <img src={profileImg} className="h-full object-cover rounded-full" />
+          {' '}
+          <img
+            src={`http://localhost:8080/api/users/${organizerId}/avatar`}
+            onError={e => {
+              e.target.onerror = null;
+              e.target.src =
+                'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+            }}
+            className="h-full object-cover rounded-full"
+          />
         </div>
         <p className="font-[600]">{name}</p>
       </div>

@@ -17,8 +17,7 @@ public record JoinEventResponse(
         String experienceLevel,
         int maxParticipants,
         String city,
-        String address,
-        String photoPath
+        String address
 ) {
 }
 
