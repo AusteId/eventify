@@ -1,10 +1,17 @@
+import {
+  CalendarDays,
+  House,
+  LogIn,
+  Menu,
+  NotepadText,
+  UserPlus,
+  UsersRound,
+} from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Menu } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router';
-import Button from '../Button';
-import { useAuth } from '../Auth/AuthContext';
 import { useLocation } from 'react-router-dom';
-import HeaderProfilePicture from './HeaderProfilePicture';
+import { useAuth } from '../Auth/AuthContext';
+import Button from '../Button';
 
 const Header = ({ loading }) => {
   const [activeLink, setActiveLink] = useState('');
@@ -12,10 +19,10 @@ const Header = ({ loading }) => {
   const navigate = useNavigate();
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Events', href: '/events' },
-    { name: 'My Registrations', href: '/myRegistrations' },
-    { name: 'About Us', href: '/about' },
+    { name: 'Home', href: '/', auth: false },
+    { name: 'Events', href: '/events', auth: false },
+    { name: 'My Registrations', href: '/myRegistrations', auth: true },
+    { name: 'About Us', href: '/about', auth: false },
   ];
 
   const location = useLocation();
@@ -55,27 +62,33 @@ const Header = ({ loading }) => {
               {/* Desktop Navigation Links */}
               <div className="hidden lg:flex lg:px-6 md:flex md:px-6">
                 <ul className="flex space-x-4 lg:space-x-6 items-center">
-                  {navLinks.map(link => (
-                    <li key={link.name}>
-                      <NavLink
-                        to={link.href}
-                        onClick={() => setActiveLink(link.name)}
-                        className={`
-                      px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors duration-150 ease-in-out text-nowrap
-                      ${
-                        activeLink === link.href
-                          ? 'text-btn bg-yellow-50' // Active link style
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' // Inactive link style
-                      }
-                    `}
-                        aria-current={
-                          activeLink === link.name ? 'page' : undefined
+                  {navLinks.map(link => {
+                    if (!isAuthenticated && link.auth) {
+                      return null;
+                    } else {
+                      return (
+                        <li key={link.name}>
+                          <NavLink
+                            to={link.href}
+                            onClick={() => setActiveLink(link.name)}
+                            className={`
+                        px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors duration-150 ease-in-out text-nowrap
+                        ${
+                          activeLink === link.href
+                            ? 'text-btn bg-yellow-50' // Active link style
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' // Inactive link style
                         }
-                      >
-                        {link.name}
-                      </NavLink>
-                    </li>
-                  ))}
+                      `}
+                            aria-current={
+                              activeLink === link.name ? 'page' : undefined
+                            }
+                          >
+                            {link.name}
+                          </NavLink>
+                        </li>
+                      );
+                    }
+                  })}
                 </ul>
               </div>
 
@@ -94,7 +107,7 @@ const Header = ({ loading }) => {
                     </Button>
                   </div>
                 )}
-                {!isAuthenticated && (
+                {!isAuthenticated && location.pathname != '/login' ? (
                   <div className="hidden md:flex lg:flex space-x-3">
                     <NavLink tabIndex={-1} to={'/login'}>
                       <Button>Login</Button>
@@ -103,7 +116,9 @@ const Header = ({ loading }) => {
                       <Button>Sign Up</Button>
                     </NavLink>
                   </div>
-                )}
+                ) : !isAuthenticated ? (
+                  <div className="w-45"></div>
+                ) : null}
                 {isAuthenticated && (
                   <div>
                     <div className="dropdown dropdown-end flex items-center">
@@ -155,14 +170,86 @@ const Header = ({ loading }) => {
                         aria-label="close sidebar"
                         className="drawer-overlay"
                       ></label>
-                      <ul className="menu bg-base-200 text-base-content min-h-full w-70 m-4 ">
+                      <ul className="menu bg-base-200 text-base-content min-h-full w-70 p-4 mr-4">
                         {/* Sidebar content here */}
                         <li>
-                          <a className="py-4">Home</a>
+                          <NavLink
+                            to={'/'}
+                            onClick={() =>
+                              document.getElementById('mobilenav').click()
+                            }
+                            className="flex justify-center py-4 font-inter font-bold text-body-medium text-body-m"
+                          >
+                            <House />
+                            Home
+                          </NavLink>
                         </li>
                         <li>
-                          <a className="py-4">Events</a>
+                          <NavLink
+                            to={'/events'}
+                            onClick={() =>
+                              document.getElementById('mobilenav').click()
+                            }
+                            className="flex justify-center py-4 font-inter font-bold text-body-medium text-body-m"
+                          >
+                            <CalendarDays />
+                            Events
+                          </NavLink>
                         </li>
+                        {isAuthenticated && (
+                          <li>
+                            <NavLink
+                              to={'/myRegistrations'}
+                              onClick={() =>
+                                document.getElementById('mobilenav').click()
+                              }
+                              className="flex justify-center py-4 font-inter font-bold text-body-medium text-body-m"
+                            >
+                              <NotepadText />
+                              My Registrations
+                            </NavLink>
+                          </li>
+                        )}
+                        <li>
+                          <NavLink
+                            to={'/about'}
+                            onClick={() =>
+                              document.getElementById('mobilenav').click()
+                            }
+                            className="flex justify-center py-4 font-inter font-bold text-body-medium text-body-m"
+                          >
+                            <UsersRound />
+                            About Us
+                          </NavLink>
+                        </li>
+                        {!isAuthenticated && (
+                          <div>
+                            <li>
+                              <NavLink
+                                to={'/login'}
+                                onClick={() =>
+                                  document.getElementById('mobilenav').click()
+                                }
+                                className="flex justify-center py-4 font-inter font-bold text-body-medium text-body-m"
+                              >
+                                <LogIn />
+                                Sign In
+                              </NavLink>
+                            </li>
+                            <li>
+                              <NavLink
+                                to={'/register'}
+                                onClick={() =>
+                                  document.getElementById('mobilenav').click()
+                                }
+                                className="flex justify-center py-4 font-inter font-bold text-body-medium text-body-m"
+                              >
+                                <UserPlus />
+                                Sign Up
+                              </NavLink>
+                            </li>
+                          </div>
+                        )}
                       </ul>
                     </div>
                   </div>
