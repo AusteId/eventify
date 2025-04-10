@@ -48,7 +48,7 @@ const MyEventsList = ({ endpoint }) => {
     };
 
     fetchData();
-  }, [currentPage, endpoint, authFetch]);
+  }, [currentPage, endpoint]);
 
   const paginate = pageNumber => {
     if (pageNumber >= 0 && pageNumber < totalPages) {
