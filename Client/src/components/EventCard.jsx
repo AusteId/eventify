@@ -71,21 +71,6 @@ const EventCard = ({
     fetchImage();
   }, [id]);
 
-  // useEffect(() => {
-  //   const fetchUserAge = async () => {
-  //     if (isAuthenticated && userId) {
-  //       try {
-  //         const response = await axios.get(`${import.meta.env.VITE_BACK_URL}/api/users/me`, {
-  //           withCredentials: true,
-  //         });
-  //         setUserAge(response.data.age);
-  //       } catch (error) {
-  //         console.error('Error fetching user age:', error);
-  //       }
-  //     }
-  //   };
-  //   fetchUserAge();
-  // }, [isAuthenticated, userId]);
 
   const handleRegistration = async () => {
   
