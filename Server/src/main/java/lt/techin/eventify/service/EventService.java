@@ -47,7 +47,7 @@ public class EventService {
 //    Event newEvent = eventMapper.toEvent(createEventRequest);
 
   @CacheEvict(value = "eventsCache", allEntries = true)
-  @CachePut(value = "eventsCache", key = "#result.id")
+  @CachePut(value = "eventsCache")
   public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) throws IOException {
     JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
     Map<String, Object> claims = jwtAuth.getTokenAttributes();
@@ -64,7 +64,6 @@ public class EventService {
   }
 
   @CacheEvict(value = "eventsCache", allEntries = true)
-  @CachePut(value = "eventsCache", key = "#result.id")
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
 
     Event event = eventRepository.findById(eventId).orElseThrow(() ->
@@ -84,7 +83,6 @@ public class EventService {
     event.setMaxParticipants(updateEventRequest.maxParticipants());
     event.setCity(updateEventRequest.city());
     event.setAddress(updateEventRequest.address());
-    event.setPhotoPath(updateEventRequest.photoPath());
 
     return eventRepository.save(event);
   }
@@ -124,7 +122,7 @@ public class EventService {
             .toList();
   }
 
-  @Cacheable(value = "eventsCache", key = "#eventId")
+  @Cacheable(value = "eventsCache")
   public EventResponse getEventById(long eventId) {
     Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
     return eventMapper.toEventResponse(event);
@@ -157,13 +155,12 @@ public class EventService {
     return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
   }
 
-  @Cacheable(value = "eventsCache", key = "#eventId")
+
   public Event findEventById(Long eventId) {
     return eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
   }
 
-  @Cacheable(value = "eventsCache", key = "#id")
   public Event findById(long id) {
     return eventRepository.findById(id).orElse(null);
   }
@@ -177,6 +174,7 @@ public class EventService {
 //   }
 
   // Events that will start in less than 24 hours
+  @Cacheable("eventsCache")
   public List<GetEventResponse> findHotEvents() {
     List<Event> allEvents = eventRepository.findAll();
     List<GetEventResponse> sortedEvents = new ArrayList<>();
@@ -380,5 +378,9 @@ public class EventService {
     }
 
     return eventPage.map(eventMapper::toEventSummaryResponse);
+  }
+
+  public String findImageKeyById(Long eventId) {
+      return eventRepository.findImageKeyById(eventId);
   }
 }

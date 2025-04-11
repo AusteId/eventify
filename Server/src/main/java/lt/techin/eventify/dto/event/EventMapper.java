@@ -63,7 +63,6 @@ public class EventMapper {
             event.getMaxParticipants(),
             event.getCity(),
             event.getAddress(),
-            event.getPhotoPath(),
             categoryMapper.toDTO(event.getCategory()),
             userMapper.toUserResponse(event.getOrganizer()),
             registrations,
@@ -96,7 +95,6 @@ public class EventMapper {
             event.maxParticipants(),
             event.city(),
             event.address(),
-            event.photoPath(),
             location
     );
   }
@@ -113,7 +111,7 @@ public class EventMapper {
             event.getExperienceLevel(),
             event.getMaxParticipants(),
             event.getCity(),
-            event.getPhotoPath()
+            event.getAddress()
     );
   }
 

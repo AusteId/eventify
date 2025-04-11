@@ -23,7 +23,7 @@ const Event = () => {
   const params = useParams();
   const { userId, isAuthenticated, birthDate } = useAuth();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const organizer = { username: event?.organizer.username };
+  const organizer = { username: event?.organizer.username, id: event?.organizer.id};
   const [isRegistered, setIsRegistered] = useState(false);
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
@@ -114,10 +114,9 @@ const Event = () => {
     } catch (error) {
       const errorMessage = error.error || 'Failed to register. Try again.';
       toast.error(errorMessage);
+    } finally {
+      setIsJoining(false);
     }
-      finally {
-    setIsJoining(false);
-  }
   };
 
   const handleCancel = () => {
@@ -159,7 +158,6 @@ const Event = () => {
     const fetchdata = async () => {
       try {
         const data = await getEvent(params.id);
-        const pictureResponse = await getEventImage(params.id);
 
         if (!data) {
           console.error('Failed to load event data');
@@ -167,8 +165,7 @@ const Event = () => {
           return;
         }
 
-        const eventData = { ...data, picture: URL.createObjectURL(pictureResponse) };
-        setEvent(eventData);
+        setEvent(data);
 
         const userRegistration =
           event.registrations && Array.isArray(event.registrations)
@@ -195,6 +192,7 @@ const Event = () => {
     fetchdata();
   }, [params.id, userId]);
 
+
   useEffect(() => {}, [isRegistered]);
 
   if (!event) {
@@ -206,7 +204,10 @@ const Event = () => {
     avatar: registration.userJoinToEvent.userAvatar?.data
       ? `data:image/png;base64,${registration.userJoinToEvent.userAvatar.data}`
       : null,
+      id: registration.userJoinToEvent.userId
   }));
+
+
 
   const handleEdit = () => {
     document.getElementById('event_creation_modal').showModal();

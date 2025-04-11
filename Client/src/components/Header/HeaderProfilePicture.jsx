@@ -1,31 +1,9 @@
-import { useEffect, useState } from 'react';
 import defaultAvatar from '../../assets/profile-picture.webp';
-import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../Auth/AuthContext';
 
 const ProfilePictureButton = () => {
-  const [avatar, setAvatar] = useState();
-  const { timeourForError } = useNotification();
-  const { authFetch } = useAuth();
 
-  const getUserAvatar = async () => {
-    try {
-      const response = await authFetch(
-        'http://localhost:8080/api/users/avatar',
-      );
-      if (response.ok) {
-        const blob = await response.blob();
-        const image = URL.createObjectURL(blob);
-        setAvatar(image);
-      }
-    } catch (error) {
-      timeourForError(error.message || 'Failed to load avatar');
-    }
-  };
-
-  useEffect(() => {
-    getUserAvatar();
-  }, []);
+  const { avatar } = useAuth();
 
   return (
     <>

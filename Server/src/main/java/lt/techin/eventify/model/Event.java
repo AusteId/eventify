@@ -1,6 +1,6 @@
 package lt.techin.eventify.model;
 
-import jakarta.persistence.*;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,12 +20,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+
 
 @Entity
 @Table(name = "events")
@@ -86,14 +83,12 @@ public class Event {
   @Column(nullable = false)
   private String address;
 
-  private String photoPath;
-
-//  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//  @JoinColumn(name = "picture_id", nullable = false)
-//  private EventImage eventImage;
-
   @Column(name = "location", columnDefinition = "POINT")
   private Point location;
+
+
+  //Defaults if we end up using them
+  private String imageKey;
 
   @PrePersist
   public void prePersist() {
@@ -108,7 +103,7 @@ public class Event {
   public Event(Category category, User organizer, String name, LocalDateTime startDateTime,
                LocalDateTime endDateTime, String description,
                Integer minAge, Integer maxAge, String experienceLevel, int maxParticipants,
-               String city, String address, String photoPath, Point location) {
+               String city, String address, Point location) {
     this.category = category;
     this.organizer = organizer;
     this.name = name;
@@ -121,7 +116,6 @@ public class Event {
     this.maxParticipants = maxParticipants;
     this.city = city;
     this.address = address;
-    this.photoPath = photoPath;
     this.registrations = new ArrayList<>();
     this.location = location;
   }

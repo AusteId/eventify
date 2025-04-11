@@ -5,11 +5,13 @@ import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.user.*;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
+import lt.techin.eventify.service.R2Service;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -26,12 +28,15 @@ public class UserController {
   private final UserService userService;
   private final EventService eventService;
   private final UserMapper userMapper;
+  private final R2Service r2Service;
 
   @Autowired
-  public UserController(UserService userService, EventService eventService, UserMapper userMapper) {
+  public UserController(R2Service r2Service, UserService userService, EventService eventService,
+                        UserMapper userMapper) {
     this.userService = userService;
     this.eventService = eventService;
     this.userMapper = userMapper;
+    this.r2Service = r2Service;
   }
 
   @GetMapping("/all")
@@ -125,8 +130,11 @@ public class UserController {
 
   @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserResponse> addUser(@Valid @ModelAttribute CreateUserRequest dto) {
+    MultipartFile avatar = dto.avatar();
     try {
       User newUser = userService.saveUser(dto);
+      assert avatar != null;
+      r2Service.uploadUserAvatar(avatar, newUser.getId());
       UserResponse savedUser = userMapper.toUserResponse(newUser);
 
       return ResponseEntity.created(
@@ -148,9 +156,10 @@ public class UserController {
 
   @GetMapping("/avatar")
   public ResponseEntity<byte[]> getUserPrivateAvatar() {
-    AvatarResponseDTO avatarResponseDTO = userService.getUserPrivateAvatar();
-    return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(avatarResponseDTO.contentType()))
-            .body(avatarResponseDTO.data());
+    return ResponseEntity.ok(userService.getUserPrivateAvatar());
+  }
+  @GetMapping("/{userId}/avatar")
+  public ResponseEntity<byte[]> getUserPublicAvatar(@PathVariable Long userId) {
+    return ResponseEntity.ok(userService.getUserPublicAvatar(userId));
   }
 }
