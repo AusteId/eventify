@@ -7,19 +7,14 @@ import lt.techin.eventify.dto.registrationToEvent.UserRegisteredToEventResponse;
 import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.EventImage;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.repository.mysql.CategoryRepository;
 import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -113,29 +108,6 @@ public class EventMapper {
     );
   }
 
-  public EventImage imageToEntity(CreateEventRequest dto) throws IOException {
-    if (dto.picture() != null && !dto.picture().isEmpty()) {
-      EventImage eventImage = new EventImage();
-      eventImage.setFilename(dto.picture().getOriginalFilename());
-      eventImage.setContentType(dto.picture().getContentType());
-      eventImage.setFileSize(dto.picture().getSize());
-      eventImage.setData(dto.picture().getBytes());
-      return eventImage;
-    } else {
-      try {
-        Resource resource = new ClassPathResource("static/default-event.jpg");
-        byte[] imageBytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
-        EventImage eventImage = new EventImage();
-        eventImage.setFilename("default-event");
-        eventImage.setContentType("image/png");
-        eventImage.setData(imageBytes);
-        eventImage.setFileSize((long) imageBytes.length);
-        return eventImage;
-      } catch (IOException e) {
-        throw new IOException("Could not load default event image" + e.getMessage());
-      }
-    }
-  }
 
   public EventMapResponse toEventMapResponse(EventMapSummary event) {
 
