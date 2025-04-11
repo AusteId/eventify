@@ -61,7 +61,6 @@ const CreateEventForm = () => {
   const provider = new OpenStreetMapProvider();
 
   const fetchCoordinates = async () => {
-
     if (!city || !address) {
       setValue('latitude', null);
       setValue('longitude', null);
@@ -70,7 +69,7 @@ const CreateEventForm = () => {
     }
 
     const query = `${city}, ${address}`;
-    
+
     try {
       const results = await provider.search({ query });
       if (results.length > 0) {
@@ -95,6 +94,7 @@ const CreateEventForm = () => {
   }, [city, address]);
 
   const onSubmit = async data => {
+    closeModal();
     try {
       console.log('Create event data: ', data);
       const response = await createEvent({
@@ -105,7 +105,6 @@ const CreateEventForm = () => {
       });
       console.log('RESPONSE: ', response);
       toast.success('Event created successfully');
-      closeModal();
     } catch (error) {
       console.error('Event creation failed: ', error);
       toast.error('Failed to create event');

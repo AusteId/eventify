@@ -190,7 +190,7 @@ const EventCard = ({
 
   const TimeString =
     startDateTime && endDateTime
-      ? `${convertToCompactEuDatetime(startDateTime)} |`
+      ? `${convertToCompactEuDatetime(startDateTime)}`
       : 'N/A';
 
   const DurationString =
@@ -278,7 +278,7 @@ const EventCard = ({
               <figure className="flex gap-2">
                 <Clock size={20} />
                 {endDateTime ? (
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     <figcaption>{TimeString}</figcaption>
                     <figcaption className="flex gap-1">
                       <Timer size={20} />
