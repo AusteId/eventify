@@ -79,13 +79,17 @@ const MyEventsList = ({ endpoint }) => {
   };
 
   return (
-    <div className="h-full flex flex-col justify-between">
+    <div className="h-full flex justify-center">
       {loading ? (
         <LoadingSection />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : events.length === 0 ? (
-        <p className="text-center text-gray-500">No events found.</p>
+        <p className="text-center text-gray-500">
+          {endpoint === '/api/events/user/created-events'
+            ? "It looks like you haven't created any events so far. Why not create one now?"
+            : "It looks like you haven’t joined any events yet. Start by browsing upcoming events!"}
+        </p>
       ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {events.map((event, index) => (

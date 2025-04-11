@@ -2,7 +2,7 @@ const Registrations = () => {
 
     return(
         <div>
-            <h1 className=" font-bold">My Registration page</h1>
+            <h1 className={`text-heading-m font-[700] leading-[1.5rem] ${loading && "text-center"}`}>My Registration page</h1>
         </div>
     )
 }
