@@ -1,14 +1,7 @@
 package lt.techin.eventify.dto.user;
 
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.model.UserImage;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
 
 @Component
 public class UserMapper {
