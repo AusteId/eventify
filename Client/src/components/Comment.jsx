@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
 
 const Comment = props => {
-  const [imgSrc, setImgSrc] = useState(props.avatar || avatar);
   const [editing, setEditing] = useState(false);
   const [editingComment, setEditingComment] = useState('+');
 
@@ -91,8 +90,11 @@ const Comment = props => {
           <div className="avatar">
             <div className="w-10 h-10 rounded-full">
               <img
-                src={imgSrc}
-                onError={() => setImgSrc(avatar)}
+                  src={`http://localhost:8080/api/users/${props.userId}/avatar`}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = avatar;
+                  }}
                 alt={props.name}
               />
             </div>

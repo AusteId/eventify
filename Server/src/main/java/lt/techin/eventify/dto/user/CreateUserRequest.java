@@ -1,5 +1,6 @@
 package lt.techin.eventify.dto.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lt.techin.eventify.validation.file.ValidImage;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,7 +36,9 @@ public record CreateUserRequest(
         LocalDate birthDate,
         @Size(max = 20, message = "Can only have up to 20 interests")
         List<Long> categoryIds,
+
         @ValidImage
+        @Schema(type = "string", format = "binary")
         MultipartFile avatar
 ) {
 }

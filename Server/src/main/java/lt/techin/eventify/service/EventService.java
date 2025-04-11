@@ -83,7 +83,6 @@ public class EventService {
     event.setMaxParticipants(updateEventRequest.maxParticipants());
     event.setCity(updateEventRequest.city());
     event.setAddress(updateEventRequest.address());
-    event.setPhotoPath(updateEventRequest.photoPath());
 
     return eventRepository.save(event);
   }
@@ -379,5 +378,9 @@ public class EventService {
     }
 
     return eventPage.map(eventMapper::toEventSummaryResponse);
+  }
+
+  public String findImageKeyById(Long eventId) {
+      return eventRepository.findImageKeyById(eventId);
   }
 }

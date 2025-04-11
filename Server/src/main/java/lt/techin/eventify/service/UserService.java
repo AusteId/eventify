@@ -30,10 +30,11 @@ public class UserService {
   private final CategoryRepository categoryRepository;
   private final TokenService tokenService;
   private final MessageRepository messageRepository;
+  private final R2Service r2Service;
 
   public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper,
                      RoleRepository roleRepository, CategoryRepository categoryRepository, TokenService tokenService,
-                     MessageRepository messageRepository) {
+                     MessageRepository messageRepository,R2Service r2Service) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.userMapper = userMapper;
@@ -41,6 +42,7 @@ public class UserService {
     this.categoryRepository = categoryRepository;
     this.tokenService = tokenService;
     this.messageRepository = messageRepository;
+    this.r2Service = r2Service;
   }
 
   public boolean existsByUsername(String username) {
@@ -75,8 +77,6 @@ public class UserService {
 
     newUser.setFavoriteEventCategories(favoriteCategories);
 
-    UserImage avatar = UserMapper.imageToEntity(dto);
-
     newUser.setPassword(passwordEncoder.encode(dto.password()));
     newUser.setRoles(Set.of(roleUser));
 
@@ -109,14 +109,14 @@ public class UserService {
     return tokenService.generateToken(user.get());
   }
 
-  public AvatarResponseDTO getUserPrivateAvatar() {
-//    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//    User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//    return new AvatarResponseDTO(
-//            user.getAvatar().getData(),
-//            user.getAvatar().getContentType()
-//    );
-    return null;
+  public byte[] getUserPrivateAvatar() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    return r2Service.downloadUserAvatar(user.getId());
+  }
+
+  public byte[] getUserPublicAvatar(Long id) {
+    return r2Service.downloadUserAvatar(id);
   }
 
   public List<UserSearchDTO> searchUsers(String query, Long currentUserId, int limit) {

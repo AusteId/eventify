@@ -2,14 +2,15 @@ import axios from 'axios';
 import { MessageCircle, Send } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import avatar from '../assets/avatar.png';
+import avatarDefault from '../assets/avatar.png';
 import Comment from './Comment';
+import { useAuth } from './Auth/AuthContext';
 
 const CommentSection = props => {
-  const [imgSrc, setImgSrc] = useState(avatar);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
+  const {userId,avatar,isAuthenticated} = useAuth();
 
   const {
     register,
@@ -78,16 +79,15 @@ const CommentSection = props => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onPostComment)}>
+      {isAuthenticated &&  <form onSubmit={handleSubmit(onPostComment)}>
         <h1 className="text-header-dark font-inter font-bold text-heading-s pb-6">
           Comments
         </h1>
         <div className="flex">
           <img
             className="w-10 h-10 rounded-full"
-            src={imgSrc}
+            src={avatar || avatarDefault}
             alt="User avatar"
-            onError={() => setImgSrc(avatar)}
           />
           <div className="pl-4 w-full">
             <textarea
@@ -117,7 +117,8 @@ const CommentSection = props => {
             </div>
           </div>
         </div>
-      </form>
+      </form>}
+     
       {loading && !comments.length ? (
         <div className="flex justify-center mt-20">
           <span className="loading loading-bars loading-xl"></span>
