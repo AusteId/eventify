@@ -214,7 +214,7 @@ const Event = () => {
   };
 
   return (
-    <div className="flex flex-col items-center mt-16 gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
+    <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
       <div
         className={`flex flex-col w-125 desktop:w-200 tablet:w-150 justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
       >

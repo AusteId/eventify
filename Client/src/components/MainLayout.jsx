@@ -9,7 +9,7 @@ const MainLayout = () => {
     <>
       <ErrorServer />
       <Success />
-      <div className="min-h-screen flex flex-col bg-gradient-to-t from-white via-gradient-light-yellow to-gradient-yellow">
+      <div className="min-h-screen overflow-clip flex flex-col bg-gradient-to-t from-white via-gradient-light-yellow to-gradient-yellow">
         <div className="flex-1">
           <Outlet />
         </div>
