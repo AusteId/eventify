@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { Outlet, useLocation, useNavigate } from 'react-router';
-import RegistrationHeader from '../Header/RegistrationHeader';
 import LoadingScreen from '../message/LoadingScreen';
 
-const RegistrationLayout = ({ formRefs }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+const RegistrationLayout = ({ formRefs, currentStep, setCurrentStep }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsloading] = useState(false);
   const navigate = useNavigate();
@@ -152,7 +150,6 @@ const RegistrationLayout = ({ formRefs }) => {
       {isLoading && <LoadingScreen />}
       <FormProvider {...methods}>
         <div className="min-h-full flex flex-col">
-          <RegistrationHeader currentStep={currentStep + 1} />
           <div className="flex justify-center pt-[2%]">
             {/* {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">

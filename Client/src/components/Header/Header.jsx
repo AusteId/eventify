@@ -12,8 +12,9 @@ import { NavLink, useNavigate } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
 import Button from '../Button';
+import StepIndicator from '../StepIndicator';
 
-const Header = ({ loading }) => {
+const Header = ({ loading, currentStep }) => {
   const [activeLink, setActiveLink] = useState('');
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -107,7 +108,9 @@ const Header = ({ loading }) => {
                     </Button>
                   </div>
                 )}
-                {!isAuthenticated && location.pathname != '/login' ? (
+                {!isAuthenticated &&
+                location.pathname != '/login' &&
+                !location.pathname.startsWith('/register') ? (
                   <div className="hidden md:flex lg:flex space-x-3">
                     <NavLink tabIndex={-1} to={'/login'}>
                       <Button>Login</Button>
@@ -116,8 +119,11 @@ const Header = ({ loading }) => {
                       <Button>Sign Up</Button>
                     </NavLink>
                   </div>
-                ) : !isAuthenticated ? (
+                ) : !isAuthenticated &&
+                  !location.pathname.startsWith('/register') ? (
                   <div className="w-45"></div>
+                ) : !isAuthenticated ? (
+                  <StepIndicator step={currentStep} totalSteps={4} />
                 ) : null}
                 {isAuthenticated && (
                   <div>
@@ -254,29 +260,11 @@ const Header = ({ loading }) => {
                     </div>
                   </div>
                 </div>
-
-                {/* Mobile Menu Button (placeholder if needed) */}
-                {/* <div className="md:hidden">
-               <button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                 <span className="sr-only">Open main menu</span>
-                 {/* Icon when menu is closed: Menu, Icon when menu is open: X */}
-                {/* </button>
-             </div> */}
               </div>
             </>
           )}
         </div>
       </nav>
-
-      {/* Mobile Menu Panel (would go here, conditionally rendered) */}
-      {/* <div className="md:hidden" id="mobile-menu">
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          {navLinks.map((link) => (...))}
-        </div>
-        <div className="pt-4 pb-3 border-t border-gray-200">
-           User info and mobile-specific actions
-        </div>
-      </div> */}
     </header>
   );
 };

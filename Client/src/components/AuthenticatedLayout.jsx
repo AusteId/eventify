@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router';
 import Header from './Header/Header';
 import { useAuth } from './Auth/AuthContext';
 
-const AuthenticatedLayout = () => {
+const AuthenticatedLayout = ({ currentStep }) => {
   const location = useLocation();
   const { loading } = useAuth();
 
@@ -10,7 +10,7 @@ const AuthenticatedLayout = () => {
 
   return (
     <div className="min-h-full flex flex-col">
-      {isRegisterPage ? null : <Header loading={loading} />}
+      <Header currentStep={currentStep} loading={loading} />
       <div className="flex-1">
         <Outlet />
       </div>
