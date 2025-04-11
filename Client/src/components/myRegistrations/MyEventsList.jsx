@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import EventCard from '../EventCard';
 import LoadingSection from '../LoadingSection';
 import Pagination from '../Pagination';
@@ -10,13 +10,22 @@ const MyEventsList = ({ endpoint }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const eventsPerPage = 12;
+
+  const authFetchRef = useRef(authFetch);
+
+  useEffect(() => {
+    authFetchRef.current = authFetch;
+  }, [authFetch]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await authFetch(
+        setError(null);
+
+        const response = await authFetchRef.current(
           `${import.meta.env.VITE_BACK_URL}${endpoint}`,
           {
             method: 'GET',
@@ -30,18 +39,27 @@ const MyEventsList = ({ endpoint }) => {
         );
 
         if (!response) {
-          throw new Error('Failed to fetch events');
+          throw new Error('Failed to fetch events: No response');
+        }
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch events: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
 
+        if (!data || !data.content || typeof data.totalPages === 'undefined') {
+          throw new Error('Failed to fetch events: Invalid response format');
+        }
 
-        setEvents(data.content);
-        setTotalPages(data.totalPages);
+        setEvents(data.content || []);
+        setTotalPages(data.totalPages || 0);
       } catch (error) {
         console.error('Error fetching data:', error);
+        console.log('Error details:', error.message);
         setEvents([]);
         setTotalPages(0);
+        setError('Failed to load events. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -64,12 +82,14 @@ const MyEventsList = ({ endpoint }) => {
     <div className="h-full flex flex-col justify-between">
       {loading ? (
         <LoadingSection />
+      ) : error ? (
+        <p className="text-center text-red-500">{error}</p>
       ) : events.length === 0 ? (
         <p className="text-center text-gray-500">No events found.</p>
       ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {events.map((event, index) => (
-            <EventCard key={index} {...event} />
+            <EventCard key={event.id || index} {...event} />
           ))}
         </div>
       )}
