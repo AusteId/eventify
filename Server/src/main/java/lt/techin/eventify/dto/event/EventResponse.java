@@ -21,7 +21,6 @@ public record EventResponse(
         int maxParticipants,
         String city,
         String address,
-        String photoPath,
         CategoryResponse category,
         UserResponse organizer,
         List<UserRegisteredToEventResponse> registrations,

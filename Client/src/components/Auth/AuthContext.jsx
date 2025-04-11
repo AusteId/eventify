@@ -24,6 +24,43 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [avatar, setAvatar] = useState()
+
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result); 
+      reader.onerror = reject;
+      reader.readAsDataURL(blob); 
+    });
+  };
+
+  const getUserAvatar = async () => {
+    try {
+      const cached = localStorage.getItem('userAvatar');
+      if (cached) {
+        setAvatar(cached); 
+        return;
+      }
+  
+      const response = await authFetch('http://localhost:8080/api/users/avatar');
+      if (response.ok) {
+        const blob = await response.blob();
+        const base64 = await blobToBase64(blob);
+  
+        localStorage.setItem('userAvatar', base64);
+        setAvatar(base64); 
+      }
+    } catch (error) {
+      timeoutForError(error.message || 'Failed to load avatar');
+    }
+  };
+  
+
+  useEffect(() => {
+    getUserAvatar();
+  }, []);
+
   const checkAuthStatus = useCallback(async () => {
     //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
     // const alreadyChecked =
@@ -93,6 +130,7 @@ export const AuthProvider = ({ children }) => {
       }
       sessionStorage.setItem('plsStahp', 'true');
       await checkAuthStatus();
+      await getUserAvatar();
       const queryParams = new URLSearchParams(location.search);
       const redirect = queryParams.get('redirect') || '/';
       navigate(redirect);
@@ -114,6 +152,8 @@ export const AuthProvider = ({ children }) => {
       });
       navigate('/');
       sessionStorage.removeItem('plsStahp');
+      localStorage.removeItem("userAvatar")
+      setAvatar(null)
       toast.success('Logged out!');
     } catch (error) {
       timeoutForError(error.message || 'Failed to logout');
@@ -122,6 +162,8 @@ export const AuthProvider = ({ children }) => {
       setRoles([]);
       setUserId('');
       sessionStorage.removeItem('plsStahp');
+      localStorage.removeItem("userAvatar")
+      setAvatar(null)
       setIsLoading(false);
     }
   };
@@ -165,6 +207,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         authFetch,
         loading,
+        avatar
       }}
     >
       {children}

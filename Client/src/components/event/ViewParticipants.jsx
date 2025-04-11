@@ -9,6 +9,7 @@ const ViewParticipants = ({ organizer, participants }) => {
         <Participant 
         name={capitalizeFirstLetter(organizer.username)}
         profileImg={organizer.avatar}
+        organizerId={organizer.id}
         />
       </div>
       {participants.length != 0 && (
@@ -25,6 +26,7 @@ const ViewParticipants = ({ organizer, participants }) => {
                   name={capitalizeFirstLetter(participant.username)}
                   profileImg={participant.avatar}
                   rating={participant.rating}
+                  id={participant.id}
                   key={index}
                 />
               ))}

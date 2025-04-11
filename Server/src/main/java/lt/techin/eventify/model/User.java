@@ -65,8 +65,6 @@ public class User implements UserDetails {
   @JoinColumn(name = "commented_id")
   private Set<ProfileComment> commentsReceived; // Comments posted on this user
 
-  private String photoPath;
-
   @Setter(AccessLevel.NONE)
   private LocalDateTime registeredAt;
 
@@ -83,7 +81,7 @@ public class User implements UserDetails {
   private Set<RegistrationToEvent> registrations = new HashSet<>();
 
   public User(String username, String email, String password, String city, LocalDate birthDate, String description,
-              Set<Category> favoriteEventCategories, String photoPath, Set<Role> roles) {
+              Set<Category> favoriteEventCategories, Set<Role> roles) {
     this.username = username;
     this.email = email;
     this.password = password;
@@ -91,7 +89,6 @@ public class User implements UserDetails {
     this.birthDate = birthDate;
     this.description = description;
     this.favoriteEventCategories = favoriteEventCategories;
-    this.photoPath = photoPath;
     this.roles = roles;
     this.registrations = new HashSet<>();
   }

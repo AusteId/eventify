@@ -14,7 +14,6 @@ public record UserResponse(
         LocalDate birthDate,
         String description,
         Set<Category> favoriteEventCategories,
-        String photoPath,
         Set<Role> roles
 ) {
 }

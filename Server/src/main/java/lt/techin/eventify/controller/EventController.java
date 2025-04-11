@@ -9,6 +9,7 @@ import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.repository.mysql.EventRepository;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.R2Service;
 import lt.techin.eventify.service.RegistrationToEventService;
@@ -131,7 +132,6 @@ public class EventController {
             event.maxParticipants(),
             event.city(),
             event.address(),
-            event.photoPath(),
             event.category(),
             event.organizer(),
             event.registrations(),
@@ -158,13 +158,9 @@ public class EventController {
   }
 
   @GetMapping("/{id}/picture")
-  public ResponseEntity<byte[]> getUserPrivateAvatar(@PathVariable long id) {
-//    EventPictureResponse eventPicture = eventService.getEventPicture(id);
-//    return ResponseEntity.ok()
-//            .contentType(MediaType.parseMediaType(eventPicture.contentType()))
-//            .body(eventPicture.data());
-
-    return ResponseEntity.ok(r2Service.downloadFile(String.format("events/%s/image.jpg", id)));
+  public ResponseEntity<byte[]> getEventPicture(@PathVariable long id) {
+    String imageKey = eventService.findImageKeyById(id);
+    return ResponseEntity.ok(r2Service.getEventImage(id, imageKey));
   }
 
   @GetMapping("/search")
