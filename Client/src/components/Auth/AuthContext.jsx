@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [roles, setRoles] = useState([]);
   const [userId, setUserId] = useState('');
-  const [loading, setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(true);
   const [profileImg, setProfileImg] = useState('');
   const [birthDate, setBirthDate] = useState(null);
 
@@ -111,9 +111,8 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async (credentials) => {
+  const login = async credentials => {
     try {
-      
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
         headers: {
@@ -133,7 +132,7 @@ export const AuthProvider = ({ children }) => {
       await checkAuthStatus();
       await getUserAvatar();
       const queryParams = new URLSearchParams(location.search);
-      const redirect = queryParams.get('redirect') || '/'; 
+      const redirect = queryParams.get('redirect') || '/';
       navigate(redirect);
       return true;
     } catch (error) {

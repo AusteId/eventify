@@ -1,19 +1,16 @@
 import { Outlet, useLocation } from 'react-router';
 import Header from './Header/Header';
-import NotSignedInHeader from './Header/NotSignedInHeader';
 import { useAuth } from './Auth/AuthContext';
 
-const AuthenticatedLayout = () => {
-  const { isAuthenticated } = useAuth();
+const AuthenticatedLayout = ({ currentStep }) => {
   const location = useLocation();
+  const { loading } = useAuth();
 
-
-  const isRegisterPage = location.pathname.startsWith("/register");
+  const isRegisterPage = location.pathname.startsWith('/register');
 
   return (
     <div className="min-h-full flex flex-col">
-
-      {isRegisterPage ? null : isAuthenticated ? <Header /> : <NotSignedInHeader />}
+      <Header currentStep={currentStep} loading={loading} />
       <div className="flex-1">
         <Outlet />
       </div>
