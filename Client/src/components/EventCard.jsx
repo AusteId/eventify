@@ -14,6 +14,13 @@ import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
+import { Clock, MapPin, Users, Timer } from 'lucide-react';
+import {
+  differenceInDays,
+  differenceInMinutes,
+  formatDistance,
+  formatDuration,
+} from 'date-fns';
 
 const EventCard = ({
   id,
@@ -181,14 +188,19 @@ const EventCard = ({
     shortDesc = wordArr?.join(' ') || 'Welcome to my event!';
   }
 
-  const timeString =
+  const TimeString =
     startDateTime && endDateTime
-      ? `${convertToCompactEuDatetime(startDateTime)} - ${formatToOnlyTime(endDateTime)}`
+      ? `${convertToCompactEuDatetime(startDateTime)} |`
+      : 'N/A';
+
+  const DurationString =
+    startDateTime && endDateTime
+      ? `${formatDistance(new Date(endDateTime), new Date(startDateTime))}`
       : 'N/A';
 
   const ageString =
     minAge !== null && maxAge !== null
-      ? `Min age: ${minAge} - max age: ${maxAge}`
+      ? `Min age: ${minAge} - Max age: ${maxAge}`
       : minAge !== null
         ? `Min age: ${minAge}`
         : maxAge !== null
@@ -258,13 +270,21 @@ const EventCard = ({
           <h2 className="text-heading-xs font-[600] leading-[1.125rem] whitespace-nowrap overflow-hidden text-ellipsis">
             {name}
           </h2>
-          <p className="h-12">{shortDesc}</p>
-          <div className="flex flex-col gap-1">
+          <p className="h-12 font-inter text-body-medium text-body-m">
+            {shortDesc}
+          </p>
+          <div className="flex flex-col gap-2 font-inter text-body-medium text-body-s">
             {startDateTime ? (
               <figure className="flex gap-2">
-                <img src="src/assets/clock.svg" alt="Icon of a clock" />
+                <Clock size={20} />
                 {endDateTime ? (
-                  <figcaption>{timeString}</figcaption>
+                  <div className="flex gap-1">
+                    <figcaption>{TimeString}</figcaption>
+                    <figcaption className="flex gap-1">
+                      <Timer size={20} />
+                      {DurationString}
+                    </figcaption>
+                  </div>
                 ) : (
                   <figcaption>
                     {convertToCompactEuDatetime(startDateTime)}
@@ -273,19 +293,19 @@ const EventCard = ({
               </figure>
             ) : (
               <figure className="flex gap-2">
-                <img src="src/assets/clock.svg" alt="Icon of a clock" />
+                <Clock size={20} />
                 <figcaption>Time not provided</figcaption>
               </figure>
             )}
             {city && (
               <figure className="flex gap-2">
-                <img src="src/assets/mapMarker.svg" alt="Icon of map marker" />
+                <MapPin size={20} />
                 <figcaption>{city}</figcaption>
               </figure>
             )}
             {ageString && (
               <figure className="flex gap-2">
-                <img src="src/assets/age.svg" alt="Icon representing age" />
+                <Users size={20} />
                 <figcaption>{ageString}</figcaption>
               </figure>
             )}
