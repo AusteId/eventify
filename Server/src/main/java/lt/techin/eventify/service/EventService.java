@@ -2,17 +2,19 @@ package lt.techin.eventify.service;
 
 import lombok.AllArgsConstructor;
 import lt.techin.eventify.dto.event.*;
-import lt.techin.eventify.exception.CategoryNotFoundException;
-import lt.techin.eventify.exception.EventNotFoundException;
-import lt.techin.eventify.exception.ForbiddenException;
-import lt.techin.eventify.exception.UsernameNotFoundException;
+import lt.techin.eventify.exception.*;
 import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.Event;
-import lt.techin.eventify.model.EventImage;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.mysql.*;
+import lt.techin.eventify.repository.mysql.CategoryRepository;
+import lt.techin.eventify.repository.mysql.EventRepository;
+import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -44,24 +46,24 @@ public class EventService {
 //  public Event saveEvent(CreateEventRequest createEventRequest) throws IOException {
 //    Event newEvent = eventMapper.toEvent(createEventRequest);
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
+  @CachePut(value = "eventsCache")
   public EventResponse saveEvent(CreateEventRequest createEventRequest, Authentication authentication) throws IOException {
     JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
     Map<String, Object> claims = jwtAuth.getTokenAttributes();
     Long userId = (Long) claims.get("userId");
-
-    EventImage image = eventMapper.imageToEntity(createEventRequest);
 
     User organizer = userRepository.findById(userId).orElseThrow(() ->
             new UsernameNotFoundException("User does not exist"));
 
     Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("Category does not exist"));
     Event event = eventMapper.toEvent(createEventRequest, category, organizer);
-    event.setEventImage(image);
     Event savedEvent = eventRepository.save(event);
 
     return eventMapper.toEventResponse(savedEvent);
   }
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
   public Event updateEvent(long eventId, UpdateEventRequest updateEventRequest) {
 
     Event event = eventRepository.findById(eventId).orElseThrow(() ->
@@ -86,6 +88,7 @@ public class EventService {
     return eventRepository.save(event);
   }
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
   public void deleteEvent(long eventId, Principal principal) {
     Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
@@ -107,6 +110,7 @@ public class EventService {
 
   }
 
+  @Cacheable("eventsCache")
   public List<EventResponse> getUserEvents(long userId) {
 
     User user = userRepository.findById(userId)
@@ -119,17 +123,20 @@ public class EventService {
             .toList();
   }
 
+  @Cacheable(value = "eventsCache")
   public EventResponse getEventById(long eventId) {
     Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
     return eventMapper.toEventResponse(event);
   }
 
+  @Cacheable("eventsCache")
   public List<GetEventResponse> getAllEvents() {
     return eventRepository.findAll().stream()
             .map(eventMapper::toGetEventResponse)
             .toList();
   }
 
+  @Cacheable("eventsCache")
   public Page<EventResponse> findEventsByFilters(String categoryName, String city, String startDateTime,
                                                  String endDateTime, String experienceLevel,
                                                  Integer minAge, Integer maxAge, String searchTerm, Pageable pageable) {
@@ -149,6 +156,7 @@ public class EventService {
     return new PageImpl<>(eventResponses, pageable, eventPage.getTotalElements());
   }
 
+
   public Event findEventById(Long eventId) {
     return eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
@@ -158,14 +166,37 @@ public class EventService {
     return eventRepository.findById(id).orElse(null);
   }
 
-  public EventPictureResponse getEventPicture(long eventId) {
-    EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId + " (id)")).getEventImage();
-    return new EventPictureResponse(
-            eventImage.getData(),
-            eventImage.getContentType()
-    );
+//   public EventPictureResponse getEventPicture(long eventId) {
+//     EventImage eventImage = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event was not found: " + eventId + " (id)")).getEventImage();
+//     return new EventPictureResponse(
+//             eventImage.getData(),
+//             eventImage.getContentType()
+//     );
+//   }
+
+  // Events that will start in less than 24 hours
+  @Cacheable("eventsCache")
+  public List<GetEventResponse> findHotEvents() {
+    List<Event> allEvents = eventRepository.findAll();
+    List<GetEventResponse> sortedEvents = new ArrayList<>();
+
+    LocalDateTime currentTime = LocalDateTime.now();
+    LocalDateTime futureTime = currentTime.plusHours(24);
+
+    for (Event event : allEvents) {
+      LocalDateTime startTime = event.getStartDateTime();
+
+      boolean isHot = startTime.isBefore(futureTime) && startTime.isAfter(currentTime);
+
+      if (isHot) {
+        sortedEvents.add(eventMapper.toGetEventResponse(event));
+      }
+    }
+
+    return sortedEvents;
   }
 
+  @Cacheable("eventsCache")
   public List<GetEventResponse> findEventsInUpcoming14Days() {
     // weight constants for calculating scores
     final double WEIGHT_DATE = 3.0;
@@ -229,7 +260,7 @@ public class EventService {
             .toList();
   }
 
-
+  @Cacheable("eventsCache")
   public List<GetEventResponse> findRecommendedEvents(String username) {
     User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
@@ -320,5 +351,33 @@ public class EventService {
     return events.stream()
             .map(eventMapper::toEventMapResponse)
             .toList();
+  }
+
+  public Page<EventSummaryResponse> getUserCreatedEvents(Long userId, Pageable pageable) {
+
+    userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+    Page<Event> eventPage = eventRepository.findEventsByOrganizer(userId, pageable);
+
+    if (eventPage.isEmpty()) {
+      throw new EventNotFoundException("It looks like you haven't created any events so far. Why not create one now?");
+    }
+
+    return eventPage.map(eventMapper::toEventSummaryResponse);
+  }
+
+  public Page<EventSummaryResponse> getUserRegisteredEvents(Long userId, Pageable pageable) {
+
+    userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+    Page<Event> eventPage = eventRepository.findEventsByParticipant(userId, pageable);
+
+    if (eventPage.isEmpty()) {
+      throw new EventNotFoundException("It looks like you haven’t joined any events yet. Start by browsing upcoming events!");
+    }
+
+    return eventPage.map(eventMapper::toEventSummaryResponse);
   }
 }

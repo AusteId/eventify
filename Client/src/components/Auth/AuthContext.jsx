@@ -25,12 +25,6 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
 
   const checkAuthStatus = useCallback(async () => {
-    //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
-    // const alreadyChecked =
-    //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
-    // if (!alreadyChecked) {
-    //   return;
-    // }
 
     if (isAuthenticated) return;
 
@@ -73,6 +67,34 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     checkAuthStatus();
   }, []);
+
+  const checkEventRegistration = useCallback(async (eventId) => {
+    if (!isAuthenticated || !eventId) {
+      return { isRegistered: false, currentParticipants: 0};
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/events/${eventId}`, {
+        credentials: 'include',
+        
+      });
+      if (response.ok) {
+        const eventData = await response.json();
+        console.log('checkEventRegistration response:', eventData);
+        return {
+          isRegistered: eventData.isRegistered || false,
+          currentParticipants: eventData.currentParticipants || 0,
+        };
+      } else {
+        console.error('checkEventRegistration failed with status:', response.status);
+        return { isRegistered: false, currentParticipants: 0 };
+      }
+    } catch (error) {
+      console.error('Error checking event registration:', error);
+      toast.error('Failed to fetch event registration status');
+      return { isRegistered: false, currentParticipants: 0 };
+    }
+  }, [isAuthenticated]);
 
   const login = async (credentials) => {
     try {
@@ -166,6 +188,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         authFetch,
         loading,
+        checkEventRegistration,
       }}
     >
       {children}

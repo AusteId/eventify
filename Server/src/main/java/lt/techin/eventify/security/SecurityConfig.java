@@ -48,6 +48,11 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests((authorize) -> authorize
+                    .requestMatchers("/ws/**").permitAll()
+                    .requestMatchers("/topic/**").permitAll()
+                    .requestMatchers("/queue/**").permitAll()
+                    .requestMatchers("/app/**").permitAll()
+                    .requestMatchers("/user/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/check-availability").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/avatar").hasAnyAuthority("ADMIN", "USER")
@@ -76,6 +81,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/events/{eventId}").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/events/recommended").hasAnyAuthority("ADMIN", "USER")
+                            .requestMatchers(HttpMethod.GET, "/api/events/hot").hasAnyAuthority("ADMIN", "USER")
                     .requestMatchers(HttpMethod.GET, "/api/users/all").hasAnyAuthority("ADMIN")
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyAuthority("ADMIN", "USER")

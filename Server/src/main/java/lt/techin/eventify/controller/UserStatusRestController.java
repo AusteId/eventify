@@ -1,7 +1,9 @@
 package lt.techin.eventify.controller;
 
 import lt.techin.eventify.dto.userStatus.UserStatusDTO;
+import lt.techin.eventify.model.OnlineStatus;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.model.UserStatus;
 import lt.techin.eventify.repository.mysql.UserRepository;
 import lt.techin.eventify.service.UserStatusService;
 import org.slf4j.Logger;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users/status")
@@ -39,15 +40,27 @@ public class UserStatusRestController {
     public ResponseEntity<List<UserStatusDTO>> getAllUserStatuses(Authentication authentication) {
         logger.debug("GET request for all user statuses");
 
-        // Get all users except the current user
         List<User> users = userRepository.findAll();
 
-        // Map each user to its status
         List<UserStatusDTO> statuses = users.stream()
                 .map(user -> userStatusService.getUserStatusWithDetails(user.getId()))
                 .toList();
 
         logger.debug("Returning {} user statuses", statuses.size());
         return ResponseEntity.ok(statuses);
+    }
+
+    @GetMapping("/online")
+    public ResponseEntity<List<UserStatusDTO>> getOnlineUsers(Authentication authentication) {
+        logger.debug("GET request for online users");
+
+        List<UserStatus> onlineUsers = userStatusService.getAllOnlineUsers();
+
+        List<UserStatusDTO> onlineStatuses = onlineUsers.stream()
+                .map(status -> userStatusService.getUserStatusWithDetails(status.getUserId()))
+                .toList();
+
+        logger.debug("Returning {} online users", onlineStatuses.size());
+        return ResponseEntity.ok(onlineStatuses);
     }
 }

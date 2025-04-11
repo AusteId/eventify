@@ -22,14 +22,13 @@ public class RegistrationToEventMapper {
     User user = registrationToEvent.getUser();
     UserJoinToEvent userJoinToEvent = new UserJoinToEvent(
             user.getId(),
-            user.getAvatar(),
             user.getUsername()
     );
 
     Event event = registrationToEvent.getEvent();
     JoinEventResponse joinEventResponse = new JoinEventResponse(
             event.getCategory(),
-            new OrganizerResponse(event.getOrganizer().getId(), event.getOrganizer().getUsername(), event.getOrganizer().getAvatar()),
+            new OrganizerResponse(event.getOrganizer().getId(), event.getOrganizer().getUsername()),
             event.getName(),
             event.getStartDateTime(),
             event.getEndDateTime(),
@@ -56,7 +55,6 @@ public class RegistrationToEventMapper {
   public UserRegisteredToEventResponse toUserRegisteredToEvent(RegistrationToEvent registrationToEvent) {
     UserJoinToEvent userJoinToEvent = new UserJoinToEvent(
             registrationToEvent.getUser().getId(),
-            registrationToEvent.getUser().getAvatar(),
             registrationToEvent.getUser().getUsername()
     );
 

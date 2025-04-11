@@ -4,8 +4,7 @@ import lt.techin.eventify.model.UserImage;
 
 public record OrganizerResponse(
         long userId,
-        String username,
-        UserImage userAvatar
+        String username
 
 ) {
 }
