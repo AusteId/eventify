@@ -13,6 +13,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
 import Button from '../Button';
 import StepIndicator from '../StepIndicator';
+import HeaderProfilePicture from './HeaderProfilePicture';
 
 const Header = ({ loading, currentStep }) => {
   const [activeLink, setActiveLink] = useState('');
@@ -133,11 +134,7 @@ const Header = ({ loading, currentStep }) => {
                         role="button"
                         className="p-1 hover:bg-advanced rounded-full cursor-pointer"
                       >
-                        <div className="avatar avatar-placeholder">
-                          <div className="bg-neutral text-neutral-content w-12 rounded-full">
-                            <span className="text-3xl">D</span>
-                          </div>
-                        </div>
+                        <HeaderProfilePicture />
                       </div>
                       <ul
                         tabIndex={0}
