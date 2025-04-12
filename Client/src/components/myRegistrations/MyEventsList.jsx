@@ -33,17 +33,10 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
         }).toString();
 
         const urlWithParams = `${import.meta.env.VITE_BACK_URL}${endpoint}?${params}`;
-        console.log('Request params:', urlWithParams);
 
         const response = await authFetchRef.current(urlWithParams, {
           method: 'GET',
         });
-        //   `${import.meta.env.VITE_BACK_URL}${endpoint}`,
-        //   {
-        //     method: 'GET',
-        //     params,
-        //   }
-        // );
 
         if (!response) {
           throw new Error('Failed to fetch events: No response');
@@ -59,10 +52,14 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
           throw new Error('Failed to fetch events: Invalid response format');
         }
 
-        console.log('Fetched data:', data);
-
         setEvents(data.content || []);
         setTotalPages(data.totalPages || 0);
+
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+
       } catch (error) {
         console.error('Error fetching data:', error);
         console.log('Error details:', error.message);
@@ -81,10 +78,6 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
     console.log('Paginate called with page:', pageNumber);
     if (pageNumber >= 0 && pageNumber < totalPages) {
       setCurrentPage(pageNumber);
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
     }
   };
 
