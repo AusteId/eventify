@@ -21,21 +21,29 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching data for page:', currentPage);
         setLoading(true);
         setError(null);
 
-        const response = await authFetchRef.current(
-          `${import.meta.env.VITE_BACK_URL}${endpoint}`,
-          {
-            method: 'GET',
-            params: {
-              page: currentPage,
-              size: eventsPerPage,
-              sortBy: 'startDateTime',
-              sortDirection: 'ASC',
-            },
-          }
-        );
+        const params = new URLSearchParams({
+          page: currentPage,
+          size: eventsPerPage,
+          sortBy: 'startDateTime',
+          sortDirection: 'ASC',
+        }).toString();
+
+        const urlWithParams = `${import.meta.env.VITE_BACK_URL}${endpoint}?${params}`;
+        console.log('Request params:', urlWithParams);
+
+        const response = await authFetchRef.current(urlWithParams, {
+          method: 'GET',
+        });
+        //   `${import.meta.env.VITE_BACK_URL}${endpoint}`,
+        //   {
+        //     method: 'GET',
+        //     params,
+        //   }
+        // );
 
         if (!response) {
           throw new Error('Failed to fetch events: No response');
@@ -50,6 +58,8 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
         if (!data || !data.content || typeof data.totalPages === 'undefined') {
           throw new Error('Failed to fetch events: Invalid response format');
         }
+
+        console.log('Fetched data:', data);
 
         setEvents(data.content || []);
         setTotalPages(data.totalPages || 0);
@@ -68,6 +78,7 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
   }, [currentPage, endpoint, setLoading]);
 
   const paginate = pageNumber => {
+    console.log('Paginate called with page:', pageNumber);
     if (pageNumber >= 0 && pageNumber < totalPages) {
       setCurrentPage(pageNumber);
       window.scrollTo({
