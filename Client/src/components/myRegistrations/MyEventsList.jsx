@@ -4,12 +4,11 @@ import LoadingSection from '../LoadingSection';
 import Pagination from '../Pagination';
 import { useAuth } from '../Auth/AuthContext';
 
-const MyEventsList = ({ endpoint }) => {
+const MyEventsList = ({ endpoint, setLoading, loading }) => {
   const { authFetch } = useAuth();
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const eventsPerPage = 12;
 
@@ -66,7 +65,7 @@ const MyEventsList = ({ endpoint }) => {
     };
 
     fetchData();
-  }, [currentPage, endpoint]);
+  }, [currentPage, endpoint, setLoading]);
 
   const paginate = pageNumber => {
     if (pageNumber >= 0 && pageNumber < totalPages) {
@@ -79,7 +78,7 @@ const MyEventsList = ({ endpoint }) => {
   };
 
   return (
-    <div className="h-full flex justify-center">
+    <div className="h-full flex flex-col justify-between">
       {loading ? (
         <LoadingSection />
       ) : error ? (
