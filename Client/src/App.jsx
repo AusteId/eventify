@@ -6,7 +6,7 @@ import Events from './page/Events';
 import Home from './page/Home';
 import Login from './page/Login';
 import Profile from './page/Profile';
-import Registrations from './page/Registrations';
+import MyRegistrations from './components/myRegistrations/MyRegistrations';
 import AuthenticatedLayout from './components/AuthenticatedLayout';
 import RegistrationLayout from './components/Registration/RegistrationLayout';
 import { useRef, useState } from 'react';
@@ -107,9 +107,9 @@ function App() {
             <Route
               path="/myRegistrations"
               element={
-                <ProtectedRoute allowedRoles={['USER']}>
-                  <Registrations />
-                </ProtectedRoute>
+                // <ProtectedRoute allowedRoles={['USER']}>
+                  <MyRegistrations />
+                // </ProtectedRoute>
               }
             />
             <Route

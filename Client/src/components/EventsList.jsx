@@ -66,9 +66,14 @@ const EventsList = ({ setLoading, loading }) => {
             },
           },
         );
-        console.log('API Response:', response.data);
         setEvents(response.data.content);
         setTotalPages(response.data.totalPages);
+
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+
       } catch (error) {
         console.error('Error fetching data:', error);
         console.log(
@@ -110,7 +115,6 @@ const EventsList = ({ setLoading, loading }) => {
             },
           },
         );
-        console.log('API Response (Map):', response.data);
         setEventsForMap(response.data);
       } catch (error) {
         console.error('Error fetching data for map:', error);
@@ -131,10 +135,6 @@ const EventsList = ({ setLoading, loading }) => {
   const paginate = pageNumber => {
     if (pageNumber >= 0 && pageNumber < totalPages) {
       setCurrentPage(pageNumber);
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
     }
   };
 
