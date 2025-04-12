@@ -90,7 +90,7 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
             : "It looks like you haven’t joined any events yet. Start by browsing upcoming events!"}
         </p>
       ) : (
-        <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
+        <div className="inline-grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-items-center gap-7 gap-x-30">
           {events.map((event, index) => (
             <EventCard key={event.id || index} {...event} />
           ))}
@@ -98,11 +98,13 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
       )}
 
       {totalPages > 1 && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage + 1}
-          paginate={page => paginate(page - 1)}
-        />
+        <div className="mt-6">
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage + 1}
+            paginate={page => paginate(page - 1)}
+          />
+        </div>
       )}
     </div>
   );
