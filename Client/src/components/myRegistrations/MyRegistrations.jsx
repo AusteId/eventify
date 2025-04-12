@@ -26,25 +26,28 @@ const MyRegistrations = () => {
                     My Registrations
                 </h1>
 
-                <div className="tabs mb-6 flex gap-4">
-                    <button
-                        className={`tab tab-bordered px-4 py-2 rounded-lg text-sm font-inter ${activeTab === 'registered'
+
+                <div className="flex justify-center mb-6">
+                    <div className="inline-flex rounded-lg bg-btn/10 p-1 shadow-sm">
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-inter transition-colors duration-200 cursor-pointer ${activeTab === 'registered'
                                 ? 'bg-btn !text-white'
-                                : 'bg-[#FFFFFF] hover:bg-btn/8 !text-body-medium'
-                            }`}
-                        onClick={() => handleTabChange('registered')}
-                    >
-                        Events I’m Attending
-                    </button>
-                    <button
-                        className={`tab tab-bordered px-4 py-2 rounded-lg text-sm font-inter ${activeTab === 'created'
+                                : 'bg-transparent !text-body-medium'
+                                }`}
+                            onClick={() => handleTabChange('registered')}
+                        >
+                            Events I’m Attending
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-inter transition-colors duration-200 cursor-pointer ${activeTab === 'created'
                                 ? 'bg-btn !text-white'
-                                : 'bg-[#FFFFFF] hover:bg-btn/8 !text-body-medium'
-                            }`}
-                        onClick={() => handleTabChange('created')}
-                    >
-                        Events I’ve Created
-                    </button>
+                                : 'bg-transparent !text-body-medium'
+                                }`}
+                            onClick={() => handleTabChange('created')}
+                        >
+                            Events I’ve Created
+                        </button>
+                    </div>
                 </div>
 
                 <div className="h-full w-full">
