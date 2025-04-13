@@ -62,33 +62,52 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuthStatus = useCallback(async () => {
-    //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
-    // const alreadyChecked =
-    //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
-    // if (!alreadyChecked) {
-    //   return;
-    // }
 
-    if (isAuthenticated) return;
-
+    const alreadyChecked =
+      isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
+    if (!alreadyChecked) {
+      return;
+    }
+    
+    if (isAuthenticated && roles.length > 0 && userId) {
+      setIsLoading(false);
+      return;
+    }
+  
     setIsLoading(true);
     try {
+      console.log("Checking authentication status...");
       const response = await fetch('http://localhost:8080/api/users/me', {
         credentials: 'include',
       });
+      
       if (response.ok) {
         const userData = await response.json();
+        console.log("Auth check succeeded:", userData);
+        
         setIsAuthenticated(true);
-        setRoles(userData.roles || []);
+        
+        if (userData.roles && Array.isArray(userData.roles)) {
+          setRoles(userData.roles);
+        } else if (userData.roles) {
+          console.warn("Roles data not in expected format, converting:", userData.roles);
+          setRoles(Array.isArray(userData.roles) ? userData.roles : [userData.roles]);
+        } else {
+          console.warn("No roles found in user data");
+          setRoles([]);
+        }
+        
         setUserId(userData.id || '');
         setBirthDate(userData.birthDate || null);
         sessionStorage.setItem('plsStahp', 'true');
-        console.log({
-          authenticated: true,
+        
+        console.log("Authentication state updated:", {
+          isAuthenticated: true,
           roles: userData.roles || [],
           userId: userData.id || '',
         });
       } else {
+        console.log("Auth check failed with status:", response.status);
         setIsAuthenticated(false);
         setRoles([]);
         setUserId('');
@@ -96,6 +115,7 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem('plsStahp');
       }
     } catch (error) {
+      console.error("Auth check error:", error);
       timeoutForError(error.message || 'Failed to authenticate');
       setIsAuthenticated(false);
       setRoles([]);
@@ -105,14 +125,25 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, roles, userId]);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      localStorage.removeItem("userAvatar")
+      localStorage.removeItem("userAvatar");
     }
     checkAuthStatus();
-  }, []);
+ 
+    const handleRouteChange = () => {
+      console.log("Route changed, checking auth status");
+      checkAuthStatus();
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [checkAuthStatus]);
 
   const login = async credentials => {
     try {

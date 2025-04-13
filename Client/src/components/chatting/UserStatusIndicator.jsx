@@ -9,7 +9,6 @@ const UserStatusIndicator = ({ userId, showLastSeen = false }) => {
   const [avatarSrc, setAvatarSrc] = useState(null);
   
   useEffect(() => {
-    // Check for cached avatar first
     const cachedAvatar = localStorage.getItem(`avatar_${userId}`);
     
     if (cachedAvatar) {
@@ -17,7 +16,6 @@ const UserStatusIndicator = ({ userId, showLastSeen = false }) => {
       return;
     }
     
-    // Otherwise, prepare to fetch it
     const controller = new AbortController();
     const signal = controller.signal;
     

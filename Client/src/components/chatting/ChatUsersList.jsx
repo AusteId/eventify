@@ -121,12 +121,10 @@ const ChatUsersList = ({ onSelectUser }) => {
       const unreadA = getUnreadCount(a.id) || 0;
       const unreadB = getUnreadCount(b.id) || 0;
 
-      // First sort by unread count (descending)
       if (unreadA !== unreadB) {
         return unreadB - unreadA;
       }
 
-      // Then by online status
       const statusA = getUserStatus(a.id)?.status || 'OFFLINE';
       const statusB = getUserStatus(b.id)?.status || 'OFFLINE';
 
@@ -147,7 +145,6 @@ const ChatUsersList = ({ onSelectUser }) => {
         return priorityDiff;
       }
 
-      // Finally by last interaction time
       return new Date(b.lastInteraction) - new Date(a.lastInteraction);
     });
   }, [contacts, getUnreadCount, getUserStatus]);

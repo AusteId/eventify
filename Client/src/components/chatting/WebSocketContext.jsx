@@ -110,7 +110,6 @@ export const WebSocketProvider = ({ children }) => {
       
       setUnreadMessages(formattedCounts);
       
-      // Update notification store with the total count
       const totalCount = Object.values(formattedCounts).reduce((total, count) => total + count, 0);
       notificationStore.setUnreadCount(totalCount);
       
@@ -431,25 +430,20 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, [connected, subscribeToConversation]);
 
-// Replace the markMessagesAsRead function in WebSocketContext.jsx with this improved version:
 
 const markMessagesAsRead = useCallback((senderId) => {
   if (!clientRef.current || !connected || !senderId) return;
 
-  // Track which senders we've already processed to prevent infinite loops
   const processingKey = `processing_read_${senderId}`;
   if (clientRef.current[processingKey]) {
-    return; // Already processing this sender, don't trigger again
+    return; 
   }
   
   try {
-    // Set processing flag
     clientRef.current[processingKey] = true;
     console.log("Marking messages as read from sender:", senderId);
     
-    // Update local state first - optimistic update
     setUnreadMessages(prev => {
-      // Only update if we actually have unread messages
       if (!prev[senderId]) return prev;
       
       const newState = { ...prev };
@@ -457,14 +451,12 @@ const markMessagesAsRead = useCallback((senderId) => {
       return newState;
     });
     
-    // Send read status to server
     clientRef.current.publish({
       destination: `/app/messages/${senderId}/read`,
       body: JSON.stringify({}),
       headers: { "content-type": "application/json" },
     });
 
-    // Update message objects in state
     if (userId) {
       const conversationId = userId < senderId 
         ? `${userId}_${senderId}` 
@@ -473,7 +465,6 @@ const markMessagesAsRead = useCallback((senderId) => {
       setMessages(prev => {
         const conversationMessages = prev[conversationId] || [];
         
-        // Only update if we have messages that need updating
         const hasUnreadMessages = conversationMessages.some(
           msg => msg.senderId === senderId && !msg.read
         );
@@ -494,15 +485,14 @@ const markMessagesAsRead = useCallback((senderId) => {
       });
     }
     
-    // Clear processing flag after a delay
     setTimeout(() => {
       if (clientRef.current) {
         delete clientRef.current[processingKey];
       }
-    }, 2000); // Prevent re-processing for 2 seconds
+    }, 2000);
   } catch (e) {
     console.error("Read receipt error:", e);
-    // Clear flag on error too
+
     if (clientRef.current) {
       delete clientRef.current[processingKey];
     }
@@ -569,7 +559,6 @@ const markMessagesAsRead = useCallback((senderId) => {
 
  
 
-  // Replace the processIncomingMessage function in WebSocketContext.jsx
 const processIncomingMessage = useCallback((data) => {
   const conversationId = data.conversationId;
   
@@ -587,25 +576,19 @@ const processIncomingMessage = useCallback((data) => {
   setMessages((prev) => {
     const existingMessages = prev[conversationId] || [];
   
-    // Generate a consistent message identifier to check for duplicates
     const newMessageId = data.id || `${data.senderId}_${data.timestamp}_${data.content?.substring(0, 20)}`;
     
-    // Check if we already have this message
     const isDuplicate = existingMessages.some(m => {
-      // If IDs match, it's a duplicate
       if (m.id && m.id === data.id && data.id) return true;
       
-      // For messages without IDs or local messages, check content and timing
       if (m.isLocal && 
           m.senderId === data.senderId && 
           m.recipientId === data.recipientId && 
           m.content === data.content) {
-        // Calculate time difference in seconds for timestamp comparison
         const mTime = new Date(m.timestamp).getTime();
         const dTime = new Date(data.timestamp).getTime();
         const timeDiff = Math.abs(mTime - dTime) / 1000;
         
-        // If within 30 seconds, consider it the same message
         return timeDiff < 30;
       }
       
@@ -613,7 +596,6 @@ const processIncomingMessage = useCallback((data) => {
     });
   
     if (isDuplicate) {
-      // Update existing message with server data, preserving any local state we want to keep
       return {
         ...prev,
         [conversationId]: existingMessages.map(msg => {
@@ -625,7 +607,6 @@ const processIncomingMessage = useCallback((data) => {
             return { 
               ...data, 
               id: data.id || msg.id,
-              // Keep read status if the local version was marked read
               read: msg.read || data.read 
             };
           }
@@ -634,7 +615,6 @@ const processIncomingMessage = useCallback((data) => {
       };
     }
 
-    // If it's a new message, add it with a guaranteed ID
     const messageWithId = {
       ...data,
       id: data.id || `gen-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
@@ -646,9 +626,7 @@ const processIncomingMessage = useCallback((data) => {
     };
   });
 
-  // Update unread count and play notification if needed
   if (data.recipientId === userId && !data.read) {
-    // Don't increment if we're actively looking at this conversation
     if (data.senderId !== selectedConversationId) {
       console.log("Incrementing unread count for sender:", data.senderId);
       setUnreadMessages((prev) => ({
@@ -656,7 +634,6 @@ const processIncomingMessage = useCallback((data) => {
         [data.senderId]: (prev[data.senderId] || 0) + 1,
       }));
       
-      // Only play sound for messages from others
       if (data.senderId !== userId) {
         playNotificationSound();
       }
@@ -752,7 +729,6 @@ const processIncomingMessage = useCallback((data) => {
       
       console.log("WebSocket Connected!", frame);
       setConnected(true);
-      // Status subscriptions, ONLINE, OFFLINE, AWAY
 
       const statusSubscription = client.subscribe('/topic/status', (message) => {
         try {
@@ -787,7 +763,6 @@ const processIncomingMessage = useCallback((data) => {
         }
       });
 
-      // Messages subscription
       
       messageSubscriptionRef.current = client.subscribe(`/user/queue/messages`, (message) => {
         try {
@@ -797,7 +772,6 @@ const processIncomingMessage = useCallback((data) => {
         }
       });
 
-      // Is message read subscription
 
       readReceiptSubscriptionRef.current = client.subscribe(`/user/queue/read-receipts`, (message) => {
         try {

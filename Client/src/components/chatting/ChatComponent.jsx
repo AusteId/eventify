@@ -59,7 +59,6 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
       : `${recipientId}_${userId}`;
   }, [userId, recipientId]);
 
-  // Merge and deduplicate messages from WebSocket and local state
   const conversationMessages = useMemo(() => {
     const wsConversation = wsMessages[conversationId] || [];
     
@@ -75,13 +74,10 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
       return [];
     }
     
-    // Create a map to deduplicate messages - use a more reliable unique identifier
     const messageMap = new Map();
   
-    // Process local messages first, then let WebSocket messages override
     localMessages.forEach(msg => {
       if (msg) {
-        // Generate a more reliable key that includes multiple fields to better identify messages
         const key = msg.id || `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`;
         messageMap.set(key, {...msg, _source: 'local'});
       }
@@ -89,11 +85,9 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     
     wsConversation.forEach(msg => {
       if (msg) {
-        // Use the same key pattern for consistency
         const key = msg.id || `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`;
         const existing = messageMap.get(key);
         
-        // WebSocket message overrides local, but preserve read status
         if (existing && existing._source === 'local' && existing.read && !msg.read) {
           messageMap.set(key, {...msg, read: true, _source: 'ws'});
         } else {
@@ -102,11 +96,9 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
       }
     });
     
-    // Convert back to array and filter out any undefined messages
     return Array.from(messageMap.values()).filter(Boolean);
   }, [wsMessages, conversationId, localMessages]);
 
-  // Sort messages by timestamp
   const sortedMessages = useMemo(() => {
     return [...conversationMessages].sort((a, b) => {
       const timeA = new Date(a.timestamp || 0);
@@ -115,12 +107,10 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     });
   }, [conversationMessages]);
 
-  // Function to fetch and cache recipient avatar
   const fetchRecipientAvatar = useCallback(async () => {
     if (!recipientId) return;
     
     try {
-      // Check if we have it cached in localStorage
       const cachedAvatar = localStorage.getItem(`avatar_${recipientId}`);
       
       if (cachedAvatar) {
@@ -128,7 +118,6 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
         return;
       }
       
-      // Otherwise fetch it
       const avatarUrl = `http://localhost:8080/api/users/${recipientId}/avatar`;
       const response = await fetch(avatarUrl);
       
@@ -139,7 +128,6 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
         reader.onloadend = () => {
           const base64data = reader.result;
           setRecipientAvatar(base64data);
-          // Cache it
           localStorage.setItem(`avatar_${recipientId}`, base64data);
         };
         
@@ -153,15 +141,12 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     }
   }, [recipientId]);
 
-  // Set active conversation when connected
   useEffect(() => {
     if (connected && conversationId) {
       setActiveConversation(conversationId);
     }
   }, [connected, conversationId, setActiveConversation]);
 
-  // Fetch messages from the server
-// Replace the fetchMessages function in ChatComponent.jsx
 const fetchMessages = useCallback(async (pageToLoad = 0) => {
   if (!userId || !recipientId) {
     setLoading(false);
@@ -170,8 +155,6 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     return Promise.resolve();
   }
   
-  // Only prevent requests for the exact same page if we're already loading
-  // Don't block different page requests
   if (loading && pageToLoad === page && pageToLoad !== page + 1) {
     console.log(`Already loading page ${pageToLoad}, skipping redundant fetch`);
     return Promise.resolve();
@@ -207,21 +190,16 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
         Array.isArray(data) ? `Array response with ${data.length} messages` : 
         'Unexpected data format');
       
-      // IMPORTANT: Always update the page number after a successful fetch
-      // This was missing before and could cause the same page to be loaded repeatedly
       setPage(pageToLoad);
       
       if (data.content) {
-        // Handle paginated response
         const newMessages = data.content;
         
-        // Only update hasMoreMessages if we have clarity (data.last is defined)
         if (typeof data.last === 'boolean') {
           const moreAvailable = newMessages.length > 0 && !data.last;
           console.log(`Setting hasMoreMessages=${moreAvailable} based on data.last=${data.last}`);
           setHasMoreMessages(moreAvailable);
         } else {
-          // Fallback logic based on message count
           const moreAvailable = newMessages.length === 20;
           console.log(`Setting hasMoreMessages=${moreAvailable} based on message count`);
           setHasMoreMessages(moreAvailable);
@@ -230,14 +208,12 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
         if (pageToLoad === 0) {
           setLocalMessages(newMessages);
         } else {
-          // Add a marker to distinguish these newly loaded messages
           const markedMessages = newMessages.map(msg => ({
             ...msg,
             _page: pageToLoad
           }));
           
           setLocalMessages(prev => {
-            // Deduplicate by ID when merging
             const existingIds = new Set(prev.map(m => m.id));
             const uniqueNewMessages = markedMessages.filter(m => !existingIds.has(m.id));
             
@@ -246,10 +222,8 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
           });
         }
       } else if (Array.isArray(data)) {
-        // Handle non-paginated array response
         console.log(`Received ${data.length} messages for page ${pageToLoad}`);
         
-        // Determine if more messages are available
         const moreAvailable = data.length === 20;
         console.log(`Setting hasMoreMessages=${moreAvailable} based on message count`);
         setHasMoreMessages(moreAvailable);
@@ -257,14 +231,12 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
         if (pageToLoad === 0) {
           setLocalMessages(data);
         } else {
-          // Add page marker
           const markedMessages = data.map(msg => ({
             ...msg,
             _page: pageToLoad
           }));
           
           setLocalMessages(prev => {
-            // Deduplicate by ID when merging
             const existingIds = new Set(prev.map(m => m.id));
             const uniqueNewMessages = markedMessages.filter(m => !existingIds.has(m.id));
             
@@ -290,42 +262,33 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     setLoadError(err.message || "Error loading messages");
     return Promise.reject(err);
   } finally {
-    // ALWAYS reset loading states, regardless of success or failure
     setLoading(false);
     setIsLoadingMore(false);
     setIsLoadingOlder(false);
   }
 }, [userId, recipientId, authFetch, url, loading, page]);
 
-  // Load more messages when scrolling to top
   const loadMoreMessages = useCallback(() => {
     if (!hasMoreMessages || isLoadingMore || isLoadingOlder) return;
   
     const scrollContainer = chatContainerRef.current;
     if (!scrollContainer) return;
     
-    // CRITICAL: Make sure we're capturing the CURRENT scroll position
     const currentScrollHeight = scrollContainer.scrollHeight;
     const currentScrollTop = scrollContainer.scrollTop;
     
     console.log("LOAD MORE: Capturing scroll position:", currentScrollTop);
     
-    // Store these values in refs for later use
     scrollHeightBeforeLoadRef.current = currentScrollHeight;
     scrollTopBeforeLoadRef.current = currentScrollTop;
     
-    // Set loading states
     setIsLoadingOlder(true);
     setIsLoadingMore(true);
     
-    // IMPORTANT CHANGE: We need to load the next page relative to what we have
-    // If initial load was page 0, then next should be page 1
-    // React state updates aren't immediate, so use the current page value + 1
     const nextPageToLoad = page + 1;
     
     console.log("LOAD MORE: Will load page:", nextPageToLoad);
     
-    // Make the request
     const endpoint = `${url}/api/messages/${userId}/${recipientId}?page=${nextPageToLoad}&size=20`;
     
     authFetch(endpoint)
@@ -338,7 +301,6 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
       .then(data => {
         console.log(`LOAD MORE: Success! Got data for page ${nextPageToLoad}`);
         
-        // Check if we got new messages or just the same ones we already have
         let newMessages = [];
         
         if (data.content) {
@@ -353,38 +315,32 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
           return;
         }
         
-        // The key change: Check if the messages are actually new
         if (newMessages.length > 0) {
-          // Update page state ONLY after confirming we have new messages
           setPage(nextPageToLoad);
           
-          // Update hasMoreMessages
           const hasMore = data.content 
             ? (newMessages.length > 0 && !data.last)
             : (newMessages.length === 20);
           
           setHasMoreMessages(hasMore);
           
-          // Add new messages to state
           const markedMessages = newMessages.map(msg => ({
             ...msg,
             _page: nextPageToLoad
           }));
           
           setLocalMessages(prev => {
-            // Check if these are actually new messages
             const existingIds = new Set(prev.map(m => m.id));
             const uniqueNewMessages = markedMessages.filter(m => !existingIds.has(m.id));
             
             console.log(`Adding ${uniqueNewMessages.length} new unique messages from page ${nextPageToLoad}`);
             
             if (uniqueNewMessages.length === 0) {
-              // If we didn't get any new messages, try loading the next page automatically
               console.log("No new unique messages found, trying next page");
               setTimeout(() => {
                 setIsLoadingOlder(false);
                 setIsLoadingMore(false);
-                loadMoreMessages(); // Recursively try the next page
+                loadMoreMessages(); 
               }, 100);
               return prev;
             }
@@ -393,7 +349,6 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
           });
         }
         
-        // Handle scroll position
         setTimeout(() => {
           if (scrollContainer) {
             const newScrollHeight = scrollContainer.scrollHeight;
@@ -407,7 +362,6 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
             }, 500);
           }
           
-          // Reset loading states
           setIsLoadingOlder(false);
           setIsLoadingMore(false);
         }, 100);
@@ -427,20 +381,18 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     scrollPositionRef.current = container.scrollTop;
   }, []);  
 
-  // Reset when recipient changes
   useEffect(() => {
     if (!userId || !recipientId) return;
   
     if (previousRecipientId.current !== recipientId) {
       setLocalMessages([]);
       setHasLoadedMessages(false);
-      setPage(0); // Keep this as 0 for the initial load
+      setPage(0); 
       setHasMoreMessages(true);
       setIsLoadingOlder(false); 
       initialScrollDoneRef.current = false;
       previousRecipientId.current = recipientId;
       
-      // Fetch recipient avatar when recipient changes
       fetchRecipientAvatar();
   
       setMessages(prev => {
@@ -456,7 +408,6 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     }
   }, [userId, recipientId, fetchMessages, hasLoadedMessages, conversationId, setMessages, fetchRecipientAvatar]);
 
-  // Add scroll event listener
   useEffect(() => {
     const chatContainer = chatContainerRef.current;
     if (chatContainer) {
@@ -465,10 +416,9 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     }
   }, [handleScroll]);
 
-  // Scroll to bottom after sending a message
 useEffect(() => {
   const scrollToBottom = () => {
-    // Check our global flag - don't scroll if disabled
+
     if (window._disableAutoScroll) {
       console.log("AUTO SCROLL: Prevented by _disableAutoScroll flag");
       return;
@@ -480,8 +430,6 @@ useEffect(() => {
     }
   };
 
-  // Only auto-scroll if the new message is from the current user
-  // and we're not loading older messages
   if (
     previousMessagesLength.current < sortedMessages.length && 
     sortedMessages.length > 0 &&
@@ -495,10 +443,8 @@ useEffect(() => {
   previousMessagesLength.current = sortedMessages.length;
 }, [sortedMessages, userId, isLoadingOlder]);
 
-  // Initial scroll to bottom when opening a chat
   useEffect(() => {
     const scrollToBottom = () => {
-      // Check our global flag - don't scroll if disabled
       if (window._disableAutoScroll) {
         console.log("INITIAL SCROLL: Prevented by _disableAutoScroll flag");
         return;
@@ -525,7 +471,7 @@ useEffect(() => {
   }, [conversationId, recipientId, sortedMessages.length, isLoadingOlder]);
   
 
-  // Maintain scroll position when loading older messages
+
   useEffect(() => {
     if (!chatContainerRef.current) return;
     
@@ -533,23 +479,20 @@ useEffect(() => {
     const container = chatContainerRef.current;
     
     if (isLoadingOlder && messageCount > previousMessagesLength.current) {
-      // Prevent initial scroll-to-bottom effect from firing
+
       initialScrollDoneRef.current = true;
       
-      // Capture this in a local variable to ensure it's preserved in the callback
       const currentScrollHeightBefore = scrollHeightBeforeLoadRef.current;
       const currentScrollTopBefore = scrollTopBeforeLoadRef.current;
       
-      // Use requestAnimationFrame for better timing
       requestAnimationFrame(() => {
-        // Wrap in setTimeout to ensure DOM is fully updated
+
         setTimeout(() => {
           if (!container) return;
           
           const newScrollHeight = container.scrollHeight;
           const heightDifference = newScrollHeight - currentScrollHeightBefore;
           
-          // Calculate the new scroll position
           const newScrollPosition = currentScrollTopBefore + heightDifference;
           
           console.log(`Maintaining scroll position after loading more messages:
@@ -559,14 +502,11 @@ useEffect(() => {
             - Previous position: ${currentScrollTopBefore}
             - New position: ${newScrollPosition}`);
           
-          // Set the scroll position and prevent any other scroll effects
           container.scrollTop = newScrollPosition;
           
-          // Add a flag to prevent other scroll effects from overriding this
           const preventScrollOverride = true;
           container._preventScrollOverride = preventScrollOverride;
           
-          // Create a timeout to remove the prevention flag after a short delay
           setTimeout(() => {
             if (container) container._preventScrollOverride = false;
           }, 300);
@@ -584,7 +524,7 @@ useEffect(() => {
     previousMessagesLength.current = messageCount;
   }, [sortedMessages.length, isLoadingMore, isLoadingOlder]);
 
-  // Format last seen time
+
   const getLastSeenText = useCallback(() => {
     const status = getUserStatus(recipientId);
     if (!status || status.status !== "OFFLINE" || !status.lastSeen) return null;
@@ -597,7 +537,6 @@ useEffect(() => {
     }
   }, [recipientId, getUserStatus]);
 
-  // Get user status
   const getUserStatusText = useCallback(() => {
     const status = getUserStatus(recipientId);
     if (!status) return "Offline";
@@ -614,7 +553,6 @@ useEffect(() => {
     }
   }, [recipientId, getUserStatus]);
   
-  // Handle typing status updates
   const handleTyping = useCallback((newMessage) => {
     if (!conversationId) return;
     
@@ -635,14 +573,12 @@ useEffect(() => {
     }
   }, [conversationId, isTyping, updateTypingStatus]);
 
-  // Handle input changes and trigger typing indicator
   const handleInputChange = (e) => {
     const newMessage = e.target.value;
     setMessage(newMessage);
     if (connected) handleTyping(newMessage);
   };
 
-  // Send message
   const handleSendMessage = () => {
     if (!message.trim() || !connected || !recipientId) {
       return;
@@ -655,7 +591,6 @@ useEffect(() => {
       setIsTyping(false);
       updateTypingStatus(conversationId, false);
       
-      // Ensure scroll to bottom after sending
       setTimeout(() => {
         if (messageEndRef.current) {
           messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -664,7 +599,6 @@ useEffect(() => {
     }
   };
 
-  // Handle keypress for sending with Enter
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -672,10 +606,8 @@ useEffect(() => {
     }
   };
   
-  // Scroll to bottom when receiving new messages
   useEffect(() => {
     const handleNewMessage = () => {
-      // Check our global flag - don't scroll if disabled
       if (window._disableAutoScroll) {
         console.log("NEW MESSAGE SCROLL: Prevented by _disableAutoScroll flag");
         return;
@@ -699,36 +631,28 @@ useEffect(() => {
     handleNewMessage();
   }, [sortedMessages.length, isLoadingOlder]);
 
-  // Mark messages as read
   useEffect(() => {
-    // Create a ref to track if the effect is already running
     
     const markAsRead = () => {
-      if (isRunningRef.current) return; // Prevent concurrent execution
+      if (isRunningRef.current) return; 
       
       const unreadMessages = conversationMessages.filter(
         msg => msg.senderId === recipientId && !msg.read
       );
       
       if (unreadMessages.length > 0 && recipientId && connected && !isRunningRef.current) {
-        // Set flag to prevent concurrent execution
         isRunningRef.current = true;
         
-        // Create a unique key for this conversation
         const conversationKey = userId < recipientId 
           ? `${userId}_${recipientId}` 
           : `${recipientId}_${userId}`;
         
-        // Store this in component state so we don't rely on window
         const lastMarkTime = lastMarkTimeRef.current[conversationKey] || 0;
         const now = Date.now();
         
-        // Throttle to prevent rapid consecutive calls
         if (now - lastMarkTime > 3000) {
-          // Update the timestamp
           lastMarkTimeRef.current[conversationKey] = now;
           
-          // Optimistically update the local state
           setLocalMessages(prev => {
             return prev.map(msg => 
               (msg.senderId === recipientId && !msg.read) 
@@ -737,33 +661,27 @@ useEffect(() => {
             );
           });
           
-          // Call the API to mark as read
           markMessagesAsRead(recipientId);
           
-          // If we have a way to update unread counts, do it directly
           if (fetchUnreadMessageCounts) {
             setTimeout(fetchUnreadMessageCounts, 1000);
           }
         }
         
-        // Reset flag after a delay
         setTimeout(() => {
           isRunningRef.current = false;
         }, 1000);
       }
     };
     
-    // Initialize the ref if needed
     if (!lastMarkTimeRef.current) {
       lastMarkTimeRef.current = {};
     }
     
-    // Call once when the component mounts or recipientId changes
-    if (recipientId && connected) {
+   if (recipientId && connected) {
       markAsRead();
     }
     
-    // Set up an interval to check occasionally (useful for real-time updates)
     const intervalId = setInterval(() => {
       if (recipientId && connected) {
         markAsRead();
@@ -776,7 +694,6 @@ useEffect(() => {
     };
   }, [conversationMessages, markMessagesAsRead, recipientId, connected, userId, fetchUnreadMessageCounts]);
 
-  // Setup typing subscription
   useEffect(() => {
     if (!connected || !conversationId) return;
     
@@ -808,14 +725,11 @@ useEffect(() => {
     );
     
     if (unreadMessages.length > 0 && recipientId && connected) {
-      // Add a check to prevent repeated calls
       const conversationKey = `${userId}_${recipientId}`;
       const now = Date.now();
       const lastMarkReadTime = window.lastMarkReadTimes?.[conversationKey] || 0;
       
-      // Only mark as read if it's been more than 2 seconds since last time
       if (now - lastMarkReadTime > 2000) {
-        // Track when we last marked this conversation as read
         if (!window.lastMarkReadTimes) window.lastMarkReadTimes = {};
         window.lastMarkReadTimes[conversationKey] = now;
         

@@ -10,7 +10,6 @@ const WebSocketStatusBadge = () => {
     let timeout;
     
     if (connected) {
-      // When connected, show for 3 seconds then fade out
       timeout = setTimeout(() => {
         setAnimating(true);
 
@@ -20,7 +19,6 @@ const WebSocketStatusBadge = () => {
         }, 1000);
       }, 3000);
     } else {
-      // When disconnected, always show
       setVisible(true);
       setAnimating(false);
     }
