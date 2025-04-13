@@ -83,7 +83,7 @@ const EventCard = ({
           error.response?.data,
           error.response?.status,
         );
-        setImageData(null);
+        setImageData('./src/assets/eventCardImgSample.png');
       } finally {
         setIsImageLoading(false);
       }

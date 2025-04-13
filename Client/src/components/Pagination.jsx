@@ -51,7 +51,7 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
       <button
         onClick={() => paginate(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`px-6 py-3 bg-white text-black rounded-full mr-2 transition-all duration-300 transform hover:scale-105 ${currentPage === 1 ? 'opacity-50 bg-[#F3E3C7] cursor-not-allowed' : 'hover:bg-[#DFA238]'} shadow-md`}
+        className={`px-6 py-3 bg-white text-black rounded-full mr-2 transition-all duration-300 transform hover:scale-105 ${currentPage === 1 ? 'opacity-50 bg-[#F3E3C7] cursor-not-allowed' : 'hover:bg-[#DFA238] cursor-pointer'} shadow-md`}
       >
         &lt;&lt;
       </button>
@@ -62,10 +62,10 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
           onClick={() => page !== '...' && paginate(page)}
           disabled={page === '...' || page === currentPage}
           className={`px-4 py-2 transition-all duration-300 transform shadow-md ${page === '...'
-              ? 'bg-[#f3f4f6] text-gray-400 cursor-default'
-              : page === currentPage
-                ? 'bg-[#DFA238] text-white cursor-default'
-                : 'bg-[#F3E3C7] text-black hover:bg-[#DFA238] hover:scale-105'
+            ? 'bg-[#f3f4f6] text-gray-400 cursor-default'
+            : page === currentPage
+              ? 'bg-[#DFA238] text-white cursor-default'
+              : 'bg-[#F3E3C7] text-black hover:bg-[#DFA238] hover:scale-105 cursor-pointer'
             } rounded-md mx-1`}
         >
           {page}
@@ -75,7 +75,7 @@ const Pagination = ({ totalPages, currentPage, paginate }) => {
       <button
         onClick={() => paginate(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`px-6 py-3 bg-white text-black rounded-full ml-2 transition-all duration-300 transform hover:scale-105 ${currentPage === totalPages ? 'opacity-50 bg-[#F3E3C7] cursor-not-allowed' : 'hover:bg-[#DFA238]'} shadow-md`}
+        className={`px-6 py-3 bg-white text-black rounded-full ml-2 transition-all duration-300 transform hover:scale-105 ${currentPage === totalPages ? 'opacity-50 bg-[#F3E3C7] cursor-not-allowed' : 'hover:bg-[#DFA238] cursor-pointer'} shadow-md`}
       >
         &gt;&gt;
       </button>
