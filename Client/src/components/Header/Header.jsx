@@ -7,7 +7,7 @@ import {
   UserPlus,
   UsersRound,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
@@ -19,6 +19,8 @@ const Header = ({ loading, currentStep }) => {
   const [activeLink, setActiveLink] = useState('');
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+
+
 
   const navLinks = [
     { name: 'Home', href: '/', auth: false },

@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router';
 import { useFormContext } from 'react-hook-form';
 import Button from '../Button';
 import CategoryImage from '../category/CategoryImage';
-import { useNotification } from '../context/NotificationContext';
+import { useNotifications } from '../context/NotificationContext';
 import LoadingScreen from '../message/LoadingScreen';
 
 const RegistrationThirdStep = forwardRef((props, ref) => {
@@ -12,7 +12,7 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const {timeoutForError,url} = useNotification();
+  const {timeoutForError,url} = useNotifications();
 
   RegistrationThirdStep.displayName = 'RegistrationThirdStep';
 

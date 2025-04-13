@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import FieldValidationError from '../components/FieldValidationError';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../components/Auth/AuthContext';
-import { useNotification } from '../components/context/NotificationContext';
+import { useNotifications } from '../components/context/NotificationContext';
 import { useState } from 'react';
 import LoadingScreen from '../components/message/LoadingScreen';
 import toast from 'react-hot-toast';
@@ -15,7 +15,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const { timeoutForSuccess, timeoutForError } = useNotification();
+  const { timeoutForSuccess, timeoutForError } = useNotifications();
   const { login, loading } = useAuth();
  
   const navigate = useNavigate();

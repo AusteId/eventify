@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import { useWebSocket } from "./WebSocketContext";
 import UserStatusIndicator from "./UserStatusIndicator";
-import { useNotification } from "../context/NotificationContext";
+import {useNotifications } from "../context/NotificationContext";
 import MessageComponent from "./MessageComponent";
 import defaultAvatar from "../../assets/default-user-image.png";
 import { formatDistanceToNow, format } from "date-fns";
@@ -27,7 +27,7 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
   const lastMarkTimeRef = useRef({});
   const isRunningRef = useRef(false);
   
-  const { url } = useNotification();
+  const { url } = useNotifications();
   const { userId: authUserId, authFetch } = useAuth();
   const {
     connected,
@@ -60,6 +60,8 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
   }, [userId, recipientId]);
 
   const conversationMessages = useMemo(() => {
+    if (!conversationId) return [];
+    
     const wsConversation = wsMessages[conversationId] || [];
     
     if (localMessages.length === 0 && wsConversation.length > 0) {
@@ -78,24 +80,53 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
   
     localMessages.forEach(msg => {
       if (msg) {
-        const key = msg.id || `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`;
+
+        const key = msg.id || 
+                   (msg.tempId ? `temp_${msg.tempId}` : 
+                   `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`);
+        
         messageMap.set(key, {...msg, _source: 'local'});
       }
     });
     
+
     wsConversation.forEach(msg => {
       if (msg) {
-        const key = msg.id || `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`;
-        const existing = messageMap.get(key);
+        let key = msg.id;
         
-        if (existing && existing._source === 'local' && existing.read && !msg.read) {
-          messageMap.set(key, {...msg, read: true, _source: 'ws'});
+        if (!key || key.startsWith('temp-')) {
+
+          const potentialLocalKeys = Array.from(messageMap.keys()).filter(k => 
+            k.includes(`${msg.senderId}_`) && k.includes(`_${msg.content?.substring(0, 20)}`)
+          );
+          
+          if (potentialLocalKeys.length > 0) {
+            key = potentialLocalKeys[0]; 
+          } else {
+            key = msg.id || `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`;
+          }
+        }
+        
+        const existing = messageMap.get(key);
+
+        if (existing && existing._source === 'local') {
+          if (existing.read && !msg.read) {
+            messageMap.set(key, {...msg, read: true, _source: 'ws'});
+          } else if (existing.isLocal && !msg.isLocal) {
+            messageMap.set(key, {...msg, _source: 'ws'});
+          } else {
+            messageMap.set(key, {
+              ...msg, 
+              _source: 'ws',
+              read: existing.read || msg.read
+            });
+          }
         } else {
           messageMap.set(key, {...msg, _source: 'ws'});
         }
       }
     });
-    
+
     return Array.from(messageMap.values()).filter(Boolean);
   }, [wsMessages, conversationId, localMessages]);
 

@@ -1,21 +1,28 @@
-import { useEffect, useState } from 'react';
 import defaultAvatar from '../../assets/profile-picture.webp';
 import { useAuth } from '../Auth/AuthContext';
-import notificationStore from '../NotificationStore';
+import { useNotifications } from '../context/NotificationContext';
+import { useEffect, useRef } from 'react';
 
 const HeaderProfilePicture = () => {
   const { avatar } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(notificationStore.getUnreadCount());
-  
+  const { unreadCount, fetchUnreadCount } = useNotifications();
+  const hasInitializedRef = useRef(false);
+
   useEffect(() => {
-    const unsubscribe = notificationStore.subscribe(count => {
-      setUnreadCount(count);
-    });
+    if (hasInitializedRef.current) return;
     
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+    hasInitializedRef.current = true;
+    
+    try {
+      const storedCount = localStorage.getItem('eventify_unread_count');
+      if (!storedCount) {
+        fetchUnreadCount(true);
+      }
+    } catch (e) {
+      console.error("Error in HeaderProfilePicture:", e);
+    }
+    
+  }, [fetchUnreadCount]);
 
   return (
     <div className="avatar relative">

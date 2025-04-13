@@ -7,7 +7,7 @@ import {
 } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router';
-import { useNotification } from '../context/NotificationContext';
+import { useNotifications } from '../context/NotificationContext';
 
 const AuthContext = createContext();
 
@@ -18,8 +18,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setIsLoading] = useState(true);
   const [profileImg, setProfileImg] = useState('');
   const [birthDate, setBirthDate] = useState(null);
-
-  const { timeoutForError } = useNotification();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         setAvatar(base64); 
       }
     } catch (error) {
-      timeoutForError(error.message || 'Failed to load avatar');
+      toast(error.message || 'Failed to load avatar');
     }
   };
   

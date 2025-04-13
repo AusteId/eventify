@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../Auth/AuthContext';
-import { useNotification } from '../context/NotificationContext';
+import { useNotifications } from '../context/NotificationContext';
 import { useWebSocket } from './WebSocketContext';
 import UserStatusIndicator from './UserStatusIndicator';
 import { formatDistanceToNow } from 'date-fns';
@@ -17,7 +17,7 @@ const ChatUsersList = ({ onSelectUser }) => {
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   const { authFetch, userId: currentUserId, avatar } = useAuth();
-  const { url, timeoutForError } = useNotification();
+  const { url, timeoutForError } = useNotifications();
   const { getUnreadCount, getUserStatus } = useWebSocket();
 
   const listRef = useRef(null);

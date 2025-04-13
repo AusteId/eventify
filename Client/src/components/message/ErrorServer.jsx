@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNotification } from "../context/NotificationContext";
+import { useNotifications } from "../context/NotificationContext";
 
 const ErrorServer = () => {
-    const { error, setError } = useNotification();
+    const { error, setError } = useNotifications();
     const [isVisible, setIsVisible] = useState(false);
    
   

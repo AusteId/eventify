@@ -1,9 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useAuth } from "../Auth/AuthContext";
-import { useNotification } from "../context/NotificationContext";
+import { useNotifications } from "../context/NotificationContext";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import notificationStore from '../NotificationStore';
+
 
 const WebSocketContext = createContext();
 
@@ -11,7 +11,7 @@ export const useWebSocket = () => useContext(WebSocketContext);
 
 export const WebSocketProvider = ({ children }) => {
   const { isAuthenticated, userId,authFetch } = useAuth();
-  const { url, timeoutForError } = useNotification();
+  const { url, timeoutForError,updateUnreadCount } = useNotifications();
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState({});
   const [typingUsers, setTypingUsers] = useState({});
@@ -82,14 +82,15 @@ export const WebSocketProvider = ({ children }) => {
     if (!isAuthenticated) return;
     
     const now = Date.now();
-    if (now - lastUnreadFetchTimeRef.current < FETCH_THROTTLE_MS) {
+
+    if (now - lastUnreadFetchTimeRef.current < 1000) {
       return;
     }
     
     lastUnreadFetchTimeRef.current = now;
     
     try {
-      console.log("Fetching unread message counts");
+      console.log("WS: Fetching unread message counts");
       const response = await authFetch(`${url}/api/messages/unread`);
       
       if (!response || !response.ok) {
@@ -99,39 +100,43 @@ export const WebSocketProvider = ({ children }) => {
       
       const data = await response.json();
       
-      if (Object.keys(data).length > 0) {
-        console.log("Received unread message counts:", data);
-      }
-      
       const formattedCounts = {};
       Object.keys(data).forEach(senderId => {
         formattedCounts[parseInt(senderId)] = data[senderId];
       });
-      
+
       setUnreadMessages(formattedCounts);
-      
+
       const totalCount = Object.values(formattedCounts).reduce((total, count) => total + count, 0);
-      notificationStore.setUnreadCount(totalCount);
+      console.log("WS: Total unread count:", totalCount);
+
+      updateUnreadCount(totalCount);
+
+      try {
+        localStorage.setItem('eventify_unread_count', totalCount.toString());
+      } catch (e) {
+        console.error("Error saving to localStorage:", e);
+      }
       
     } catch (e) {
       console.error("Error fetching unread message counts:", e);
     }
-  }, [isAuthenticated, authFetch, url]);
-
+  }, [isAuthenticated, authFetch, url, updateUnreadCount]);
+ 
   useEffect(() => {
+  if (isAuthenticated) {
 
-    if (isAuthenticated) {
+    fetchUnreadMessageCounts();
+  }
+  
+  const intervalId = setInterval(() => {
+    if (isAuthenticated && connected) {
       fetchUnreadMessageCounts();
     }
-    
-    const intervalId = setInterval(() => {
-      if (isAuthenticated && connected) {
-        fetchUnreadMessageCounts();
-      }
-    }, 60000); 
-    
-    return () => clearInterval(intervalId);
-  }, [isAuthenticated, connected, fetchUnreadMessageCounts]);
+  }, 60000); 
+  
+  return () => clearInterval(intervalId);
+}, [isAuthenticated, connected, fetchUnreadMessageCounts]);
 
 
 
@@ -150,31 +155,33 @@ export const WebSocketProvider = ({ children }) => {
         setUnreadMessages(unreadData);
 
         const totalUnread = Object.values(unreadData).reduce((sum, count) => sum + count, 0);
-        notificationStore.setUnreadCount(totalUnread);
       }
     } catch (e) {
       console.error("Error loading messages from localStorage:", e);
     }
   }, [isAuthenticated]);
 
-  const playNotificationSound = useCallback(() => {
-    try {
-      const audio = new Audio("/assets/messages/notification.wav");
-      audio.volume = 0.5;
-  
+ const playNotificationSound = useCallback(() => {
+  try {
+    const audio = new Audio("/assets/messages/notification.wav");
+    audio.volume = 0.5;
+    console.log("Playing notification sound");
+    
+    audio.addEventListener('canplaythrough', () => {
       const playPromise = audio.play();
-  
       if (playPromise !== undefined) {
-        playPromise
-          .catch(error => {
-            console.log("Audio playback prevented:", error.message);
-          });
+        playPromise.catch(error => {
+          console.log("Audio playback prevented:", error.message);
+        });
       }
-    } catch (error) {
-      console.log("Unable to play notification sound:", error.message);
-    }
-  }, []);
-
+    });
+    audio.addEventListener('error', (e) => {
+      console.error("Audio error:", e);
+    });
+  } catch (error) {
+    console.log("Unable to play notification sound:", error.message);
+  }
+}, []);
   const handleReadReceipt = useCallback((message) => {
     try {
       console.log("Received read receipt:", message.body);
@@ -373,6 +380,7 @@ export const WebSocketProvider = ({ children }) => {
     if (!clientRef.current || !connected || !recipientId || !content.trim()) {
       console.error("Cannot send message, invalid state:", { 
         connected, 
+        hasClient: Boolean(clientRef.current),
         hasRecipient: Boolean(recipientId),
         hasContent: Boolean(content.trim())
       });
@@ -384,9 +392,11 @@ export const WebSocketProvider = ({ children }) => {
       const conversationId = userId < recipientId 
         ? `${userId}_${recipientId}` 
         : `${recipientId}_${userId}`;
-        
+      
+      const tempId = "temp-" + Date.now() + "-" + Math.random().toString(36).substring(2, 9);
       const placeholderMsg = {
-        id: "temp-" + Date.now(),
+        id: tempId,
+        tempId: tempId,  
         senderId: userId,
         recipientId: recipientId,
         content: content.trim(),
@@ -395,28 +405,44 @@ export const WebSocketProvider = ({ children }) => {
         read: false,
         senderName: "You", 
         isLocal: true,
-        status: "sending" 
+        status: "sending"
       };
-
+  
       if (!conversationSubscriptions.current?.[conversationId]) {
+        console.log("Subscribing to conversation for sending message:", conversationId);
         subscribeToConversation(conversationId);
       }
-  
-      setMessages(prev => ({
-        ...prev,
-        [conversationId]: [...(prev[conversationId] || []), placeholderMsg]
-      }));
 
-      clientRef.current.publish({
-        destination: `/app/chat/${recipientId}`,
-        body: JSON.stringify({ recipientId, content: content.trim() }),
-        headers: { "content-type": "application/json" },
+      console.log("Adding local message with tempId:", tempId);
+      setMessages(prev => {
+        const existing = prev[conversationId] || [];
+        return {
+          ...prev,
+          [conversationId]: [...existing, placeholderMsg]
+        };
       });
+
+      setTimeout(() => {
+        if (clientRef.current && connected) {
+          console.log("Publishing message to server with tempId:", tempId);
+          clientRef.current.publish({
+            destination: `/app/chat/${recipientId}`,
+            body: JSON.stringify({ 
+              recipientId, 
+              content: content.trim(),
+              tempId,
+              conversationId  
+            }),
+            headers: { "content-type": "application/json" },
+          });
+        } else {
+          console.error("Client disconnected before message could be sent");
+        }
+      }, 50);
       
       return true;
     } catch (e) {
       console.error("Send message error:", e);
-
       timeoutForError("Failed to send message. Please try again.");
       return false;
     }
@@ -430,32 +456,44 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, [connected, subscribeToConversation]);
 
+  const updateTotalUnreadCount = useCallback((unreadMessagesObj) => {
+    const totalCount = Object.values(unreadMessagesObj || unreadMessages).reduce(
+      (total, count) => total + count, 0
+    );
 
-const markMessagesAsRead = useCallback((senderId) => {
-  if (!clientRef.current || !connected || !senderId) return;
-
-  const processingKey = `processing_read_${senderId}`;
-  if (clientRef.current[processingKey]) {
-    return; 
-  }
+    updateUnreadCount(totalCount);
+  }, [unreadMessages, updateUnreadCount]);
   
-  try {
-    clientRef.current[processingKey] = true;
-    console.log("Marking messages as read from sender:", senderId);
+
+  const markMessagesAsRead = useCallback((senderId) => {
+    if (!clientRef.current || !connected || !senderId) return;
+  
+    const processingKey = `processing_read_${senderId}`;
+    if (clientRef.current[processingKey]) {
+      return; 
+    }
     
-    setUnreadMessages(prev => {
-      if (!prev[senderId]) return prev;
+    try {
+      clientRef.current[processingKey] = true;
+      console.log("Marking messages as read from sender:", senderId);
       
-      const newState = { ...prev };
-      delete newState[senderId];
-      return newState;
-    });
-    
-    clientRef.current.publish({
-      destination: `/app/messages/${senderId}/read`,
-      body: JSON.stringify({}),
-      headers: { "content-type": "application/json" },
-    });
+      setUnreadMessages(prev => {
+        if (!prev[senderId]) return prev;
+        
+        const newState = { ...prev };
+        delete newState[senderId];
+        
+        // Update total count
+        updateTotalUnreadCount(newState);
+        
+        return newState;
+      });
+      
+      clientRef.current.publish({
+        destination: `/app/messages/${senderId}/read`,
+        body: JSON.stringify({}),
+        headers: { "content-type": "application/json" },
+      });
 
     if (userId) {
       const conversationId = userId < senderId 
@@ -523,12 +561,12 @@ const markMessagesAsRead = useCallback((senderId) => {
   }, [unreadMessages]);
 
   const getTotalUnreadCount = useCallback(() => {
-    const totalCount = Object.values(unreadMessages).reduce((total, count) => total + count, 0);
-    
-    notificationStore.setUnreadCount(totalCount);
-    
+    const totalCount = Object.values(unreadMessages).reduce(
+      (total, count) => total + count, 0
+    );
+      
     return totalCount;
-  }, [unreadMessages]);
+  }, [unreadMessages, updateTotalUnreadCount]);
 
   const getUserStatus = useCallback((userId) => {
     const status = userStatuses[userId] || { 
@@ -559,92 +597,111 @@ const markMessagesAsRead = useCallback((senderId) => {
 
  
 
-const processIncomingMessage = useCallback((data) => {
-  const conversationId = data.conversationId;
-  
-  if (!conversationId) {
-    console.error("Message missing conversationId:", data);
-    return;
-  }
-
-  if (!conversationSubscriptions.current?.[conversationId]) {
-    subscribeToConversation(conversationId);
-  }
-  
-  console.log("Processing message for conversation:", conversationId);
-  
-  setMessages((prev) => {
-    const existingMessages = prev[conversationId] || [];
-  
-    const newMessageId = data.id || `${data.senderId}_${data.timestamp}_${data.content?.substring(0, 20)}`;
+  const processIncomingMessage = useCallback((data) => {
+    if (!data) {
+      console.error("Received empty message data");
+      return;
+    }
     
-    const isDuplicate = existingMessages.some(m => {
-      if (m.id && m.id === data.id && data.id) return true;
-      
-      if (m.isLocal && 
-          m.senderId === data.senderId && 
-          m.recipientId === data.recipientId && 
-          m.content === data.content) {
-        const mTime = new Date(m.timestamp).getTime();
-        const dTime = new Date(data.timestamp).getTime();
-        const timeDiff = Math.abs(mTime - dTime) / 1000;
-        
-        return timeDiff < 30;
-      }
-      
-      return false;
-    });
+    const conversationId = data.conversationId;
+    
+    if (!conversationId) {
+      console.error("Message missing conversationId:", data);
+      return;
+    }
   
-    if (isDuplicate) {
-      return {
-        ...prev,
-        [conversationId]: existingMessages.map(msg => {
-          if ((msg.id && msg.id === data.id) || 
-              (msg.isLocal && 
-               msg.senderId === data.senderId && 
-               msg.recipientId === data.recipientId && 
-               msg.content === data.content)) {
-            return { 
-              ...data, 
-              id: data.id || msg.id,
-              read: msg.read || data.read 
-            };
-          }
-          return msg;
-        })
-      };
+    console.log("Processing incoming message for conversation:", conversationId, data);
+
+    if (!conversationSubscriptions.current?.[conversationId]) {
+      console.log("Subscribing to conversation on message receive:", conversationId);
+      subscribeToConversation(conversationId);
     }
 
-    const messageWithId = {
-      ...data,
-      id: data.id || `gen-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
-    };
-  
-    return {
-      ...prev,
-      [conversationId]: [...existingMessages, messageWithId],
-    };
-  });
-
-  if (data.recipientId === userId && !data.read) {
-    if (data.senderId !== selectedConversationId) {
-      console.log("Incrementing unread count for sender:", data.senderId);
-      setUnreadMessages((prev) => ({
-        ...prev,
-        [data.senderId]: (prev[data.senderId] || 0) + 1,
-      }));
+    if (data.recipientId === userId && !data.read) {
+      const isChatActive = window.location.pathname.includes('/chat');
+      const isCurrentConversation = selectedConversationId === conversationId;
       
       if (data.senderId !== userId) {
+        console.log("Playing notification sound for new message");
         playNotificationSound();
       }
+      
+      if (!isChatActive || !isCurrentConversation) {
+        console.log("Incrementing unread count for sender:", data.senderId);
+  
+        setUnreadMessages((prev) => {
+          const newUnreadMessages = {
+            ...prev,
+            [data.senderId]: (prev[data.senderId] || 0) + 1,
+          };
+  
+          const newTotal = Object.values(newUnreadMessages).reduce((sum, count) => sum + count, 0);
+          console.log("New total unread count:", newTotal);
+          updateUnreadCount(newTotal);
+  
+          try {
+            localStorage.setItem('eventify_unread_count', newTotal.toString());
+          } catch (e) {
+            console.error("Error saving to localStorage:", e);
+          }
+          
+          return newUnreadMessages;
+        });
+      } else if (isCurrentConversation) {
+        console.log("Marking messages as read because conversation is active:", conversationId);
+        markMessagesAsRead(data.senderId);
+      }
     }
-  }
-}, [userId, selectedConversationId, subscribeToConversation, playNotificationSound]);
+
+    setMessages((prev) => {
+      const existingMessages = prev[conversationId] || [];
+
+      const isDuplicate = existingMessages.some(msg => 
+        msg.id === data.id || 
+        (msg.senderId === data.senderId && 
+         msg.content === data.content && 
+         Math.abs(new Date(msg.timestamp || 0) - new Date(data.timestamp || 0)) < 5000)
+      );
+      
+      if (isDuplicate) {
+        console.log("Duplicate message detected, updating existing message");
+        return {
+          ...prev,
+          [conversationId]: existingMessages.map(msg => 
+            (msg.id === data.id || 
+            (msg.isLocal && msg.senderId === data.senderId && 
+             msg.content === data.content)) 
+              ? { ...data, id: data.id || msg.id, read: msg.read || data.read } 
+              : msg
+          )
+        };
+      }
+      
+      console.log("Adding new message to conversation:", conversationId);
+      return {
+        ...prev,
+        [conversationId]: [...existingMessages, data],
+      };
+    });
+  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound, updateUnreadCount, markMessagesAsRead]);
 
   const handleNewMessage = useCallback((message) => {
     try {
-      console.log("Received message:", message.body);
-      const data = JSON.parse(message.body);
+      console.log("Received message from WebSocket:", message.body);
+      let data;
+      
+      try {
+        data = JSON.parse(message.body);
+      } catch (parseError) {
+        console.error("Failed to parse message JSON:", parseError);
+        return;
+      }
+      
+      if (!data) {
+        console.error("Empty data after parsing message");
+        return;
+      }
+      
       const conversationId = data.conversationId;
       
       if (!conversationId) {
@@ -652,48 +709,70 @@ const processIncomingMessage = useCallback((data) => {
         return;
       }
   
+      console.log("Processing WebSocket message for conversation:", conversationId);
+
       if (!conversationSubscriptions.current?.[conversationId]) {
+        console.log("Subscribing to conversation on message receive:", conversationId);
         subscribeToConversation(conversationId);
       }
       
-      console.log("Processing message for conversation:", conversationId);
-      
       setMessages((prev) => {
         const existingMessages = prev[conversationId] || [];
+
+        const existingMessage = existingMessages.find(m => {
+
+          if (m.id === data.id && data.id) return true;
+ 
+          if (m.isLocal && data.tempId && m.id === data.tempId) return true;
+
+          if (m.senderId === data.senderId && 
+              m.content === data.content && 
+              m.recipientId === data.recipientId) {
+            const msgTime = new Date(m.timestamp || 0).getTime();
+            const dataTime = new Date(data.timestamp || 0).getTime();
+            return Math.abs(msgTime - dataTime) < 5000; 
+          }
+          
+          return false;
+        });
         
-        const isDuplicate = existingMessages.some(m => 
-          (m.id === data.id) || 
-          (m.isLocal && 
-           m.senderId === data.senderId && 
-           m.recipientId === data.recipientId && 
-           m.content === data.content && 
-           Math.abs(new Date(m.timestamp) - new Date(data.timestamp)) < 10000)
-        );
-        
-        if (isDuplicate) {
-          console.log("Duplicate message detected, updating existing:", data.id);
+        if (existingMessage) {
+          console.log("Message already exists, updating:", data.id);
+          
           return {
             ...prev,
-            [conversationId]: existingMessages.map(msg => 
-              (msg.id === data.id || 
-               (msg.isLocal && msg.senderId === data.senderId && 
-                msg.recipientId === data.recipientId && 
-                msg.content === data.content)) 
-                ? { ...msg, ...data, id: data.id || msg.id } 
-                : msg
-            )
+            [conversationId]: existingMessages.map(msg => {
+              if (msg.id === data.id || 
+                  (msg.isLocal && data.tempId && msg.id === data.tempId) ||
+                  (msg.senderId === data.senderId && 
+                   msg.content === data.content && 
+                   msg.recipientId === data.recipientId &&
+                   Math.abs(new Date(msg.timestamp || 0) - new Date(data.timestamp || 0)) < 5000)) {
+                return { 
+                  ...data, 
+                  id: data.id || msg.id,
+                  read: msg.read || data.read,
+                  isLocal: false
+                };
+              }
+              return msg;
+            })
           };
         }
-
+  
+        console.log("Adding new message to conversation:", conversationId);
         return {
           ...prev,
           [conversationId]: [...existingMessages, data],
         };
       });
+
+      processIncomingMessage(data);
+      
     } catch (e) {
-      console.error("New message handling error:", e);
+      console.error("Error handling new message:", e);
     }
-  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound]);
+  }, [subscribeToConversation, processIncomingMessage]);
 
   useEffect(() => {
     if (!isAuthenticated || !userId) {
@@ -781,38 +860,91 @@ const processIncomingMessage = useCallback((data) => {
         }
       });
 
-      ackSubscriptionRef.current = client.subscribe(`/user/queue/ack`, (ack) => {
-        try {
-          const data = JSON.parse(ack.body);
-          console.log("Message acknowledgment received:", data);
-          
-          setMessages((prev) => {
-            const updatedMessages = { ...prev };
+
+
+ackSubscriptionRef.current = client.subscribe(`/user/queue/ack`, (ack) => {
+  try {
+    const data = JSON.parse(ack.body);
+    console.log("Message acknowledgment received:", data);
+    
+    if (!data.messageId || (!data.tempId && !data.conversationId)) {
+      console.error("Incomplete ack data:", data);
+      return;
+    }
+
+    setTimeout(() => {
+      console.log("Processing ack for message:", data.messageId, "tempId:", data.tempId);
+      
+      setMessages((prev) => {
+        const updatedMessages = { ...prev };
+        let foundConversation = null;
+        let foundMessage = false;
+
+        if (data.tempId) {
+          Object.keys(updatedMessages).forEach(conversationId => {
+            if (foundMessage) return;
             
-            Object.keys(updatedMessages).forEach(conversationId => {
-              const conversationMessages = updatedMessages[conversationId];
-              
-              const updatedConversation = conversationMessages.map(msg => {
-                if (msg.isLocal) {
-                  return {
-                    ...msg,
-                    id: data.messageId, 
-                    isLocal: false,     
-                    timestamp: data.timestamp 
-                  };
-                }
-                return msg;
-              });
-              
-              updatedMessages[conversationId] = updatedConversation;
-            });
+            const conversationMessages = updatedMessages[conversationId];
+            const messageIndex = conversationMessages.findIndex(msg => 
+              msg.isLocal && (msg.id === data.tempId || msg.tempId === data.tempId)
+            );
             
-            return updatedMessages;
+            if (messageIndex >= 0) {
+              foundConversation = conversationId;
+              foundMessage = true;
+
+              conversationMessages[messageIndex] = {
+                ...conversationMessages[messageIndex],
+                id: data.messageId,
+                isLocal: false,
+                status: "delivered",
+                timestamp: data.timestamp || conversationMessages[messageIndex].timestamp
+              };
+            }
           });
-        } catch (e) {
-          console.error("Error handling acknowledgment", e);
         }
+        
+        if (!foundMessage && data.conversationId) {
+          const conversationId = data.conversationId;
+          if (updatedMessages[conversationId]) {
+
+            const recentMessages = updatedMessages[conversationId]
+              .filter(msg => msg.isLocal && !msg.id.includes('-'))
+              .slice(-5); 
+              
+            if (recentMessages.length > 0) {
+              foundConversation = conversationId;
+
+              const mostRecentLocal = recentMessages[recentMessages.length - 1];
+              const msgIndex = updatedMessages[conversationId].findIndex(m => m.id === mostRecentLocal.id);
+              
+              if (msgIndex >= 0) {
+                updatedMessages[conversationId][msgIndex] = {
+                  ...updatedMessages[conversationId][msgIndex],
+                  id: data.messageId,
+                  isLocal: false,
+                  status: "delivered",
+                  timestamp: data.timestamp || updatedMessages[conversationId][msgIndex].timestamp
+                };
+                foundMessage = true;
+              }
+            }
+          }
+        }
+        
+        if (!foundMessage) {
+          console.warn("Could not find local message to update for ack:", data);
+        } else {
+          console.log("Updated message in conversation:", foundConversation);
+        }
+        
+        return updatedMessages;
       });
+    }, 50);
+  } catch (e) {
+    console.error("Error handling acknowledgment", e);
+  }
+});
 
       Object.keys(messages).forEach(conversationId => {
         subscribeToConversation(conversationId);
