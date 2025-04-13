@@ -133,12 +133,28 @@ public class UserStatusService {
 
     public void broadcastStatusUpdate(Long userId) {
         try {
+            if (!userRepository.existsById(userId)) {
+                logger.warn("Cannot broadcast status for user {}: user does not exist", userId);
+                return;
+            }
+            
             UserStatusDTO statusDTO = getUserStatusWithDetails(userId);
             logger.debug("Broadcasting status update for user: {}", userId);
             messagingTemplate.convertAndSend("/topic/status", statusDTO);
+
             List<UserStatusDTO> allStatuses = getAllOnlineUsers().stream()
-                    .map(status -> getUserStatusWithDetails(status.getUserId()))
-                            .toList();
+                    .filter(status -> userRepository.existsById(status.getUserId()))
+                    .map(status -> {
+                        try {
+                            return getUserStatusWithDetails(status.getUserId());
+                        } catch (NotFoundException e) {
+                            logger.warn("Skipping user {} in status broadcast: {}", status.getUserId(), e.getMessage());
+                            return null;
+                        }
+                    })
+                    .filter(dto -> dto != null)
+                    .toList();
+
             messagingTemplate.convertAndSend("/topic/status/all", allStatuses);
         } catch (Exception e) {
             logger.error("Error broadcasting status update: ", e);

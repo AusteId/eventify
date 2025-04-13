@@ -1,6 +1,8 @@
 import { Outlet, useLocation } from 'react-router';
 import Header from './Header/Header';
 import { useAuth } from './Auth/AuthContext';
+import NotificationInitializer from './NotificationInitializer';
+
 
 const AuthenticatedLayout = ({ currentStep }) => {
   const location = useLocation();
@@ -10,6 +12,7 @@ const AuthenticatedLayout = ({ currentStep }) => {
 
   return (
     <div className="min-h-full flex flex-col">
+      <NotificationInitializer />
       <Header currentStep={currentStep} loading={loading} />
       <div className="flex-1">
         <Outlet />

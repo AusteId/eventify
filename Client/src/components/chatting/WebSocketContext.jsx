@@ -3,6 +3,7 @@ import { useAuth } from "../Auth/AuthContext";
 import { useNotification } from "../context/NotificationContext";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import notificationStore from '../NotificationStore';
 
 const WebSocketContext = createContext();
 
@@ -88,7 +89,6 @@ export const WebSocketProvider = ({ children }) => {
     lastUnreadFetchTimeRef.current = now;
     
     try {
-
       console.log("Fetching unread message counts");
       const response = await authFetch(`${url}/api/messages/unread`);
       
@@ -98,7 +98,7 @@ export const WebSocketProvider = ({ children }) => {
       }
       
       const data = await response.json();
-
+      
       if (Object.keys(data).length > 0) {
         console.log("Received unread message counts:", data);
       }
@@ -109,6 +109,11 @@ export const WebSocketProvider = ({ children }) => {
       });
       
       setUnreadMessages(formattedCounts);
+      
+      // Update notification store with the total count
+      const totalCount = Object.values(formattedCounts).reduce((total, count) => total + count, 0);
+      notificationStore.setUnreadCount(totalCount);
+      
     } catch (e) {
       console.error("Error fetching unread message counts:", e);
     }
@@ -142,7 +147,11 @@ export const WebSocketProvider = ({ children }) => {
       }
       
       if (savedUnread) {
-        setUnreadMessages(JSON.parse(savedUnread));
+        const unreadData = JSON.parse(savedUnread);
+        setUnreadMessages(unreadData);
+
+        const totalUnread = Object.values(unreadData).reduce((sum, count) => sum + count, 0);
+        notificationStore.setUnreadCount(totalUnread);
       }
     } catch (e) {
       console.error("Error loading messages from localStorage:", e);
@@ -422,55 +431,83 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, [connected, subscribeToConversation]);
 
-  const markMessagesAsRead = useCallback((senderId) => {
-    if (!clientRef.current || !connected) return;
-  
-    try {
-      console.log("Marking messages as read from sender:", senderId);
-      
-      setUnreadMessages((prev) => {
-        const newState = { ...prev };
-        delete newState[senderId];
-        return newState;
-      });
+// Replace the markMessagesAsRead function in WebSocketContext.jsx with this improved version:
 
-      if (fetchUnreadMessageCounts) {
-        setTimeout(fetchUnreadMessageCounts, 100);
-      }
-      
-      clientRef.current.publish({
-        destination: `/app/messages/${senderId}/read`,
-        body: JSON.stringify({}),
-        headers: { "content-type": "application/json" },
-      });
+const markMessagesAsRead = useCallback((senderId) => {
+  if (!clientRef.current || !connected || !senderId) return;
+
+  // Track which senders we've already processed to prevent infinite loops
+  const processingKey = `processing_read_${senderId}`;
+  if (clientRef.current[processingKey]) {
+    return; // Already processing this sender, don't trigger again
+  }
   
-      if (userId) {
-        const conversationId = userId < senderId 
-          ? `${userId}_${senderId}` 
-          : `${senderId}_${userId}`;
-          
-        setMessages(prev => {
-          const conversationMessages = prev[conversationId] || [];
-          
-          if (conversationMessages.length === 0) return prev;
-          
-          const updatedMessages = conversationMessages.map(msg => {
-            if (msg.senderId === senderId && !msg.read) {
-              return { ...msg, read: true };
-            }
-            return msg;
-          });
-          
-          return {
-            ...prev,
-            [conversationId]: updatedMessages
-          };
+  try {
+    // Set processing flag
+    clientRef.current[processingKey] = true;
+    console.log("Marking messages as read from sender:", senderId);
+    
+    // Update local state first - optimistic update
+    setUnreadMessages(prev => {
+      // Only update if we actually have unread messages
+      if (!prev[senderId]) return prev;
+      
+      const newState = { ...prev };
+      delete newState[senderId];
+      return newState;
+    });
+    
+    // Send read status to server
+    clientRef.current.publish({
+      destination: `/app/messages/${senderId}/read`,
+      body: JSON.stringify({}),
+      headers: { "content-type": "application/json" },
+    });
+
+    // Update message objects in state
+    if (userId) {
+      const conversationId = userId < senderId 
+        ? `${userId}_${senderId}` 
+        : `${senderId}_${userId}`;
+        
+      setMessages(prev => {
+        const conversationMessages = prev[conversationId] || [];
+        
+        // Only update if we have messages that need updating
+        const hasUnreadMessages = conversationMessages.some(
+          msg => msg.senderId === senderId && !msg.read
+        );
+        
+        if (!hasUnreadMessages) return prev;
+        
+        const updatedMessages = conversationMessages.map(msg => {
+          if (msg.senderId === senderId && !msg.read) {
+            return { ...msg, read: true };
+          }
+          return msg;
         });
-      }
-    } catch (e) {
-      console.error("Read receipt error:", e);
+        
+        return {
+          ...prev,
+          [conversationId]: updatedMessages
+        };
+      });
     }
-  }, [connected, userId]);
+    
+    // Clear processing flag after a delay
+    setTimeout(() => {
+      if (clientRef.current) {
+        delete clientRef.current[processingKey];
+      }
+    }, 2000); // Prevent re-processing for 2 seconds
+  } catch (e) {
+    console.error("Read receipt error:", e);
+    // Clear flag on error too
+    if (clientRef.current) {
+      delete clientRef.current[processingKey];
+    }
+  }
+}, [connected, userId]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -496,7 +533,11 @@ export const WebSocketProvider = ({ children }) => {
   }, [unreadMessages]);
 
   const getTotalUnreadCount = useCallback(() => {
-    return Object.values(unreadMessages).reduce((total, count) => total + count, 0);
+    const totalCount = Object.values(unreadMessages).reduce((total, count) => total + count, 0);
+    
+    notificationStore.setUnreadCount(totalCount);
+    
+    return totalCount;
   }, [unreadMessages]);
 
   const getUserStatus = useCallback((userId) => {
@@ -528,66 +569,100 @@ export const WebSocketProvider = ({ children }) => {
 
  
 
-  const processIncomingMessage = useCallback((data) => {
-    const conversationId = data.conversationId;
-    
-    if (!conversationId) {
-      console.error("Message missing conversationId:", data);
-      return;
-    }
+  // Replace the processIncomingMessage function in WebSocketContext.jsx
+const processIncomingMessage = useCallback((data) => {
+  const conversationId = data.conversationId;
   
-    if (!conversationSubscriptions.current?.[conversationId]) {
-      subscribeToConversation(conversationId);
-    }
+  if (!conversationId) {
+    console.error("Message missing conversationId:", data);
+    return;
+  }
+
+  if (!conversationSubscriptions.current?.[conversationId]) {
+    subscribeToConversation(conversationId);
+  }
+  
+  console.log("Processing message for conversation:", conversationId);
+  
+  setMessages((prev) => {
+    const existingMessages = prev[conversationId] || [];
+  
+    // Generate a consistent message identifier to check for duplicates
+    const newMessageId = data.id || `${data.senderId}_${data.timestamp}_${data.content?.substring(0, 20)}`;
     
-    console.log("Processing message for conversation:", conversationId);
-    
-    setMessages((prev) => {
-      const existingMessages = prev[conversationId] || [];
-    
-      const isDuplicate = existingMessages.some(m => 
-        (m.id === data.id) || 
-        (m.isLocal && 
-         m.senderId === data.senderId && 
-         m.recipientId === data.recipientId && 
-         m.content === data.content && 
-         Math.abs(new Date(m.timestamp) - new Date(data.timestamp)) < 10000)
-      );
-    
-      if (isDuplicate) {
-        console.log("Duplicate message detected, updating existing", data.id);
-        return {
-          ...prev,
-          [conversationId]: existingMessages.map(msg => 
-            (msg.id === data.id || 
-             (msg.isLocal && msg.senderId === data.senderId && 
-              msg.recipientId === data.recipientId && 
-              msg.content === data.content)) 
-              ? { ...data, id: data.id || msg.id } 
-              : msg
-          )
-        };
+    // Check if we already have this message
+    const isDuplicate = existingMessages.some(m => {
+      // If IDs match, it's a duplicate
+      if (m.id && m.id === data.id && data.id) return true;
+      
+      // For messages without IDs or local messages, check content and timing
+      if (m.isLocal && 
+          m.senderId === data.senderId && 
+          m.recipientId === data.recipientId && 
+          m.content === data.content) {
+        // Calculate time difference in seconds for timestamp comparison
+        const mTime = new Date(m.timestamp).getTime();
+        const dTime = new Date(data.timestamp).getTime();
+        const timeDiff = Math.abs(mTime - dTime) / 1000;
+        
+        // If within 30 seconds, consider it the same message
+        return timeDiff < 30;
       }
-    
-      console.log("Adding message to state:", data.id);
-      return {
-        ...prev,
-        [conversationId]: [...existingMessages, data],
-      };
+      
+      return false;
     });
   
-    if (data.recipientId === userId && !data.read) {
+    if (isDuplicate) {
+      // Update existing message with server data, preserving any local state we want to keep
+      return {
+        ...prev,
+        [conversationId]: existingMessages.map(msg => {
+          if ((msg.id && msg.id === data.id) || 
+              (msg.isLocal && 
+               msg.senderId === data.senderId && 
+               msg.recipientId === data.recipientId && 
+               msg.content === data.content)) {
+            return { 
+              ...data, 
+              id: data.id || msg.id,
+              // Keep read status if the local version was marked read
+              read: msg.read || data.read 
+            };
+          }
+          return msg;
+        })
+      };
+    }
+
+    // If it's a new message, add it with a guaranteed ID
+    const messageWithId = {
+      ...data,
+      id: data.id || `gen-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+    };
+  
+    return {
+      ...prev,
+      [conversationId]: [...existingMessages, messageWithId],
+    };
+  });
+
+  // Update unread count and play notification if needed
+  if (data.recipientId === userId && !data.read) {
+    // Don't increment if we're actively looking at this conversation
+    if (data.senderId !== selectedConversationId) {
       console.log("Incrementing unread count for sender:", data.senderId);
       setUnreadMessages((prev) => ({
         ...prev,
         [data.senderId]: (prev[data.senderId] || 0) + 1,
       }));
       
-      if (data.senderId !== userId && data.senderId !== selectedConversationId) {
+      // Only play sound for messages from others
+      if (data.senderId !== userId) {
         playNotificationSound();
       }
     }
-  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound]);
+  }
+}, [userId, selectedConversationId, subscribeToConversation, playNotificationSound]);
 
   const handleNewMessage = useCallback((message) => {
     try {

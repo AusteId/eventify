@@ -9,28 +9,33 @@ import Profile from './page/Profile';
 import MyRegistrations from './components/myRegistrations/MyRegistrations';
 import AuthenticatedLayout from './components/AuthenticatedLayout';
 import RegistrationLayout from './components/Registration/RegistrationLayout';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import RegistrationFirstStep from './components/Registration/RegistrationFirstStep';
 import RegistrationSecondStep from './components/Registration/RegistrationSecondStep';
 import RegistrationThirdStep from './components/Registration/RegistrationThirdStep';
 import RegistrationFourthStep from './components/Registration/RegistrationFourthStep';
 
 import ProtectedRoute from './components/Auth/ProtectedRoute';
-import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
+import ProtectedRouteLoggedIn from './components/Auth/ProtectedRoute';
 import { WebSocketProvider } from './components/chatting/WebSocketContext';
 import Chat from './components/chatting/Chat';
 import Event from './page/Event';
 
 import BasicModal from './components/BasicModal';
 import CreateEventForm from './components/CreateEventForm';
+import { useAuth } from './components/Auth/AuthContext';
+import LazyWebSocketProvider from './components/chatting/LazyWebSocketProvider';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
   // Registration step moved to here so it could be accessed by header
   const [currentStep, setCurrentStep] = useState(1);
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="">
+      {isAuthenticated && <LazyWebSocketProvider />}
+      
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>
