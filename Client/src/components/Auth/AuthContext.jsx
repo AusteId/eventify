@@ -166,6 +166,7 @@ export const AuthProvider = ({ children }) => {
       setUserId('');
       sessionStorage.removeItem('plsStahp');
       localStorage.removeItem("userAvatar")
+      localStorage.clear()
       setAvatar(null)
       setIsLoading(false);
     }

@@ -24,12 +24,49 @@ import { useAuth } from './components/Auth/AuthContext';
 import LazyWebSocketProvider from './components/chatting/LazyWebSocketProvider';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import notificationStore from './components/NotificationStore';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
   // Registration step moved to here so it could be accessed by header
   const [currentStep, setCurrentStep] = useState(1);
   const { isAuthenticated } = useAuth();
+  const [initialized, setInitialized] = useState(false);
+
+
+  useEffect(() => {
+    if (isAuthenticated && !initialized) {
+
+      const timer = setTimeout(() => {
+        try {
+          const fetchUnread = async () => {
+            try {
+              const response = await fetch('http://localhost:8080/api/messages/unread', {
+                credentials: 'include'
+              });
+              
+              if (response && response.ok) {
+                const data = await response.json();
+                const totalCount = Object.values(data).reduce((sum, count) => sum + count, 0);
+                notificationStore.setUnreadCount(totalCount);
+                console.log("App initialization: loaded notifications", totalCount);
+              }
+            } catch (e) {
+              console.error("Error initializing notifications in App:", e);
+            }
+            setInitialized(true);
+          };
+          
+          fetchUnread();
+        } catch (e) {
+          console.error("Error in notification initialization:", e);
+          setInitialized(true);
+        }
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, initialized]);
 
   return (
     <div className="">
