@@ -434,7 +434,6 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
       <div className="p-3 border-b flex items-center justify-between bg-gray-50">
   <div className="flex items-center flex-col sm:flex-row">
     <div className="flex items-center">
-      <UserStatusIndicator userId={recipientId} />
       <span className="ml-2 font-semibold">{recipientUsername}</span>
       {isUserTyping(recipientId, conversationId) && (
         <span className="ml-2 text-gray-500 text-sm italic animate-pulse">typing...</span>

@@ -1,5 +1,6 @@
 import { useWebSocket } from "./WebSocketContext";
 import { formatDistanceToNow } from "date-fns";
+import defaultAvatar from "../../assets/default-user-image.png"
 
 const UserStatusIndicator = ({ userId, showLastSeen = false }) => {
   const { getUserStatus } = useWebSocket();
@@ -45,8 +46,17 @@ const UserStatusIndicator = ({ userId, showLastSeen = false }) => {
 
   return (
     <div className="flex items-center">
-      <div className={`w-3 h-3 rounded-full ${getStatusColor()}`}></div>
-      
+      <div className={`relative w-3 h-3 rounded-full ${getStatusColor()}`}></div>
+                              <img
+                              src={`http://localhost:8080/api/users/${userId}/avatar`}
+                              onError={e => {
+                                e.target.onerror = null;
+                                e.target.src =
+                                  defaultAvatar;
+                              }}
+                              className='w-[40px] rounded-full'
+                              alt="user avatar"
+                            />
       {showLastSeen && (
         <div className="ml-2 text-xs text-gray-500">
           {userStatus.status === "OFFLINE" ? getLastSeenText() : getStatusLabel()}

@@ -108,6 +108,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      localStorage.removeItem("userAvatar")
+    }
     checkAuthStatus();
   }, []);
 
