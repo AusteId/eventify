@@ -103,15 +103,13 @@ function App() {
             <Route
               path="/profile"
               element={
-                <ProtectedRoute allowedRoles={['USER']}>
                   <Profile />
-                </ProtectedRoute>
               }
             />
             <Route
               path="/myRegistrations"
               element={
-                // <ProtectedRoute allowedRoles={['USER']}>
+                // <ProtectedRoute allowedRoles={['USER','ADMIN']}>
                 <MyRegistrations />
                 // </ProtectedRoute>
               }
@@ -120,11 +118,9 @@ function App() {
             <Route
               path="/chat"
               element={
-                <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
                   <WebSocketProvider>
                     <Chat />
                   </WebSocketProvider>
-                </ProtectedRoute>
               }
             />
             <Route path="/about" element={<About />} />
