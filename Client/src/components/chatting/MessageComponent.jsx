@@ -47,7 +47,7 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
         </div>
       ); 
     } else {
-      return <span className="text-xs text-gray-400">Delivered</span>;
+      return <span className="text-xs text-gray-600">Delivered</span>;
     }
   };
 
