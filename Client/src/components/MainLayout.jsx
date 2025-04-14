@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router';
-import Header from './Header/Header';
 import Footer from './Footer';
 import ErrorServer from './message/ErrorServer';
 import Success from './message/Success';

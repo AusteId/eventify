@@ -5,7 +5,7 @@ import email from '../../assets/userRegistration/email-Icon.svg';
 import password from '../../assets/userRegistration/password-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
 import Button from '../Button';
-import { useNotification } from '../context/NotificationContext';
+import { useNotifications } from '../context/NotificationContext';
 import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
 
@@ -15,7 +15,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [emailError, setEmailError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
-  const { timeoutForError, url } = useNotification();
+  const { timeoutForError, url } = useNotifications();
   const [isLoading, setIsLoading] = useState(false);
 
   RegistrationFirstStep.displayName = 'RegistrationFirstStep';

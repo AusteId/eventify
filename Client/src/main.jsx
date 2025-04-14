@@ -11,12 +11,12 @@ import 'leaflet/dist/leaflet.css';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <NotificationProvider>
-        <AuthProvider>
-          <App />
-          <Toaster />
-        </AuthProvider>
-      </NotificationProvider>
+      <AuthProvider>
+        <NotificationProvider>
+            <App />
+            <Toaster />
+        </NotificationProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

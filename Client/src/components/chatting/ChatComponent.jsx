@@ -2,9 +2,11 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import { useWebSocket } from "./WebSocketContext";
 import UserStatusIndicator from "./UserStatusIndicator";
-import { format } from "date-fns";
-import { useNotification } from "../context/NotificationContext";
+import {useNotifications } from "../context/NotificationContext";
 import MessageComponent from "./MessageComponent";
+import defaultAvatar from "../../assets/default-user-image.png";
+import { formatDistanceToNow, format } from "date-fns";
+import "../../assets/scrollbar.css";
 
 const ChatComponent = ({ recipientId, recipientUsername }) => {
   const [message, setMessage] = useState("");
@@ -17,12 +19,15 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const [recipientAvatar, setRecipientAvatar] = useState(null);
   const previousMessagesLength = useRef(0);
   const scrollPositionRef = useRef(0);
   const scrollHeightBeforeLoadRef = useRef(0);
   const scrollTopBeforeLoadRef = useRef(0);
+  const lastMarkTimeRef = useRef({});
+  const isRunningRef = useRef(false);
   
-  const { url } = useNotification();
+  const { url } = useNotifications();
   const { userId: authUserId, authFetch } = useAuth();
   const {
     connected,
@@ -34,6 +39,7 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     messages: wsMessages,
     setActiveConversation,
     setMessages,
+    getUserStatus,
     fetchUnreadMessageCounts
   } = useWebSocket();
 
@@ -54,15 +60,15 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
   }, [userId, recipientId]);
 
   const conversationMessages = useMemo(() => {
+    if (!conversationId) return [];
+    
     const wsConversation = wsMessages[conversationId] || [];
     
     if (localMessages.length === 0 && wsConversation.length > 0) {
-      console.log(`Using ${wsConversation.length} WebSocket messages only`);
       return wsConversation;
     }
     
     if (wsConversation.length === 0 && localMessages.length > 0) {
-      console.log(`Using ${localMessages.length} local messages only`);
       return localMessages;
     }
     
@@ -70,22 +76,58 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
       return [];
     }
     
-    console.log(`Merging ${wsConversation.length} WS and ${localMessages.length} local messages`);
-    
     const messageMap = new Map();
-
+  
     localMessages.forEach(msg => {
-      if (msg && msg.id) {
-        messageMap.set(msg.id, msg);
-      }
-    });
-    wsConversation.forEach(msg => {
-      if (msg && msg.id) {
-        messageMap.set(msg.id, msg);
+      if (msg) {
+
+        const key = msg.id || 
+                   (msg.tempId ? `temp_${msg.tempId}` : 
+                   `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`);
+        
+        messageMap.set(key, {...msg, _source: 'local'});
       }
     });
     
-    return Array.from(messageMap.values());
+
+    wsConversation.forEach(msg => {
+      if (msg) {
+        let key = msg.id;
+        
+        if (!key || key.startsWith('temp-')) {
+
+          const potentialLocalKeys = Array.from(messageMap.keys()).filter(k => 
+            k.includes(`${msg.senderId}_`) && k.includes(`_${msg.content?.substring(0, 20)}`)
+          );
+          
+          if (potentialLocalKeys.length > 0) {
+            key = potentialLocalKeys[0]; 
+          } else {
+            key = msg.id || `${msg.senderId}_${msg.timestamp}_${msg.content?.substring(0, 20)}`;
+          }
+        }
+        
+        const existing = messageMap.get(key);
+
+        if (existing && existing._source === 'local') {
+          if (existing.read && !msg.read) {
+            messageMap.set(key, {...msg, read: true, _source: 'ws'});
+          } else if (existing.isLocal && !msg.isLocal) {
+            messageMap.set(key, {...msg, _source: 'ws'});
+          } else {
+            messageMap.set(key, {
+              ...msg, 
+              _source: 'ws',
+              read: existing.read || msg.read
+            });
+          }
+        } else {
+          messageMap.set(key, {...msg, _source: 'ws'});
+        }
+      }
+    });
+
+    return Array.from(messageMap.values()).filter(Boolean);
   }, [wsMessages, conversationId, localMessages]);
 
   const sortedMessages = useMemo(() => {
@@ -96,17 +138,39 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     });
   }, [conversationMessages]);
 
-  const renderMessageStatus = (msg) => {
-    if (msg.senderId != userId) return null;
+  const fetchRecipientAvatar = useCallback(async () => {
+    if (!recipientId) return;
     
-    if (msg.isLocal) {
-      return <span className="ml-1 text-xs text-blue-200">Sending</span>; 
-    } else if (msg.read) {
-      return <span className="ml-1 text-xs text-blue-200">Read</span>; 
-    } else {
-      return <span className="ml-1 text-xs text-blue-200">Delivered</span>;
+    try {
+      const cachedAvatar = localStorage.getItem(`avatar_${recipientId}`);
+      
+      if (cachedAvatar) {
+        setRecipientAvatar(cachedAvatar);
+        return;
+      }
+      
+      const avatarUrl = `http://localhost:8080/api/users/${recipientId}/avatar`;
+      const response = await fetch(avatarUrl);
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        reader.onloadend = () => {
+          const base64data = reader.result;
+          setRecipientAvatar(base64data);
+          localStorage.setItem(`avatar_${recipientId}`, base64data);
+        };
+        
+        reader.readAsDataURL(blob);
+      } else {
+        setRecipientAvatar(defaultAvatar);
+      }
+    } catch (error) {
+      console.error("Error loading recipient avatar:", error);
+      setRecipientAvatar(defaultAvatar);
     }
-  };
+  }, [recipientId]);
 
   useEffect(() => {
     if (connected && conversationId) {
@@ -114,127 +178,254 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     }
   }, [connected, conversationId, setActiveConversation]);
 
-  const fetchMessages = useCallback(async (pageToLoad = 0) => {
-    if (!userId || !recipientId) {
-      console.log("Missing IDs, can't fetch messages");
-      setLoading(false);
-      return Promise.resolve();
+const fetchMessages = useCallback(async (pageToLoad = 0) => {
+  if (!userId || !recipientId) {
+    setLoading(false);
+    setIsLoadingMore(false);
+    setIsLoadingOlder(false);
+    return Promise.resolve();
+  }
+  
+  if (loading && pageToLoad === page && pageToLoad !== page + 1) {
+    console.log(`Already loading page ${pageToLoad}, skipping redundant fetch`);
+    return Promise.resolve();
+  }
+  
+  try {
+    if (pageToLoad === 0) {
+      setLoading(true);
+    } else {
+      setIsLoadingMore(true);
     }
     
-    try {
-      if (pageToLoad === 0) {
-        setLoading(true);
-      }
-      setLoadError(null);
-      console.log("Fetching message history for", userId, recipientId, "page:", pageToLoad);
+    setLoadError(null);
+    
+    console.log(`Fetching messages for conversation ${userId}_${recipientId}, page ${pageToLoad}`);
+    const response = await authFetch(
+      `${url}/api/messages/${userId}/${recipientId}?page=${pageToLoad}&size=20`
+    );
+    
+    if (!response) {
+      console.error("No response from server when fetching messages");
+      setLoadError("No response from server");
+      setLoading(false);
+      setIsLoadingMore(false);
+      setIsLoadingOlder(false);
+      return Promise.reject(new Error("No response from server"));
+    }
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`Received response for page ${pageToLoad}:`, 
+        data.content ? `Paginated response with ${data.content.length} messages` : 
+        Array.isArray(data) ? `Array response with ${data.length} messages` : 
+        'Unexpected data format');
       
-      console.log(`Fetching messages for conversation ${conversationId}, page ${pageToLoad}`);
-
-      const response = await authFetch(
-        `${url}/api/messages/${userId}/${recipientId}?page=${pageToLoad}&size=20`
-      );
+      setPage(pageToLoad);
       
-      if (!response) {
-        console.error("No response from server");
-        setLoadError("No response from server");
-        setLoading(false);
-        return;
-      }
-      
-      console.log("Message API response status:", response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Parsed message data:", data);
+      if (data.content) {
+        const newMessages = data.content;
         
-        if (data.content) {
-          console.log("Data has 'content' field with", data.content.length, "messages");
-
-          console.log(`Response for page ${pageToLoad}:`, {
-            status: response.status,
-            totalElements: data.totalElements,
-            totalPages: data.totalPages,
-            size: data.size,
-            content: data.content?.length
-          });
-          
-          if (pageToLoad === 0) {
-            setLocalMessages(data.content);
-          } else {
-            setLocalMessages(prev => [...data.content, ...prev]);
-          }
-
-          setHasMoreMessages(data.content.length > 0 && !data.last);
-        } else if (Array.isArray(data)) {
-          console.log("Data is an array with", data.length, "messages");
-          
-          if (pageToLoad === 0) {
-            setLocalMessages(data);
-          } else {
-            setLocalMessages(prev => [...data, ...prev]);
-          }
-
-          setHasMoreMessages(data.length === 20);
+        if (typeof data.last === 'boolean') {
+          const moreAvailable = newMessages.length > 0 && !data.last;
+          console.log(`Setting hasMoreMessages=${moreAvailable} based on data.last=${data.last}`);
+          setHasMoreMessages(moreAvailable);
         } else {
-          console.error("Unexpected data structure:", data);
-          setLoadError("Unexpected data format from server");
+          const moreAvailable = newMessages.length === 20;
+          console.log(`Setting hasMoreMessages=${moreAvailable} based on message count`);
+          setHasMoreMessages(moreAvailable);
+        }
+        
+        if (pageToLoad === 0) {
+          setLocalMessages(newMessages);
+        } else {
+          const markedMessages = newMessages.map(msg => ({
+            ...msg,
+            _page: pageToLoad
+          }));
+          
+          setLocalMessages(prev => {
+            const existingIds = new Set(prev.map(m => m.id));
+            const uniqueNewMessages = markedMessages.filter(m => !existingIds.has(m.id));
+            
+            console.log(`Adding ${uniqueNewMessages.length} new unique messages from page ${pageToLoad}`);
+            return [...uniqueNewMessages, ...prev];
+          });
+        }
+      } else if (Array.isArray(data)) {
+        console.log(`Received ${data.length} messages for page ${pageToLoad}`);
+        
+        const moreAvailable = data.length === 20;
+        console.log(`Setting hasMoreMessages=${moreAvailable} based on message count`);
+        setHasMoreMessages(moreAvailable);
+        
+        if (pageToLoad === 0) {
+          setLocalMessages(data);
+        } else {
+          const markedMessages = data.map(msg => ({
+            ...msg,
+            _page: pageToLoad
+          }));
+          
+          setLocalMessages(prev => {
+            const existingIds = new Set(prev.map(m => m.id));
+            const uniqueNewMessages = markedMessages.filter(m => !existingIds.has(m.id));
+            
+            console.log(`Adding ${uniqueNewMessages.length} new unique messages from page ${pageToLoad}`);
+            return [...uniqueNewMessages, ...prev];
+          });
         }
       } else {
-        console.error("API error:", response.status);
-        setLoadError(`Server error: ${response.status}`);
+        console.error("Unexpected data format from server:", data);
+        setLoadError("Unexpected data format from server");
+        setHasMoreMessages(false);
       }
 
       setHasLoadedMessages(true);
-      setPage(pageToLoad);
       return Promise.resolve();
-    } catch (err) {
-      console.error("Exception in fetchMessages:", err);
-      setLoadError(err.message || "Error loading messages");
-      return Promise.reject(err);
-    } finally {
-      setLoading(false);
+    } else {
+      console.error(`Server error when fetching messages: ${response.status}`);
+      setLoadError(`Server error: ${response.status}`);
+      return Promise.reject(new Error(`Server error: ${response.status}`));
     }
-  }, [userId, recipientId, authFetch, url, conversationId]);
+  } catch (err) {
+    console.error("Error loading messages:", err);
+    setLoadError(err.message || "Error loading messages");
+    return Promise.reject(err);
+  } finally {
+    setLoading(false);
+    setIsLoadingMore(false);
+    setIsLoadingOlder(false);
+  }
+}, [userId, recipientId, authFetch, url, loading, page]);
 
   const loadMoreMessages = useCallback(() => {
-    if (!hasMoreMessages || loading) return;
+    if (!hasMoreMessages || isLoadingMore || isLoadingOlder) return;
   
     const scrollContainer = chatContainerRef.current;
     if (!scrollContainer) return;
     
-    scrollHeightBeforeLoadRef.current = scrollContainer.scrollHeight;
-    scrollTopBeforeLoadRef.current = scrollContainer.scrollTop;
+    const currentScrollHeight = scrollContainer.scrollHeight;
+    const currentScrollTop = scrollContainer.scrollTop;
+    
+    console.log("LOAD MORE: Capturing scroll position:", currentScrollTop);
+    
+    scrollHeightBeforeLoadRef.current = currentScrollHeight;
+    scrollTopBeforeLoadRef.current = currentScrollTop;
     
     setIsLoadingOlder(true);
     setIsLoadingMore(true);
     
-    fetchMessages(page + 1);
-  }, [fetchMessages, hasMoreMessages, loading, page]);
+    const nextPageToLoad = page + 1;
+    
+    console.log("LOAD MORE: Will load page:", nextPageToLoad);
+    
+    const endpoint = `${url}/api/messages/${userId}/${recipientId}?page=${nextPageToLoad}&size=20`;
+    
+    authFetch(endpoint)
+      .then(response => {
+        if (!response || !response.ok) {
+          throw new Error(`Server error: ${response ? response.status : 'No response'}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(`LOAD MORE: Success! Got data for page ${nextPageToLoad}`);
+        
+        let newMessages = [];
+        
+        if (data.content) {
+          newMessages = data.content;
+        } else if (Array.isArray(data)) {
+          newMessages = data;
+        }
+        
+        if (newMessages.length === 0) {
+          console.log("No new messages received, marking as no more messages");
+          setHasMoreMessages(false);
+          return;
+        }
+        
+        if (newMessages.length > 0) {
+          setPage(nextPageToLoad);
+          
+          const hasMore = data.content 
+            ? (newMessages.length > 0 && !data.last)
+            : (newMessages.length === 20);
+          
+          setHasMoreMessages(hasMore);
+          
+          const markedMessages = newMessages.map(msg => ({
+            ...msg,
+            _page: nextPageToLoad
+          }));
+          
+          setLocalMessages(prev => {
+            const existingIds = new Set(prev.map(m => m.id));
+            const uniqueNewMessages = markedMessages.filter(m => !existingIds.has(m.id));
+            
+            console.log(`Adding ${uniqueNewMessages.length} new unique messages from page ${nextPageToLoad}`);
+            
+            if (uniqueNewMessages.length === 0) {
+              console.log("No new unique messages found, trying next page");
+              setTimeout(() => {
+                setIsLoadingOlder(false);
+                setIsLoadingMore(false);
+                loadMoreMessages(); 
+              }, 100);
+              return prev;
+            }
+            
+            return [...uniqueNewMessages, ...prev];
+          });
+        }
+        
+        setTimeout(() => {
+          if (scrollContainer) {
+            const newScrollHeight = scrollContainer.scrollHeight;
+            const heightDifference = newScrollHeight - scrollHeightBeforeLoadRef.current;
+            
+            scrollContainer.scrollTop = scrollTopBeforeLoadRef.current + heightDifference;
+            
+            window._disableAutoScroll = true;
+            setTimeout(() => {
+              window._disableAutoScroll = false;
+            }, 500);
+          }
+          
+          setIsLoadingOlder(false);
+          setIsLoadingMore(false);
+        }, 100);
+      })
+      .catch(error => {
+        console.error("LOAD MORE: Error loading messages:", error);
+        setIsLoadingOlder(false);
+        setIsLoadingMore(false);
+      });
+  }, [authFetch, url, userId, recipientId, page, hasMoreMessages, isLoadingMore, isLoadingOlder]);
+
 
   const handleScroll = useCallback(() => {
     const container = chatContainerRef.current;
     if (!container) return;
 
-    if (container.scrollTop < 100 && !loading && hasMoreMessages) {
-      loadMoreMessages();
-    }
-
     scrollPositionRef.current = container.scrollTop;
-  }, [loadMoreMessages, loading, hasMoreMessages]);
+  }, []);  
 
   useEffect(() => {
     if (!userId || !recipientId) return;
   
     if (previousRecipientId.current !== recipientId) {
-      console.log("Recipient changed, resetting messages");
       setLocalMessages([]);
       setHasLoadedMessages(false);
-      setPage(0);
+      setPage(0); 
       setHasMoreMessages(true);
       setIsLoadingOlder(false); 
       initialScrollDoneRef.current = false;
       previousRecipientId.current = recipientId;
-
+      
+      fetchRecipientAvatar();
+  
       setMessages(prev => {
         if (conversationId) {
           return { [conversationId]: prev[conversationId] || [] };
@@ -246,7 +437,7 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     if (!hasLoadedMessages) {
       fetchMessages(0);
     }
-  }, [userId, recipientId, fetchMessages, hasLoadedMessages, conversationId, setMessages]);
+  }, [userId, recipientId, fetchMessages, hasLoadedMessages, conversationId, setMessages, fetchRecipientAvatar]);
 
   useEffect(() => {
     const chatContainer = chatContainerRef.current;
@@ -256,6 +447,62 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     }
   }, [handleScroll]);
 
+useEffect(() => {
+  const scrollToBottom = () => {
+
+    if (window._disableAutoScroll) {
+      console.log("AUTO SCROLL: Prevented by _disableAutoScroll flag");
+      return;
+    }
+    
+    if (messageEndRef.current && chatContainerRef.current) {
+      console.log("AUTO SCROLL: Scrolling to bottom for new message");
+      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  if (
+    previousMessagesLength.current < sortedMessages.length && 
+    sortedMessages.length > 0 &&
+    sortedMessages[sortedMessages.length - 1].senderId === userId &&
+    !isLoadingOlder && 
+    !window._disableAutoScroll
+  ) {
+    scrollToBottom();
+  }
+  
+  previousMessagesLength.current = sortedMessages.length;
+}, [sortedMessages, userId, isLoadingOlder]);
+
+  useEffect(() => {
+    const scrollToBottom = () => {
+      if (window._disableAutoScroll) {
+        console.log("INITIAL SCROLL: Prevented by _disableAutoScroll flag");
+        return;
+      }
+      
+      if (messageEndRef.current && chatContainerRef.current) {
+        console.log("INITIAL SCROLL: Scrolling to bottom on initial load");
+        messageEndRef.current.scrollIntoView();
+      }
+    };
+    
+    if (
+      conversationId && 
+      sortedMessages.length > 0 && 
+      !isLoadingOlder &&
+      !initialScrollDoneRef.current && 
+      !window._disableAutoScroll
+    ) {
+      setTimeout(() => {
+        scrollToBottom();
+        initialScrollDoneRef.current = true;
+      }, 100);
+    }
+  }, [conversationId, recipientId, sortedMessages.length, isLoadingOlder]);
+  
+
+
   useEffect(() => {
     if (!chatContainerRef.current) return;
     
@@ -263,45 +510,80 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     const container = chatContainerRef.current;
     
     if (isLoadingOlder && messageCount > previousMessagesLength.current) {
-      setTimeout(() => {
-        const newScrollHeight = container.scrollHeight;
-        const heightDifference = newScrollHeight - scrollHeightBeforeLoadRef.current;
-        
-        container.scrollTop = scrollTopBeforeLoadRef.current + heightDifference;
-        
-        setIsLoadingOlder(false);
-        setIsLoadingMore(false);
-      }, 50);
-    } 
-    else if (!isLoadingMore && messageCount > previousMessagesLength.current) {
-      const { scrollHeight, clientHeight, scrollTop } = container;
-      const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+
+      initialScrollDoneRef.current = true;
       
-      if (isNearBottom && messageEndRef.current) {
-        messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }
+      const currentScrollHeightBefore = scrollHeightBeforeLoadRef.current;
+      const currentScrollTopBefore = scrollTopBeforeLoadRef.current;
+      
+      requestAnimationFrame(() => {
+
+        setTimeout(() => {
+          if (!container) return;
+          
+          const newScrollHeight = container.scrollHeight;
+          const heightDifference = newScrollHeight - currentScrollHeightBefore;
+          
+          const newScrollPosition = currentScrollTopBefore + heightDifference;
+          
+          console.log(`Maintaining scroll position after loading more messages:
+            - Previous height: ${currentScrollHeightBefore}
+            - New height: ${newScrollHeight}
+            - Height difference: ${heightDifference}
+            - Previous position: ${currentScrollTopBefore}
+            - New position: ${newScrollPosition}`);
+          
+          container.scrollTop = newScrollPosition;
+          
+          const preventScrollOverride = true;
+          container._preventScrollOverride = preventScrollOverride;
+          
+          setTimeout(() => {
+            if (container) container._preventScrollOverride = false;
+          }, 300);
+          
+          setIsLoadingOlder(false);
+          setIsLoadingMore(false);
+        }, 50);
+      });
     }
-    
-    previousMessagesLength.current = messageCount;
     
     if (isLoadingMore && !isLoadingOlder) {
       setIsLoadingMore(false);
     }
-  }, [sortedMessages, isLoadingMore, isLoadingOlder]);
+    
+    previousMessagesLength.current = messageCount;
+  }, [sortedMessages.length, isLoadingMore, isLoadingOlder]);
 
-  useEffect(() => {
-    if (
-      conversationId && 
-      sortedMessages.length > 0 && 
-      messageEndRef.current &&
-      !initialScrollDoneRef.current &&
-      !isLoadingOlder
-    ) {
-      messageEndRef.current.scrollIntoView();
-      initialScrollDoneRef.current = true;
+
+  const getLastSeenText = useCallback(() => {
+    const status = getUserStatus(recipientId);
+    if (!status || status.status !== "OFFLINE" || !status.lastSeen) return null;
+    
+    try {
+      const lastSeenDate = new Date(status.lastSeen);
+      return formatDistanceToNow(lastSeenDate, { addSuffix: true });
+    } catch (error) {
+      return "recently";
     }
-  }, [conversationId, sortedMessages, isLoadingOlder]);
+  }, [recipientId, getUserStatus]);
 
+  const getUserStatusText = useCallback(() => {
+    const status = getUserStatus(recipientId);
+    if (!status) return "Offline";
+    
+    switch (status.status) {
+      case "ONLINE":
+        return "Online";
+      case "AWAY":
+        return "Away";
+      case "OFFLINE":
+        return "Offline";
+      default:
+        return "Offline";
+    }
+  }, [recipientId, getUserStatus]);
+  
   const handleTyping = useCallback((newMessage) => {
     if (!conversationId) return;
     
@@ -330,21 +612,21 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
 
   const handleSendMessage = () => {
     if (!message.trim() || !connected || !recipientId) {
-      console.log("Cannot send message:", { 
-        hasMessage: Boolean(message.trim()), 
-        connected, 
-        recipientId 
-      });
       return;
     }
 
-    console.log("Sending message to:", recipientId);
     const success = sendMessage(recipientId, message.trim());
     
     if (success) {
       setMessage("");
       setIsTyping(false);
       updateTypingStatus(conversationId, false);
+      
+      setTimeout(() => {
+        if (messageEndRef.current) {
+          messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
@@ -354,48 +636,98 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
       handleSendMessage();
     }
   };
-
-  useEffect(() => {
-    const unreadMessages = conversationMessages.filter(
-      msg => msg.senderId === recipientId && !msg.read
-    );
-    
-    if (unreadMessages.length > 0 && recipientId && connected) {
-      console.log(`Marking ${unreadMessages.length} messages as read from:`, recipientId);
-      markMessagesAsRead(recipientId);
-      
-      fetchUnreadMessageCounts && fetchUnreadMessageCounts();
-    }
-  }, [conversationMessages, markMessagesAsRead, recipientId, connected, fetchUnreadMessageCounts]);
-
-  useEffect(() => {
-    if (connected && recipientId && fetchUnreadMessageCounts) {
-      if (previousRecipientId.current !== recipientId) {
-        fetchUnreadMessageCounts();
-      }
-    }
-  }, [connected, recipientId, fetchUnreadMessageCounts]);
   
   useEffect(() => {
-    const unreadMessages = conversationMessages.filter(
-      msg => msg.senderId === recipientId && !msg.read
-    );
-    
-    if (unreadMessages.length > 0 && recipientId && connected) {
-      console.log(`Marking ${unreadMessages.length} messages as read from:`, recipientId);
-      markMessagesAsRead(recipientId);
-      
-      if (fetchUnreadMessageCounts) {
-        fetchUnreadMessageCounts();
+    const handleNewMessage = () => {
+      if (window._disableAutoScroll) {
+        console.log("NEW MESSAGE SCROLL: Prevented by _disableAutoScroll flag");
+        return;
       }
+      
+      if (
+        chatContainerRef.current && 
+        sortedMessages.length > 0 &&
+        !isLoadingOlder
+      ) {
+        const { scrollHeight, clientHeight, scrollTop } = chatContainerRef.current;
+        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 200;
+        
+        if (isNearBottom && messageEndRef.current) {
+          console.log("NEW MESSAGE SCROLL: Near bottom, scrolling to new message");
+          messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+    
+    handleNewMessage();
+  }, [sortedMessages.length, isLoadingOlder]);
+
+  useEffect(() => {
+    
+    const markAsRead = () => {
+      if (isRunningRef.current) return; 
+      
+      const unreadMessages = conversationMessages.filter(
+        msg => msg.senderId === recipientId && !msg.read
+      );
+      
+      if (unreadMessages.length > 0 && recipientId && connected && !isRunningRef.current) {
+        isRunningRef.current = true;
+        
+        const conversationKey = userId < recipientId 
+          ? `${userId}_${recipientId}` 
+          : `${recipientId}_${userId}`;
+        
+        const lastMarkTime = lastMarkTimeRef.current[conversationKey] || 0;
+        const now = Date.now();
+        
+        if (now - lastMarkTime > 3000) {
+          lastMarkTimeRef.current[conversationKey] = now;
+          
+          setLocalMessages(prev => {
+            return prev.map(msg => 
+              (msg.senderId === recipientId && !msg.read) 
+                ? { ...msg, read: true } 
+                : msg
+            );
+          });
+          
+          markMessagesAsRead(recipientId);
+          
+          if (fetchUnreadMessageCounts) {
+            setTimeout(fetchUnreadMessageCounts, 1000);
+          }
+        }
+        
+        setTimeout(() => {
+          isRunningRef.current = false;
+        }, 1000);
+      }
+    };
+    
+    if (!lastMarkTimeRef.current) {
+      lastMarkTimeRef.current = {};
     }
-  }, [conversationMessages, markMessagesAsRead, recipientId, connected, fetchUnreadMessageCounts]);
+    
+   if (recipientId && connected) {
+      markAsRead();
+    }
+    
+    const intervalId = setInterval(() => {
+      if (recipientId && connected) {
+        markAsRead();
+      }
+    }, 5000);
+    
+    return () => {
+      clearInterval(intervalId);
+      isRunningRef.current = false;
+    };
+  }, [conversationMessages, markMessagesAsRead, recipientId, connected, userId, fetchUnreadMessageCounts]);
 
   useEffect(() => {
     if (!connected || !conversationId) return;
     
-    console.log("Setting up typing subscription for:", conversationId);
-
     if (typingSubscriptionRef.current) {
       typingSubscriptionRef.current();
       typingSubscriptionRef.current = null;
@@ -404,7 +736,6 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     typingSubscriptionRef.current = subscribeToTypingIndicator(conversationId);
     
     return () => {
-      console.log("Cleaning up typing subscription");
       setIsTyping(false);
       updateTypingStatus(conversationId, false);
       
@@ -419,114 +750,154 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
     };
   }, [connected, conversationId, subscribeToTypingIndicator, updateTypingStatus]);
 
-  const formatMessageTime = (timestamp) => {
-    if (!timestamp) return "";
-    try {
-      return format(new Date(timestamp), "HH:mm");
-    } catch (e) {
-      console.error("Error formatting time:", e);
-      return "";
+  useEffect(() => {
+    const unreadMessages = sortedMessages.filter(
+      msg => msg.senderId === recipientId && !msg.read
+    );
+    
+    if (unreadMessages.length > 0 && recipientId && connected) {
+      const conversationKey = `${userId}_${recipientId}`;
+      const now = Date.now();
+      const lastMarkReadTime = window.lastMarkReadTimes?.[conversationKey] || 0;
+      
+      if (now - lastMarkReadTime > 2000) {
+        if (!window.lastMarkReadTimes) window.lastMarkReadTimes = {};
+        window.lastMarkReadTimes[conversationKey] = now;
+        
+        markMessagesAsRead(recipientId);
+      }
     }
-  };
+  }, [sortedMessages, markMessagesAsRead, recipientId, connected, userId]);
 
   return (
-    <div className="flex flex-col h-full border rounded-lg shadow-lg">
-      <div className="p-3 border-b flex items-center justify-between bg-gray-50">
-  <div className="flex items-center flex-col sm:flex-row">
-    <div className="flex items-center">
-      <UserStatusIndicator userId={recipientId} />
-      <span className="ml-2 font-semibold">{recipientUsername}</span>
-      {isUserTyping(recipientId, conversationId) && (
-        <span className="ml-2 text-gray-500 text-sm italic animate-pulse">typing...</span>
-      )}
-    </div>
-    <div className="ml-0 sm:ml-2 text-xs text-gray-500">
-      <UserStatusIndicator userId={recipientId} showLastSeen={true} />
-    </div>
-  </div>
-  {!connected && (
-    <span className="text-red-500 text-xs">Disconnected</span>
-  )}
-</div>
-      <div 
-        ref={chatContainerRef} 
-        className="flex-1 p-3 overflow-y-auto"
-        onScroll={handleScroll}
-      >
-        {hasMoreMessages && !loading && (
-          <div className="flex justify-center my-2">
-            <button 
-              onClick={loadMoreMessages}
-              className="text-blue-500 text-sm hover:underline"
-            >
-              Load earlier messages
-            </button>
-          </div>
-        )}
-        
-        {loading && page === 0 ? (
-          <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
-        ) : loadError && page === 0 ? (
-          <div className="flex flex-col justify-center items-center h-full">
-            <p className="text-red-500 mb-2">{loadError}</p>
-            <button 
-              onClick={() => fetchMessages(0)}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Retry
-            </button>
-          </div>
-        ) : sortedMessages.length === 0 ? (
-          <div className="flex justify-center items-center h-full">
-            <p className="text-gray-500">No messages yet. Say hello!</p>
-          </div>
-        ) : (
-          <>
-            {loading && page > 0 && (
-              <div className="flex justify-center my-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-              </div>
-            )}
-            
-            {sortedMessages.map((msg) => (
-  <MessageComponent
-    key={msg.id || `temp-${msg.timestamp}`}
-    message={msg}
-    userId={userId}
-  />
-))}
-          </>
-        )}
-
-        {isUserTyping(recipientId, conversationId) && (
-          <div className="mb-3 flex justify-start">
-            <div className="max-w-[70%] rounded-lg px-3 py-2 bg-gray-200 text-gray-800 rounded-bl-none">
-              <div className="flex space-x-1 h-6 items-center">
-                <div
-                  className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                ></div>
+    <div className="flex flex-col h-[700px] border rounded-xl shadow-lg bg-white overflow-hidden">
+      {/* Header */}
+      <div className="p-4 border-b flex items-center justify-between bg-white sticky top-0 z-10">
+        <div className="flex flex-col">
+          <div className="flex items-center">
+            <UserStatusIndicator userId={recipientId} />
+            <div className="ml-2">
+              <span className="font-semibold text-gray-800">{recipientUsername}</span>
+              <div className="text-xs text-gray-500">
+                {isUserTyping(recipientId, conversationId) ? (
+                  <span className="text-gray-500 italic animate-pulse">typing...</span>
+                ) : (
+                  <>
+                    {getUserStatusText() === "Offline" && getLastSeenText() ? (
+                      <span>Last seen {getLastSeenText()}</span>
+                    ) : (
+                      <span>{getUserStatusText()}</span>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>
+        </div>
+        {!connected && (
+          <span className="text-red-500 text-xs py-1 px-2 bg-red-50 rounded-full">Disconnected</span>
         )}
-
-        <div ref={messageEndRef} />
       </div>
-      <div className="p-3 border-t">
+      
+      {/* Chat area */}
+      <div 
+  ref={chatContainerRef} 
+  className="flex-1 p-4 overflow-y-auto bg-gray-50 h-[500px] custom-scrollbar scrollbar-hover"
+  onScroll={handleScroll}
+>
+  {/* Load More Messages Button or Loading Indicator */}
+  {hasMoreMessages && (
+    <div className="flex justify-center my-2">
+      {isLoadingMore ? (
+        <div className="flex items-center justify-center py-2">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-500"></div>
+          <span className="ml-2 text-amber-500 text-sm">Loading...</span>
+        </div>
+      ) : (
+        <button 
+          onClick={loadMoreMessages}
+          disabled={loading || isLoadingMore || isLoadingOlder}
+          className={`text-amber-500 text-sm hover:underline bg-white py-1 px-3 rounded-full shadow-sm transition-all hover:shadow-md ${
+            (loading || isLoadingMore || isLoadingOlder) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+          }`}
+        >
+          Load earlier messages
+        </button>
+      )}
+    </div>
+  )}
+        
+        {loading && page === 0 ? (
+    <div className="flex justify-center items-center h-full">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+    </div>
+  ) : loadError && page === 0 ? (
+    <div className="flex flex-col justify-center items-center h-full">
+      <p className="text-red-500 mb-2">{loadError}</p>
+      <button 
+        onClick={() => fetchMessages(0)}
+        className="px-3 py-1 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+  ) : sortedMessages.length === 0 ? (
+    <div className="flex justify-center items-center h-full">
+      <p className="text-gray-500">No messages yet. Say hello!</p>
+    </div>
+  ) : (
+    <>
+      <div className="space-y-2">
+        {sortedMessages.map((msg, index) => (
+          <MessageComponent
+            key={msg.id ? `msg-${msg.id}-${index}` : `temp-${msg.timestamp}-${index}`}
+            message={msg}
+            userId={userId}
+            recipientAvatar={recipientAvatar}
+          />
+        ))}
+      </div>
+
+      {isUserTyping(recipientId, conversationId) && (
+        <div className="mb-3 flex justify-start">
+          <img 
+            src={recipientAvatar || `http://localhost:8080/api/users/${recipientId}/avatar`}
+            className="h-6 w-6 rounded-full mr-1 mt-1 self-start"
+            alt="User"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = defaultAvatar;
+            }}
+          />
+          <div className="max-w-[70%] rounded-2xl px-3 py-2 bg-gray-100 text-gray-800 shadow-sm">
+            <div className="flex space-x-1 h-6 items-center">
+              <div
+                className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )}
+
+  <div ref={messageEndRef} />
+</div>
+      
+      {/* Message input */}
+      <div className="p-4 border-t bg-white">
         <div className="flex items-center">
           <textarea
-            className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="flex-1 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
             placeholder={connected ? "Type a message..." : "Reconnecting..."}
             rows="2"
             value={message}
@@ -535,7 +906,7 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
             disabled={!connected}
           />
           <button
-            className="ml-2 bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="ml-3 bg-amber-500 text-white rounded-full p-3 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 shadow-sm transition-colors"
             onClick={handleSendMessage}
             disabled={!connected || !message.trim()}
           >

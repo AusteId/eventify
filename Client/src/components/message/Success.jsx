@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNotification } from "../context/NotificationContext";
+import { useNotifications } from "../context/NotificationContext";
 
 
 const Success = () => {
-  const { success } = useNotification();
+  const { success } = useNotifications();
 
   const [isVisible, setIsVisible] = useState(false);
 
