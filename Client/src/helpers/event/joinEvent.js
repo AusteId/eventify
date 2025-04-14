@@ -3,7 +3,7 @@ import { CloudCog } from "lucide-react";
 
 const backUrl = import.meta.env.VITE_BACK_URL;
 
-const joinEvent = async (eventId, token)=>{
+const joinEvent = async (eventId)=>{
     try{
     const response = await axios.post(
         `${backUrl}/api/events/${eventId}/register`,

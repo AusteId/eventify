@@ -8,6 +8,7 @@ import lt.techin.eventify.repository.mysql.RegistrationToEventRepository;
 import lt.techin.eventify.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ public class RegistrationToEventService {
     return registrationToEventRepository.countByEventId(eventId);
   }
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
   public RegistrationToEvent saveEventRegistration(Long eventId, String username) {
 
     User user = userService.findByUsername(username)
@@ -80,6 +82,7 @@ public class RegistrationToEventService {
     return true;
   }
 
+  @CacheEvict(value = "eventsCache", allEntries = true)
   public void cancelEventRegistration(Long eventId, String username) {
 
     User user = userService.findByUsername(username)

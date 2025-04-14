@@ -42,10 +42,7 @@ const EventCard = ({
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
   const [imageData, setImageData] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(true);
-  const [participants, setParticipants] = useState(() => {
-    const saved = localStorage.getItem(`event_${id}_participants`);
-    return saved !== null ? parseInt(saved, 10) : currentParticipants;
-  });
+  const [participants, setParticipants] = useState(currentParticipants || 0);
   const [loading, setLoading] = useState(false);
   const {
     isAuthenticated,
@@ -56,10 +53,7 @@ const EventCard = ({
     loading: false,
     birthDate: null,
   };
-  const [registered, setRegistered] = useState(() => {
-    const saved = localStorage.getItem(`event_${id}_registered`);
-    return saved !== null ? parseInt(saved, 10) : isRegistered;
-  });
+  const [registered, setRegistered] = useState(isRegistered);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -77,12 +71,7 @@ const EventCard = ({
         const image = URL.createObjectURL(response.data);
         setImageData(image);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        console.log(
-          'Error details:',
-          error.response?.data,
-          error.response?.status,
-        );
+        console.error('Error fetching image:', error);
         setImageData('./src/assets/eventCardImgSample.png');
       } finally {
         setIsImageLoading(false);
@@ -90,6 +79,11 @@ const EventCard = ({
     };
     fetchImage();
   }, [id]);
+
+  useEffect(() => {
+    setParticipants(currentParticipants || 0);
+  }, [currentParticipants]);
+
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -135,14 +129,16 @@ const EventCard = ({
     setLoading(true);
     try {
       if (registered) {
-        await cancelEvent(id);
-        setRegistered(0);
-        setParticipants(prev => prev - 1);
+        const result = await cancelEvent(id);
+        console.log('cancelEvent result:', result);
+        setRegistered(event.re);
+        setParticipants(prev => Math.max(0, prev - 1));
         toast.success('Registration has been successfully canceled.');
       } else {
         if (participants < maxParticipants) {
-          await joinEvent(id);
-          setRegistered(1);
+          const result = await joinEvent(id);
+          console.log('joinEvent result:', result);
+          setRegistered(event.registrations.length);
           setParticipants(prev => prev + 1);
           toast.success(`You're registered to ${name}!`);
         } else {
@@ -153,19 +149,12 @@ const EventCard = ({
     } catch (error) {
       const errorMessage = error.error || 'Something went wrong. Try it again.';
       toast.error(errorMessage);
-      if (error.error) {
-        const isUserRegistered = registered ? 0 : 1;
-        setRegistered(isUserRegistered);
-        setParticipants(prev => (isUserRegistered ? prev + 1 : prev - 1));
-        localStorage.setItem(
-          `event_${id}_registered`,
-          isUserRegistered.toString(),
-        );
-      }
+      console.error('Registration error:', error);
     } finally {
       setLoading(false);
     }
   };
+
   const expLevels = {
     'All Welcome': ['bg-welcome', 'All Welcome!'],
     Beginner: ['bg-beginner', 'Beginner Friendly'],
@@ -215,11 +204,6 @@ const EventCard = ({
     );
   }
 
-  // useEffect(() => {
-  //   localStorage.setItem(`event_${id}_registered`, registered.toString());
-  //   localStorage.setItem(`event_${id}_participants`, participants.toString());
-  // }, [id, registered, participants]);
-
   return (
     <div
       className={`flex mt-0.5 mb-6 flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && 'grayscale-100'}`}
@@ -230,9 +214,13 @@ const EventCard = ({
           className="cursor-pointer group"
         >
           <div className="relative">
-            {participants !== null && (
+            {participants >= 0 && maxParticipants > 0 && (
               <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
-                <img src="./src/assets/threePersonIcon.svg" />
+                <img
+                  src="./src/assets/threePersonIcon.svg"
+                  alt="Participants"
+                  onError={() => console.log('Participants icon failed to load')}
+                />
                 <p className="text-white">
                   {participants}/{maxParticipants}
                 </p>
@@ -256,7 +244,7 @@ const EventCard = ({
                 alt="event photo"
                 className="rounded-t-[0.5rem] h-44 w-full object-cover"
                 onError={() => {
-                  console.log('Image failed to load, using fallback');
+                  console.log('Event image failed to load, using fallback');
                   setImageData('./src/assets/eventCardImgSample.png');
                 }}
               />
@@ -321,7 +309,7 @@ const EventCard = ({
             onClick={handleRegistration}
             disabled={loading}
           >
-            <img src="src/assets/xIcon.svg" className="border-0" />
+            <img src="./src/assets/xIcon.svg" className="border-0" alt="Cancel" />
             {loading ? 'Processing...' : 'Cancel Registration'}
           </ButtonCancel>
         ) : (
