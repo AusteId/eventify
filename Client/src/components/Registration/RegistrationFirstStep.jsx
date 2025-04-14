@@ -8,6 +8,7 @@ import Button from '../Button';
 import { useNotifications } from '../context/NotificationContext';
 import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
+import StepIndicator from '../StepIndicator';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');

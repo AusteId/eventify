@@ -4,10 +4,11 @@ import toast from 'react-hot-toast';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import LoadingScreen from '../message/LoadingScreen';
 
-const RegistrationLayout = ({ formRefs, currentStep, setCurrentStep }) => {
+const RegistrationLayout = ({ formRefs }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsloading] = useState(false);
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(0);
 
   const location = useLocation();
 
