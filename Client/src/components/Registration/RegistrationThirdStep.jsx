@@ -126,16 +126,6 @@ const RegistrationThirdStep = forwardRef((props, ref) => {
           </Button>
         </section>
         <section>
-          <Button
-            background="bg-white"
-            textColor="text-btn"
-            hoverColor="hover:bg-gray-50"
-            onClick={skipStep}
-          >
-            Skip
-          </Button>
-        </section>
-        <section>
           <Button onClick={nextStep}>Next</Button>
         </section>
       </section>
