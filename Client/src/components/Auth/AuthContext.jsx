@@ -33,7 +33,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const getUserAvatar = async () => {
-    if (!isAuthenticated) return;
     try {
       const cached = localStorage.getItem('userAvatar');
       if (cached) {
@@ -56,8 +55,10 @@ export const AuthProvider = ({ children }) => {
   
 
   useEffect(() => {
-    getUserAvatar();
-  }, []);
+    if (isAuthenticated) {
+      getUserAvatar();
+    }
+  }, [isAuthenticated]);
 
   const checkAuthStatus = useCallback(async () => {
     // Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie

@@ -22,6 +22,7 @@ import BasicModal from './components/BasicModal';
 import CreateEventForm from './components/CreateEventForm';
 import { useAuth } from './components/Auth/AuthContext';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
