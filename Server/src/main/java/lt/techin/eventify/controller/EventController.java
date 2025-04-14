@@ -139,7 +139,7 @@ public class EventController {
             event.latitude(),
             event.longitude()
     );
-
+log.info("Event: {}", event);
     return ResponseEntity.ok(event);
   }
 

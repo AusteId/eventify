@@ -74,6 +74,46 @@ const Event = () => {
     );
   };
 
+  const fetchEventData = async () => {
+    setLoading(true);
+    try {
+      const [data, pictureResponse] = await Promise.all([
+        getEvent(params.id),
+        getEventImage(params.id).catch(() => null),
+      ]);
+
+      if (!data) {
+        console.error('Failed to load event data');
+        return;
+      }
+
+      setEvent({
+        ...data,
+        picture: pictureResponse ? URL.createObjectURL(pictureResponse) : null,
+      });
+
+      const userRegistration =
+        data.registrations && Array.isArray(data.registrations)
+          ? data.registrations.some(
+              reg => String(reg.userJoinToEvent?.userId) === String(userId),
+            )
+          : false;
+      setIsRegistered(userRegistration);
+
+      setEventImage(
+        pictureResponse
+          ? URL.createObjectURL(pictureResponse)
+          : '../src/assets/eventCardImgSample.png',
+      );
+    } catch (err) {
+      console.error('Error fetching data:', err.message);
+      setEventImage('../src/assets/eventCardImgSample.png');
+      toast.error('Failed to load event data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRegister = async () => {
     if (!isAuthenticated) {
       navigate(`/login?redirect=/event/${params.id}`);
@@ -103,13 +143,13 @@ const Event = () => {
       });
 
       toast.success(
-        `Successfully registered for ${updatedEventData.name}! See you on ${prettifyDateTime(updatedEventData.startDateTime)}.`,
-        {
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        },
+        `Successfully registered for ${updatedEventData.name}! See you on ${prettifyDateTime(updatedEventData.startDateTime)}.`
+        // {
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: true,
+        //   draggable: true,
+        // },
       );
     } catch (error) {
       const errorMessage = error.error || 'Failed to register. Try again.';
@@ -143,8 +183,8 @@ const Event = () => {
       toast.success(`Registration for ${updatedEventData.name} canceled.`, {});
       document.getElementById('cancel_confirmation_modal').close();
     } catch (error) {
-      console.error('Error canceling registration:', error.message);
-      toast.error('Failed to cancel registration.');
+      // console.error('Error canceling registration:', error.message);
+      // toast.error('Failed to cancel registration.');
     } finally {
       setIsCanceling(false);
     }
@@ -155,47 +195,12 @@ const Event = () => {
   };
 
   useEffect(() => {
-    const fetchdata = async () => {
-      try {
-        const data = await getEvent(params.id);
-
-        if (!data) {
-          console.error('Failed to load event data');
-          setLoading(false);
-          return;
-        }
-
-        setEvent(data);
-
-        const userRegistration =
-          event.registrations && Array.isArray(event.registrations)
-            ? event.registrations.some(
-                reg => String(reg.userJoinToEvent?.userId) === String(userId),
-              )
-            : false;
-
-        setIsRegistered(userRegistration);
-      } catch (err) {
-        console.error(err.message);
-      } finally {
-        setLoading(false);
-      }
-
-      try {
-        const pictureResponse = await getEventImage(params.id);
-        setEventImage(URL.createObjectURL(pictureResponse));
-      } catch (err) {
-        console.error(err.message);
-        setEventImage('../src/assets/eventCardImgSample.png');
-      }
-    };
-    fetchdata();
-  }, [params.id, userId]);
-
+    fetchEventData();
+  }, [params.id, userId, isRegistered]);
 
   useEffect(() => {}, [isRegistered]);
 
-  if (!event) {
+  if (loading || !event) {
     return <p>LOADING</p>;
   }
 

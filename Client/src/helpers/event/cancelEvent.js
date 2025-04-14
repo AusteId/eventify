@@ -2,7 +2,7 @@ import axios from "axios";
 
 const backUrl = import.meta.env.VITE_BACK_URL;
 
-const cancelEvent = async (eventId, token) => {
+const cancelEvent = async (eventId) => {
   const response = await axios.delete(
     `${backUrl}/api/events/${eventId}/register`,
     { withCredentials: true }
