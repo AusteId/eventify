@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useOutletContext } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 import email from '../../assets/userRegistration/email-Icon.svg';
 import password from '../../assets/userRegistration/password-Icon.svg';
 import username from '../../assets/userRegistration/username-Icon.svg';
@@ -28,6 +28,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     setError: setFormError,
     clearErrors,
   } = useFormContext();
+
+  const navigate = useNavigate();
 
   const passwordValue = watch('password');
   const passwordConfirmValue = watch('passwordConfirm');
@@ -263,7 +265,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             <p className="font-inter text-body-medium">
               Already have an account?
             </p>
-            <a className="text-btn-hover" href="/login">
+            <a className="text-btn-hover cursor-pointer" onClick={() => navigate("/login")}>
               Sign in
             </a>
           </div>
