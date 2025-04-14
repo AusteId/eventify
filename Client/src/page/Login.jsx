@@ -106,9 +106,9 @@ const Login = () => {
             <p className="font-inter text-body-medium">
               Don&apos;t have an account?
             </p>
-            <a className="text-btn-hover" href="/register">
+            <button className="text-btn-hover cursor-pointer" onClick={() => navigate("/register")}>
               Sign up
-            </a>
+            </button>
           </div>
         </div>
       </div>

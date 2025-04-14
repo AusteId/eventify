@@ -55,13 +55,13 @@ function App() {
             <Route
               path="/register"
               element={
-                <ProtectedRouteLoggedIn>
+                 <ProtectedRouteLoggedIn>
                   <RegistrationLayout
                     formRefs={formRefs}
                     currentStep={currentStep}
                     setCurrentStep={setCurrentStep}
                   />
-                </ProtectedRouteLoggedIn>
+                 </ProtectedRouteLoggedIn>
               }
             >
               <Route
