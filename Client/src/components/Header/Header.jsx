@@ -15,12 +15,10 @@ import Button from '../Button';
 import StepIndicator from '../StepIndicator';
 import HeaderProfilePicture from './HeaderProfilePicture';
 
-const Header = ({ loading, currentStep }) => {
+const Header = () => {
   const [activeLink, setActiveLink] = useState('');
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-
-
 
   const navLinks = [
     { name: 'Home', href: '/', auth: false },
@@ -55,12 +53,10 @@ const Header = ({ loading, currentStep }) => {
                   fill="#F59E0B"
                 />
               </svg>
-              <span className="text-2xl font-bold text-title">
-                Eventify
-              </span>
+              <span className="text-2xl font-bold text-title">Eventify</span>
             </a>
           </div>
-  
+
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex lg:px-6 md:flex md:px-6">
             <ul className="flex space-x-4 lg:space-x-6 items-center">
@@ -77,8 +73,8 @@ const Header = ({ loading, currentStep }) => {
                     px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors duration-150 ease-in-out text-nowrap
                     ${
                       activeLink === link.href
-                        ? 'text-btn bg-yellow-50' 
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                        ? 'text-btn bg-yellow-50'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }
                   `}
                         aria-current={
@@ -93,16 +89,14 @@ const Header = ({ loading, currentStep }) => {
               })}
             </ul>
           </div>
-  
+
           {/* Right Section: Actions & User Menu */}
           <div className="flex items-center gap-3 sm:gap-4">
             {isAuthenticated && (
               <div className="hidden md:block lg:block">
                 <Button
                   onClick={() => {
-                    document
-                      .getElementById('event_creation_modal')
-                      .showModal();
+                    document.getElementById('event_creation_modal').showModal();
                   }}
                 >
                   Create Event
@@ -124,7 +118,7 @@ const Header = ({ loading, currentStep }) => {
               !location.pathname.startsWith('/register') ? (
               <div className="w-45"></div>
             ) : !isAuthenticated ? (
-              <StepIndicator step={currentStep} totalSteps={4} />
+              <div className="w-45"> </div>
             ) : null}
             {isAuthenticated && (
               <div>
@@ -153,7 +147,7 @@ const Header = ({ loading, currentStep }) => {
                 </div>
               </div>
             )}
-  
+
             <div className="md:hidden lg:hidden">
               <div className="drawer drawer-end">
                 <input
@@ -262,6 +256,6 @@ const Header = ({ loading, currentStep }) => {
       </nav>
     </header>
   );
-}
+};
 
 export default Header;

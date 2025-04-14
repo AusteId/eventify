@@ -7,7 +7,6 @@ import {
 } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router';
-import { useNotifications } from '../context/NotificationContext';
 
 const AuthContext = createContext();
 
@@ -56,11 +55,13 @@ export const AuthProvider = ({ children }) => {
   
 
   useEffect(() => {
-    getUserAvatar();
-  }, []);
+    if (isAuthenticated) {
+      getUserAvatar();
+    }
+  }, [isAuthenticated]);
 
   const checkAuthStatus = useCallback(async () => {
-    //Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
+    // Constant agony of 401's if not logged in, so need to store in session to prevent it from checking the cookie
     // const alreadyChecked =
     //   isAuthenticated || sessionStorage.getItem('plsStahp') === 'true';
     // if (!alreadyChecked) {

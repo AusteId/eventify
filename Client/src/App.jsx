@@ -22,25 +22,20 @@ import BasicModal from './components/BasicModal';
 import CreateEventForm from './components/CreateEventForm';
 import { useAuth } from './components/Auth/AuthContext';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
-  // Registration step moved to here so it could be accessed by header
-  const [currentStep, setCurrentStep] = useState(1);
-  const { isAuthenticated } = useAuth();
- 
+
   return (
     <div className="">
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>
-      
+
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route
-            path="/"
-            element={<AuthenticatedLayout currentStep={currentStep} />}
-          >
+          <Route path="/" element={<AuthenticatedLayout />}>
             <Route index element={<Home />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Event />} />
@@ -56,11 +51,7 @@ function App() {
               path="/register"
               element={
                 <ProtectedRouteLoggedIn>
-                  <RegistrationLayout
-                    formRefs={formRefs}
-                    currentStep={currentStep}
-                    setCurrentStep={setCurrentStep}
-                  />
+                  <RegistrationLayout formRefs={formRefs} />
                 </ProtectedRouteLoggedIn>
               }
             >
@@ -97,18 +88,8 @@ function App() {
                 }
               />
             </Route>
-            <Route
-              path="/profile"
-              element={
-                <Profile />
-              }
-            />
-            <Route
-              path="/myRegistrations"
-              element={
-                <MyRegistrations />
-              }
-            />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/myRegistrations" element={<MyRegistrations />} />
 
             <Route
               path="/chat"
