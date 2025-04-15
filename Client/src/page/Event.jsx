@@ -144,12 +144,7 @@ const Event = () => {
 
       toast.success(
         `Successfully registered for ${updatedEventData.name}! See you on ${prettifyDateTime(updatedEventData.startDateTime)}.`
-        // {
-        //   hideProgressBar: false,
-        //   closeOnClick: true,
-        //   pauseOnHover: true,
-        //   draggable: true,
-        // },
+
       );
     } catch (error) {
       const errorMessage = error.error || 'Failed to register. Try again.';

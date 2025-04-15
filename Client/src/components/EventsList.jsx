@@ -7,6 +7,7 @@ import LoadingSection from './LoadingSection';
 import EventMap from './map/EventMap';
 import Pagination from './Pagination';
 import EventSearch from './search/EventSearch';
+import { useNotifications } from './context/NotificationContext';
 
 const EventsList = ({ setLoading, loading }) => {
   const [events, setEvents] = useState([]);
@@ -31,7 +32,7 @@ const EventsList = ({ setLoading, loading }) => {
   const [searchParamsUrl] = useSearchParams();
   const eventId = searchParamsUrl.get('eventId');
   const eventsPerPage = 12;
-
+  const {isDarkMode} = useNotifications();
   useEffect(() => {
     if (eventId) {
       setShowMap(true);
@@ -158,13 +159,13 @@ const EventsList = ({ setLoading, loading }) => {
         >
           {showMap ? (
             <>
-              <FaList className="text-btn" />
-              View as List
+              <FaList  className='text-btn'/>
+             <p className={`duration-750 ${isDarkMode ? "text-gray-200" : "text-btn"}`}>View as List</p>
             </>
           ) : (
             <>
               <FaMap className="text-btn" />
-              View on Map
+              <p className={`duration-750 ${isDarkMode ? "text-gray-200" : "text-btn"}`}>View on Map</p>
             </>
           )}
         </button>
@@ -175,7 +176,7 @@ const EventsList = ({ setLoading, loading }) => {
       ) : showMap ? (
         <EventMap events={eventsForMap} eventId={eventId} />
       ) : events.length === 0 ? (
-        <p>Loading...</p>
+        <p className={`duration-750 ${isDarkMode && "text-gray-200"}`}>Loading...</p>
       ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {events.map((event, index) => (

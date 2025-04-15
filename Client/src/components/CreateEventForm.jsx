@@ -8,6 +8,9 @@ import ImageDropzone from './Registration/ImageDropZone';
 import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
 import toast from 'react-hot-toast';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
+import { useNotifications } from './context/NotificationContext';
+import Button from './Button';
+import CloseSVG from '../assets/CloseSVG';
 
 const CreateEventForm = () => {
   const {
@@ -19,20 +22,6 @@ const CreateEventForm = () => {
     watch,
     formState: { errors },
   } = useForm({
-    // defaultValues: {
-    //   picture: null,
-    //   name: 'qwe',
-    //   city: 'asd',
-    //   address: 'zxc',
-    //   startDateTime: '2025-05-10T22:02',
-    //   endDateTime: '2025-06-25T03:33',
-    //   category: 1,
-    //   minAge: null,
-    //   maxAge: null,
-    //   maxParticipants: 5,
-    //   description: '',
-    //   experienceLevel: 'Beginner',
-    // },
     defaultValues: {
       picture: null,
       name: '',
@@ -54,6 +43,7 @@ const CreateEventForm = () => {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [geocodingError, setGeocodingError] = useState(null);
+  const { isDarkMode } = useNotifications();
   const picture = watch('picture');
   const city = watch('city');
   const address = watch('address');
@@ -117,10 +107,6 @@ const CreateEventForm = () => {
     document.getElementById('event_creation_modal').close();
   };
 
-  // const handleFileChange = file => {
-  //   setValue('picture', file);
-  // };
-
   useEffect(() => {
     const fetchCategories = async () => {
       setIsLoading(true);
@@ -134,22 +120,27 @@ const CreateEventForm = () => {
   if (isLoading) return <LoaderIcon />;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className={`${isDarkMode ? 'bg-slate-900 text-gray-200' : 'text-header-dark'}`}
+    >
       <div className="flex w-full items-center justify-between">
-        <h1 className="text-header-dark font-inter text-heading-m font-bold">
+        <h1
+          className={`font-inter text-heading-m font-bold ${isDarkMode && 'text-[#f59e0b]'}`}
+        >
           Create New Event
         </h1>
-        <button onClick={closeModal} type="button" className="w-10 h-10">
-          <img
-            className="w-full h-full p-2"
-            src="src/assets/close.svg"
-            alt=""
-          />
+        <button
+          onClick={closeModal}
+          type="button"
+          className={`w-10 h-10 ${isDarkMode}`}
+        >
+          <CloseSVG/>
         </button>
       </div>
       <div>
         <label
-          className="block font-inter text-header-dark text-body-m font-bold mb-4 mt-6"
+          className="block font-inter text-body-m font-bold mb-4 mt-6"
           htmlFor="filedrop"
         >
           Event Image
@@ -165,13 +156,13 @@ const CreateEventForm = () => {
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-title"
           >
             Event Title*
           </label>
           <input
-            className="h-10 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-title"
             type="text"
             placeholder=""
@@ -196,7 +187,7 @@ const CreateEventForm = () => {
         </div>
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter  text-body-m font-bold mb-2"
             htmlFor="event-level"
           >
             Experience Level*
@@ -211,14 +202,14 @@ const CreateEventForm = () => {
                 value !== 'Select Experience Level' ||
                 'Please select a valid option',
             })}
-            className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none"
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
           >
-            <option disabled={true}>Select Experience Level</option>
-            <option>Beginner</option>
-            <option>Intermediate</option>
-            <option>Advanced</option>
-            <option>Extreme</option>
-            <option>All Welcome</option>
+            <option disabled={true} className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Select Experience Level</option>
+            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Beginner</option>
+            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Intermediate</option>
+            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Advanced</option>
+            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Extreme</option>
+            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>All Welcome</option>
           </select>
           <FieldValidationError>{errors.level?.message}</FieldValidationError>
         </div>
@@ -226,13 +217,13 @@ const CreateEventForm = () => {
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-city"
           >
             City*
           </label>
           <input
-            className="h-10 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-city"
             type="text"
             placeholder=""
@@ -250,13 +241,13 @@ const CreateEventForm = () => {
         </div>
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-address"
           >
             Address*
           </label>
           <input
-            className="h-10 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-address"
             type="text"
             placeholder=""
@@ -275,13 +266,13 @@ const CreateEventForm = () => {
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-date"
           >
             Start Date*
           </label>
           <input
-            className="input h-10  appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-date"
             type="datetime-local"
             placeholder=""
@@ -296,13 +287,13 @@ const CreateEventForm = () => {
         </div>
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-date-end"
           >
             End Date*
           </label>
           <input
-            className="input h-10  appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-date-ende"
             type="datetime-local"
             placeholder=""
@@ -317,7 +308,7 @@ const CreateEventForm = () => {
         </div>
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-category"
           >
             Category*
@@ -331,11 +322,11 @@ const CreateEventForm = () => {
               validate: value =>
                 value !== 'Select Category' || 'Please select a valid option',
             })}
-            className="select h-10 appearance-none border border-input-light rounded-lg w-full text-body-medium focus:outline-none overflow-auto"
-          >
-            <option disabled={true}>Select Category</option>
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}>
+
+            <option disabled={true} className={`duration-750 ${isDarkMode && "bg-slate-900 text-gray-200"}`}>Select Category</option>
             {categories.map((category, index) => (
-              <option value={category.id} key={index}>
+              <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`} value={category.id} key={index}>
                 {capitalizeFirstLetter(category.name)}
               </option>
             ))}
@@ -348,13 +339,13 @@ const CreateEventForm = () => {
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-minage"
           >
             Minimum Age
           </label>
           <input
-            className="input validator h-10 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? "text-gray-200 border-[#f59e0b] dark-mode-datetime" : "text-body-medium border-input-light"} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-minage"
             type="number"
             placeholder=""
@@ -375,13 +366,13 @@ const CreateEventForm = () => {
         </div>
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-maxage"
           >
             Maximum Age
           </label>
           <input
-            className="input validator h-10 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? "text-gray-200 border-[#f59e0b] dark-mode-datetime" : "text-body-medium border-input-light"} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-maxage"
             type="number"
             placeholder=""
@@ -402,13 +393,13 @@ const CreateEventForm = () => {
         </div>
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-maxparticipants"
           >
             Maximum Participants*
           </label>
           <input
-            className="input validator h-10 appearance-none border border-input-light rounded-lg w-full py-2 px-3 text-body-medium leading-tight focus:outline-none"
+            className={`${isDarkMode ? "text-gray-200 border-[#f59e0b]" : "text-body-medium border-input-light"} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-maxparticipants"
             type="number"
             placeholder=""
@@ -425,14 +416,14 @@ const CreateEventForm = () => {
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
-            className="block font-inter text-header-dark text-body-m font-bold mb-2"
+            className="block font-inter text-body-m font-bold mb-2"
             htmlFor="event-description"
           >
             Description
           </label>
           <textarea
             id="event-description"
-            className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
+            className={` ${isDarkMode ? "text-gray-200 border-[#f59e0b]" : "text-body-medium border-input-light"} field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border rounded-md px-3 py-2 focus:outline-none ...`}
             rows="3"
             placeholder="Describe the event..."
             {...register('description', {
@@ -448,13 +439,15 @@ const CreateEventForm = () => {
         </div>
       </div>
       <div className="flex mt-6 gap-6  justify-end">
-        <button
+        <Button
           type="button"
           onClick={closeModal}
-          className="btn bg-white border border-input-light shadow-none hover:bg-input-light px-6 pt-3 pb-3 rounded-lg"
+          background={`duration-750 ${isDarkMode ? "bg-slate-900 border-1 border-[#f59e0b] hover:bg-slate-600" : "bg-white border-1 border-gray-300"}`}
+          hoverColor={`duration-750 ${isDarkMode && "hover:text-[#f59e0b]"}`}
+          textColor={`duration-750 ${isDarkMode && "text-[#f59e0b]"}`}
         >
-          <p className="text-body-medium">Cancel</p>
-        </button>
+          <p>Cancel</p>
+        </Button>
         <button
           type="submit"
           className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-6 pt-3 pb-3 rounded-lg text-white"

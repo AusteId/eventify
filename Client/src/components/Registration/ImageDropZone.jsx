@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Button from '../Button';
 import Frame from '../../assets/Frame.svg';
+import { useNotifications } from '../context/NotificationContext';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -26,6 +27,7 @@ const ImageDropzone = ({
 }) => {
   const [filePreview, setFilePreview] = useState(initialPreview);
   const [error, setError] = useState(null);
+  const { isDarkMode } = useNotifications();
 
   const validateFile = file => {
     if (!file) return null;
@@ -84,50 +86,56 @@ const ImageDropzone = ({
     setFilePreview(initialPreview);
   }, [initialPreview]);
 
-  const containerClass =
-    customClasses.container ||
-    'bg-white w-full flex justify-center items-center rounded-2xl p-8';
-  const dropzoneClass =
-    customClasses.dropzone ||
-    'border-2 border-dashed border-btn p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%]';
-  const previewClass =
-    customClasses.preview || 'w-24 h-24 rounded-full object-cover';
-  const errorClass = customClasses.error || 'text-red-500 mb-4';
-
   return (
     <div className="flex flex-col items-center">
-      {error && <p className={errorClass}>{error}</p>}
+      {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      <section className={containerClass}>
-        <div {...getRootProps()} className={dropzoneClass}>
+      <section className={`w-full flex justify-center items-center rounded-2xl p-8 duration-750 ${
+        isDarkMode ? 'bg-slate-600' : 'bg-white'
+      } ${customClasses.container || ''}`}>
+        <div 
+          {...getRootProps()} 
+          className={`border-2 border-dashed p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%] duration-750 ${
+            isDarkMode ? 'border-[#f59e0b]' : 'border-btn'
+          } ${customClasses.dropzone || ''}`}
+        >
           <input {...getInputProps()} />
           {filePreview ? (
             <img
               src={filePreview}
               alt="Uploaded Preview"
-              className={previewClass}
+              className={`w-24 h-24 rounded-full object-cover ${customClasses.preview || ''}`}
             />
           ) : (
             <>
               <img
                 src={Frame}
                 alt="frame.logo"
-                className="bg-white w-16 h-12"
+                className={`w-16 h-12 ${isDarkMode ? 'none' : 'none'}`}
               />
-              <p className="text-heading-xs text-header-dark font-semibold pt-2 pb-4">
+              <p className={`text-heading-xs font-semibold pt-2 pb-4 duration-750 ${
+                isDarkMode ? 'text-gray-200' : 'text-header-dark'
+              }`}>
                 Drag and drop your photo here
               </p>
-              <p className="text-body-s text-body-medium font-normal pb-4">
+              <p className={`text-body-s font-normal pb-4 duration-750 ${
+                isDarkMode ? 'text-gray-300' : 'text-body-medium'
+              }`}>
                 or click to browse from your computer
               </p>
-              <small className="text-body-s text-body-medium font-normal pb-8">
+              <small className={`text-body-s font-normal pb-8 duration-750 ${
+                isDarkMode ? 'text-gray-400' : 'text-body-medium'
+              }`}>
                 Supported formats:{' '}
                 {acceptedTypes
                   .map(type => type.split('/')[1].toUpperCase())
                   .join(', ')}
                 (Max size: {maxSize / (1024 * 1024)}MB)
               </small>
-              <Button className="mt-4">
+              <Button 
+                background={isDarkMode ? 'bg-[#f59e0b] hover:bg-amber-500' : 'bg-[#f59e0b]'}
+                textColor={isDarkMode ? 'text-gray-900' : ''}
+              >
                 <label htmlFor="fileInput" className="cursor-pointer">
                   Choose a file
                 </label>

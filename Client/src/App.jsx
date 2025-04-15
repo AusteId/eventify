@@ -28,7 +28,7 @@ function App() {
   const formRefs = useRef([null, null, null, null]);
 
   return (
-    <div className="">
+    <div>
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>

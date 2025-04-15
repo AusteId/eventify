@@ -3,10 +3,7 @@
 import { useEffect, useState } from 'react';
 import Button from './Button';
 import ButtonCancel from './ButtonCancel';
-import {
-  convertToCompactEuDatetime,
-  formatToOnlyTime,
-} from '../utils/dateFunctions';
+import { convertToCompactEuDatetime } from '../utils/dateFunctions';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { IoPersonAdd } from 'react-icons/io5';
@@ -15,12 +12,8 @@ import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
 import { Clock, MapPin, Users, Timer } from 'lucide-react';
-import {
-  differenceInDays,
-  differenceInMinutes,
-  formatDistance,
-  formatDuration,
-} from 'date-fns';
+import { formatDistance } from 'date-fns';
+import { useNotifications } from './context/NotificationContext';
 
 const EventCard = ({
   id,
@@ -53,7 +46,10 @@ const EventCard = ({
     loading: false,
     birthDate: null,
   };
+
   const [registered, setRegistered] = useState(isRegistered);
+
+  const { isDarkMode } = useNotifications();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -83,7 +79,6 @@ const EventCard = ({
   useEffect(() => {
     setParticipants(currentParticipants || 0);
   }, [currentParticipants]);
-
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -206,7 +201,7 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex mt-0.5 mb-6 flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && 'grayscale-100'}`}
+      className={`flex mt-0.5 mb-6 flex-col duration-750 ${isDarkMode ? 'bg-slate-900 text-[#f59e0b] border-1 border-[#f59e0b]' : 'bg-white'} justify-between  rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <a
@@ -219,9 +214,11 @@ const EventCard = ({
                 <img
                   src="./src/assets/threePersonIcon.svg"
                   alt="Participants"
-                  onError={() => console.log('Participants icon failed to load')}
+                  onError={() =>
+                    console.log('Participants icon failed to load')
+                  }
                 />
-                <p className="text-white">
+                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
                   {participants}/{maxParticipants}
                 </p>
               </div>
@@ -230,7 +227,9 @@ const EventCard = ({
               <div
                 className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
               >
-                <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
+                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
+                  {expLevels[normalizedExpLevel][1]}
+                </p>
               </div>
             )}
 
@@ -258,18 +257,28 @@ const EventCard = ({
           <h2 className="text-heading-xs font-[600] leading-[1.125rem] whitespace-nowrap overflow-hidden text-ellipsis">
             {name}
           </h2>
-          <p className="h-12 font-inter text-body-medium text-body-m">
+          <p
+            className={`h-12 font-inter  text-body-m ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+          >
             {shortDesc}
           </p>
-          <div className="flex flex-col gap-2 font-inter text-body-medium text-body-s">
+          <div
+            className={`flex flex-col gap-2 font-inter text-body-s ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+          >
             {startDateTime ? (
               <figure className="flex gap-2">
-                <Clock size={20} />
+                <Clock
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 {endDateTime ? (
                   <div className="flex gap-2">
                     <figcaption>{TimeString}</figcaption>
                     <figcaption className="flex gap-1">
-                      <Timer size={20} />
+                      <Timer
+                        size={20}
+                        className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                      />
                       {DurationString}
                     </figcaption>
                   </div>
@@ -281,19 +290,28 @@ const EventCard = ({
               </figure>
             ) : (
               <figure className="flex gap-2">
-                <Clock size={20} />
+                <Clock
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>Time not provided</figcaption>
               </figure>
             )}
             {city && (
               <figure className="flex gap-2">
-                <MapPin size={20} />
+                <MapPin
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>{city}</figcaption>
               </figure>
             )}
             {ageString && (
               <figure className="flex gap-2">
-                <Users size={20} />
+                <Users
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>{ageString}</figcaption>
               </figure>
             )}
@@ -309,7 +327,11 @@ const EventCard = ({
             onClick={handleRegistration}
             disabled={loading}
           >
-            <img src="./src/assets/xIcon.svg" className="border-0" alt="Cancel" />
+            <img
+              src="./src/assets/xIcon.svg"
+              className="border-0"
+              alt="Cancel"
+            />
             {loading ? 'Processing...' : 'Cancel Registration'}
           </ButtonCancel>
         ) : (
