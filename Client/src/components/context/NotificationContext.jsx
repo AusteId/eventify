@@ -22,7 +22,8 @@ export const NotificationProvider = ({ children }) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated;
   const authFetch = auth?.authFetch;
-  
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const url = 'http://localhost:8080';
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -147,7 +148,7 @@ export const NotificationProvider = ({ children }) => {
   }), [unreadCount, updateUnreadCount, fetchUnreadCount, isLoading]);
   
   return (
-    <NotificationContext.Provider value={{...contextValue, url, error, success, timeoutForError, timeoutForSuccess}}>
+    <NotificationContext.Provider value={{...contextValue, url, error, success, timeoutForError, timeoutForSuccess,isDarkMode,setIsDarkMode}}>
       {children}
     </NotificationContext.Provider>
   );
