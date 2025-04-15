@@ -240,7 +240,6 @@
                 <executions>
                     <execution>
                         <id>checkstyle</id>
-                        <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
