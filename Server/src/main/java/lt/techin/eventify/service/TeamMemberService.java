@@ -19,23 +19,19 @@ public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
     private final TeamMemberMapper teamMemberMapper;
 
-    @CacheEvict(value = "teamMembersCache", allEntries = true)
     public TeamMember save(TeamMember teamMember) {
         return teamMemberRepository.save(teamMember);
     }
 
-    @Cacheable("teamMembersCache")
     public List<TeamMember> getAll() {
         return teamMemberRepository.findAll();
     }
 
-    @Cacheable("teamMembersCache")
     public TeamMember findById(Long id) {
         return teamMemberRepository.findById(id)
                 .orElseThrow(() -> new TeamMemberNotFoundException("Team member with ID " + id + " not found"));
     }
 
-    @CacheEvict(value = "teamMembersCache", allEntries = true)
     public void delete(Long id) {
         if (!teamMemberRepository.existsById(id)) {
             throw new TeamMemberNotFoundException("Team member with ID " + id + " not found");
@@ -43,7 +39,6 @@ public class TeamMemberService {
         teamMemberRepository.deleteById(id);
     }
 
-    @Cacheable("teamMembersCache")
     public String findImageKeyById(Long id) {
         return teamMemberRepository.findImageKeyById(id)
                 .orElseThrow(() -> new TeamMemberNotFoundException("Image for team member with ID " + id + " not found"));

@@ -3,7 +3,6 @@ package lt.techin.eventify.dto.teamMember;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lt.techin.eventify.validation.file.ValidImage;
-import org.springframework.web.multipart.MultipartFile;
 
 public record CreateTeamMemberRequest(
 
@@ -28,10 +27,7 @@ public record CreateTeamMemberRequest(
         @Email(message = "Invalid email address")
         String email,
 
-        String imageUrl, // Optional if image is uploaded
+        String imageUrl
 
-        @ValidImage
-        @Schema(type = "string", format = "binary")
-        MultipartFile picture
 ) {
 }

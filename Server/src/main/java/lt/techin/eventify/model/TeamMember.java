@@ -46,5 +46,59 @@ public class TeamMember {
   public TeamMember() {
   }
 
+  public long getId() {
+    return id;
+  }
 
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getLinkedin() {
+    return linkedin;
+  }
+
+  public void setLinkedin(String linkedin) {
+    this.linkedin = linkedin;
+  }
+
+  public String getGithub() {
+    return github;
+  }
+
+  public void setGithub(String github) {
+    this.github = github;
+  }
+
+  public String getPhone_number() {
+    return phone_number;
+  }
+
+  public void setPhone_number(String phone_number) {
+    this.phone_number = phone_number;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getImage_url() {
+    return image_url;
+  }
+
+  public void setImage_url(String image_url) {
+    this.image_url = image_url;
+  }
 }

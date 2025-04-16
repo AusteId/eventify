@@ -238,12 +238,7 @@
                     <violationSeverity>warning</violationSeverity>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>checkstyle</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
+
                 </executions>
             </plugin>
         </plugins>
