@@ -1,6 +1,5 @@
 import LinkedIn from '../assets/aboutUs/linkedin.svg';
 import Email from '../assets/aboutUs/email.svg';
-import Phone from '../assets/aboutUs/phone.svg';
 import GitHub from '../assets/aboutUs/github.svg';
 
 const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete }) => {
