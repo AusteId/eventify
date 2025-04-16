@@ -4,7 +4,7 @@ import LoadingSection from '../LoadingSection';
 import Pagination from '../Pagination';
 import { useAuth } from '../Auth/AuthContext';
 
-const MyEventsList = ({ endpoint, setLoading, loading }) => {
+const MyEventsList = ({ endpoint, setLoading, loading, isDarkMode }) => {
   const { authFetch } = useAuth();
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -88,7 +88,7 @@ const MyEventsList = ({ endpoint, setLoading, loading }) => {
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : events.length === 0 ? (
-        <p className="text-center text-gray-500">
+        <p className={`text-center ${isDarkMode ? "text-gray-300/85" : "text-gray-500"}`}>
           {endpoint === '/api/events/user/created-events'
             ? "It looks like you haven't created any events so far. Why not create one now?"
             : "It looks like you haven’t joined any events yet. Start by browsing upcoming events!"}

@@ -5,12 +5,14 @@ import { useForm } from 'react-hook-form';
 import avatarDefault from '../assets/avatar.png';
 import Comment from './Comment';
 import { useAuth } from './Auth/AuthContext';
+import { useNotifications } from './context/NotificationContext';
 
 const CommentSection = props => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const {userId,avatar,isAuthenticated} = useAuth();
+  const {isDarkMode} = useNotifications();
 
   const {
     register,
@@ -80,7 +82,7 @@ const CommentSection = props => {
   return (
     <div>
       {isAuthenticated &&  <form onSubmit={handleSubmit(onPostComment)}>
-        <h1 className="text-header-dark font-inter font-bold text-heading-s pb-6">
+        <h1 className={` font-inter font-bold text-heading-s pb-6 ${isDarkMode ? "text-gray-200" : "text-header-dark"}`}>
           Comments
         </h1>
         <div className="flex">
@@ -92,7 +94,7 @@ const CommentSection = props => {
           <div className="pl-4 w-full">
             <textarea
               id="textarea"
-              className="field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none ..."
+              className={`duration-750 field-sizing-fixed resize-none font-inter  text-body-m w-full bg-transparent text-sm border  rounded-md px-3 py-2 focus:outline-none ... ${isDarkMode ? "text-gray-200 placeholder:text-gray-400 border-gray-300" : "text-body-medium placeholder:text-slate-400 border-slate-200"}`}
               rows="4"
               placeholder="Write a comment..."
               onInput={e => setNewComment(e.target.value)}
@@ -108,10 +110,11 @@ const CommentSection = props => {
             <div className="w-full flex flex-row items-center">
               <button
                 type="submit"
-                className="btn bg-btn items-center border-0 shadow-none hover:bg-btn-hover px-4 pt-3 pb-3 rounded-lg text-white"
+                className={`btn items-center duration-750 border-1 ${isDarkMode && !newComment ? "border-[#f59e0b]" : isDarkMode ? "border-transparent bg-amber-700 hover:bg-amber-600 text-gray-300" : "border-transparent bg-btn hover:bg-btn-hover text-white"} shadow-none  px-4 pt-3 pb-3 rounded-lg `}
                 disabled={!newComment.trim()}
               >
-                <Send className="h-4 w-4" />
+                <Send className={`h-4 w-4 ${isDarkMode && newComment 
+                  ? "text-gray-200" : isDarkMode ? "text-[#f59e0b]" : ""}`} />
                 Post Comment
               </button>
             </div>
@@ -143,10 +146,10 @@ const CommentSection = props => {
         </div>
       ) : (
         <div className="flex flex-col items-center pt-10 pb-10">
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 mx-auto" fill="none" viewBox="0 0 24 24" stroke="gray">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 mx-auto" fill="none" viewBox="0 0 24 24" stroke={`${isDarkMode ? "#e5e7eb" : "gray"}`}>
    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
     </svg>
-          <p className="font-inter text-body-medium mt-2">No comments yet</p>
+          <p className={`font-inter mt-2 ${isDarkMode ? "text-gray-300" : "text-body-medium"}`}>No comments yet</p>
         </div>
       )}
     </div>

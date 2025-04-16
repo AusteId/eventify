@@ -155,6 +155,7 @@ export const AuthProvider = ({ children }) => {
       navigate('/');
       sessionStorage.removeItem('plsStahp');
       localStorage.removeItem("userAvatar")
+      localStorage.removeItem("eventify_unread_count")
       setAvatar(null)
       toast.success('Logged out!');
     } catch (error) {
@@ -165,7 +166,7 @@ export const AuthProvider = ({ children }) => {
       setUserId('');
       sessionStorage.removeItem('plsStahp');
       localStorage.removeItem("userAvatar")
-      localStorage.clear()
+      localStorage.removeItem("eventify_unread_count")
       setAvatar(null)
       setIsLoading(false);
     }

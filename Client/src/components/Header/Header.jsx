@@ -12,7 +12,6 @@ import { NavLink, useNavigate } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
 import Button from '../Button';
-import StepIndicator from '../StepIndicator';
 import HeaderProfilePicture from './HeaderProfilePicture';
 import DarkModeToggle from './DarkModeToggle';
 import { useNotifications } from '../context/NotificationContext';
@@ -78,7 +77,7 @@ const Header = () => {
                   viewBox="0 0 21 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`duration-750 ${isDarkMode ? 'shadow-md shadow-yellow-200' : 'text-title'}`}
+                  className={`duration-750 ${isDarkMode ? '' : 'text-title'}`}
                 >
                   <path
                     id="Vector"
@@ -95,7 +94,7 @@ const Header = () => {
             </div>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex lg:px-6 md:flex md:px-6">
+            <div className="hidden lg:flex lg:px-6 md:flex md:px-6 relative">
               <ul className="flex space-x-4 lg:space-x-6 items-center">
                 {navLinks.map(link => {
                   if (!isAuthenticated && link.auth) {
@@ -108,15 +107,14 @@ const Header = () => {
                           onClick={() => setActiveLink(link.name)}
                           className={`
                     px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors ease-in-out text-nowrap 
-                    ${
-                      activeLink === link.href && isDarkMode
-                        ? 'text-btn bg-slate-700 duration-750'
-                        : activeLink === link.href
-                          ? 'text-btn bg-yellow-50'
-                          : isDarkMode
-                            ? 'text-gray-200 hover:bg-slate-600 duration 750'
-                            : 'duration-150 text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }
+                    ${activeLink === link.href && isDarkMode
+                              ? 'text-btn bg-slate-700 duration-750'
+                              : activeLink === link.href
+                                ? 'text-btn bg-yellow-50'
+                                : isDarkMode
+                                  ? 'text-gray-200 hover:bg-slate-600 duration 750'
+                                  : 'duration-150 text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                            }
                   `}
                           aria-current={
                             activeLink === link.name ? 'page' : undefined
@@ -128,8 +126,13 @@ const Header = () => {
                     );
                   }
                 })}
+                {location.pathname === "/login" || location.pathname.startsWith("/register") &&
+                  <div className="absolute top-[-77%] left-[85%] mt-[2.5px] md:block min-[1px]:hidden">
+                    <DarkModeToggle />
+                  </div>}
               </ul>
             </div>
+
 
             {/* Right Section: Actions & User Menu */}
             <div className="flex items-center gap-3 sm:gap-4">
@@ -147,8 +150,8 @@ const Header = () => {
                 </div>
               )}
               {!isAuthenticated &&
-              location.pathname != '/login' &&
-              !location.pathname.startsWith('/register') ? (
+                location.pathname != '/login' &&
+                !location.pathname.startsWith('/register') ? (
                 <div className="relative hidden md:flex lg:flex space-x-3">
                   <NavLink tabIndex={-1} to={'/login'}>
                     <Button>Login</Button>
@@ -164,7 +167,7 @@ const Header = () => {
                 !location.pathname.startsWith('/register') ? (
                 <div className="w-45"></div>
               ) : !isAuthenticated ? (
-                <div className="w-45"> </div>
+                <div className="w-45"></div>
               ) : null}
               {isAuthenticated && (
                 <div className="relative">

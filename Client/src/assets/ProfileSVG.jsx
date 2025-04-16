@@ -6,7 +6,7 @@ const ProfileSVG = () => {
     <svg
       viewBox="0 0 24 24"
       fill={`${isDarkMode ? "none" : "#f59e0b"}`}
-      stroke={`${isDarkMode ? "currentColor" : "#f59e0b"}`}
+      stroke="#f59e0b"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
