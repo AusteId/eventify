@@ -23,6 +23,7 @@ import CreateEventForm from './components/CreateEventForm';
 import { useAuth } from './components/Auth/AuthContext';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
@@ -32,7 +33,7 @@ function App() {
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>
-
+    <DarkModeAutocompleteStyles/>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>

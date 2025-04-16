@@ -64,7 +64,7 @@ const Header = () => {
   return (
     <>
       <header
-        className={`shadow-sm sticky top-0 z-11 duration-750 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}
+        className={`shadow-sm sticky top-0 z-11 duration-750 ${isDarkMode ? 'bg-slate-900 shadow-sm shadow-slate-900' : 'bg-white'}`}
       >
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -107,14 +107,15 @@ const Header = () => {
                           onClick={() => setActiveLink(link.name)}
                           className={`
                     px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors ease-in-out text-nowrap 
-                    ${activeLink === link.href && isDarkMode
-                              ? 'text-btn bg-slate-700 duration-750'
-                              : activeLink === link.href
-                                ? 'text-btn bg-yellow-50'
-                                : isDarkMode
-                                  ? 'text-gray-200 hover:bg-slate-600 duration 750'
-                                  : 'duration-150 text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                            }
+                    ${
+                      activeLink === link.href && isDarkMode
+                        ? 'text-btn bg-slate-700 duration-750'
+                        : activeLink === link.href
+                          ? 'text-btn bg-yellow-50'
+                          : isDarkMode
+                            ? 'text-gray-200 hover:bg-slate-600 duration 750'
+                            : 'duration-150 text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    }
                   `}
                           aria-current={
                             activeLink === link.name ? 'page' : undefined
@@ -126,13 +127,14 @@ const Header = () => {
                     );
                   }
                 })}
-                {location.pathname === "/login" || location.pathname.startsWith("/register") &&
-                  <div className="absolute top-[-77%] left-[85%] mt-[2.5px] md:block min-[1px]:hidden">
-                    <DarkModeToggle />
-                  </div>}
+                {((location.pathname === '/login' ||
+                  (location.pathname.startsWith('/register'))) && (
+                    <div className="absolute top-[-77%] left-[85%] mt-[2.5px] md:block min-[1px]:hidden">
+                      <DarkModeToggle />
+                    </div>
+                  ))}
               </ul>
             </div>
-
 
             {/* Right Section: Actions & User Menu */}
             <div className="flex items-center gap-3 sm:gap-4">
@@ -150,11 +152,11 @@ const Header = () => {
                 </div>
               )}
               {!isAuthenticated &&
-                location.pathname != '/login' &&
-                !location.pathname.startsWith('/register') ? (
+              location.pathname != '/login' &&
+              !location.pathname.startsWith('/register') ? (
                 <div className="relative hidden md:flex lg:flex space-x-3">
                   <NavLink tabIndex={-1} to={'/login'}>
-                    <Button>Login</Button>
+                    <Button >Login</Button>
                   </NavLink>
                   <NavLink tabIndex={-1} to={'/register'}>
                     <Button>Sign Up</Button>

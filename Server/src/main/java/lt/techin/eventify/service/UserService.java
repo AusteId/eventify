@@ -106,7 +106,7 @@ public class UserService {
       throw new InvalidCredentialsException("Invalid email or password");
     }
 
-    return tokenService.generateToken(user.get());
+    return tokenService.generateToken(user.get(), loginUserRequest.rememberMe());
   }
 
   public byte[] getUserPrivateAvatar() {

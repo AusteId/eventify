@@ -12,6 +12,7 @@ const Button = ({
 }) => {
   const sizes = {
     big: 'h-[3.5rem] px-8',
+    large: "h-[3rem] px-6",
     medium: 'h-[2.5rem] px-4',
     small: 'h-[2rem] px-2',
   };

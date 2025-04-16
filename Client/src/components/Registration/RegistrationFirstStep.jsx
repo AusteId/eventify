@@ -1,14 +1,14 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
-import email from '../../assets/userRegistration/email-Icon.svg';
-import password from '../../assets/userRegistration/password-Icon.svg';
-import username from '../../assets/userRegistration/username-Icon.svg';
 import Button from '../Button';
 import { useNotifications } from '../context/NotificationContext';
 import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
 import RegistrationSteps from '../RegistrationSteps';
+import UsernameIconSVG from '../../assets/userRegistration/UsernameIconSVG';
+import EmailIconSVG from '../../assets/userRegistration/EmailIconSVG';
+import PasswordIconSVG from '../../assets/userRegistration/PasswordIconSVG';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -18,6 +18,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const { nextStep } = useOutletContext();
   const { timeoutForError, url } = useNotifications();
   const [isLoading, setIsLoading] = useState(false);
+  const { isDarkMode } = useNotifications();
 
   RegistrationFirstStep.displayName = 'RegistrationFirstStep';
 
@@ -137,12 +138,16 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     <div>
       {isLoading && <LoadingScreen />}
       <RegistrationSteps step={1} />
-      <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
+      <div
+        className={`flex flex-col gap-8 duration-750  mt-[3rem] rounded-2xl border shadow-md px-9 pt-8 pb-12 ${isDarkMode ? 'text-gray-300 bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent text-body-medium'}`}
+      >
         <div>
-          <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
+          <h1
+            className={`font-bold text-center text-heading-m/normal mb-12 duration-750 ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-dark'}`}
+          >
             Create your account
           </h1>
-          <p className="text-body-m/[1rem] text-body-medium">
+          <p className="text-body-m/[1rem]">
             Join Eventify to discover amazing events near you
           </p>
         </div>
@@ -150,14 +155,19 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
         <div>
           <fieldset className="fieldset gap-y-6 mb-6">
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Username
-              </p>
-              <label className="input w-full">
-                <img src={username} alt="username icon" />
+              <p className="text-sm/normal font-[500]">Username</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <UsernameIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="text"
                   placeholder="Choose a username"
+                  className={``}
                   {...register('username', {
                     required: 'Username is required.',
                     minLength: {
@@ -182,11 +192,15 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             </div>
 
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Email address
-              </p>
-              <label className="input w-full">
-                <img src={email} alt="email icon" />
+              <p className="text-sm/normal font-[500]">Email address</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <EmailIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -206,11 +220,15 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             </div>
 
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Password
-              </p>
-              <label className="input w-full">
-                <img src={password} alt="password icon" />
+              <p className="text-sm/normal font-[500]">Password</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <PasswordIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="password"
                   placeholder="Create a password"
@@ -239,11 +257,15 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             </div>
 
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Confirm Password
-              </p>
-              <label className="input w-full">
-                <img src={password} alt="password icon" />
+              <p className="text-sm/normal font-[500]">Confirm Password</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <PasswordIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="password"
                   placeholder="Retype your password"
@@ -259,16 +281,14 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
           </fieldset>
 
           <div className="flex justify-center ">
-            <Button onClick={onNext} disabled={isValidating} isFull>
+            <Button size="large" onClick={onNext} disabled={isValidating} isFull>
               {isValidating ? 'Validating...' : 'Continue'}
             </Button>
           </div>
           <div className="flex justify-center gap-4 w-full text-center pt-6 ">
-            <p className="font-inter text-body-medium">
-              Already have an account?
-            </p>
+            <p className="font-inter">Already have an account?</p>
             <a
-              className="text-btn-hover cursor-pointer"
+              className="duration-750 text-btn-hover cursor-pointer hover:text-[#f59e0b]"
               onClick={() => navigate('/login')}
             >
               Sign in
