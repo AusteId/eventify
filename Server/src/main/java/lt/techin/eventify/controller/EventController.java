@@ -114,11 +114,16 @@ public class EventController {
         User user = userService.findByUsername(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User " + principal.getName() + " not found"));
         isRegistered = registrationToEventService.countRegistrationsByEventIdAndUserId(eventId, user.getId()) > 0;
+        logger.info("User {} registration status for event {}: {}", principal.getName(), eventId, isRegistered);
       } catch (UsernameNotFoundException e) {
-
+        logger.warn("User not found: {}", principal.getName());
+      } catch (Exception e) {
+        logger.error("Error checking registration for event {} and user {}: {}", eventId, principal.getName(), e.getMessage());
       }
-
+    } else {
+      logger.debug("No authenticated user (principal is null)");
     }
+
     event = new EventResponse(
             event.id(),
             event.name(),
@@ -139,7 +144,7 @@ public class EventController {
             event.latitude(),
             event.longitude()
     );
-log.info("Event: {}", event);
+
     return ResponseEntity.ok(event);
   }
 
