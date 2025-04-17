@@ -10,13 +10,7 @@ import EventSearch from './search/EventSearch';
 import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const EventsList = ({loading,setLoading}) => {
-  console.log("EventsList rendering at", new Date().toISOString());
-  const renderCountRef = useRef(0);
-  useEffect(() => {
-    renderCountRef.current += 1;
-    console.log("EventsList render count:", renderCountRef.current);
-  }, []);
-
+  
   const [events, setEvents] = useState([]);
   const [eventsForMap, setEventsForMap] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
