@@ -27,8 +27,8 @@ const EventCard = ({
   experienceLevel = 'All Welcome',
   isRegistered = 0,
   eventHandler,
-  currentParticipants = 0,
-  maxParticipants = 1,
+  currentParticipants,
+  maxParticipants,
   name = 'Title missing...',
   description,
   startDateTime,
@@ -42,15 +42,17 @@ const EventCard = ({
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
   const [imageData, setImageData] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(true);
-  const [participants, setParticipants] = useState(currentParticipants || 0);
+  const [participants, setParticipants] = useState(currentParticipants ?? 0);
   const [loading, setLoading] = useState(false);
   const {
     isAuthenticated,
     loading: authLoading,
+    userId,
     birthDate,
   } = useAuth() || {
     isAuthenticated: false,
     loading: false,
+    userId: '',
     birthDate: null,
   };
   const [registered, setRegistered] = useState(isRegistered);
@@ -81,9 +83,31 @@ const EventCard = ({
   }, [id]);
 
   useEffect(() => {
-    setParticipants(currentParticipants || 0);
-  }, [currentParticipants]);
-
+    const fetchEventDetails = async () => {
+      if (!id || !isAuthenticated || !userId) {
+        setRegistered(false);
+        setParticipants(currentParticipants ?? 0);
+        return;
+      }
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/${id}`,
+          {
+            withCredentials: true,
+          },
+        );
+        console.log('Full API response:', response.data);
+        const registrations = response.data.registrations || [];
+        setRegistered(response.data.isRegistered);
+        setParticipants(registrations.length || 0);
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+        setRegistered(false);
+        setParticipants(currentParticipants ?? 0);
+      }
+    };
+    fetchEventDetails();
+  }, [id, isAuthenticated, userId]);
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -102,10 +126,8 @@ const EventCard = ({
 
   const isAgeValid = () => {
     const userAge = calculateAge(birthDate);
-
     if (!userAge && !minAge && !maxAge) return true;
     if (!userAge) return false;
-
     if (minAge && userAge < minAge) return false;
     if (maxAge && userAge > maxAge) return false;
     return true;
@@ -131,20 +153,21 @@ const EventCard = ({
       if (registered) {
         const result = await cancelEvent(id);
         console.log('cancelEvent result:', result);
-        setRegistered(event.re);
-        setParticipants(prev => Math.max(0, prev - 1));
+        setRegistered(false);
+        setParticipants(prev => Math.max(prev - 1));
         toast.success('Registration has been successfully canceled.');
       } else {
         if (participants < maxParticipants) {
           const result = await joinEvent(id);
           console.log('joinEvent result:', result);
-          setRegistered(event.registrations.length);
+          setRegistered(true);
           setParticipants(prev => prev + 1);
           toast.success(`You're registered to ${name}!`);
         } else {
           toast.error('Places at the event have run out!');
         }
       }
+
       if (eventHandler) eventHandler();
     } catch (error) {
       const errorMessage = error.error || 'Something went wrong. Try it again.';
@@ -218,8 +241,11 @@ const EventCard = ({
               <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
                 <img
                   src="./src/assets/threePersonIcon.svg"
-                  alt="Participants"
-                  onError={() => console.log('Participants icon failed to load')}
+                  loading="lazy"
+                  onError={() => {
+                    console.log('Event image failed to load, using fallback');
+                    setImageData('./src/assets/eventCardImgSample.png');
+                  }}
                 />
                 <p className="text-white">
                   {participants}/{maxParticipants}
@@ -309,7 +335,11 @@ const EventCard = ({
             onClick={handleRegistration}
             disabled={loading}
           >
-            <img src="./src/assets/xIcon.svg" className="border-0" alt="Cancel" />
+            <img
+              src="./src/assets/xIcon.svg"
+              className="border-0"
+              alt="Cancel"
+            />
             {loading ? 'Processing...' : 'Cancel Registration'}
           </ButtonCancel>
         ) : (
