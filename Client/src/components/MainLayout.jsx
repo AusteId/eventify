@@ -12,8 +12,8 @@ const MainLayout = () => {
         <div className="flex-1">
           <Outlet />
         </div>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 };

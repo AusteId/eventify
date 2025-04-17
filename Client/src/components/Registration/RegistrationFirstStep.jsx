@@ -8,7 +8,7 @@ import Button from '../Button';
 import { useNotifications } from '../context/NotificationContext';
 import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
-import StepIndicator from '../StepIndicator';
+import RegistrationSteps from '../RegistrationSteps';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -134,8 +134,9 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   };
 
   return (
-    <>
+    <div>
       {isLoading && <LoadingScreen />}
+      <RegistrationSteps step={1} />
       <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
         <div>
           <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
@@ -266,13 +267,16 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             <p className="font-inter text-body-medium">
               Already have an account?
             </p>
-            <a className="text-btn-hover cursor-pointer" onClick={() => navigate("/login")}>
+            <a
+              className="text-btn-hover cursor-pointer"
+              onClick={() => navigate('/login')}
+            >
               Sign in
             </a>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 });
 
