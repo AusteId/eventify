@@ -5,7 +5,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 import { CarouselButton } from './CarouselButton';
 import EventCard from './EventCard';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const debounce = (func, wait) => {
   let timeout;
@@ -37,7 +37,7 @@ export default function EventCarousel({
     typeof window !== 'undefined' ? window.innerWidth : 1920,
   );
 
-  const {isDarkMode} = useNotifications()
+  const { isDarkMode } = useDarkMode();
 
   const cardsPerView = useMemo(() => {
     if (windowWidth < BREAKPOINTS.MOBILE) return 1;

@@ -7,7 +7,7 @@ import LoadingSection from './LoadingSection';
 import EventMap from './map/EventMap';
 import Pagination from './Pagination';
 import EventSearch from './search/EventSearch';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const EventsList = ({ setLoading, loading }) => {
   const [events, setEvents] = useState([]);
@@ -32,7 +32,7 @@ const EventsList = ({ setLoading, loading }) => {
   const [searchParamsUrl] = useSearchParams();
   const eventId = searchParamsUrl.get('eventId');
   const eventsPerPage = 12;
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
   useEffect(() => {
     if (eventId) {
       setShowMap(true);

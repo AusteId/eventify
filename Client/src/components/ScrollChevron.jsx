@@ -1,12 +1,12 @@
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const ScrollChevron = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [isBouncing, setIsBouncing] = useState(true);
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   const { ref } = useInView({
     threshold: 0.1,

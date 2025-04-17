@@ -25,7 +25,7 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import { RiFilter2Fill } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
 import CategoryImage from '../category/CategoryImage';
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const EventSearch = ({ onSearch }) => {
   const [searchInput, setSearchInput] = useState('');
@@ -37,8 +37,7 @@ const EventSearch = ({ onSearch }) => {
   const [activeDateFilter, setActiveDateFilter] = useState('');
   const [isToDateManuallyEdited, setIsToDateManuallyEdited] = useState(false);
   const [isSettingDateFilter, setIsSettingDateFilter] = useState(false);
-  const { isDarkMode } = useNotifications();
-
+  const { isDarkMode } = useDarkMode();
   const filterDropdownRef = useRef(null);
   const dropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);

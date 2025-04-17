@@ -13,7 +13,7 @@ import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
 import { Clock, MapPin, Users, Timer } from 'lucide-react';
 import { formatDistance } from 'date-fns';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const EventCard = ({
   id,
@@ -49,7 +49,7 @@ const EventCard = ({
 
   const [registered, setRegistered] = useState(isRegistered);
 
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -201,7 +201,7 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex mt-0.5 mb-6 flex-col duration-750 ${isDarkMode ? 'bg-slate-900 text-[#f59e0b] border-1 border-[#f59e0b]' : 'bg-white'} justify-between  rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && 'grayscale-100'}`}
+      className={`flex mt-0.5 mb-6 flex-col duration-750 border-1 ${isDarkMode ? 'bg-slate-900 text-[#f59e0b] border-[#f59e0b]' : 'bg-white border-transparent'} justify-between  rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <a

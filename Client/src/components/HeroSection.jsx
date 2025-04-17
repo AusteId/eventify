@@ -1,15 +1,14 @@
-import React from 'react';
 import { useNavigate } from 'react-router';
 import heroBanner from '../assets/hero.jpg';
 import { useAuth } from '../components/Auth/AuthContext';
 import ScrollChevron from '../components/ScrollChevron';
 import Button from './Button';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div className="relative min-h-200 h-[calc(100vh-64px)] w-full">

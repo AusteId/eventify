@@ -2,13 +2,14 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
 import Button from '../Button';
-import { useNotifications } from '../context/NotificationContext';
 import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
 import RegistrationSteps from '../RegistrationSteps';
 import UsernameIconSVG from '../../assets/userRegistration/UsernameIconSVG';
 import EmailIconSVG from '../../assets/userRegistration/EmailIconSVG';
 import PasswordIconSVG from '../../assets/userRegistration/PasswordIconSVG';
+import toast from 'react-hot-toast';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -16,9 +17,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [emailError, setEmailError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
-  const { timeoutForError, url } = useNotifications();
   const [isLoading, setIsLoading] = useState(false);
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   RegistrationFirstStep.displayName = 'RegistrationFirstStep';
 
@@ -60,7 +60,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`,
+        `http://localhost:8080/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`,
         {
           method: 'GET',
           headers: {
@@ -70,7 +70,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
       );
 
       if (!response.ok) {
-        timeoutForError('Failed to check username/email availability');
+        toast.error('Failed to check username/email availability');
         return false;
       }
 
@@ -98,7 +98,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
 
       return isValid;
     } catch (error) {
-      timeoutForError(error.message || 'Failure checking credentials');
+      toast.error(error.message || 'Failure checking credentials');
       return false;
     } finally {
       setIsValidating(false);

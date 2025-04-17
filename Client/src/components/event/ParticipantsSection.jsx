@@ -2,10 +2,10 @@ import Participant from './Participant';
 import Modal from './Modal';
 import ViewParticipants from './ViewParticipants';
 import capitalizeFirstLetter from '../../utils/capitalizeFirstLetter';
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const ParticipantsSection = ({ organizer, participants }) => {
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
   const handleClickViewParticipants = () => {
     document.getElementById('view_all_participants_modal').showModal();
   };

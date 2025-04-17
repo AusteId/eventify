@@ -8,9 +8,9 @@ import ImageDropzone from './Registration/ImageDropZone';
 import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
 import toast from 'react-hot-toast';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import { useNotifications } from './context/NotificationContext';
 import Button from './Button';
 import CloseSVG from '../assets/CloseSVG';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const CreateEventForm = () => {
   const {
@@ -43,7 +43,7 @@ const CreateEventForm = () => {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [geocodingError, setGeocodingError] = useState(null);
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
   const picture = watch('picture');
   const city = watch('city');
   const address = watch('address');

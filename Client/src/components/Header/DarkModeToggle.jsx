@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNotifications } from "../context/NotificationContext";
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 
 const DarkModeToggle = () => {
 
-    const { isDarkMode, setIsDarkMode } = useNotifications();
+    const { isDarkMode, setIsDarkMode } = useDarkMode();
     const [isAnimating, setIsAnimating] = useState(false);
   
     useEffect(() => {

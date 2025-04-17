@@ -1,14 +1,15 @@
 import axios from 'axios';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
+
 
 const Comment = props => {
   const [editing, setEditing] = useState(false);
   const [editingComment, setEditingComment] = useState('+');
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   const {
     register,

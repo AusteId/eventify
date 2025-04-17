@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../Auth/AuthContext';
-import { useNotifications } from '../context/NotificationContext';
 import { useWebSocket } from './WebSocketContext';
 import UserStatusIndicator from './UserStatusIndicator';
 import { formatDistanceToNow } from 'date-fns';
 import { debounce } from 'lodash';
-import defaultAvatar from '../../assets/default-user-image.png';
 import '../../assets/scrollbar.css';
+import toast from 'react-hot-toast';
 
 const ChatUsersList = ({ onSelectUser }) => {
   const [contacts, setContacts] = useState([]);
@@ -17,7 +16,6 @@ const ChatUsersList = ({ onSelectUser }) => {
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   const { authFetch, userId: currentUserId, avatar } = useAuth();
-  const { url, timeoutForError } = useNotifications();
   const { getUnreadCount, getUserStatus } = useWebSocket();
 
   const listRef = useRef(null);
@@ -30,7 +28,7 @@ const ChatUsersList = ({ onSelectUser }) => {
         try {
           setLoading(true);
           const response = await authFetch(
-            `${url}/api/chat/users/contacts?limit=20`,
+            `http://localhost:8080/api/chat/users/contacts?limit=20`,
           );
 
           if (response && response.ok) {
@@ -38,10 +36,10 @@ const ChatUsersList = ({ onSelectUser }) => {
             setContacts(data);
             contactsLoadedRef.current = true;
           } else {
-            timeoutForError('Failed to load chat contacts');
+            toast.error('Failed to load chat contacts');
           }
         } catch (e) {
-          timeoutForError('Failed to load chat contacts: ' + e.message);
+          toast.error('Failed to load chat contacts: ' + e.message);
         } finally {
           setLoading(false);
         }
@@ -49,7 +47,7 @@ const ChatUsersList = ({ onSelectUser }) => {
 
       fetchContacts();
     }
-  }, [authFetch, url, timeoutForError]);
+  }, [authFetch]);
 
   useEffect(() => {
     return () => {
@@ -66,7 +64,7 @@ const ChatUsersList = ({ onSelectUser }) => {
 
       try {
         const response = await authFetch(
-          `${url}/api/chat/users/search?query=${encodeURIComponent(query)}&limit=5`,
+          `http://localhost:8080/api/chat/users/search?query=${encodeURIComponent(query)}&limit=5`,
         );
 
         if (response && response.ok) {

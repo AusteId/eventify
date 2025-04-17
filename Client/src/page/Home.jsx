@@ -7,12 +7,12 @@ import { useAuth } from '../components/Auth/AuthContext';
 import CategoryButton from '../components/CategoryButton';
 import EventCarousel from '../components/EventCarousel';
 import HeroSection from '../components/HeroSection';
-import { useNotifications } from '../components/context/NotificationContext';
+import { useDarkMode } from '../components/context/DarkModeContext.jsx';
 
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { isDarkMode } = useNotifications(); 
+  const { isDarkMode } = useDarkMode();
 
   const handleCategoryClick = category => {
     navigate(`/events?category=${encodeURIComponent(category.toLowerCase())}`);

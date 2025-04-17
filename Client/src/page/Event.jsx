@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router';
 import EditIcon from '../assets/editIcon.svg?react';
-import MarkIcon from '../assets/mapMarker.svg?react';
 import { useAuth } from '../components/Auth/AuthContext';
 import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
@@ -14,10 +13,10 @@ import getEvent from '../helpers/event/getEvent';
 import getEventImage from '../helpers/event/getEventImage';
 import joinEvent from '../helpers/event/joinEvent';
 import { prettifyDateTime } from '../utils/dateFunctions';
-import { useNotifications } from '../components/context/NotificationContext';
 import LoadingScreen from '../components/message/LoadingScreen';
 import CalendarSVG from '../assets/event/CalendarSVG';
 import MapMarkerSVG from '../assets/mapMarkerSVG';
+import { useDarkMode } from '../components/context/DarkModeContext.jsx';
 
 
 const Event = () => {
@@ -32,7 +31,7 @@ const Event = () => {
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;

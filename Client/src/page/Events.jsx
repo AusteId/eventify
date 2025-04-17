@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import EventsList from '../components/EventsList';
-import { useNotifications } from '../components/context/NotificationContext';
+import { useDarkMode } from '../components/context/DarkModeContext.jsx';
 
 const Events = () => {
   const [loading, setLoading] = useState(true);
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div className="flex flex-col items-center gap-5 py-10 px-10 text-black">

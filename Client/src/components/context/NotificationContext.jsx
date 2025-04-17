@@ -23,11 +23,6 @@ export const NotificationProvider = ({ children }) => {
   const isAuthenticated = auth?.isAuthenticated;
   const authFetch = auth?.authFetch;
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const url = 'http://localhost:8080';
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
   const isMounted = useRef(true);
   const FETCH_DEBOUNCE_MS = 2000; 
 
@@ -37,16 +32,6 @@ export const NotificationProvider = ({ children }) => {
     };
   }, []);
 
-  const timeoutForError = message => {
-    const errorMessage = typeof message === 'string' ? message : 'An error occurred';
-    setError(errorMessage);
-    setTimeout(() => { setError(''); }, 3000);
-  };
-
-  const timeoutForSuccess = message => {
-    setSuccess(message);
-    setTimeout(() => { setSuccess(''); }, 1500);
-  };
   
   useEffect(() => {
     isMounted.current = true;
@@ -103,7 +88,7 @@ export const NotificationProvider = ({ children }) => {
       setIsLoading(true);
       
       console.log("Fetching unread message counts...");
-      const response = await authFetch(`${url}/api/messages/unread`);
+      const response = await authFetch(`http://localhost:8080/api/messages/unread`);
       
       if (!isMounted.current) return;
       
@@ -122,7 +107,7 @@ export const NotificationProvider = ({ children }) => {
       }
       window.EVENTIFY_IS_FETCHING = false;
     }
-  }, [isAuthenticated, authFetch, url]);
+  }, [isAuthenticated, authFetch]);
   
   const updateUnreadCount = useCallback((count) => {
     setUnreadCount(count);
@@ -133,7 +118,7 @@ export const NotificationProvider = ({ children }) => {
     
     const intervalId = setInterval(() => {
       fetchUnreadCount();
-    }, 60000); 
+    }, 5000);
     
     return () => {
       clearInterval(intervalId);
@@ -148,7 +133,7 @@ export const NotificationProvider = ({ children }) => {
   }), [unreadCount, updateUnreadCount, fetchUnreadCount, isLoading]);
   
   return (
-    <NotificationContext.Provider value={{...contextValue, url, error, success, timeoutForError, timeoutForSuccess,isDarkMode,setIsDarkMode}}>
+    <NotificationContext.Provider value={contextValue}>
       {children}
     </NotificationContext.Provider>
   );

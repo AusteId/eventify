@@ -1,7 +1,7 @@
-import { useNotifications } from '../components/context/NotificationContext';
+import { useDarkMode } from '../components/context/DarkModeContext.jsx';
 
 const CloseSVG = () => {
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
   return (
     <svg
       viewBox="0 0 13 14"

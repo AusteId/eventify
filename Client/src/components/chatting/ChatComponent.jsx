@@ -2,10 +2,9 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import { useWebSocket } from "./WebSocketContext";
 import UserStatusIndicator from "./UserStatusIndicator";
-import {useNotifications } from "../context/NotificationContext";
 import MessageComponent from "./MessageComponent";
 import defaultAvatar from "../../assets/default-user-image.png";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import "../../assets/scrollbar.css";
 
 const ChatComponent = ({ recipientId, recipientUsername }) => {
@@ -26,8 +25,7 @@ const ChatComponent = ({ recipientId, recipientUsername }) => {
   const scrollTopBeforeLoadRef = useRef(0);
   const lastMarkTimeRef = useRef({});
   const isRunningRef = useRef(false);
-  
-  const { url } = useNotifications();
+
   const { userId: authUserId, authFetch } = useAuth();
   const {
     connected,
@@ -202,7 +200,7 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     
     console.log(`Fetching messages for conversation ${userId}_${recipientId}, page ${pageToLoad}`);
     const response = await authFetch(
-      `${url}/api/messages/${userId}/${recipientId}?page=${pageToLoad}&size=20`
+      `http://localhost:8080/api/messages/${userId}/${recipientId}?page=${pageToLoad}&size=20`
     );
     
     if (!response) {
@@ -297,7 +295,7 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     setIsLoadingMore(false);
     setIsLoadingOlder(false);
   }
-}, [userId, recipientId, authFetch, url, loading, page]);
+}, [userId, recipientId, authFetch, loading, page]);
 
   const loadMoreMessages = useCallback(() => {
     if (!hasMoreMessages || isLoadingMore || isLoadingOlder) return;
@@ -320,7 +318,7 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
     
     console.log("LOAD MORE: Will load page:", nextPageToLoad);
     
-    const endpoint = `${url}/api/messages/${userId}/${recipientId}?page=${nextPageToLoad}&size=20`;
+    const endpoint = `http://localhost:8080/api/messages/${userId}/${recipientId}?page=${nextPageToLoad}&size=20`;
     
     authFetch(endpoint)
       .then(response => {
@@ -402,7 +400,7 @@ const fetchMessages = useCallback(async (pageToLoad = 0) => {
         setIsLoadingOlder(false);
         setIsLoadingMore(false);
       });
-  }, [authFetch, url, userId, recipientId, page, hasMoreMessages, isLoadingMore, isLoadingOlder]);
+  }, [authFetch, userId, recipientId, page, hasMoreMessages, isLoadingMore, isLoadingOlder]);
 
 
   const handleScroll = useCallback(() => {

@@ -1,16 +1,12 @@
 import { Outlet } from 'react-router';
 import Footer from './Footer';
-import ErrorServer from './message/ErrorServer';
-import Success from './message/Success';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const MainLayout = () => {
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   return (
     <>
-      <ErrorServer />
-      <Success />
       <div className="relative min-h-screen">
         <div 
           className="absolute inset-0 bg-gradient-to-t from-white via-gradient-light-yellow to-gradient-yellow transition-opacity duration-750"

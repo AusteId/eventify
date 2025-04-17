@@ -1,7 +1,4 @@
-import { useNotifications } from "../components/context/NotificationContext";
-
 const LogoutSVG = () => {
-    const {isDarkMode} = useNotifications();
   return (
     <svg
       viewBox="0 0 24 24"

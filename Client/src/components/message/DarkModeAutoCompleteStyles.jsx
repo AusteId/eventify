@@ -1,7 +1,7 @@
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const DarkModeAutocompleteStyles = () => {
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
     return (
       <style>{`

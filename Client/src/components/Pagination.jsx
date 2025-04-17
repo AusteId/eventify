@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const Pagination = ({ totalPages, currentPage, paginate }) => {
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   const paginationNumbers = useMemo(() => {
     const numbers = [];

@@ -11,7 +11,7 @@ import { useOutletContext } from 'react-router';
 import Frame from '../../assets/Frame.svg';
 import Button from '../Button';
 import RegistrationSteps from '../RegistrationSteps';
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -26,7 +26,7 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
   } = useFormContext();
   const { prevStep, finalSubmit, isSubmitting } = useOutletContext();
 
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   RegistrationFourthStep.displayName = 'RegistrationFirstStep';
 

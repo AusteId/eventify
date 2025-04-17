@@ -2,10 +2,10 @@ import { useForm } from 'react-hook-form';
 import FieldValidationError from '../components/FieldValidationError';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../components/Auth/AuthContext';
-import { useNotifications } from '../components/context/NotificationContext';
 import LoadingScreen from '../components/message/LoadingScreen';
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
+import { useDarkMode } from '../components/context/DarkModeContext.jsx';
 
 const Login = () => {
   const {
@@ -16,7 +16,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const { timeoutForError, isDarkMode } = useNotifications();
+ const {isDarkMode} = useDarkMode();
   const { login, loading } = useAuth();
   const [rememberMe,setRememberMe] = useState(false);
 
@@ -47,7 +47,7 @@ const Login = () => {
         reset();
       }
     } catch (error) {
-      timeoutForError(error.message || 'Something went wrong');
+      toast.error(error.message || 'Something went wrong');
     }
   };
 

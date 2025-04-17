@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Button from '../Button';
 import Frame from '../../assets/Frame.svg';
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -27,7 +27,7 @@ const ImageDropzone = ({
 }) => {
   const [filePreview, setFilePreview] = useState(initialPreview);
   const [error, setError] = useState(null);
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   const validateFile = file => {
     if (!file) return null;

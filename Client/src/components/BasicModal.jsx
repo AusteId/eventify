@@ -1,7 +1,7 @@
-import { useNotifications } from "./context/NotificationContext";
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const BasicModal = props => {
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
   return (
     <dialog id={props.id} className="modal">
       <div className={`modal-box ${isDarkMode ? "bg-slate-900" : "bg-white"} rounded-xl max-w-224`}>

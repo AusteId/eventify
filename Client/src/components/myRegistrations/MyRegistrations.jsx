@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import MyEventsList from './MyEventsList';
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const MyRegistrations = () => {
     const [activeTab, setActiveTab] = useState('registered');
@@ -10,7 +10,7 @@ const MyRegistrations = () => {
         setActiveTab(tab);
     };
 
-    const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
     const endpoint = activeTab === 'created'
         ? '/api/events/user/created-events'

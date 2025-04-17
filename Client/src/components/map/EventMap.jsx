@@ -4,7 +4,7 @@ import L from 'leaflet';
 import { FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { convertToCompactEuDatetime } from '../../utils/dateFunctions';
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const defaultIcon = L.icon({
   iconUrl:
@@ -17,7 +17,7 @@ const defaultIcon = L.icon({
 });
 
 const EventMap = ({ events, eventId }) => {
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   const mapRef = useRef();
 

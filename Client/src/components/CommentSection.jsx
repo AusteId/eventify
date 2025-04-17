@@ -1,18 +1,19 @@
 import axios from 'axios';
-import { MessageCircle, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatarDefault from '../assets/avatar.png';
 import Comment from './Comment';
 import { useAuth } from './Auth/AuthContext';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
+
 
 const CommentSection = props => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const {userId,avatar,isAuthenticated} = useAuth();
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   const {
     register,

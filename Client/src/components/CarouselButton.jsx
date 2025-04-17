@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
+
 
 export const CarouselButton = ({
   onPrevClick,
@@ -7,7 +8,7 @@ export const CarouselButton = ({
   type = 'button',
 }) => {
 
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div className="flex flex-col  justify-center bg-light-gray">

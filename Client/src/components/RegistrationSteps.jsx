@@ -1,8 +1,8 @@
-import { useNotifications } from './context/NotificationContext';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const RegistrationSteps = ({ step }) => {
   const steps = [1, 2, 3, 4];
-  const {isDarkMode} = useNotifications();
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div className="flex justify-center">

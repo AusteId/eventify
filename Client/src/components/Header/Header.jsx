@@ -14,15 +14,15 @@ import { useAuth } from '../Auth/AuthContext';
 import Button from '../Button';
 import HeaderProfilePicture from './HeaderProfilePicture';
 import DarkModeToggle from './DarkModeToggle';
-import { useNotifications } from '../context/NotificationContext';
 import ProfileSVG from '../../assets/ProfileSVG';
 import MessageSVG from '../../assets/MessageSVG';
 import LogoutSVG from '../../assets/LogoutSVG';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const Header = () => {
   const [activeLink, setActiveLink] = useState('');
   const { isAuthenticated, logout } = useAuth();
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();;
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const drawerCheckboxRef = useRef(null);

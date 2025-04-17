@@ -4,12 +4,12 @@ import { useOutletContext } from 'react-router';
 import Button from '../Button';
 import FieldValidationError from '../FieldValidationError';
 import RegistrationSteps from '../RegistrationSteps';
-import { useNotifications } from '../context/NotificationContext';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const RegistrationSecondStep = forwardRef((props, ref) => {
   const { nextStep, prevStep } = useOutletContext();
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
-  const { isDarkMode } = useNotifications();
+  const { isDarkMode } = useDarkMode();
   const dropdownRef = useRef(null);
   const [cities, setCities] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
