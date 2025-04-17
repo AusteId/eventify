@@ -5,20 +5,18 @@ import App from './App.jsx';
 import { BrowserRouter } from 'react-router';
 import { AuthProvider } from './components/Auth/AuthContext.jsx';
 import { Toaster } from 'react-hot-toast';
-import { NotificationProvider } from './components/context/NotificationContext.jsx';
 import 'leaflet/dist/leaflet.css';
 import { DarkModeProvider } from './components/context/DarkModeContext.jsx';
+import './components/context/standalone-notification-system.js';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <NotificationProvider>
           <DarkModeProvider>
             <App />
             <Toaster />
           </DarkModeProvider>
-        </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

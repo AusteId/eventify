@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Button from './Button';
 import ButtonCancel from './ButtonCancel';
 import { convertToCompactEuDatetime } from '../utils/dateFunctions';
@@ -46,6 +46,13 @@ const EventCard = ({
     loading: false,
     birthDate: null,
   };
+
+  console.log(`EventCard ${id} rendering`);
+  const renderCountRef = useRef(0);
+  useEffect(() => {
+    renderCountRef.current += 1;
+    console.log(`EventCard ${id} render count:`, renderCountRef.current);
+  }, [id]);
 
   const [registered, setRegistered] = useState(isRegistered);
 

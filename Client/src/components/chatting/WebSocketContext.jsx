@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useAuth } from "../Auth/AuthContext";
-import { useNotifications } from "../context/NotificationContext";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import toast from 'react-hot-toast';
@@ -12,7 +11,6 @@ export const useWebSocket = () => useContext(WebSocketContext);
 
 export const WebSocketProvider = ({ children }) => {
   const { isAuthenticated, userId,authFetch } = useAuth();
-  const { updateUnreadCount } = useNotifications();
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState({});
   const [typingUsers, setTypingUsers] = useState({});
@@ -33,7 +31,6 @@ export const WebSocketProvider = ({ children }) => {
   const conversationSubscriptions = useRef({});
   const STATUS_UPDATE_INTERVAL_MS = 60000;
   const lastUnreadFetchTimeRef = useRef(0);
-  const FETCH_THROTTLE_MS = 1000;
 
   const cleanupWebSocket = useCallback(() => {
     console.log("Deactivating STOMP client...");
@@ -111,7 +108,6 @@ export const WebSocketProvider = ({ children }) => {
       const totalCount = Object.values(formattedCounts).reduce((total, count) => total + count, 0);
       console.log("WS: Total unread count:", totalCount);
 
-      updateUnreadCount(totalCount);
 
       try {
         localStorage.setItem('eventify_unread_count', totalCount.toString());
@@ -122,7 +118,7 @@ export const WebSocketProvider = ({ children }) => {
     } catch (e) {
       console.error("Error fetching unread message counts:", e);
     }
-  }, [isAuthenticated, authFetch, updateUnreadCount]);
+  }, [isAuthenticated, authFetch]);
  
   useEffect(() => {
   if (isAuthenticated) {
@@ -134,7 +130,7 @@ export const WebSocketProvider = ({ children }) => {
     if (isAuthenticated && connected) {
       fetchUnreadMessageCounts();
     }
-  }, 60000); 
+  }, 5000);
   
   return () => clearInterval(intervalId);
 }, [isAuthenticated, connected, fetchUnreadMessageCounts]);
@@ -462,8 +458,7 @@ export const WebSocketProvider = ({ children }) => {
       (total, count) => total + count, 0
     );
 
-    updateUnreadCount(totalCount);
-  }, [unreadMessages, updateUnreadCount]);
+  }, [unreadMessages]);
   
 
   const markMessagesAsRead = useCallback((senderId) => {
@@ -483,8 +478,7 @@ export const WebSocketProvider = ({ children }) => {
         
         const newState = { ...prev };
         delete newState[senderId];
-        
-        // Update total count
+
         updateTotalUnreadCount(newState);
         
         return newState;
@@ -638,7 +632,6 @@ export const WebSocketProvider = ({ children }) => {
   
           const newTotal = Object.values(newUnreadMessages).reduce((sum, count) => sum + count, 0);
           console.log("New total unread count:", newTotal);
-          updateUnreadCount(newTotal);
   
           try {
             localStorage.setItem('eventify_unread_count', newTotal.toString());
@@ -684,7 +677,7 @@ export const WebSocketProvider = ({ children }) => {
         [conversationId]: [...existingMessages, data],
       };
     });
-  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound, updateUnreadCount, markMessagesAsRead]);
+  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound,markMessagesAsRead]);
 
   const handleNewMessage = useCallback((message) => {
     try {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaList, FaMap } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import EventCard from './EventCard';
@@ -9,7 +9,14 @@ import Pagination from './Pagination';
 import EventSearch from './search/EventSearch';
 import { useDarkMode } from './context/DarkModeContext.jsx';
 
-const EventsList = ({ setLoading, loading }) => {
+const EventsList = ({loading,setLoading}) => {
+  console.log("EventsList rendering at", new Date().toISOString());
+  const renderCountRef = useRef(0);
+  useEffect(() => {
+    renderCountRef.current += 1;
+    console.log("EventsList render count:", renderCountRef.current);
+  }, []);
+
   const [events, setEvents] = useState([]);
   const [eventsForMap, setEventsForMap] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -90,7 +97,7 @@ const EventsList = ({ setLoading, loading }) => {
     };
 
     fetchData();
-  }, [currentPage, searchParams, setLoading]);
+  }, [currentPage, searchParams]);
 
   useEffect(() => {
     const fetchDataForMap = async () => {
