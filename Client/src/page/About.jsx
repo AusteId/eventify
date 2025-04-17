@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import AboutUsCard from '../components/AboutUsCard';
 import Modal from '../components/AboutUsModal.jsx';
 
@@ -6,8 +6,8 @@ const About = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingMember, setEditingMember] = useState(null); // To keep track of the member being edited
-  const [isModalOpen, setIsModalOpen] = useState(false); // To track if the modal is open for adding a new member
+  const [editingMember, setEditingMember] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -36,7 +36,7 @@ const About = () => {
   const handleEdit = (member) => {
     if (member.id) {
       setEditingMember(member);
-      setIsModalOpen(true);
+      setIsModalOpen(true);  // Open the modal with the member's details
     } else {
       console.error("Member ID is undefined:", member);
     }
@@ -68,12 +68,11 @@ const About = () => {
           member.id === updatedData.id ? updatedData : member
         )
       );
-      setIsModalOpen(false);
+      setIsModalOpen(false);  // Close the modal after updating
     } catch (error) {
       setError(error.message || 'Error updating member');
     }
   };
-
 
   // Handle Add (Create) new team member
   const handleAddMember = async (newMember) => {
@@ -89,7 +88,7 @@ const About = () => {
 
       const addedMember = await response.json();
       setTeamMembers((prevMembers) => [...prevMembers, addedMember]);
-      setIsModalOpen(false); // Close the modal after adding
+      setIsModalOpen(false);  // Close the modal after adding
     } catch (error) {
       setError(error.message || 'Error adding new member');
     }
@@ -112,49 +111,56 @@ const About = () => {
     }
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingMember(null);  // Reset editing member when modal closes
+  };
+
   if (loading) return <p>Loading team members...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="p-5">
-      <div className="flex">
-        <h1 className="text-heading-m font-[700] leading-[1.5rem] text-center">Team Members</h1>
+    <div className="flex flex-col items-center gap-5 py-10 px-10 text-black">
+      <div
+        className={`flex flex-col justify-start gap-8 h-full items-center tablet:items-baseline ${loading && 'tablet:items-center'}`}>
 
-        {/* Button to open the modal for adding a new member */}
+        <h1 className={`text-heading-m font-[700] leading-[1.5rem] ${loading && 'text-center'}`}>Team Members</h1>
         <button
           onClick={handleAdd}
           className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg text-white"
         >
           Add
         </button>
-      </div>
+        <div className="h-full">
+          <div className="flex flex-wrap justify-evenly gap-4 mt-4">
+            {teamMembers.length > 0 ? (
+              teamMembers.map(member => (
+                <AboutUsCard
+                  key={member.id}
+                  photo={member.imageUrl}
+                  name={member.name}
+                  linkedin={member.linkedin}
+                  github={member.github}
+                  mail={member.email}
+                  onEdit={() => handleEdit(member)}
+                  onDelete={() => handleDelete(member.id)}
+                />
+              ))
+            ) : (
+              <p>No team members available.</p>
+            )}
+          </div>
 
-      <div className="flex flex-wrap justify-evenly gap-4 mt-4">
-        {teamMembers.length > 0 ? (
-          teamMembers.map(member => (
-            <AboutUsCard
-              key={member.id}
-              photo={member.imageUrl}
-              name={member.name}
-              linkedin={member.linkedin}
-              github={member.github}
-              mail={member.email}
-              onEdit={() => handleEdit(member)}
-              onDelete={() => handleDelete(member.id)}
-            />
-          ))
-        ) : (
-          <p>No team members available.</p>
-        )}
+          {/* Modal for adding/editing team member */}
+          <Modal
+            key={editingMember ? editingMember.id : "newMember"}  // Ensure re-render for same member or new member
+            isOpen={isModalOpen}
+            closeModal={handleCloseModal}  // Close and reset modal
+            member={editingMember || {}}
+            onSave={editingMember ? handleUpdate : handleAddMember}
+          />
+        </div>
       </div>
-
-      {/* Modal for adding/editing team member */}
-      <Modal
-        isOpen={isModalOpen}
-        closeModal={() => setIsModalOpen(false)}
-        member={editingMember || {}}
-        onSave={editingMember ? handleUpdate : handleAddMember}
-      />
     </div>
   );
 };
