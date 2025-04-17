@@ -52,7 +52,7 @@ const EventCard = ({
   } = useAuth() || {
     isAuthenticated: false,
     loading: false,
-    userId: "",
+    userId: '',
     birthDate: null,
   };
   const [registered, setRegistered] = useState(isRegistered);
@@ -90,21 +90,24 @@ const EventCard = ({
         return;
       }
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BACK_URL}/api/events/${id}`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/${id}`,
+          {
+            withCredentials: true,
+          },
+        );
         console.log('Full API response:', response.data);
-        const registrations = response.data.registrations || []; 
-      setRegistered(response.data.isRegistered);
-      setParticipants(registrations.length || 0); 
+        const registrations = response.data.registrations || [];
+        setRegistered(response.data.isRegistered);
+        setParticipants(registrations.length || 0);
       } catch (error) {
         console.error('Error fetching event details:', error);
-        setRegistered(false); 
+        setRegistered(false);
         setParticipants(currentParticipants ?? 0);
       }
     };
     fetchEventDetails();
-  }, [id, isAuthenticated, userId, currentParticipants]);
+  }, [id, isAuthenticated, userId]);
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -122,7 +125,6 @@ const EventCard = ({
   };
 
   const isAgeValid = () => {
-    
     const userAge = calculateAge(birthDate);
     if (!userAge && !minAge && !maxAge) return true;
     if (!userAge) return false;
@@ -165,8 +167,6 @@ const EventCard = ({
           toast.error('Places at the event have run out!');
         }
       }
-
-      await fetchEventDetails();
 
       if (eventHandler) eventHandler();
     } catch (error) {
@@ -226,7 +226,7 @@ const EventCard = ({
       </div>
     );
   }
-  
+
   return (
     <div
       className={`flex mt-0.5 mb-6 flex-col justify-between bg-white rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isEnded && 'grayscale-100'}`}
@@ -241,8 +241,11 @@ const EventCard = ({
               <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
                 <img
                   src="./src/assets/threePersonIcon.svg"
-                  alt="Participants"
-                  onError={() => console.log('Participants icon failed to load')}
+                  loading="lazy"
+                  onError={() => {
+                    console.log('Event image failed to load, using fallback');
+                    setImageData('./src/assets/eventCardImgSample.png');
+                  }}
                 />
                 <p className="text-white">
                   {participants}/{maxParticipants}
@@ -332,7 +335,11 @@ const EventCard = ({
             onClick={handleRegistration}
             disabled={loading}
           >
-            <img src="./src/assets/xIcon.svg" className="border-0" alt="Cancel" />
+            <img
+              src="./src/assets/xIcon.svg"
+              className="border-0"
+              alt="Cancel"
+            />
             {loading ? 'Processing...' : 'Cancel Registration'}
           </ButtonCancel>
         ) : (
