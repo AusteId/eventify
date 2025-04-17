@@ -68,7 +68,7 @@ const About = () => {
           member.id === updatedData.id ? updatedData : member
         )
       );
-      setIsModalOpen(false);  // Close the modal after updating
+      setIsModalOpen(false);
     } catch (error) {
       setError(error.message || 'Error updating member');
     }
@@ -77,22 +77,38 @@ const About = () => {
   // Handle Add (Create) new team member
   const handleAddMember = async (newMember) => {
     try {
+      const memberToSend = {
+        name: newMember.name,
+        linkedin: newMember.linkedin,
+        github: newMember.github,
+        email: newMember.email,
+        imageUrl: newMember.imageUrl,
+      };
+
       const response = await fetch('http://localhost:8080/api/about', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newMember),
+        body: JSON.stringify(memberToSend),
         credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Failed to add new team member');
+      // Log response status and body for better debugging
+      if (!response.ok) {
+        const errorMessage = await response.text(); // Get text response for debugging
+        console.error('Failed to add new team member:', errorMessage);
+        throw new Error('Failed to add new team member');
+      }
 
-      const addedMember = await response.json();
+      const addedMember = await response.json(); // Get the added team member's data
+      console.log('Added member:', addedMember); // Log the added member data
       setTeamMembers((prevMembers) => [...prevMembers, addedMember]);
-      setIsModalOpen(false);  // Close the modal after adding
+      setIsModalOpen(false);
     } catch (error) {
       setError(error.message || 'Error adding new member');
+      console.error('Error adding new member:', error); // Log the error message
     }
   };
+
 
   // Handle Delete: Delete the team member
   const handleDelete = async (id) => {
@@ -113,7 +129,7 @@ const About = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingMember(null);  // Reset editing member when modal closes
+    setEditingMember(null);
   };
 
   if (loading) return <p>Loading team members...</p>;
@@ -153,9 +169,9 @@ const About = () => {
 
           {/* Modal for adding/editing team member */}
           <Modal
-            key={editingMember ? editingMember.id : "newMember"}  // Ensure re-render for same member or new member
+            key={editingMember ? editingMember.id : "newMember"}
             isOpen={isModalOpen}
-            closeModal={handleCloseModal}  // Close and reset modal
+            closeModal={handleCloseModal}
             member={editingMember || {}}
             onSave={editingMember ? handleUpdate : handleAddMember}
           />

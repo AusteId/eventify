@@ -1,8 +1,5 @@
 package lt.techin.eventify.dto.teamMember;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lt.techin.eventify.validation.file.ValidImage;
 
 public record CreateTeamMemberRequest(
 
@@ -18,10 +15,6 @@ public record CreateTeamMemberRequest(
         @NotBlank(message = "GitHub URL cannot be empty")
         @Pattern(regexp = "^(https?://)?(www\\.)?github\\.com/.*$", message = "Invalid GitHub URL")
         String github,
-
-        @NotBlank(message = "Phone number cannot be empty")
-        @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$", message = "Invalid phone number")
-        String phoneNumber,
 
         @NotBlank(message = "Email cannot be empty")
         @Email(message = "Invalid email address")

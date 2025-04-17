@@ -37,21 +37,17 @@ public class TeamMemberController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TeamMemberResponse> addTeamMember(@Valid @RequestBody CreateTeamMemberRequest request) {
-        String pictureUrl = request.imageUrl();  // Using image URL directly
-        String savedImageKey = null;
-
+    public ResponseEntity<TeamMemberResponse> addTeamMember(@RequestBody CreateTeamMemberRequest request) {
+        String pictureUrl = request.imageUrl();
         try {
             if (pictureUrl != null && !pictureUrl.isBlank()) {
-                // Use image URL directly
-                savedImageKey = pictureUrl;
                 logger.info("Image URL provided for {}", request.name());
             } else {
                 logger.warn("No image URL provided for {}", request.name());
             }
 
             // Map the request to a team member and save it
-            TeamMember teamMember = teamMemberMapper.toTeamMember(request, savedImageKey);
+            TeamMember teamMember = teamMemberMapper.toTeamMember(request);
             TeamMember saved = teamMemberService.save(teamMember);
             TeamMemberResponse response = teamMemberMapper.toTeamMemberResponse(saved);
 
@@ -83,17 +79,15 @@ public class TeamMemberController {
             }
 
             String pictureUrl = request.imageUrl();
-            String savedImageKey = null;
 
             if (pictureUrl != null && !pictureUrl.isBlank()) {
-                savedImageKey = pictureUrl;
                 logger.info("Image URL updated for {}", request.name());
             } else {
                 logger.warn("No image URL provided for {}", request.name());
             }
 
             // Map the updated request to the existing team member object
-            TeamMember updatedMember = teamMemberMapper.toTeamMember(request, savedImageKey);
+            TeamMember updatedMember = teamMemberMapper.toTeamMember(request);
             updatedMember.setId(existingMember.getId()); // Ensure the ID remains the same
             TeamMember saved = teamMemberService.save(updatedMember);
 

@@ -6,14 +6,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class TeamMemberMapper {
 
-  public TeamMember toTeamMember(CreateTeamMemberRequest request, String savedImageUrl) {
+  public TeamMember toTeamMember(CreateTeamMemberRequest request) {
     return new TeamMember(
             request.name(),
             request.linkedin(),
             request.github(),
-            request.phoneNumber(),
             request.email(),
-            savedImageUrl
+            request.imageUrl()
     );
   }
 
@@ -23,9 +22,8 @@ public class TeamMemberMapper {
             teamMember.getName(),
             teamMember.getLinkedin(),
             teamMember.getGithub(),
-            teamMember.getPhone_number(),
             teamMember.getEmail(),
-            teamMember.getImage_url()
+            teamMember.getImageUrl()
     );
   }
 }

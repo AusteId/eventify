@@ -48,7 +48,6 @@ const AboutUsModal = ({ isOpen, closeModal, member, onSave }) => {
   };
 
   const handleSave = () => {
-    // Save the member data (either create new or update existing member)
     onSave(updatedMember);
     handleClose();
   };
