@@ -98,6 +98,7 @@ export const AuthProvider = ({ children }) => {
           authenticated: true,
           roles: userData.roles || [],
           userId: userData.id || '',
+          birthDate: userData.birthDate || null,
         });
       } else {
         setIsAuthenticated(false);
@@ -125,9 +126,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("userAvatar")
     }
     checkAuthStatus();
-  }, []);
+  }, [checkAuthStatus]);
 
-  const login = async credentials  => {
+  const login = async credentials => {
+    setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
