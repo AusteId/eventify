@@ -12,7 +12,7 @@ const Events = () => {
         <h1 className={`text-heading-m font-[700] leading-[1.5rem] ${isDarkMode && "text-gray-200"} ${loading && "text-center"}`}>Events</h1>
 
         <div className="h-full">
-          <EventsList setLoading={setLoading} loading={loading}/>
+          <EventsList setLoading={setLoading} loading={loading} />
         </div>
       </div>
     </div>
