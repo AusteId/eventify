@@ -8,9 +8,11 @@ import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.R2Service;
 import lt.techin.eventify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -29,6 +31,10 @@ public class UserController {
   private final EventService eventService;
   private final UserMapper userMapper;
   private final R2Service r2Service;
+  private final RestTemplate restTemplate;
+
+  @Value("${geonames.username}")
+  private String geonamesUsername;
 
   @Autowired
   public UserController(R2Service r2Service, UserService userService, EventService eventService,
@@ -37,6 +43,7 @@ public class UserController {
     this.eventService = eventService;
     this.userMapper = userMapper;
     this.r2Service = r2Service;
+    this.restTemplate = new RestTemplate();
   }
 
   @GetMapping("/all")
@@ -53,11 +60,14 @@ public class UserController {
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@Valid @RequestBody LoginUserRequest userRequest) {
     String token = userService.loginUser(userRequest);
+
+    long maxAge = userRequest.rememberMe() ? 2592000 : 86400;
+
     ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
             .httpOnly(true)
             .secure(false)
             .sameSite("Strict")
-            .maxAge(360000)
+            .maxAge(maxAge)
             .path("/")
             .build();
 
@@ -65,7 +75,7 @@ public class UserController {
             .httpOnly(false)
             .secure(false)
             .sameSite("Strict")
-            .maxAge(360000)
+            .maxAge(maxAge)
             .path("/")
             .build();
 
@@ -162,4 +172,12 @@ public class UserController {
   public ResponseEntity<byte[]> getUserPublicAvatar(@PathVariable Long userId) {
     return ResponseEntity.ok(userService.getUserPublicAvatar(userId));
   }
+
+  @GetMapping("/cities")
+  public ResponseEntity<?> searchCities(@RequestParam String query) {
+    String url = String.format("http://api.geonames.org/searchJSON?name_startsWith=%s&maxRows=10&username=%s&cities=cities1000&lang=lt&country=LT", query,geonamesUsername);
+    Object response = restTemplate.getForObject(url, Object.class);
+    return ResponseEntity.ok(response);
+  }
+
 }

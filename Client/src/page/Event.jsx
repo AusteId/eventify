@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router';
 import EditIcon from '../assets/editIcon.svg?react';
-import CalendarIcon from '../assets/event/calendar.svg?react';
-import MarkIcon from '../assets/mapMarker.svg?react';
 import { useAuth } from '../components/Auth/AuthContext';
 import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
@@ -15,6 +13,11 @@ import getEvent from '../helpers/event/getEvent';
 import getEventImage from '../helpers/event/getEventImage';
 import joinEvent from '../helpers/event/joinEvent';
 import { prettifyDateTime } from '../utils/dateFunctions';
+import LoadingScreen from '../components/message/LoadingScreen';
+import CalendarSVG from '../assets/event/CalendarSVG';
+import MapMarkerSVG from '../assets/mapMarkerSVG';
+import { useDarkMode } from '../components/context/DarkModeContext.jsx';
+
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
@@ -28,6 +31,7 @@ const Event = () => {
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const { isDarkMode } = useDarkMode();
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -144,12 +148,7 @@ const Event = () => {
 
       toast.success(
         `Successfully registered for ${updatedEventData.name}! See you on ${prettifyDateTime(updatedEventData.startDateTime)}.`
-        // {
-        //   hideProgressBar: false,
-        //   closeOnClick: true,
-        //   pauseOnHover: true,
-        //   draggable: true,
-        // },
+
       );
     } catch (error) {
       const errorMessage = error.error || 'Failed to register. Try again.';
@@ -201,7 +200,7 @@ const Event = () => {
   useEffect(() => {}, [isRegistered]);
 
   if (loading || !event) {
-    return <p>LOADING</p>;
+    return <div><LoadingScreen/></div>;
   }
 
   const participants = (event.registrations || []).map(registration => ({
@@ -219,9 +218,9 @@ const Event = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 text-black">
+    <div className={`flex flex-col items-center gap-5 p-3 tablet:py-10 tablet:px-10 ${isDarkMode ? "text-gray-200" : "text-black"}`}>
       <div
-        className={`flex flex-col w-125 desktop:w-200 tablet:w-150 justify-start gap-8 h-full p-5 tablet:p-8 bg-white rounded-xl tablet:items-baseline`}
+        className={`flex flex-col w-125 desktop:w-200 tablet:w-150 justify-start gap-8 h-full p-5 tablet:p-8 border duration-750 ${isDarkMode ? "border-[#f59e0b] bg-slate-900" : "border-transparent bg-white"} rounded-xl tablet:items-baseline`}
       >
         <div className="w-full h-100 overflow-clip">
           <img src={eventImage} className="w-full h-full object-contain" />
@@ -235,14 +234,14 @@ const Event = () => {
             </h1>
             <div className="flex flex-col tablet:flex-row gap-5 tablet:items-center text-body-m text-body-medium">
               <div className="flex items-center gap-2">
-                <CalendarIcon />
-                <p>{prettifyDateTime(event.startDateTime)}</p>
+                <CalendarSVG />
+                <p className={`duration-750 ${isDarkMode && "text-gray-300"}`}>{prettifyDateTime(event.startDateTime)}</p>
               </div>
               <div className="flex items-center gap-2">
-                <MarkIcon />
+                <MapMarkerSVG/>
                 <Link
                   to={`/events?eventId=${event.id}`}
-                  className="text-body-medium text-btn hover:text-btn-hover hover:underline"
+                  className={` duration-750 ${isDarkMode ? "hover:text-btn-hover hover:underline text-gray-300" : "text-btn hover:text-btn-hover hover:underline"} `}
                 >
                   {event.address}
                 </Link>
@@ -271,64 +270,64 @@ const Event = () => {
             )}
           </div>
         </div>
-        <div className="flex flex-col tablet:grid grid-cols-[1fr_1fr_1fr] gap-6 w-full">
+        <div className={`flex flex-col tablet:grid grid-cols-[1fr_1fr_1fr] gap-6 w-full`}>
           {event.minAge && event.maxAge ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
-              <p className="text-[#6B7280]">Age Requirement</p>
-              <p className="text-[#1F2937] font-[600]">
+            <div className={`duration-750 text-center rounded-lg p-4 text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Age Requirement</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>
                 {event.minAge} - {event.maxAge}
               </p>
             </div>
           ) : event.minAge && !event.maxAge ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s">
-              <p className="text-[#6B7280]">Age Requirement</p>
-              <p className="text-[#1F2937] font-[600]">from {event.minAge}</p>
+            <div className={`duration-750 rounded-lg p-4 text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Age Requirement</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>from {event.minAge}</p>
             </div>
           ) : !event.minAge && event.maxAge ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s ">
-              <p className="text-[#6B7280]">Age Requirement</p>
-              <p className="text-[#1F2937] font-[600]">up to {event.maxAge}</p>
+            <div className={`duration-750 rounded-lg p-4 text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Age Requirement</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>up to {event.maxAge}</p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
-              <p className="text-[#6B7280]">Age Requirement</p>
-              <p className="text-[#1F2937] font-[600]">All ages</p>
+            <div className={`duration-750 rounded-lg p-4 text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Age Requirement</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>All ages</p>
             </div>
           )}
           {event.maxParticipants ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
-              <p className="text-[#6B7280]">Participants</p>
-              <p className="text-[#1F2937] font-[600]">
+            <div className={`duration-750 rounded-lg p-4 text-center content-center text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Participants</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>
                 {event.registrations.length} / {event.maxParticipants}
               </p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
-              <p className="text-[#6B7280]">Participants</p>
-              <p className="text-[#1F2937] font-[600]">No limits</p>
+            <div className={`duration-750 rounded-lg p-4 text-center content-center text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Participants</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>No limits</p>
             </div>
           )}
           {event.category.name ? (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
-              <p className="text-[#6B7280]">Category</p>
-              <p className="text-[#1F2937] font-[600]">
+            <div className={`duration-750 rounded-lg p-4 text-center content-center text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Category</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>
                 {event?.category.name.charAt(0).toUpperCase() +
                   event.category.name.slice(1)}
               </p>
             </div>
           ) : (
-            <div className="bg-light-gray rounded-lg p-4 text-heading-s text-center content-center">
-              <p className="text-[#6B7280]">Category</p>
-              <p className="text-[#1F2937] font-[600]">Any</p>
+            <div className={`duration-750 rounded-lg p-4 text-center content-center text-heading-s border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}>
+              <p className={`Duration ${isDarkMode ? "text-gray-300" : "text-[#6B7280]"}`}>Category</p>
+              <p className={`font-[600] ${isDarkMode ? "text-[#f59e0b]" : "text-[#1F2937]"}`}>Any</p>
             </div>
           )}
 
           {event.description && (
             <div className="tablet:hidden flex flex-col gap-4 tablet:gap-8">
-              <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
+              <h2 className={`text-heading-s leading-5 font-[600]  ${isDarkMode ? "text-gray-200" : "text-header-dark"}`}>
                 About the Event
               </h2>
-              <p className="text-body-medium">{event.description}</p>
+              <p className={` ${isDarkMode ? "text-gray-300" : "text-body-medium"}`}>{event.description}</p>
             </div>
           )}
 
@@ -336,10 +335,10 @@ const Event = () => {
             <div className="flex flex-col gap-8">
               {event.description && (
                 <div className="hidden tablet:flex flex-col gap-4 tablet:gap-8">
-                  <h2 className="text-heading-s leading-5 font-[600] text-header-dark">
+                  <h2 className={`text-heading-s leading-5 font-[600]  ${isDarkMode ? "text-gray-200" : "text-header-dark"}`}>
                     About the Event
                   </h2>
-                  <p className="text-body-medium">{event.description}</p>
+                  <p className={`text-body-medium ${isDarkMode ? "text-gray-300" : "text-header-dark"}`}>{event.description}</p>
                 </div>
               )}
 
@@ -368,8 +367,9 @@ const Event = () => {
               <Modal
                 modalName="cancel_confirmation_modal"
                 isOpen={isCancelModalOpen}
+                isDarkMode={isDarkMode}
               >
-                <div className="p-4 flex flex-col gap-4">
+                <div className={`p-4 flex flex-col gap-4 duration-750 ${isDarkMode && "bg-slate-900"}`}>
                   <h2 className="text-xl flex justify-center font-bold">
                     Cancel Confirmation
                   </h2>
@@ -382,11 +382,12 @@ const Event = () => {
                     </Button>
                     <Button
                       onClick={closeCancelModal}
-                      background="bg-white"
-                      textColor="text-body-medium"
-                      hoverColor="hover:bg-gray-100"
-                      border="border border-input-light"
+                      background={`${isDarkMode ? "bg-slate-600" : "bg-white"} duration-200`}
+                      textColor={`${isDarkMode ? "text-gray-200" : "text-medium"}`}
+                      hoverColor={`${isDarkMode ? "hover:bg-slate-700 hover:text-[#f59e0b]" :  "hover:bg-gray-100"}`}
+                      border={`border ${isDarkMode ? "border-[#f59e0b]" : "border border-input-light"}`}
                     >
+                     
                       No
                     </Button>
                   </div>

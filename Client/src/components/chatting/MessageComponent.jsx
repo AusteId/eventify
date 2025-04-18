@@ -5,7 +5,7 @@ import { useAuth } from "../Auth/AuthContext";
 import defaultAvatar from "../../assets/default-user-image.png";
 import DeleteMessageModal from "./DeleteMessageModal";
 
-const MessageComponent = ({ message, userId, recipientAvatar }) => {
+const MessageComponent = ({ message, userId, recipientAvatar, isDarkMode }) => {
   const [editMode, setEditMode] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
   const [showOptions, setShowOptions] = useState(false);
@@ -14,7 +14,7 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
   const { avatar: currentUserAvatar } = useAuth();
 
   const isOwnMessage = message.senderId == userId;
-  
+
   const formatMessageTime = (timestamp) => {
     if (!timestamp) return "";
     try {
@@ -27,16 +27,16 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
 
   const renderMessageStatus = () => {
     if (!isOwnMessage) return null;
-    
+
     if (message.isLocal) {
-      return <span className="text-xs text-gray-400">Sending</span>; 
+      return <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Sending</span>;
     } else if (message.read) {
       return (
         <div className="flex items-center">
           {recipientAvatar && (
-            <img 
-              src={recipientAvatar} 
-              alt="Avatar" 
+            <img
+              src={recipientAvatar}
+              alt="Avatar"
               className="w-5 h-5 rounded-full"
               onError={(e) => {
                 e.target.onerror = null;
@@ -45,9 +45,9 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
             />
           )}
         </div>
-      ); 
+      );
     } else {
-      return <span className="text-xs text-gray-600">Delivered</span>;
+      return <span className={`text-xs duration-750 ${isDarkMode ? "text-gray-500" : "text-gray-200/50"}`}>Delivered</span>;
     }
   };
 
@@ -60,12 +60,12 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
     setShowDeleteModal(true);
     setShowOptions(false);
   };
-  
+
   const confirmDelete = () => {
     deleteMessage(message.id);
     setShowDeleteModal(false);
   };
-  
+
   const cancelDelete = () => {
     setShowDeleteModal(false);
   };
@@ -85,8 +85,8 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
   const renderMessageContent = () => {
     if (message.deleted) {
       return (
-        <div className="italic text-gray-400 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className={`italic duration-750 ${isDarkMode ? "text-gray-200" : "text-gray-200/50"} flex items-center`}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
           Message was deleted
@@ -98,7 +98,10 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
       return (
         <div className="w-full">
           <textarea
-            className="w-full p-3 border border-amber-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none bg-amber-50 text-gray-800"
+            className={`w-full p-3 mb-2 focus:outline-none focus:ring-2 duration-750 focus:ring-amber-400 resize-none rounded-md 
+              ${isDarkMode
+              ? "bg-slate-700 border border-slate-600 text-white"
+              : "bg-amber-50 border border-amber-300 text-gray-800"}`}
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             autoFocus
@@ -107,13 +110,16 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
           />
           <div className="flex justify-end space-x-2">
             <button
-              className="px-4 py-1.5 bg-gray-200 text-gray-800 rounded-md text-sm hover:bg-gray-300 transition-colors"
+              className={`px-4 py-1.5 rounded-md text-sm transition-colors cursor-pointer duration-750
+                ${isDarkMode
+                ? "bg-slate-700 text-gray-300 hover:bg-slate-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
               onClick={handleCancelEdit}
             >
               Cancel
             </button>
             <button
-              className="px-4 py-1.5 bg-amber-500 text-white rounded-md text-sm hover:bg-amber-600 transition-colors"
+              className={`px-4 py-1.5  text-white rounded-md text-sm transition-colors duration-750 cursor-pointer ${isDarkMode ? "bg-amber-600 hover:bg-amber-700" : "bg-amber-500 hover:bg-amber-600" }`}
               onClick={handleSaveEdit}
             >
               Save
@@ -127,7 +133,7 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
       <div className="break-words">
         {message.content}
         {message.edited && (
-          <span className="ml-1 text-xs italic text-gray-400">(edited)</span>
+          <span className={`ml-1 text-xs italic duration-750 ${isDarkMode ? "text-gray-500" : "text-gray-200/50"}`}>(edited)</span>
         )}
       </div>
     );
@@ -141,7 +147,7 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
         onMouseLeave={() => setShowOptions(false)}
       >
         {!isOwnMessage && (
-          <img 
+          <img
             src={recipientAvatar || `http://localhost:8080/api/users/${message.senderId}/avatar`}
             className="h-9 w-9 rounded-full mr-1 mt-1 self-start"
             alt="User"
@@ -151,12 +157,18 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
             }}
           />
         )}
-        
+
         <div className="max-w-[80%] relative">
           {showOptions && !editMode && !message.deleted && (
-            <div className="absolute top-[-30px] right-0 bg-white rounded-lg shadow-lg flex p-1 z-10 border border-gray-100">
+            <div className={`absolute top-[-30px] right-0 rounded-lg shadow-lg flex p-1 z-10 duration-750
+              ${isDarkMode
+              ? "bg-slate-700 border border-slate-600"
+              : "bg-white border border-gray-100"}`}>
               <button
-                className="p-1.5 hover:bg-amber-50 text-gray-600 rounded-md transition-colors"
+                className={`p-1.5 rounded-md transition-colors cursor-pointer
+                  ${isDarkMode
+                  ? "text-gray-300 hover:bg-slate-600"
+                  : "text-gray-600 hover:bg-amber-50"}`}
                 onClick={handleEdit}
                 title="Edit message"
               >
@@ -165,7 +177,10 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
                 </svg>
               </button>
               <button
-                className="p-1.5 hover:bg-red-50 text-red-600 rounded-md transition-colors"
+                className={`p-1.5 rounded-md transition-colors cursor-pointer
+                  ${isDarkMode
+                  ? "text-red-400 hover:bg-slate-600"
+                  : "text-red-600 hover:bg-red-50"}`}
                 onClick={handleDelete}
                 title="Delete message"
               >
@@ -175,37 +190,41 @@ const MessageComponent = ({ message, userId, recipientAvatar }) => {
               </button>
             </div>
           )}
-          
+
           <div
-            className={`rounded-2xl px-4 py-2.5 shadow-sm ${
-              isOwnMessage 
+            className={`rounded-2xl px-4 py-2.5 shadow-sm duration-750 ${
+              isOwnMessage
                 ? `bg-amber-500 text-white ${message.isLocal ? "opacity-70" : ""}`
-                : "bg-gray-100 text-gray-800"
+                : isDarkMode
+                  ? "bg-slate-700 text-gray-200"
+                  : "bg-gray-100 text-gray-800"
             } ${message.deleted ? "bg-opacity-70" : ""}`}
           >
             {renderMessageContent()}
-            
+
             {!message.deleted && (
-              <div className="text-xs text-right mt-1 flex items-center justify-end gap-1">
+              <div className={`text-xs text-right mt-1 flex items-center justify-end gap-1
+                ${isDarkMode && !isOwnMessage ? "text-gray-400" : ""}`}>
                 {formatMessageTime(message.timestamp)}
                 {renderMessageStatus()}
               </div>
             )}
           </div>
-          
+
           {isOwnMessage && !message.deleted && (
-            <div className="text-right text-xs text-gray-500 mt-1">
+            <div className={`text-right text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mt-1`}>
               {message.isLocal ? "Sending..." : ""}
             </div>
           )}
         </div>
       </div>
-      
-      <DeleteMessageModal 
-        isOpen={showDeleteModal} 
-        onCancel={cancelDelete} 
+
+      <DeleteMessageModal
+        isOpen={showDeleteModal}
+        onCancel={cancelDelete}
         onConfirm={confirmDelete}
         message={message}
+        isDarkMode={isDarkMode}
       />
     </>
   );

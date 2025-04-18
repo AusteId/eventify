@@ -4,6 +4,7 @@ const Participant = ({
   name,
   rating,
   organizerId,
+  isDarkMode,
 }) => {
 // {`http://localhost:8080/api/users/${id}/avatar`}
 
@@ -22,7 +23,7 @@ const Participant = ({
             className="h-full object-cover rounded-full"
           />
         </div>
-        <p className="font-[600]">{name}</p>
+        <p className={`font-[600] ${isDarkMode && "text-[#f59e0b]"}`}>{name}</p>
       </div>
       {rating && (
         <div className="flex items-center gap-1">

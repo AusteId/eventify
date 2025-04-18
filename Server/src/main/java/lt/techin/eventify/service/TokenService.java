@@ -21,10 +21,10 @@ public class TokenService {
     this.userRepository = userRepository;
   }
 
-  public String generateToken(User user) {
+  public String generateToken(User user,boolean rememberMe) {
     Instant now = Instant.now();
 
-    long expiry = 360000L;
+    long expiry = rememberMe ? 2592000L : 86400L;
 
     String scope = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(" "));
 
@@ -39,4 +39,9 @@ public class TokenService {
 
     return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
   }
+
+  public String generateToken(User user) {
+    return generateToken(user,false);
+  }
+
 }
