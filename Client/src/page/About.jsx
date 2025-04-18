@@ -94,18 +94,16 @@ const About = () => {
 
       // Log response status and body for better debugging
       if (!response.ok) {
-        const errorMessage = await response.text(); // Get text response for debugging
+        const errorMessage = await response.text();
         console.error('Failed to add new team member:', errorMessage);
         throw new Error('Failed to add new team member');
       }
 
-      const addedMember = await response.json(); // Get the added team member's data
-      console.log('Added member:', addedMember); // Log the added member data
+      const addedMember = await response.json();
       setTeamMembers((prevMembers) => [...prevMembers, addedMember]);
       setIsModalOpen(false);
     } catch (error) {
       setError(error.message || 'Error adding new member');
-      console.error('Error adding new member:', error); // Log the error message
     }
   };
 
