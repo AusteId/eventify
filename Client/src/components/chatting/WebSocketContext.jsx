@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useAuth } from "../Auth/AuthContext";
-import { useNotifications } from "../context/NotificationContext";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import toast from 'react-hot-toast';
 
 
 const WebSocketContext = createContext();
@@ -11,7 +11,6 @@ export const useWebSocket = () => useContext(WebSocketContext);
 
 export const WebSocketProvider = ({ children }) => {
   const { isAuthenticated, userId,authFetch } = useAuth();
-  const { url, timeoutForError,updateUnreadCount } = useNotifications();
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState({});
   const [typingUsers, setTypingUsers] = useState({});
@@ -32,7 +31,6 @@ export const WebSocketProvider = ({ children }) => {
   const conversationSubscriptions = useRef({});
   const STATUS_UPDATE_INTERVAL_MS = 60000;
   const lastUnreadFetchTimeRef = useRef(0);
-  const FETCH_THROTTLE_MS = 1000;
 
   const cleanupWebSocket = useCallback(() => {
     console.log("Deactivating STOMP client...");
@@ -91,7 +89,7 @@ export const WebSocketProvider = ({ children }) => {
     
     try {
       console.log("WS: Fetching unread message counts");
-      const response = await authFetch(`${url}/api/messages/unread`);
+      const response = await authFetch(`http://localhost:8080/api/messages/unread`);
       
       if (!response || !response.ok) {
         console.error("Failed to fetch unread message counts");
@@ -110,7 +108,6 @@ export const WebSocketProvider = ({ children }) => {
       const totalCount = Object.values(formattedCounts).reduce((total, count) => total + count, 0);
       console.log("WS: Total unread count:", totalCount);
 
-      updateUnreadCount(totalCount);
 
       try {
         localStorage.setItem('eventify_unread_count', totalCount.toString());
@@ -121,7 +118,7 @@ export const WebSocketProvider = ({ children }) => {
     } catch (e) {
       console.error("Error fetching unread message counts:", e);
     }
-  }, [isAuthenticated, authFetch, url, updateUnreadCount]);
+  }, [isAuthenticated, authFetch]);
  
   useEffect(() => {
   if (isAuthenticated) {
@@ -133,7 +130,7 @@ export const WebSocketProvider = ({ children }) => {
     if (isAuthenticated && connected) {
       fetchUnreadMessageCounts();
     }
-  }, 60000); 
+  }, 5000);
   
   return () => clearInterval(intervalId);
 }, [isAuthenticated, connected, fetchUnreadMessageCounts]);
@@ -443,10 +440,10 @@ export const WebSocketProvider = ({ children }) => {
       return true;
     } catch (e) {
       console.error("Send message error:", e);
-      timeoutForError("Failed to send message. Please try again.");
+      toast.error("Failed to send message. Please try again.");
       return false;
     }
-  }, [connected, userId, subscribeToConversation, timeoutForError]);
+  }, [connected, userId, subscribeToConversation]);
 
   const setActiveConversation = useCallback((conversationId) => {
     setSelectedConversationId(conversationId);
@@ -461,8 +458,7 @@ export const WebSocketProvider = ({ children }) => {
       (total, count) => total + count, 0
     );
 
-    updateUnreadCount(totalCount);
-  }, [unreadMessages, updateUnreadCount]);
+  }, [unreadMessages]);
   
 
   const markMessagesAsRead = useCallback((senderId) => {
@@ -482,8 +478,7 @@ export const WebSocketProvider = ({ children }) => {
         
         const newState = { ...prev };
         delete newState[senderId];
-        
-        // Update total count
+
         updateTotalUnreadCount(newState);
         
         return newState;
@@ -587,7 +582,7 @@ export const WebSocketProvider = ({ children }) => {
     } catch (err) {
       console.error("Failed to load statuses", err);
     }
-  }, [isAuthenticated, url, connected]);
+  }, [isAuthenticated,connected]);
 
   useEffect(() => {
     if (isAuthenticated && !connected) {
@@ -637,7 +632,6 @@ export const WebSocketProvider = ({ children }) => {
   
           const newTotal = Object.values(newUnreadMessages).reduce((sum, count) => sum + count, 0);
           console.log("New total unread count:", newTotal);
-          updateUnreadCount(newTotal);
   
           try {
             localStorage.setItem('eventify_unread_count', newTotal.toString());
@@ -683,7 +677,7 @@ export const WebSocketProvider = ({ children }) => {
         [conversationId]: [...existingMessages, data],
       };
     });
-  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound, updateUnreadCount, markMessagesAsRead]);
+  }, [userId, selectedConversationId, subscribeToConversation, playNotificationSound,markMessagesAsRead]);
 
   const handleNewMessage = useCallback((message) => {
     try {
@@ -780,7 +774,7 @@ export const WebSocketProvider = ({ children }) => {
       return cleanupWebSocket();
     }
 
-    const wsUrl = `${url}/ws`;
+    const wsUrl = `http://localhost:8080/ws`;
     console.log("Attempting to connect to WebSocket at:", wsUrl);
     
     const socket = new SockJS(wsUrl);
@@ -1007,14 +1001,14 @@ ackSubscriptionRef.current = client.subscribe(`/user/queue/ack`, (ack) => {
       
       setConnected(false);
     };
-  }, [isAuthenticated, userId, url, cleanupWebSocket]);
+  }, [isAuthenticated, userId,cleanupWebSocket]);
 
 
   useEffect(() => {
     const fetchStatuses = async () => {
       try {
         console.log("Fetching user statuses");
-        const response = await fetch(`${url}/api/users/status/all`, {
+        const response = await fetch(`http://localhost:8080/api/users/status/all`, {
           credentials: 'include'
         });
         
@@ -1033,7 +1027,7 @@ ackSubscriptionRef.current = client.subscribe(`/user/queue/ack`, (ack) => {
     };
     
     if (isAuthenticated) fetchStatuses();
-  }, [isAuthenticated, url]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     document.addEventListener("visibilitychange", () => {
@@ -1071,10 +1065,10 @@ ackSubscriptionRef.current = client.subscribe(`/user/queue/ack`, (ack) => {
       return true;
     } catch (e) {
       console.error("Message update error:", e);
-      timeoutForError("Failed to update message. Please try again.");
+      toast.error("Failed to update message. Please try again.");
       return false;
     }
-  }, [connected, timeoutForError]);
+  }, [connected]);
 
   const deleteMessage = useCallback((messageId) => {
     if (!clientRef.current || !connected) {
@@ -1092,10 +1086,10 @@ ackSubscriptionRef.current = client.subscribe(`/user/queue/ack`, (ack) => {
       return true;
     } catch (e) {
       console.error("Message deletion error:", e);
-      timeoutForError("Failed to delete message. Please try again.");
+      toast.error("Failed to delete message. Please try again.");
       return false;
     }
-  }, [connected, timeoutForError]);
+  }, [connected]);
 
   return (
     <WebSocketContext.Provider

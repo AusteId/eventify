@@ -1,10 +1,12 @@
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const ScrollChevron = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [isBouncing, setIsBouncing] = useState(true);
+  const { isDarkMode } = useDarkMode();
 
   const { ref } = useInView({
     threshold: 0.1,
@@ -47,10 +49,10 @@ const ScrollChevron = () => {
     >
       <button
         onClick={scrollToCategories}
-        className={`cursor-pointer bg-white/80 hover:bg-white backdrop-blur-sm p-3 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.2)] transition-all ${isBouncing ? 'animate-bounce' : ''}`}
+        className={`cursor-pointer duration-750 ${isDarkMode ? "bg-slate-900 hover:bg-slate-600 border-1 border-[#f59e0b]" : "hover:bg-white bg-white/80"} backdrop-blur-sm p-3 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.2)] transition-all ${isBouncing ? 'animate-bounce' : ''}`}
         aria-label="Scroll down"
       >
-        <ChevronDown className="text-black" size={24} />
+        <ChevronDown className={`${isDarkMode ? "text-[#f59e0b]" : "text-black"}`} size={24} />
       </button>
     </div>
   );

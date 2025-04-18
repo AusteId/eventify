@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaList, FaMap } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import EventCard from './EventCard';
@@ -7,8 +7,10 @@ import LoadingSection from './LoadingSection';
 import EventMap from './map/EventMap';
 import Pagination from './Pagination';
 import EventSearch from './search/EventSearch';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
-const EventsList = ({ setLoading, loading }) => {
+const EventsList = ({loading,setLoading}) => {
+  
   const [events, setEvents] = useState([]);
   const [eventsForMap, setEventsForMap] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -31,7 +33,7 @@ const EventsList = ({ setLoading, loading }) => {
   const [searchParamsUrl] = useSearchParams();
   const eventId = searchParamsUrl.get('eventId');
   const eventsPerPage = 12;
-
+  const { isDarkMode } = useDarkMode();
   useEffect(() => {
     if (eventId) {
       setShowMap(true);
@@ -89,7 +91,7 @@ const EventsList = ({ setLoading, loading }) => {
     };
 
     fetchData();
-  }, [currentPage, searchParams, setLoading]);
+  }, [currentPage, searchParams]);
 
   useEffect(() => {
     const fetchDataForMap = async () => {
@@ -158,13 +160,13 @@ const EventsList = ({ setLoading, loading }) => {
         >
           {showMap ? (
             <>
-              <FaList className="text-btn" />
-              View as List
+              <FaList  className='text-btn'/>
+             <p className={`duration-750 ${isDarkMode ? "text-gray-200" : "text-btn"}`}>View as List</p>
             </>
           ) : (
             <>
               <FaMap className="text-btn" />
-              View on Map
+              <p className={`duration-750 ${isDarkMode ? "text-gray-200" : "text-btn"}`}>View on Map</p>
             </>
           )}
         </button>
@@ -175,7 +177,7 @@ const EventsList = ({ setLoading, loading }) => {
       ) : showMap ? (
         <EventMap events={eventsForMap} eventId={eventId} />
       ) : events.length === 0 ? (
-        <p>Loading...</p>
+        <p className={`duration-750 ${isDarkMode && "text-gray-200"}`}>Loading...</p>
       ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {events.map((event, index) => (

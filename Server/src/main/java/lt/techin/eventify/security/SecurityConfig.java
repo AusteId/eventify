@@ -57,6 +57,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/users/check-availability").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/avatar").hasAnyAuthority("ADMIN", "USER")
                     .requestMatchers(HttpMethod.GET,"/api/users/{userId}/avatar").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/api/users/cities").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/categories/all").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/categories/{id}/icon").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/categories/{id}/add-icon").permitAll()

@@ -11,6 +11,7 @@ import { useOutletContext } from 'react-router';
 import Frame from '../../assets/Frame.svg';
 import Button from '../Button';
 import RegistrationSteps from '../RegistrationSteps';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -24,6 +25,8 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
     formState: { errors },
   } = useFormContext();
   const { prevStep, finalSubmit, isSubmitting } = useOutletContext();
+
+  const { isDarkMode } = useDarkMode();
 
   RegistrationFourthStep.displayName = 'RegistrationFirstStep';
 
@@ -78,46 +81,99 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
     },
   }));
 
+  const removeFile = e => {
+    e.stopPropagation();
+    setFilePreview(null);
+    setValue('profilePicture', null);
+    setError(null);
+  };
+
   return (
     <div>
       <RegistrationSteps step={4} />
-      <div className="flex flex-col items-center p-6">
-        <h2 className="text-header-dark text-heading-l font-[700]">
+      <div
+        className={`flex flex-col items-center rounded-2xl border p-10 mt-10 duration-750 ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'}`}
+      >
+        <h2
+          className={`text-heading-l font-[700] ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-dark'}`}
+        >
           Complete Your Profile
         </h2>
-        <p className="text-light text-body-m font-[400] pb-4">
+        <p
+          className={` text-body-m font-[400] pb-4 ${isDarkMode ? 'text-gray-200' : 'text-light'}`}
+        >
           Add a profile picture to help others recognize you
         </p>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <div>
-          <section className="bg-white w-[40rem] flex justify-center items-center rounded-2xl p-8">
+          <section
+            className={`w-[40rem] flex justify-center items-center rounded-2xl duration-750 p-8 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}
+          >
             <div
               {...getRootProps()}
-              className="border-2 border-dashed border-btn p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%]"
+              className={`border-2 duration-750 border-dashed border-btn p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%] ${isDarkMode ? 'bg-slate-600' : 'bg-white'}`}
             >
               <input {...getInputProps()} />
               {filePreview ? (
-                <img
-                  src={filePreview}
-                  alt="Uploaded Preview"
-                  className="w-24 h-24 rounded-full object-cover"
-                />
+                <div className="flex flex-col items-center">
+                  <img
+                    src={filePreview}
+                    alt="Uploaded Preview"
+                    className="w-24 h-24 rounded-full object-cover mb-4"
+                  />
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      onClick={e => {
+                        e.stopPropagation();
+                        const fileInput =
+                          document.querySelector('input[type="file"]');
+                        if (fileInput) fileInput.click();
+                      }}
+                      className="text-sm"
+                    >
+                      Change
+                    </Button>
+                    <Button
+                      type="button"
+                      background={`duration-750 ${isDarkMode ? 'bg-slate-900 text-gray-200 hover:bg-slate-800 hover:text-[#f59e0b]' : 'bg-white '}`}
+                      border="border border-[#f59e0b]"
+                      textColor={`${isDarkMode ? '' : 'text-red-500'}`}
+                      onClick={e => removeFile(e)}
+                      className="text-sm"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <>
                   <img
                     src={Frame}
                     alt="frame.logo"
-                    className="bg-white w-[4rem] h-[3rem]"
+                    className=" w-[4rem] h-[3rem]"
                   />
-                  <p className="text-heading-xs text-header-dark font-[600] pt-[0.5rem] pb-[1rem]">
+                  <p
+                    className={`text-heading-xs font-semibold pt-2 pb-4 duration-750 ${
+                      isDarkMode ? 'text-gray-200' : 'text-header-dark'
+                    }`}
+                  >
                     Drag and drop your photo here
                   </p>
-                  <p className="text-body-s text-body-medium font-[400] pb-4">
+                  <p
+                    className={`text-body-s font-normal pb-4 duration-750 ${
+                      isDarkMode ? 'text-gray-300' : 'text-body-medium'
+                    }`}
+                  >
                     or click to browse from your computer
                   </p>
-                  <small className="text-body-s text-body-medium font-[400] pb-8">
+                  <small
+                    className={`text-body-s font-normal pb-8 duration-750 ${
+                      isDarkMode ? 'text-gray-400' : 'text-body-medium'
+                    }`}
+                  >
                     Supported formats: JPG, PNG (Max size: 5MB)
                   </small>
                   <Button className="mt-4">
@@ -132,14 +188,20 @@ const RegistrationFourthStep = forwardRef((props, ref) => {
 
           <div className="flex justify-between mt-8 gap-10">
             <Button
-              background="bg-white"
-              textColor="text-btn"
+              type="button"
+              size="large"
+              background={`duration-750 ${isDarkMode ? 'bg-slate-600 text-gray-200 hover:bg-slate-700 hover:text-[#f59e0b]' : 'bg-white '}`}
               border="border border-btn"
+              textColor={`${isDarkMode ? '' : 'text-[#f59e0b]'}`}
               onClick={prevStep}
             >
               Back
             </Button>
-            <Button onClick={handleSubmit(finalSubmit)} disabled={isSubmitting}>
+            <Button
+              size="large"
+              onClick={handleSubmit(finalSubmit)}
+              disabled={isSubmitting}
+            >
               {isSubmitting ? 'Submitting...' : 'Complete Registration'}
             </Button>
           </div>

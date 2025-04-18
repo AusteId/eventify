@@ -1,0 +1,19 @@
+const MessageSVG = () => {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#f59e0b"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-6 h-6"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <line x1="9" y1="10" x2="15" y2="10"></line>
+      <line x1="9" y1="14" x2="15" y2="14"></line>
+    </svg>
+  );
+};
+
+export default MessageSVG;

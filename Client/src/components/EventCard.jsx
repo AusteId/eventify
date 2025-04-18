@@ -3,10 +3,7 @@
 import { useEffect, useState } from 'react';
 import Button from './Button';
 import ButtonCancel from './ButtonCancel';
-import {
-  convertToCompactEuDatetime,
-  formatToOnlyTime,
-} from '../utils/dateFunctions';
+import { convertToCompactEuDatetime } from '../utils/dateFunctions';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { IoPersonAdd } from 'react-icons/io5';
@@ -15,12 +12,8 @@ import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
 import { Clock, MapPin, Users, Timer } from 'lucide-react';
-import {
-  differenceInDays,
-  differenceInMinutes,
-  formatDistance,
-  formatDuration,
-} from 'date-fns';
+import { formatDistance } from 'date-fns';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const EventCard = ({
   id,
@@ -56,6 +49,8 @@ const EventCard = ({
     birthDate: null,
   };
   const [registered, setRegistered] = useState(isRegistered);
+
+  const {isDarkMode} = useDarkMode();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -247,7 +242,7 @@ const EventCard = ({
                     setImageData('./src/assets/eventCardImgSample.png');
                   }}
                 />
-                <p className="text-white">
+                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
                   {participants}/{maxParticipants}
                 </p>
               </div>
@@ -256,7 +251,9 @@ const EventCard = ({
               <div
                 className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
               >
-                <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
+                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
+                  {expLevels[normalizedExpLevel][1]}
+                </p>
               </div>
             )}
 
@@ -284,18 +281,28 @@ const EventCard = ({
           <h2 className="text-heading-xs font-[600] leading-[1.125rem] whitespace-nowrap overflow-hidden text-ellipsis">
             {name}
           </h2>
-          <p className="h-12 font-inter text-body-medium text-body-m">
+          <p
+            className={`h-12 font-inter  text-body-m ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+          >
             {shortDesc}
           </p>
-          <div className="flex flex-col gap-2 font-inter text-body-medium text-body-s">
+          <div
+            className={`flex flex-col gap-2 font-inter text-body-s ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+          >
             {startDateTime ? (
               <figure className="flex gap-2">
-                <Clock size={20} />
+                <Clock
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 {endDateTime ? (
                   <div className="flex gap-2">
                     <figcaption>{TimeString}</figcaption>
                     <figcaption className="flex gap-1">
-                      <Timer size={20} />
+                      <Timer
+                        size={20}
+                        className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                      />
                       {DurationString}
                     </figcaption>
                   </div>
@@ -307,19 +314,28 @@ const EventCard = ({
               </figure>
             ) : (
               <figure className="flex gap-2">
-                <Clock size={20} />
+                <Clock
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>Time not provided</figcaption>
               </figure>
             )}
             {city && (
               <figure className="flex gap-2">
-                <MapPin size={20} />
+                <MapPin
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>{city}</figcaption>
               </figure>
             )}
             {ageString && (
               <figure className="flex gap-2">
-                <Users size={20} />
+                <Users
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>{ageString}</figcaption>
               </figure>
             )}

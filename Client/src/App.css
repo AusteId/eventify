@@ -76,3 +76,17 @@
 .custom-popup-content p {
   margin: 0 !important;
 }
+
+
+.dark-mode-carousel .slick-dots li button:before {
+  color: #f59e0b !important;
+}
+
+.bg-slate-900 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.8) sepia(40%) saturate(600%) hue-rotate(360deg);
+}
+
+.bg-slate-900 input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.8) sepia(40%) saturate(600%) hue-rotate(360deg);
+}
+
