@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../Auth/AuthContext';
-import { useNotifications } from '../context/NotificationContext';
 import { useWebSocket } from './WebSocketContext';
 import UserStatusIndicator from './UserStatusIndicator';
 import { formatDistanceToNow } from 'date-fns';
 import { debounce } from 'lodash';
-import defaultAvatar from '../../assets/default-user-image.png';
 import '../../assets/scrollbar.css';
+import toast from 'react-hot-toast';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const ChatUsersList = ({ onSelectUser }) => {
   const [contacts, setContacts] = useState([]);
@@ -15,9 +15,9 @@ const ChatUsersList = ({ onSelectUser }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const {isDarkMode} = useDarkMode();
 
   const { authFetch, userId: currentUserId, avatar } = useAuth();
-  const { url, timeoutForError } = useNotifications();
   const { getUnreadCount, getUserStatus } = useWebSocket();
 
   const listRef = useRef(null);
@@ -30,7 +30,7 @@ const ChatUsersList = ({ onSelectUser }) => {
         try {
           setLoading(true);
           const response = await authFetch(
-            `${url}/api/chat/users/contacts?limit=20`,
+            `http://localhost:8080/api/chat/users/contacts?limit=20`,
           );
 
           if (response && response.ok) {
@@ -38,10 +38,10 @@ const ChatUsersList = ({ onSelectUser }) => {
             setContacts(data);
             contactsLoadedRef.current = true;
           } else {
-            timeoutForError('Failed to load chat contacts');
+            toast.error('Failed to load chat contacts');
           }
         } catch (e) {
-          timeoutForError('Failed to load chat contacts: ' + e.message);
+          toast.error('Failed to load chat contacts: ' + e.message);
         } finally {
           setLoading(false);
         }
@@ -49,7 +49,7 @@ const ChatUsersList = ({ onSelectUser }) => {
 
       fetchContacts();
     }
-  }, [authFetch, url, timeoutForError]);
+  }, [authFetch]);
 
   useEffect(() => {
     return () => {
@@ -66,7 +66,7 @@ const ChatUsersList = ({ onSelectUser }) => {
 
       try {
         const response = await authFetch(
-          `${url}/api/chat/users/search?query=${encodeURIComponent(query)}&limit=5`,
+          `http://localhost:8080/api/chat/users/search?query=${encodeURIComponent(query)}&limit=5`,
         );
 
         if (response && response.ok) {
@@ -165,21 +165,21 @@ const ChatUsersList = ({ onSelectUser }) => {
   );
   
   return (
-    <div className="border rounded-xl shadow-lg flex flex-col h-[700px] bg-white overflow-hidden">
-      <div className="p-4 border-b bg-white sticky top-0 z-10">
-        <h3 className="font-semibold mb-3 text-gray-800">Contacts</h3>
+    <div className={`border rounded-xl shadow-lg flex flex-col h-[700px] duration-750 overflow-hidden ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white'}`}>
+      <div className={`p-4 border-b  sticky top-0 z-10 duration-750 ${isDarkMode ? 'bg-slate-900  border-l-[#f59e0b] border-r-[#f59e0b] border-b-gray-200 ' : 'bg-white'}`}>
+        <h3 className={`font-semibold mb-3 duration-750 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Contacts</h3>
         <div className="relative">
           <input
             ref={searchInputRef}
             type="text"
             placeholder="Search users..."
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+            className={`w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all ${isDarkMode ? "text-gray-200 placeholder:text-gray-400" : "text-gray-800"}`}
             value={searchQuery}
             onChange={handleSearchInputChange}
           />
           {searchQuery && (
             <button
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className={`cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 duration-750 ${isDarkMode ? 'text-[#f59e0b] hover:text-amber-700' : 'text-gray-500 hover:text-gray-700'}`}
               onClick={() => {
                 setSearchQuery('');
                 setIsSearching(false);
@@ -196,24 +196,24 @@ const ChatUsersList = ({ onSelectUser }) => {
       <div className="overflow-y-auto flex-1 h-[550px] custom-scrollbar scrollbar-hover" ref={listRef}>
         {isSearching ? (
           <div>
-            <div className="p-2 bg-gray-100 border-b">
-              <h4 className="text-xs font-semibold text-gray-500">
+            <div className={`p-2  border-b duration-750 ${isDarkMode ? "bg-slate-900 border-gray-200" : "bg-gray-100"}`}>
+              <h4 className={`text-xs font-semibold duration-750 ${isDarkMode ? 'text-gray-200' : 'text-gray-500 '}`}>
                 SEARCH RESULTS
               </h4>
             </div>
 
             {searchResults.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
+              <div className={`p-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-500'}`}>
                 {searchQuery.length < 2
                   ? 'Type at least 2 characters'
                   : 'No users found'}
               </div>
             ) : (
-              <ul className="divide-y divide-gray-100">
+              <ul className={`divide-y divide-gray-100 ${isDarkMode ? 'text-gray-200' : 'text-gray-500'}`}>
                 {searchResults.map(user => (
                   <li
                     key={`search-${user.id}`}
-                    className="p-3 hover:bg-gray-50 cursor-pointer"
+                    className={`p-3 cursor-pointer duration-750 ${isDarkMode ? "hover:bg-slate-600" : "hover:bg-gray-50"}`}
                     onClick={() => handleSearchResultClick(user)}
                   >
                     <div className="flex items-center">
@@ -230,14 +230,14 @@ const ChatUsersList = ({ onSelectUser }) => {
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
           </div>
         ) : sortedContacts.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
+          <div className={`p-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-500'}`}>
             <p>No conversations yet</p>
             <p className="text-sm mt-1">Search for users to start chatting</p>
           </div>
         ) : (
           <div>
-            <div className="p-2 bg-gray-100 border-b">
-              <h4 className="text-xs font-semibold text-gray-500">
+            <div className={`p-2  border-b duration-750 ${isDarkMode ? "bg-slate-900 border-gray-200" : "bg-gray-100"}`}>
+              <h4 className={`text-xs font-semibold duration-750 ${isDarkMode ? 'text-gray-200' : 'text-gray-500 '}`}>
                 RECENT CONVERSATIONS
               </h4>
             </div>
@@ -249,15 +249,13 @@ const ChatUsersList = ({ onSelectUser }) => {
                 return (
                   <li
                     key={`contact-${contact.id}`}
-                    className={`p-4 hover:bg-amber-50 cursor-pointer transition-colors ${
-                      isSelected ? 'bg-amber-50' : ''
-                    }`}
+                    className={`p-4 cursor-pointer duration-750 ${isDarkMode && isSelected ? "bg-slate-600" : isDarkMode ? "hover:bg-slate-600" : isSelected ? "bg-gray-50 hover:bg-gray-50" : "hover:bg-gray-200"} cursor-pointer transition-colors`}
                     onClick={() => handleContactClick(contact)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <UserStatusIndicator userId={contact.id} />
-                        <span className="ml-2 font-medium text-gray-800 truncate max-w-[150px]">
+                        <span className={`ml-2 font-medium duration-750  truncate max-w-[150px] ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                           {contact.username}
                         </span>
                       </div>

@@ -9,7 +9,7 @@ import Profile from './page/Profile';
 import MyRegistrations from './components/myRegistrations/MyRegistrations';
 import AuthenticatedLayout from './components/AuthenticatedLayout';
 import RegistrationLayout from './components/Registration/RegistrationLayout';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import RegistrationFirstStep from './components/Registration/RegistrationFirstStep';
 import RegistrationSecondStep from './components/Registration/RegistrationSecondStep';
 import RegistrationThirdStep from './components/Registration/RegistrationThirdStep';
@@ -20,19 +20,19 @@ import Event from './page/Event';
 
 import BasicModal from './components/BasicModal';
 import CreateEventForm from './components/CreateEventForm';
-import { useAuth } from './components/Auth/AuthContext';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
-import ProtectedRoute from './components/Auth/ProtectedRoute';
+import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
 
   return (
-    <div className="">
+    <div>
+
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>
-
+    <DarkModeAutocompleteStyles/>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>

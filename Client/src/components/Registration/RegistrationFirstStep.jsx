@@ -1,14 +1,15 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
-import email from '../../assets/userRegistration/email-Icon.svg';
-import password from '../../assets/userRegistration/password-Icon.svg';
-import username from '../../assets/userRegistration/username-Icon.svg';
 import Button from '../Button';
-import { useNotifications } from '../context/NotificationContext';
 import FieldValidationError from '../FieldValidationError';
 import LoadingScreen from '../message/LoadingScreen';
-import StepIndicator from '../StepIndicator';
+import RegistrationSteps from '../RegistrationSteps';
+import UsernameIconSVG from '../../assets/userRegistration/UsernameIconSVG';
+import EmailIconSVG from '../../assets/userRegistration/EmailIconSVG';
+import PasswordIconSVG from '../../assets/userRegistration/PasswordIconSVG';
+import toast from 'react-hot-toast';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const RegistrationFirstStep = forwardRef((props, ref) => {
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -16,8 +17,8 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   const [emailError, setEmailError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const { nextStep } = useOutletContext();
-  const { timeoutForError, url } = useNotifications();
   const [isLoading, setIsLoading] = useState(false);
+  const { isDarkMode } = useDarkMode();
 
   RegistrationFirstStep.displayName = 'RegistrationFirstStep';
 
@@ -59,7 +60,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${url}/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`,
+        `http://localhost:8080/api/users/check-availability?username=${encodeURIComponent(usernameValue)}&email=${encodeURIComponent(emailValue)}`,
         {
           method: 'GET',
           headers: {
@@ -69,7 +70,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
       );
 
       if (!response.ok) {
-        timeoutForError('Failed to check username/email availability');
+        toast.error('Failed to check username/email availability');
         return false;
       }
 
@@ -97,7 +98,7 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
 
       return isValid;
     } catch (error) {
-      timeoutForError(error.message || 'Failure checking credentials');
+      toast.error(error.message || 'Failure checking credentials');
       return false;
     } finally {
       setIsValidating(false);
@@ -134,14 +135,19 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
   };
 
   return (
-    <>
+    <div>
       {isLoading && <LoadingScreen />}
-      <div className="flex flex-col gap-8  mt-[3rem] bg-white rounded-2xl shadow-md px-9 pt-8 pb-12">
+      <RegistrationSteps step={1} />
+      <div
+        className={`flex flex-col gap-8 duration-750  mt-[3rem] rounded-2xl border shadow-md px-9 pt-8 pb-12 ${isDarkMode ? 'text-gray-300 bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent text-body-medium'}`}
+      >
         <div>
-          <h1 className="font-bold text-black text-center text-heading-m/normal mb-12">
+          <h1
+            className={`font-bold text-center text-heading-m/normal mb-12 duration-750 ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-dark'}`}
+          >
             Create your account
           </h1>
-          <p className="text-body-m/[1rem] text-body-medium">
+          <p className="text-body-m/[1rem]">
             Join Eventify to discover amazing events near you
           </p>
         </div>
@@ -149,14 +155,19 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
         <div>
           <fieldset className="fieldset gap-y-6 mb-6">
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Username
-              </p>
-              <label className="input w-full">
-                <img src={username} alt="username icon" />
+              <p className="text-sm/normal font-[500]">Username</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <UsernameIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="text"
                   placeholder="Choose a username"
+                  className={``}
                   {...register('username', {
                     required: 'Username is required.',
                     minLength: {
@@ -181,11 +192,15 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             </div>
 
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Email address
-              </p>
-              <label className="input w-full">
-                <img src={email} alt="email icon" />
+              <p className="text-sm/normal font-[500]">Email address</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <EmailIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -205,11 +220,15 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             </div>
 
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Password
-              </p>
-              <label className="input w-full">
-                <img src={password} alt="password icon" />
+              <p className="text-sm/normal font-[500]">Password</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <PasswordIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="password"
                   placeholder="Create a password"
@@ -238,11 +257,15 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
             </div>
 
             <div>
-              <p className="text-body-medium text-sm/normal font-[500]">
-                Confirm Password
-              </p>
-              <label className="input w-full">
-                <img src={password} alt="password icon" />
+              <p className="text-sm/normal font-[500]">Confirm Password</p>
+              <label
+                className={`input w-full border ${
+                  isDarkMode
+                    ? 'border-gray-200 bg-transparent text-gray-200 focus-within:border-[#f59e0b] focus-within:ring focus-within:ring-[#f59e0b] focus-within:ring-opacity-50'
+                    : 'border-gray-300'
+                }`}
+              >
+                <PasswordIconSVG isDarkMode={isDarkMode} />
                 <input
                   type="password"
                   placeholder="Retype your password"
@@ -258,21 +281,22 @@ const RegistrationFirstStep = forwardRef((props, ref) => {
           </fieldset>
 
           <div className="flex justify-center ">
-            <Button onClick={onNext} disabled={isValidating} isFull>
+            <Button size="large" onClick={onNext} disabled={isValidating} isFull>
               {isValidating ? 'Validating...' : 'Continue'}
             </Button>
           </div>
           <div className="flex justify-center gap-4 w-full text-center pt-6 ">
-            <p className="font-inter text-body-medium">
-              Already have an account?
-            </p>
-            <a className="text-btn-hover cursor-pointer" onClick={() => navigate("/login")}>
+            <p className="font-inter">Already have an account?</p>
+            <a
+              className="duration-750 text-btn-hover cursor-pointer hover:text-[#f59e0b]"
+              onClick={() => navigate('/login')}
+            >
               Sign in
             </a>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 });
 

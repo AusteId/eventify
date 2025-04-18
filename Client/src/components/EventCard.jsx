@@ -3,10 +3,7 @@
 import { useEffect, useState } from 'react';
 import Button from './Button';
 import ButtonCancel from './ButtonCancel';
-import {
-  convertToCompactEuDatetime,
-  formatToOnlyTime,
-} from '../utils/dateFunctions';
+import { convertToCompactEuDatetime } from '../utils/dateFunctions';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { IoPersonAdd } from 'react-icons/io5';
@@ -15,20 +12,16 @@ import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
 import { Clock, MapPin, Users, Timer } from 'lucide-react';
-import {
-  differenceInDays,
-  differenceInMinutes,
-  formatDistance,
-  formatDuration,
-} from 'date-fns';
+import { formatDistance } from 'date-fns';
+import { useDarkMode } from './context/DarkModeContext.jsx';
 
 const EventCard = ({
   id,
   experienceLevel = 'All Welcome',
   isRegistered = 0,
   eventHandler,
-  currentParticipants = 0,
-  maxParticipants = 1,
+  currentParticipants,
+  maxParticipants,
   name = 'Title missing...',
   description,
   startDateTime,
@@ -42,18 +35,22 @@ const EventCard = ({
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
   const [imageData, setImageData] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(true);
-  const [participants, setParticipants] = useState(currentParticipants || 0);
+  const [participants, setParticipants] = useState(currentParticipants ?? 0);
   const [loading, setLoading] = useState(false);
   const {
     isAuthenticated,
     loading: authLoading,
+    userId,
     birthDate,
   } = useAuth() || {
     isAuthenticated: false,
     loading: false,
+    userId: '',
     birthDate: null,
   };
   const [registered, setRegistered] = useState(isRegistered);
+
+  const {isDarkMode} = useDarkMode();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -81,9 +78,31 @@ const EventCard = ({
   }, [id]);
 
   useEffect(() => {
-    setParticipants(currentParticipants || 0);
-  }, [currentParticipants]);
-
+    const fetchEventDetails = async () => {
+      if (!id || !isAuthenticated || !userId) {
+        setRegistered(false);
+        setParticipants(currentParticipants ?? 0);
+        return;
+      }
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/events/${id}`,
+          {
+            withCredentials: true,
+          },
+        );
+        console.log('Full API response:', response.data);
+        const registrations = response.data.registrations || [];
+        setRegistered(response.data.isRegistered);
+        setParticipants(registrations.length || 0);
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+        setRegistered(false);
+        setParticipants(currentParticipants ?? 0);
+      }
+    };
+    fetchEventDetails();
+  }, [id, isAuthenticated, userId]);
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -102,10 +121,8 @@ const EventCard = ({
 
   const isAgeValid = () => {
     const userAge = calculateAge(birthDate);
-
     if (!userAge && !minAge && !maxAge) return true;
     if (!userAge) return false;
-
     if (minAge && userAge < minAge) return false;
     if (maxAge && userAge > maxAge) return false;
     return true;
@@ -131,20 +148,21 @@ const EventCard = ({
       if (registered) {
         const result = await cancelEvent(id);
         console.log('cancelEvent result:', result);
-        setRegistered(event.re);
-        setParticipants(prev => Math.max(0, prev - 1));
+        setRegistered(false);
+        setParticipants(prev => Math.max(prev - 1));
         toast.success('Registration has been successfully canceled.');
       } else {
         if (participants < maxParticipants) {
           const result = await joinEvent(id);
           console.log('joinEvent result:', result);
-          setRegistered(event.registrations.length);
+          setRegistered(true);
           setParticipants(prev => prev + 1);
           toast.success(`You're registered to ${name}!`);
         } else {
           toast.error('Places at the event have run out!');
         }
       }
+
       if (eventHandler) eventHandler();
     } catch (error) {
       const errorMessage = error.error || 'Something went wrong. Try it again.';
@@ -218,10 +236,13 @@ const EventCard = ({
               <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
                 <img
                   src="./src/assets/threePersonIcon.svg"
-                  alt="Participants"
-                  onError={() => console.log('Participants icon failed to load')}
+                  loading="lazy"
+                  onError={() => {
+                    console.log('Event image failed to load, using fallback');
+                    setImageData('./src/assets/eventCardImgSample.png');
+                  }}
                 />
-                <p className="text-white">
+                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
                   {participants}/{maxParticipants}
                 </p>
               </div>
@@ -230,7 +251,9 @@ const EventCard = ({
               <div
                 className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
               >
-                <p className="text-white">{expLevels[normalizedExpLevel][1]}</p>
+                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
+                  {expLevels[normalizedExpLevel][1]}
+                </p>
               </div>
             )}
 
@@ -258,18 +281,28 @@ const EventCard = ({
           <h2 className="text-heading-xs font-[600] leading-[1.125rem] whitespace-nowrap overflow-hidden text-ellipsis">
             {name}
           </h2>
-          <p className="h-12 font-inter text-body-medium text-body-m">
+          <p
+            className={`h-12 font-inter  text-body-m ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+          >
             {shortDesc}
           </p>
-          <div className="flex flex-col gap-2 font-inter text-body-medium text-body-s">
+          <div
+            className={`flex flex-col gap-2 font-inter text-body-s ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+          >
             {startDateTime ? (
               <figure className="flex gap-2">
-                <Clock size={20} />
+                <Clock
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 {endDateTime ? (
                   <div className="flex gap-2">
                     <figcaption>{TimeString}</figcaption>
                     <figcaption className="flex gap-1">
-                      <Timer size={20} />
+                      <Timer
+                        size={20}
+                        className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                      />
                       {DurationString}
                     </figcaption>
                   </div>
@@ -281,19 +314,28 @@ const EventCard = ({
               </figure>
             ) : (
               <figure className="flex gap-2">
-                <Clock size={20} />
+                <Clock
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>Time not provided</figcaption>
               </figure>
             )}
             {city && (
               <figure className="flex gap-2">
-                <MapPin size={20} />
+                <MapPin
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>{city}</figcaption>
               </figure>
             )}
             {ageString && (
               <figure className="flex gap-2">
-                <Users size={20} />
+                <Users
+                  size={20}
+                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                />
                 <figcaption>{ageString}</figcaption>
               </figure>
             )}
@@ -309,7 +351,11 @@ const EventCard = ({
             onClick={handleRegistration}
             disabled={loading}
           >
-            <img src="./src/assets/xIcon.svg" className="border-0" alt="Cancel" />
+            <img
+              src="./src/assets/xIcon.svg"
+              className="border-0"
+              alt="Cancel"
+            />
             {loading ? 'Processing...' : 'Cancel Registration'}
           </ButtonCancel>
         ) : (

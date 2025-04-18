@@ -25,6 +25,7 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import { RiFilter2Fill } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
 import CategoryImage from '../category/CategoryImage';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const EventSearch = ({ onSearch }) => {
   const [searchInput, setSearchInput] = useState('');
@@ -36,7 +37,7 @@ const EventSearch = ({ onSearch }) => {
   const [activeDateFilter, setActiveDateFilter] = useState('');
   const [isToDateManuallyEdited, setIsToDateManuallyEdited] = useState(false);
   const [isSettingDateFilter, setIsSettingDateFilter] = useState(false);
-
+  const { isDarkMode } = useDarkMode();
   const filterDropdownRef = useRef(null);
   const dropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
@@ -427,7 +428,11 @@ const EventSearch = ({ onSearch }) => {
             onChange={handleSearchChange}
             onKeyDown={handleKeyDown}
             placeholder="Search for events..."
-            className="h-10 appearance-none border border-input-light rounded-lg w-full py-2 pl-10 pr-10 text-body-medium leading-tight focus:outline-none placeholder:text-input-muted font-inter bg-white"
+            className={`h-10 appearance-none border rounded-lg w-full py-2 pl-10 pr-10 leading-tight focus:outline-none placeholder:text-input-muted font-inter duration-750 ${
+              isDarkMode 
+                ? 'bg-slate-800 border-[#f59e0b] text-gray-200 placeholder:text-gray-400' 
+                : 'bg-white border-input-light text-body-medium'
+            }`}
           />
           {searchInput && (
             <button
@@ -443,18 +448,28 @@ const EventSearch = ({ onSearch }) => {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-              className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 min-w-[135px] h-10 w-[135px]"
+              className={`rounded-lg border-0 flex items-center gap-2 font-inter px-4 py-2 min-w-[138px] h-10 w-[138px] duration-750 ${
+                isDarkMode 
+                  ? 'bg-slate-800 text-gray-200 hover:bg-slate-700 border-1 border-[#f59e0b]' 
+                  : 'bg-[#FFFFFF] text-body-medium hover:bg-btn/8'
+              }`}
             >
               <FaSort className="text-btn" />
               Sort by <FaChevronDown className="text-btn" />
             </button>
 
             {isSortDropdownOpen && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] bg-white shadow-md rounded-lg z-20 font-inter text-body-medium">
+              <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 w-fit min-w-[150px] sm:min-w-[200px] max-w-[90vw] shadow-md rounded-lg z-20 font-inter duration-750 ${
+                isDarkMode ? 'bg-slate-800 text-gray-200' : 'bg-white text-body-medium'
+              }`}>
                 <div className="flex flex-col gap-1 p-2">
                   <button
                     onClick={() => handleSortChange('name', 'ASC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowUpAZ className="text-btn text-lg" />A to Z
@@ -465,7 +480,11 @@ const EventSearch = ({ onSearch }) => {
                   </button>
                   <button
                     onClick={() => handleSortChange('name', 'DESC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowDownZA className="text-btn text-lg" />Z to A
@@ -476,7 +495,11 @@ const EventSearch = ({ onSearch }) => {
                   </button>
                   <button
                     onClick={() => handleSortChange('experienceLevel', 'ASC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowUp className="text-btn text-lg" />
@@ -489,7 +512,11 @@ const EventSearch = ({ onSearch }) => {
                   </button>
                   <button
                     onClick={() => handleSortChange('experienceLevel', 'DESC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowDown className="text-btn text-lg" />
@@ -502,7 +529,11 @@ const EventSearch = ({ onSearch }) => {
                   </button>
                   <button
                     onClick={() => handleSortChange('startDateTime', 'ASC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowUp19 className="text-btn text-lg" />
@@ -514,7 +545,11 @@ const EventSearch = ({ onSearch }) => {
                   </button>
                   <button
                     onClick={() => handleSortChange('startDateTime', 'DESC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowDown91 className="text-btn text-lg" />
@@ -526,7 +561,11 @@ const EventSearch = ({ onSearch }) => {
                   </button>
                   <button
                     onClick={() => handleSortChange('createdAt', 'ASC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowUp19 className="text-btn text-lg" />
@@ -538,7 +577,11 @@ const EventSearch = ({ onSearch }) => {
                   </button>
                   <button
                     onClick={() => handleSortChange('createdAt', 'DESC')}
-                    className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                    className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                      isDarkMode 
+                        ? 'hover:bg-slate-700 hover:text-[#f59e0b]' 
+                        : 'hover:bg-btn/8 hover:text-black'
+                    }`}
                   >
                     <div className="flex items-center gap-3 text-sm">
                       <FaArrowDown91 className="text-btn text-lg" />
@@ -556,19 +599,27 @@ const EventSearch = ({ onSearch }) => {
           <div className="relative" ref={filterDropdownRef}>
             <button
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className="bg-[#FFFFFF] text-body-medium rounded-lg border-0 flex items-center gap-2 font-inter hover:bg-btn/8 px-6 py-2 min-w-[135px] h-10"
+              className={`rounded-lg border-0 flex items-center gap-2 font-inter px-6 py-2 min-w-[135px] h-10 duration-750 ${
+                isDarkMode 
+                  ? 'bg-slate-800 text-gray-200 hover:bg-slate-700 border-1 border-[#f59e0b]' 
+                  : 'bg-[#FFFFFF] text-body-medium hover:bg-btn/8'
+              }`}
             >
               <RiFilter2Fill className="text-btn" /> Filter{' '}
               <FaChevronDown className="text-btn" />
             </button>
 
             {isFilterDropdownOpen && (
-              <div className="filter-dropdown absolute right-0 top-full mt-2 w-72 bg-white shadow-lg rounded-lg z-20">
+              <div className={`filter-dropdown absolute right-0 top-full mt-2 w-72 shadow-lg rounded-lg z-20 duration-750 ${
+                isDarkMode ? 'bg-slate-800' : 'bg-white'
+              }`}>
                 <div className="p-4 flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <FaList className="text-btn" />
-                      <label className="text-sm font-medium text-body-medium">
+                      <label className={`text-sm font-medium duration-750 ${
+                        isDarkMode ? 'text-gray-200' : 'text-body-medium'
+                      }`}>
                         Category
                       </label>
                     </div>
@@ -578,8 +629,14 @@ const EventSearch = ({ onSearch }) => {
                         onClick={() =>
                           setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
                         }
-                        className={`bg-[#FFFFFF] text-body-medium rounded-lg border border-input-light flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 w-full justify-between ${
-                          categoryName ? 'text-black' : 'text-gray-400'
+                        className={`rounded-lg border flex items-center gap-2 font-inter px-4 py-2 w-full justify-between duration-750 ${
+                          isDarkMode 
+                            ? 'bg-slate-700 border-[#f59e0b] hover:bg-slate-600' 
+                            : 'bg-[#FFFFFF] border-input-light hover:bg-btn/8'
+                        } ${
+                          categoryName 
+                            ? isDarkMode ? 'text-gray-200' : 'text-black' 
+                            : isDarkMode ? 'text-gray-400' : 'text-gray-400'
                         }`}
                         aria-expanded={isCategoryDropdownOpen}
                         aria-controls="category-dropdown"
@@ -602,7 +659,9 @@ const EventSearch = ({ onSearch }) => {
                       {isCategoryDropdownOpen && (
                         <div
                           id="category-dropdown"
-                          className="absolute left-0 top-full mt-2 w-full bg-white shadow-md rounded-lg z-10 font-inter text-body-medium"
+                          className={`absolute left-0 top-full mt-2 w-full shadow-md rounded-lg z-10 font-inter duration-750 ${
+                            isDarkMode ? 'bg-slate-700 text-gray-200' : 'bg-white text-body-medium'
+                          }`}
                         >
                           <div className="flex flex-col gap-1 p-2">
                             <button
@@ -610,7 +669,11 @@ const EventSearch = ({ onSearch }) => {
                                 setValue('categoryName', '');
                                 setIsCategoryDropdownOpen(false);
                               }}
-                              className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                              className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                                isDarkMode 
+                                  ? 'hover:bg-slate-600 hover:text-[#f59e0b]' 
+                                  : 'hover:bg-btn/8 hover:text-black'
+                              }`}
                             >
                               <div className="flex items-center gap-3 text-sm">
                                 <span>All Categories</span>
@@ -626,7 +689,11 @@ const EventSearch = ({ onSearch }) => {
                                   setValue('categoryName', category.name);
                                   setIsCategoryDropdownOpen(false);
                                 }}
-                                className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                                  isDarkMode 
+                                    ? 'hover:bg-slate-600 hover:text-[#f59e0b]' 
+                                    : 'hover:bg-btn/8 hover:text-black'
+                                }`}
                               >
                                 <div className="flex items-center gap-3 text-sm">
                                   <CategoryImage categoryId={category.id} />
@@ -646,7 +713,9 @@ const EventSearch = ({ onSearch }) => {
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <FaCalendar className="text-btn" />
-                      <label className="text-sm font-medium text-body-medium">
+                      <label className={`text-sm font-medium duration-750 ${
+                        isDarkMode ? 'text-gray-200' : 'text-body-medium'
+                      }`}>
                         Date Range
                       </label>
                     </div>
@@ -654,10 +723,12 @@ const EventSearch = ({ onSearch }) => {
                       <button
                         type="button"
                         onClick={() => setDateFilter('today')}
-                        className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${
+                        className={`px-3 py-1 text-xs rounded-full border duration-750 ${
                           activeDateFilter === 'today'
                             ? 'bg-btn text-white hover:bg-btn-hover'
-                            : 'bg-white hover:bg-btn/8'
+                            : isDarkMode 
+                              ? 'bg-slate-700 text-gray-200 border-[#f59e0b] hover:bg-slate-600' 
+                              : 'bg-white text-body-medium border-input-light hover:bg-btn/8'
                         }`}
                       >
                         Today
@@ -665,10 +736,12 @@ const EventSearch = ({ onSearch }) => {
                       <button
                         type="button"
                         onClick={() => setDateFilter('tomorrow')}
-                        className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${
+                        className={`px-3 py-1 text-xs rounded-full border duration-750 ${
                           activeDateFilter === 'tomorrow'
                             ? 'bg-btn text-white hover:bg-btn-hover'
-                            : 'bg-white hover:bg-btn/8'
+                            : isDarkMode 
+                              ? 'bg-slate-700 text-gray-200 border-[#f59e0b] hover:bg-slate-600' 
+                              : 'bg-white text-body-medium border-input-light hover:bg-btn/8'
                         }`}
                       >
                         Tomorrow
@@ -676,10 +749,12 @@ const EventSearch = ({ onSearch }) => {
                       <button
                         type="button"
                         onClick={() => setDateFilter('thisWeek')}
-                        className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${
+                        className={`px-3 py-1 text-xs rounded-full border duration-750 ${
                           activeDateFilter === 'thisWeek'
                             ? 'bg-btn text-white hover:bg-btn-hover'
-                            : 'bg-white hover:bg-btn/8'
+                            : isDarkMode 
+                              ? 'bg-slate-700 text-gray-200 border-[#f59e0b] hover:bg-slate-600' 
+                              : 'bg-white text-body-medium border-input-light hover:bg-btn/8'
                         }`}
                       >
                         This Week
@@ -687,10 +762,12 @@ const EventSearch = ({ onSearch }) => {
                       <button
                         type="button"
                         onClick={() => setDateFilter('thisWeekend')}
-                        className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${
+                        className={`px-3 py-1 text-xs rounded-full border duration-750 ${
                           activeDateFilter === 'thisWeekend'
                             ? 'bg-btn text-white hover:bg-btn-hover'
-                            : 'bg-white hover:bg-btn/8'
+                            : isDarkMode 
+                              ? 'bg-slate-700 text-gray-200 border-[#f59e0b] hover:bg-slate-600' 
+                              : 'bg-white text-body-medium border-input-light hover:bg-btn/8'
                         }`}
                       >
                         This Weekend
@@ -698,10 +775,12 @@ const EventSearch = ({ onSearch }) => {
                       <button
                         type="button"
                         onClick={() => setDateFilter('nextWeek')}
-                        className={`px-3 py-1 text-xs rounded-full text-body-medium border border-input-light ${
+                        className={`px-3 py-1 text-xs rounded-full border duration-750 ${
                           activeDateFilter === 'nextWeek'
                             ? 'bg-btn text-white hover:bg-btn-hover'
-                            : 'bg-white hover:bg-btn/8'
+                            : isDarkMode 
+                              ? 'bg-slate-700 text-gray-200 border-[#f59e0b] hover:bg-slate-600' 
+                              : 'bg-white text-body-medium border-input-light hover:bg-btn/8'
                         }`}
                       >
                         Next Week
@@ -711,7 +790,9 @@ const EventSearch = ({ onSearch }) => {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <IoCalendarOutline className="text-btn" />
-                        <span className="text-xs text-body-medium">
+                        <span className={`text-xs duration-750 ${
+                          isDarkMode ? 'text-gray-300' : 'text-body-medium'
+                        }`}>
                           {endDateTime && endDateTime !== startDateTime
                             ? 'From Date'
                             : 'Event Date'}
@@ -723,14 +804,20 @@ const EventSearch = ({ onSearch }) => {
                           onChange: () => setActiveDateFilter(''),
                         })}
                         lang="lt"
-                        className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                        className={`input input-bordered w-full rounded-lg h-10 text-sm duration-750 ${
+                          isDarkMode 
+                            ? 'bg-slate-700 border-[#f59e0b] text-gray-200' 
+                            : 'bg-white border-input-light'
+                        }`}
                       />
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <IoCalendarOutline className="text-btn" />
-                        <span className="text-xs text-body-medium">
+                        <span className={`text-xs duration-750 ${
+                          isDarkMode ? 'text-gray-300' : 'text-body-medium'
+                        }`}>
                           To Date
                         </span>
                       </div>
@@ -753,7 +840,11 @@ const EventSearch = ({ onSearch }) => {
                         })}
                         lang="lt"
                         disabled={!startDateTime}
-                        className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                        className={`input input-bordered w-full rounded-lg h-10 text-sm duration-750 ${
+                          isDarkMode 
+                            ? 'bg-slate-700 border-[#f59e0b] text-gray-200' 
+                            : 'bg-white border-input-light'
+                        } ${!startDateTime && isDarkMode ? 'opacity-50' : ''}`}
                       />
                     </div>
                     {errors.endDateTime && (
@@ -766,7 +857,9 @@ const EventSearch = ({ onSearch }) => {
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <FaUser className="text-btn" />
-                      <span className="text-sm font-medium text-body-medium">
+                      <span className={`text-sm font-medium duration-750 ${
+                        isDarkMode ? 'text-gray-200' : 'text-body-medium'
+                      }`}>
                         Age Range
                       </span>
                     </div>
@@ -788,7 +881,11 @@ const EventSearch = ({ onSearch }) => {
                             valueAsNumber: true,
                           })}
                           placeholder="From"
-                          className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                          className={`input input-bordered w-full rounded-lg h-10 text-sm duration-750 ${
+                            isDarkMode 
+                              ? 'bg-slate-700 border-[#f59e0b] text-gray-200 placeholder:text-gray-400' 
+                              : 'bg-white border-input-light'
+                          }`}
                         />
                         {errors.minAge && (
                           <p className="text-red-500 text-xs">
@@ -812,7 +909,11 @@ const EventSearch = ({ onSearch }) => {
                             },
                           })}
                           placeholder="To"
-                          className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                          className={`input input-bordered w-full rounded-lg h-10 text-sm duration-750 ${
+                            isDarkMode 
+                              ? 'bg-slate-700 border-[#f59e0b] text-gray-200 placeholder:text-gray-400' 
+                              : 'bg-white border-input-light'
+                          }`}
                         />
                         {errors.maxAge && (
                           <p className="text-red-500 text-xs">
@@ -826,7 +927,9 @@ const EventSearch = ({ onSearch }) => {
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <FaMapMarkerAlt className="text-btn" />
-                      <label className="text-sm font-medium text-body-medium">
+                      <label className={`text-sm font-medium duration-750 ${
+                        isDarkMode ? 'text-gray-200' : 'text-body-medium'
+                      }`}>
                         City
                       </label>
                     </div>
@@ -840,7 +943,11 @@ const EventSearch = ({ onSearch }) => {
                         },
                       })}
                       placeholder="Enter location"
-                      className="input input-bordered w-full bg-white border border-input-light rounded-lg h-10 text-sm"
+                      className={`input input-bordered w-full rounded-lg h-10 text-sm duration-750 ${
+                        isDarkMode 
+                          ? 'bg-slate-700 border-[#f59e0b] text-gray-200 placeholder:text-gray-400' 
+                          : 'bg-white border-input-light'
+                      }`}
                     />
                     {errors.city && (
                       <p className="text-red-500 text-xs">
@@ -852,7 +959,9 @@ const EventSearch = ({ onSearch }) => {
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <FaStar className="text-btn" />
-                      <label className="text-sm font-medium text-body-medium">
+                      <label className={`text-sm font-medium duration-750 ${
+                        isDarkMode ? 'text-gray-200' : 'text-body-medium'
+                      }`}>
                         Experience Level
                       </label>
                     </div>
@@ -861,10 +970,14 @@ const EventSearch = ({ onSearch }) => {
                         onClick={() =>
                           setIsExperienceDropdownOpen(!isExperienceDropdownOpen)
                         }
-                        className={`bg-[#FFFFFF] text-body-medium rounded-lg border border-input-light flex items-center gap-2 font-inter hover:bg-btn/8 px-4 py-2 w-full justify-between ${
-                          watch('experienceLevel')
-                            ? 'text-black'
-                            : 'text-gray-400'
+                        className={`rounded-lg border flex items-center gap-2 font-inter px-4 py-2 w-full justify-between duration-750 ${
+                          isDarkMode 
+                            ? 'bg-slate-700 border-[#f59e0b] hover:bg-slate-600' 
+                            : 'bg-[#FFFFFF] border-input-light hover:bg-btn/8'
+                        } ${
+                          watch('experienceLevel') 
+                            ? isDarkMode ? 'text-gray-200' : 'text-black' 
+                            : isDarkMode ? 'text-gray-400' : 'text-gray-400'
                         }`}
                         aria-expanded={isExperienceDropdownOpen}
                         aria-controls="experience-dropdown"
@@ -876,7 +989,9 @@ const EventSearch = ({ onSearch }) => {
                       {isExperienceDropdownOpen && (
                         <div
                           id="experience-dropdown"
-                          className="absolute left-0 top-full mt-2 w-full bg-white shadow-md rounded-lg z-10 font-inter text-body-medium"
+                          className={`absolute left-0 top-full mt-2 w-full shadow-md rounded-lg z-10 font-inter duration-750 ${
+                            isDarkMode ? 'bg-slate-700 text-gray-200' : 'bg-white text-body-medium'
+                          }`}
                         >
                           <div className="flex flex-col gap-1 p-2">
                             <button
@@ -884,7 +999,11 @@ const EventSearch = ({ onSearch }) => {
                                 setValue('experienceLevel', '');
                                 setIsExperienceDropdownOpen(false);
                               }}
-                              className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                              className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                                isDarkMode 
+                                  ? 'hover:bg-slate-600 hover:text-[#f59e0b]' 
+                                  : 'hover:bg-btn/8 hover:text-black'
+                              }`}
                             >
                               <div className="flex items-center gap-3 text-sm">
                                 <span>Any Level</span>
@@ -906,7 +1025,11 @@ const EventSearch = ({ onSearch }) => {
                                   setValue('experienceLevel', level);
                                   setIsExperienceDropdownOpen(false);
                                 }}
-                                className="flex items-center justify-between gap-3 p-1 rounded-md hover:bg-btn/8 hover:text-black whitespace-nowrap"
+                                className={`flex items-center justify-between gap-3 p-1 rounded-md whitespace-nowrap duration-750 ${
+                                  isDarkMode 
+                                    ? 'hover:bg-slate-600 hover:text-[#f59e0b]' 
+                                    : 'hover:bg-btn/8 hover:text-black'
+                                }`}
                               >
                                 <div className="flex items-center gap-3 text-sm">
                                   <span>{level}</span>
@@ -933,7 +1056,11 @@ const EventSearch = ({ onSearch }) => {
                     <button
                       type="button"
                       onClick={handleClearFilters}
-                      className="btn bg-white hover:bg-gray-100 text-body-medium border border-input-light rounded-lg flex-1"
+                      className={`btn rounded-lg flex-1 duration-750 ${
+                        isDarkMode 
+                          ? 'bg-slate-700 hover:bg-slate-600 text-gray-200 border border-[#f59e0b]' 
+                          : 'bg-white hover:bg-gray-100 text-body-medium border border-input-light'
+                      }`}
                     >
                       Clear Filters
                     </button>

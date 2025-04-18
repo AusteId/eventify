@@ -70,6 +70,14 @@ export const AuthProvider = ({ children }) => {
 
     if (isAuthenticated) return;
 
+    const hasRememberMe = localStorage.getItem("rememberMe") === "true";
+    const hasSession = sessionStorage.getItem("plsStahp") === "true";
+
+    if (!hasRememberMe && !hasSession) {
+      setIsLoading(false)
+      return
+    }
+
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/me', {
@@ -81,11 +89,16 @@ export const AuthProvider = ({ children }) => {
         setRoles(userData.roles || []);
         setUserId(userData.id || '');
         setBirthDate(userData.birthDate || null);
-        sessionStorage.setItem('plsStahp', 'true');
+
+         if (!hasRememberMe) {
+            sessionStorage.setItem('plsStahp', 'true');
+         }
+
         console.log({
           authenticated: true,
           roles: userData.roles || [],
           userId: userData.id || '',
+          birthDate: userData.birthDate || null,
         });
       } else {
         setIsAuthenticated(false);
@@ -93,14 +106,16 @@ export const AuthProvider = ({ children }) => {
         setUserId('');
         setBirthDate(null);
         sessionStorage.removeItem('plsStahp');
+        localStorage.removeItem("rememberMe")
       }
     } catch (error) {
-      timeoutForError(error.message || 'Failed to authenticate');
+      toast.error(error.message || 'Failed to authenticate');
       setIsAuthenticated(false);
       setRoles([]);
       setUserId('');
       setBirthDate(null);
       sessionStorage.removeItem('plsStahp');
+      localStorage.removeItem("rememberMe")
     } finally {
       setIsLoading(false);
     }
@@ -111,9 +126,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("userAvatar")
     }
     checkAuthStatus();
-  }, []);
+  }, [checkAuthStatus]);
 
   const login = async credentials => {
+    setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
@@ -123,6 +139,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({
           email: credentials.email.toLowerCase(),
           password: credentials.password,
+          rememberMe: credentials.rememberMe || false
         }),
         credentials: 'include',
       });
@@ -130,7 +147,13 @@ export const AuthProvider = ({ children }) => {
         toast.error('Incorrect email or password');
         return false;
       }
-      sessionStorage.setItem('plsStahp', 'true');
+      if (credentials.rememberMe) {
+        localStorage.setItem("rememberMe","true")
+      } else {
+        sessionStorage.setItem('plsStahp', 'true');
+        localStorage.removeItem("rememberMe");
+      }
+
       await checkAuthStatus();
       await getUserAvatar();
       const queryParams = new URLSearchParams(location.search);
@@ -155,17 +178,20 @@ export const AuthProvider = ({ children }) => {
       navigate('/');
       sessionStorage.removeItem('plsStahp');
       localStorage.removeItem("userAvatar")
+      localStorage.removeItem("eventify_unread_count")
+      localStorage.removeItem("rememberMe")
       setAvatar(null)
       toast.success('Logged out!');
     } catch (error) {
-      timeoutForError(error.message || 'Failed to logout');
+      toast.error(error.message || 'Failed to logout');
     } finally {
       setIsAuthenticated(false);
       setRoles([]);
       setUserId('');
       sessionStorage.removeItem('plsStahp');
       localStorage.removeItem("userAvatar")
-      localStorage.clear()
+      localStorage.removeItem("eventify_unread_count")
+      localStorage.removeItem("rememberMe")
       setAvatar(null)
       setIsLoading(false);
     }
@@ -191,7 +217,7 @@ export const AuthProvider = ({ children }) => {
       }
       return response;
     } catch (error) {
-      timeoutForError(error.message || 'Failed to authenticate');
+      toast.error(error.message || 'Failed to authenticate');
       return null;
     } finally {
       setIsLoading(false);
