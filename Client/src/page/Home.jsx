@@ -42,7 +42,7 @@ const Home = () => {
         'https://bgr.com/wp-content/uploads/2019/02/download-1.jpeg?resize=300',
       title: 'Movie night',
       rating: 4.5,
-      description: 'Organizing events to relax with frien...',
+      description: 'Organizing events to relax with frie...',
     },
   ];
 
@@ -125,8 +125,12 @@ const Home = () => {
           />
         )}
       </div>
-      <h1 className="items-center text-heading-l text-header-dark font-bold p-[14%] py-16  gap-y-12 w-full @apply flex flex-col justify-center gap-4 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.10),0px_4px_6px_0px_rgba(0,0,0,0.10)]">
-        <div className="pr-[45%] items-start">
+      <h1
+        className={`relative  duration-750 z-10 items-center text-heading-l  font-bold p-[14%] py-16  gap-y-12 w-full @apply flex flex-col justify-center gap-4 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.10),0px_4px_6px_0px_rgba(0,0,0,0.10)]`}
+      >
+        <div
+          className={`pr-[45%] items-start duration-750 ${isDarkMode ? 'text-gray-200' : 'text-header-dark'}`}
+        >
           Events from Popular Organizers
         </div>
         <div className=" items-center flex flex-wrap justify-center gap-8">
@@ -137,6 +141,7 @@ const Home = () => {
               title={card?.title}
               rating={card.rating}
               description={card.description}
+              isDarkMode={isDarkMode}
             />
           ))}
         </div>
