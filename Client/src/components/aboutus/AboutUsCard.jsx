@@ -1,24 +1,24 @@
-import LinkedIn from '../assets/aboutUs/linkedin.svg';
-import Email from '../assets/aboutUs/email.svg';
-import GitHub from '../assets/aboutUs/github.svg';
+import LinkedIn from '../../assets/aboutUs/linkedin.svg';
+import Email from '../../assets/aboutUs/email.svg';
+import GitHub from '../../assets/aboutUs/github.svg';
 import { FaPencil} from "react-icons/fa6";
 import { GoX } from "react-icons/go";
 
-const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete }) => {
+const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete,isDarkMode }) => {
   return (
-    <div className="p-4 rounded-lg shadow-lg min-w-[17rem] max-w-[20rem] m-0 bg-white">
+    <div className={`p-4 rounded-lg shadow-lg min-w-[17rem] max-w-[20rem] m-0 duration-750 border ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'}`}>
       {/* Font Awesome CDN */}
       <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       />
       {/* Edit and Delete Buttons */}
-      <div className="flex justify-end w-full space-x-1">
+      <div className={`relative flex justify-end w-full space-x-1 bg-transparent`}>
         <button
           onClick={onEdit}
-          className="flex items-center space-x-2 text-black-500 hover:text-blue-700 transition-all duration-200"
+          className={`flex items-center space-x-2 text-black-500 hover:text-[#f59e0b] transition-all duration-200 ${isDarkMode ? "" : ""}`}
         >
-          <FaPencil className="scale-90 h-5 w-5 transform hover:scale-150"/>
+          <FaPencil className={`cursor-pointer scale-90 h-5 w-5 transform duration-200 hover:text-[#f59e0b] hover:scale-150 ${isDarkMode ? "text-gray-200" : "text-header-dark"}`}/>
           <span className="sr-only">Edit</span>
 
         </button>
@@ -26,7 +26,7 @@ const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete }) 
           onClick={onDelete}
           className="flex items-center space-x-2 text-red-500 hover:text-red-700 transition-all duration-200"
         >
-          <GoX  className="scale-100 h-5 w-5 transform hover:scale-200"/>
+          <GoX  className="scale-100 h-7 w-7 transform hover:scale-200 cursor-pointer" />
           <span className="sr-only">Delete</span>
         </button>
       </div>
@@ -39,7 +39,7 @@ const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete }) 
             alt={`${name}'s Profile`}
             className="w-16 h-16 rounded-full object-cover"
           />
-          <div className="text-xl font-semibold text-black">{name}</div>
+          <div className={`text-xl font-semibold duration-750 ${isDarkMode ? "text-[#f59e0b]" : "text-header-dark"}`}>{name}</div>
         </div>
 
 
@@ -53,7 +53,7 @@ const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete }) 
             href={linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-500 truncate max-w-[calc(100%-2rem)]"
+            className={`truncate max-w-[calc(100%-2rem)]  duration-500 ${isDarkMode ? "text-gray-200 hover:text-[#f59e0b]" : "text-header-dark"} `}
           >
             {linkedin}
           </a>
@@ -63,12 +63,12 @@ const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete }) 
       {/* GitHub */}
       <div className="mt-2">
         <div className="flex items-center space-x-2">
-          <img src={GitHub} alt="GitHub" className="w-5 h-5" />
+          <img src={GitHub} alt="GitHub" className={`w-5 h-5 duration-750 ${isDarkMode && "brightness-0 invert"}`} />
           <a
             href={github}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-black truncate max-w-[calc(100%-2rem)]"
+            className={`truncate max-w-[calc(100%-2rem)]  duration-500 ${isDarkMode ? "text-gray-200 hover:text-[#f59e0b]" : "text-header-dark"}`}
           >
             {github}
           </a>
@@ -79,8 +79,8 @@ const AboutUsCard = ({ name, linkedin, github, mail, photo, onEdit, onDelete }) 
       {mail && (
         <div className="mt-2">
           <div className="flex items-center space-x-2">
-            <img src={Email} alt="email" className="w-5 h-5" />
-            <span className="text-black">{mail}</span>
+            <img src={Email} alt="email" className={`w-5 h-5 duration-750 ${isDarkMode && "brightness-0 invert"}`} />
+            <span className={`duration-500 ${isDarkMode ? "text-gray-200 hover:text-[#f59e0b]" : "text-header-dark"}`}>{mail}</span>
           </div>
         </div>
       )}

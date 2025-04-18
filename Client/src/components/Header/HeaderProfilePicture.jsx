@@ -1,27 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import defaultAvatar from '../../assets/profile-picture.webp';
 import { useAuth } from '../Auth/AuthContext';
 
 const HeaderProfilePicture = () => {
-  const { avatar,isAuthenticated } = useAuth();
+  const { avatar, isAuthenticated } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+  const prevAuthState = useRef(false);
 
+  // Handle initial load and storage events from other tabs
   useEffect(() => {
-    try {
-      const count = parseInt(localStorage.getItem('eventify_unread_count') || '0', 10);
-      setUnreadCount(count);
-    } catch (e) {
-      console.error("Error reading notification count:", e);
-    }
+    const updateCountFromStorage = () => {
+      try {
+        const count = parseInt(localStorage.getItem('eventify_unread_count') || '0', 10);
+        setUnreadCount(count);
+      } catch (e) {
+        console.error("Error reading notification count:", e);
+      }
+    };
 
+    // Initial read
+    updateCountFromStorage();
+
+    // Listen for changes from other tabs
     const handleStorageChange = (event) => {
       if (event.key === 'eventify_unread_count') {
-        try {
-          const count = parseInt(event.newValue || '0', 10);
-          setUnreadCount(count);
-        } catch (e) {
-          console.error("Error reading updated notification count:", e);
-        }
+        updateCountFromStorage();
       }
     };
 
@@ -32,14 +35,30 @@ const HeaderProfilePicture = () => {
     };
   }, []);
 
+  // Handle authentication changes and polling
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (isAuthenticated) {
-        setUnreadCount(parseInt(localStorage.getItem('eventify_unread_count') || '0'));
-      }
-    }, 2000);
+    // Skip if authentication state hasn't changed
+    if (prevAuthState.current === isAuthenticated && isAuthenticated === false) {
+      return;
+    }
 
-    return () => clearInterval(intervalId);
+    prevAuthState.current = isAuthenticated;
+
+    // Clear count when logging out
+    if (!isAuthenticated) {
+      setUnreadCount(0);
+      return;
+    }
+
+    if (isAuthenticated) {
+
+        const intervalId = setInterval(() => {
+          const count = parseInt(localStorage.getItem('eventify_unread_count') || '0', 10);
+          setUnreadCount(count);
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+      }
   }, [isAuthenticated]);
 
   return (

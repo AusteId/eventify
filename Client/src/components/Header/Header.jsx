@@ -26,6 +26,8 @@ const Header = () => {
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const drawerCheckboxRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const navLinks = [
     { name: 'Home', href: '/', auth: false },
@@ -52,6 +54,26 @@ const Header = () => {
       mediaQuery.removeEventListener('change', handleMediaChange);
     };
   }, [isDrawerOpen]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
+  useEffect(() => {
+    setIsDropdownOpen(false);
+    setIsDrawerOpen(false)
+  },[navigate])
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -138,7 +160,7 @@ const Header = () => {
                 </div>
               )}
               {!isAuthenticated &&
-              location.pathname != '/login' &&
+              location.pathname !== '/login' &&
               !location.pathname.startsWith('/register') ? (
                 <div className="relative hidden md:flex lg:flex space-x-3">
                   <NavLink tabIndex={-1} to={'/login'}>
@@ -158,48 +180,71 @@ const Header = () => {
                 <div className="w-45"></div>
               ) : null}
               {isAuthenticated && (
-                <div className="relative">
-                  <div className="absolute z-50 md:right-[-90%] min-[2px]:hidden md:block  top-[0%]">
+                <div className="relative" ref={dropdownRef}>
+                  <div className="absolute z-50 md:right-[-90%] min-[2px]:hidden md:block top-[0%]">
                     <DarkModeToggle />
                   </div>
-                  <div className={`dropdown dropdown-end flex items-center`}>
+                  <div className="relative flex items-center">
                     <div
-                      tabIndex={0}
                       role="button"
                       className="p-1 hover:bg-advanced rounded-full cursor-pointer"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
                       <HeaderProfilePicture />
                     </div>
-                    <ul
-                      tabIndex={0}
-                      className={`dropdown-content bg-base-100 rounded-box bottom-[-98px] w-52 p-2 shadow-sm z-[1000] ${isDarkMode ? 'bg-slate-900 text-gray-200 border-[#f59e0b] border-1 shadow-lg shadow-[#f59e0b]' : 'border-1 border-gray-500'}`}
-                      style={{ transition: 'background-color 750ms ease' }}
-                    >
-                      <li
-                        className={`relative flex justify-center py-1 cursor-pointer ${isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'}`}
+                    {isDropdownOpen && (
+                      <ul
+                        className={`absolute right-0 top-full mt-2 bg-base-100 rounded-box w-52 p-2 shadow-sm z-[1000] ${
+                          isDarkMode
+                            ? 'bg-slate-900 text-gray-200 border-[#f59e0b] border-1 shadow-lg shadow-[#f59e0b]'
+                            : 'border-1 border-gray-500'
+                        }`}
+                        style={{ transition: 'background-color 750ms ease' }}
                       >
-                        <div className="absolute left-[15%]">
-                          <ProfileSVG />
-                        </div>
-                        <a onClick={() => navigate('/profile')}>Profile</a>
-                      </li>
-                      <li
-                        className={`relative flex justify-center py-1 cursor-pointer ${isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'}`}
-                      >
-                        <div className="absolute left-[15%]">
-                          <MessageSVG />
-                        </div>
-                        <a onClick={() => navigate('/chat')}>Messages</a>
-                      </li>
-                      <li
-                        className={`relative flex justify-center py-1 cursor-pointer ${isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'}`}
-                      >
-                        <div className="absolute left-[15%]">
-                          <LogoutSVG />
-                        </div>
-                        <a onClick={logout}>Logout</a>
-                      </li>
-                    </ul>
+                        <li
+                          className={`relative flex justify-center py-1 cursor-pointer ${
+                            isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'
+                          }`}
+                          onClick={() => {
+                            navigate('/profile');
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          <div className="absolute left-[15%]">
+                            <ProfileSVG />
+                          </div>
+                          <a>Profile</a>
+                        </li>
+                        <li
+                          className={`relative flex justify-center py-1 cursor-pointer ${
+                            isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'
+                          }`}
+                          onClick={() => {
+                            navigate('/chat');
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          <div className="absolute left-[15%]">
+                            <MessageSVG />
+                          </div>
+                          <a>Messages</a>
+                        </li>
+                        <li
+                          className={`relative flex justify-center py-1 cursor-pointer ${
+                            isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'
+                          }`}
+                          onClick={() => {
+                            logout();
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          <div className="absolute left-[15%]">
+                            <LogoutSVG />
+                          </div>
+                          <a>Logout</a>
+                        </li>
+                      </ul>
+                    )}
                   </div>
                 </div>
               )}

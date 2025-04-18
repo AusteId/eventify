@@ -1,6 +1,9 @@
-import  { useEffect, useState } from 'react';
-import AboutUsCard from '../components/AboutUsCard';
-import Modal from '../components/AboutUsModal.jsx';
+import { useEffect, useState } from 'react';
+import AboutUsCard from '../components/aboutus/AboutUsCard';
+import Modal from '../components/aboutus/AboutUsModal.jsx';
+import { useDarkMode } from '../components/context/DarkModeContext.jsx';
+import Button from '../components/Button.jsx';
+import toast from 'react-hot-toast';
 
 const About = () => {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -8,6 +11,7 @@ const About = () => {
   const [error, setError] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -32,35 +36,41 @@ const About = () => {
     fetchTeamMembers();
   }, []);
 
-  // Handle Edit: Open the modal with member details
   const handleEdit = (member) => {
     if (member.id) {
       setEditingMember(member);
-      setIsModalOpen(true);  // Open the modal with the member's details
+      setIsModalOpen(true);
     } else {
       console.error("Member ID is undefined:", member);
     }
   };
 
-  // Handle Add: Open the modal to add a new team member
   const handleAdd = () => {
     setEditingMember(null);
     setIsModalOpen(true);
   };
 
-  // Handle updating the member details
-  const handleUpdate = async (updatedMember) => {
+  const handleUpdate = async (updatedMember, imageFile) => {
     try {
-      if (!updatedMember.id) throw new Error('Member ID is missing');
+      if (!updatedMember.id) toast.error('Member ID is missing');
+
+      const formData = new FormData();
+      formData.append("name", updatedMember.name);
+      formData.append("linkedin", updatedMember.linkedin);
+      formData.append("github", updatedMember.github);
+      formData.append("email", updatedMember.email);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
 
       const response = await fetch(`http://localhost:8080/api/about/${updatedMember.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedMember),
+        body: formData,
         credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Failed to update team member');
+      if (!response.ok) toast.error('Failed to update team member');
 
       const updatedData = await response.json();
       setTeamMembers((prevMembers) =>
@@ -68,47 +78,46 @@ const About = () => {
           member.id === updatedData.id ? updatedData : member
         )
       );
+      toast.success('Successfully updated team members');
       setIsModalOpen(false);
     } catch (error) {
       setError(error.message || 'Error updating member');
     }
   };
 
-  // Handle Add (Create) new team member
-  const handleAddMember = async (newMember) => {
+  const handleAddMember = async (newMember, imageFile) => {
     try {
-      const memberToSend = {
-        name: newMember.name,
-        linkedin: newMember.linkedin,
-        github: newMember.github,
-        email: newMember.email,
-        imageUrl: newMember.imageUrl,
-      };
+      const formData = new FormData();
+      formData.append("name", newMember.name);
+      formData.append("linkedin", newMember.linkedin);
+      formData.append("github", newMember.github);
+      formData.append("email", newMember.email);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
 
       const response = await fetch('http://localhost:8080/api/about', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(memberToSend),
+        body: formData,
         credentials: 'include',
       });
 
-      // Log response status and body for better debugging
       if (!response.ok) {
         const errorMessage = await response.text();
         console.error('Failed to add new team member:', errorMessage);
-        throw new Error('Failed to add new team member');
+        toast.error('Failed to add new team member');
       }
 
       const addedMember = await response.json();
       setTeamMembers((prevMembers) => [...prevMembers, addedMember]);
       setIsModalOpen(false);
+      toast.success('Successfully added team member');
     } catch (error) {
       setError(error.message || 'Error adding new member');
     }
   };
 
-
-  // Handle Delete: Delete the team member
   const handleDelete = async (id) => {
     try {
       const response = await fetch(`http://localhost:8080/api/about/${id}`, {
@@ -117,9 +126,10 @@ const About = () => {
         credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Failed to delete team member');
+      if (!response.ok) toast.error('Failed to delete team member');
 
       setTeamMembers((prevMembers) => prevMembers.filter((member) => member.id !== id));
+      toast.success('Successfully deleted team member');
     } catch (error) {
       setError(error.message || 'Error deleting member');
     }
@@ -134,17 +144,18 @@ const About = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="flex flex-col items-center gap-5 py-10 px-10 text-black">
+    <div className={`flex flex-col items-center gap-5 py-10 px-10`}>
       <div
         className={`flex flex-col justify-start gap-8 h-full items-center tablet:items-baseline ${loading && 'tablet:items-center'}`}>
 
-        <h1 className={`text-heading-m font-[700] leading-[1.5rem] ${loading && 'text-center'}`}>Team Members</h1>
-        <button
+        <h1 className={`text-heading-m font-[700] leading-[1.5rem] ${loading && 'text-center'} ${isDarkMode ? "text-gray-200" : "text-header-dark"}`}>Team Members</h1>
+        <Button
           onClick={handleAdd}
+          size="large"
           className="btn bg-btn border-0 shadow-none hover:bg-btn-hover px-4 pt-2 pb-2 rounded-lg text-white"
         >
           Add
-        </button>
+        </Button>
         <div className="h-full">
           <div className="flex flex-wrap justify-evenly gap-4 mt-4">
             {teamMembers.length > 0 ? (
@@ -158,6 +169,7 @@ const About = () => {
                   mail={member.email}
                   onEdit={() => handleEdit(member)}
                   onDelete={() => handleDelete(member.id)}
+                  isDarkMode={isDarkMode}
                 />
               ))
             ) : (
@@ -165,13 +177,13 @@ const About = () => {
             )}
           </div>
 
-          {/* Modal for adding/editing team member */}
           <Modal
             key={editingMember ? editingMember.id : "newMember"}
             isOpen={isModalOpen}
             closeModal={handleCloseModal}
             member={editingMember || {}}
             onSave={editingMember ? handleUpdate : handleAddMember}
+            isDarkMode={isDarkMode}
           />
         </div>
       </div>
