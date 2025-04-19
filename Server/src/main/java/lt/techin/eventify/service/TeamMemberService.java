@@ -18,6 +18,7 @@ public class TeamMemberService {
 
     private final TeamMemberRepository teamMemberRepository;
     private final TeamMemberMapper teamMemberMapper;
+    private final R2Service r2Service;
 
     public TeamMember save(TeamMember teamMember) {
         return teamMemberRepository.save(teamMember);
@@ -36,11 +37,12 @@ public class TeamMemberService {
         if (!teamMemberRepository.existsById(id)) {
             throw new TeamMemberNotFoundException("Team member with ID " + id + " not found");
         }
+        r2Service.deleteFile(String.format("about-us/%s/image.jpg", id));
         teamMemberRepository.deleteById(id);
     }
 
-    public String findImageKeyById(Long id) {
-        return teamMemberRepository.findImageKeyById(id)
-                .orElseThrow(() -> new TeamMemberNotFoundException("Image for team member with ID " + id + " not found"));
+    public byte[] downloadAboutUsProfile(Long memberId) {
+        return r2Service.downloadAboutUsAvatar(memberId);
     }
+
 }

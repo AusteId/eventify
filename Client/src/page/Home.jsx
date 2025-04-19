@@ -79,7 +79,7 @@ const Home = () => {
           </h1>
 
           <div
-            className={`flex gap-x-6 gap-y-6 tablet:gap-y-0 flex-col items-center tablet:flex-row justify-center`}
+            className={`flex gap-x-6 gap-y-6 tablet:gap-y-0 flex-col items-center  tablet:flex-row justify-center`}
           >
             <CategoryButton
               text={'Music'}
@@ -125,14 +125,14 @@ const Home = () => {
           />
         )}
       </div>
-      <h1
-        className={`relative  duration-750 z-10 items-center text-heading-l  font-bold p-[14%] py-16  gap-y-12 w-full @apply flex flex-col justify-center gap-4 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.10),0px_4px_6px_0px_rgba(0,0,0,0.10)]`}
+      <div
+        className={`relative  duration-750 z-10 items-center text-heading-l font-bold p-[14%] py-16  gap-y-12 w-full @apply flex flex-col justify-center gap-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
       >
-        <div
+        <h1
           className={`pr-[45%] items-start duration-750 ${isDarkMode ? 'text-gray-200' : 'text-header-dark'}`}
         >
           Events from Popular Organizers
-        </div>
+        </h1>
         <div className=" items-center flex flex-wrap justify-center gap-8">
           {cards.map((card, index) => (
             <OrganizerCard
@@ -145,7 +145,7 @@ const Home = () => {
             />
           ))}
         </div>
-      </h1>
+      </div>
     </div>
   );
 };

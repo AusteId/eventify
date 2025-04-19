@@ -22,13 +22,13 @@ import BasicModal from './components/BasicModal';
 import CreateEventForm from './components/CreateEventForm';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
+import DeleteModal from './components/DeleteModal.jsx';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
 
   return (
     <div>
-
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>

@@ -7,7 +7,7 @@ import { useDarkMode } from '../context/DarkModeContext.jsx';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 /**
- * ImageDropzone - A reusable component for image uploading with preview
+ * ImageDropZoneSmall - A reusable component for image uploading with preview
  *
  * @param {Object} props
  * @param {Function} props.onFileChange - Callback when file changes (receives the selected file)

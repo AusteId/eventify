@@ -8,6 +8,7 @@ import lt.techin.eventify.dto.teamMember.TeamMemberResponse;
 import lt.techin.eventify.model.TeamMember;
 import lt.techin.eventify.service.R2Service;
 import lt.techin.eventify.service.TeamMemberService;
+import lt.techin.eventify.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
@@ -28,19 +30,21 @@ public class TeamMemberController {
     private final TeamMemberMapper teamMemberMapper;
     private final R2Service r2Service;
     private static final Logger logger = LoggerFactory.getLogger(TeamMemberController.class);
+    private final UserService userService;
 
     @Autowired
-    public TeamMemberController(TeamMemberService teamMemberService, TeamMemberMapper teamMemberMapper, R2Service r2Service) {
+    public TeamMemberController(TeamMemberService teamMemberService, TeamMemberMapper teamMemberMapper, R2Service r2Service, UserService userService) {
         this.teamMemberService = teamMemberService;
         this.teamMemberMapper = teamMemberMapper;
         this.r2Service = r2Service;
+        this.userService = userService;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TeamMemberResponse> addTeamMember(@RequestBody CreateTeamMemberRequest request) {
-        String pictureUrl = request.imageUrl();
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<TeamMemberResponse> addTeamMember(@Valid @ModelAttribute CreateTeamMemberRequest request) {
+        MultipartFile profile = request.profile();
         try {
-            if (pictureUrl != null && !pictureUrl.isBlank()) {
+            if (profile != null && !profile.isEmpty()) {
                 logger.info("Image URL provided for {}", request.name());
             } else {
                 logger.warn("No image URL provided for {}", request.name());
@@ -50,6 +54,10 @@ public class TeamMemberController {
             TeamMember teamMember = teamMemberMapper.toTeamMember(request);
             TeamMember saved = teamMemberService.save(teamMember);
             TeamMemberResponse response = teamMemberMapper.toTeamMemberResponse(saved);
+            assert profile != null;
+            r2Service.uploadAboutUsProfile(profile,teamMember.getId());
+
+
 
             // Return the response with the created team member
             return ResponseEntity.created(
@@ -65,30 +73,28 @@ public class TeamMemberController {
         }
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/{memberId}/picture")
+    public ResponseEntity<byte[]> getAboutUsProfile(@PathVariable Long memberId) {
+        return ResponseEntity.ok(teamMemberService.downloadAboutUsProfile(memberId));
+    }
+
+    @PutMapping(value = "/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TeamMemberResponse> updateTeamMember(
             @PathVariable Long id,
-            @Valid @RequestBody CreateTeamMemberRequest request) {
+            @Valid @ModelAttribute CreateTeamMemberRequest request) {
 
         try {
-            // Fetch the existing team member
             TeamMember existingMember = teamMemberService.findById(id);
+
+            if (request.profile() != null) {
+                r2Service.uploadAboutUsProfile(request.profile(), existingMember.getId());
+            }
 
             if (existingMember == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
-            String pictureUrl = request.imageUrl();
-
-            if (pictureUrl != null && !pictureUrl.isBlank()) {
-                logger.info("Image URL updated for {}", request.name());
-            } else {
-                logger.warn("No image URL provided for {}", request.name());
-            }
-
-            // Map the updated request to the existing team member object
-            TeamMember updatedMember = teamMemberMapper.toTeamMember(request);
-            updatedMember.setId(existingMember.getId()); // Ensure the ID remains the same
+            TeamMember updatedMember = teamMemberMapper.toTeamMember(request, existingMember.getId());
             TeamMember saved = teamMemberService.save(updatedMember);
 
             TeamMemberResponse response = teamMemberMapper.toTeamMemberResponse(saved);

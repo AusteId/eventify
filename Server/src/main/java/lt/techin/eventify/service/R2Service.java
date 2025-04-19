@@ -1,6 +1,7 @@
 package lt.techin.eventify.service;
 
 import jakarta.annotation.PostConstruct;
+import lt.techin.eventify.exception.FileValidityException;
 import lt.techin.eventify.model.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,10 +60,15 @@ public class R2Service {
         return jpgOutputStream.toByteArray();
     }
 
-    public void uploadEventImage(MultipartFile file, long eventId) throws IOException {
+    private void checkFileValidity(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            return;
+            throw new FileValidityException("File cannot be empty");
         }
+    }
+
+    public void uploadEventImage(MultipartFile file, long eventId) throws IOException {
+        checkFileValidity(file);
+
         // Convert the uploaded file to JPG
         InputStream inputStream = file.getInputStream();
         BufferedImage originalImage = ImageIO.read(inputStream);
@@ -82,10 +88,27 @@ public class R2Service {
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(jpgBytes));
     }
 
-    public void uploadUserAvatar(MultipartFile avatar, long userId) throws IOException {
-        if (avatar == null || avatar.isEmpty()) {
-            return;
+    public void uploadAboutUsProfile(MultipartFile profile, long memberId) throws IOException {
+        checkFileValidity(profile);
+
+        InputStream inputStream = profile.getInputStream();
+        BufferedImage originalImage = ImageIO.read(inputStream);
+        if (originalImage == null) {
+            throw new IOException("Could not read uploaded file");
         }
+        byte[] jpgBytes = createNew(originalImage);
+        String key = String.format("about-us/%s/image.jpg",memberId);
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+        s3Client.putObject(putObjectRequest,RequestBody.fromBytes(jpgBytes));
+    }
+
+    public void uploadUserAvatar(MultipartFile avatar, long userId) throws IOException {
+       checkFileValidity(avatar);
+
         InputStream inputStream = avatar.getInputStream();
         BufferedImage originalImage = ImageIO.read(inputStream);
         if (originalImage == null) {
@@ -163,6 +186,15 @@ public class R2Service {
             return downloadFile(eventKey);
         } catch (Exception e) {
             return downloadFile(DEFAULT_EVENT_IMAGE_KEY);
+        }
+    }
+
+    public byte[] downloadAboutUsAvatar(long memberId) {
+        String key = String.format("about-us/%s/image.jpg",memberId);
+        try {
+            return downloadFile(key);
+        } catch (Exception e) {
+            return downloadFile(DEFAULT_USER_IMAGE_KEY);
         }
     }
 
