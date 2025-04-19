@@ -153,8 +153,8 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.setItem('plsStahp', 'true');
         localStorage.removeItem("rememberMe");
       }
-
       await checkAuthStatus();
+      window.dispatchEvent(new Event('login_success'));
       await getUserAvatar();
       const queryParams = new URLSearchParams(location.search);
       const redirect = queryParams.get('redirect') || '/';
@@ -180,6 +180,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("userAvatar")
       localStorage.removeItem("eventify_unread_count")
       localStorage.removeItem("rememberMe")
+      window.dispatchEvent(new Event('logout'));
       setAvatar(null)
       toast.success('Logged out!');
     } catch (error) {
@@ -192,6 +193,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("userAvatar")
       localStorage.removeItem("eventify_unread_count")
       localStorage.removeItem("rememberMe")
+      window.dispatchEvent(new Event('logout'));
       setAvatar(null)
       setIsLoading(false);
     }

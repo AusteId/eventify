@@ -7,7 +7,6 @@ const HeaderProfilePicture = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const prevAuthState = useRef(false);
 
-  // Handle initial load and storage events from other tabs
   useEffect(() => {
     const updateCountFromStorage = () => {
       try {
@@ -18,10 +17,8 @@ const HeaderProfilePicture = () => {
       }
     };
 
-    // Initial read
     updateCountFromStorage();
 
-    // Listen for changes from other tabs
     const handleStorageChange = (event) => {
       if (event.key === 'eventify_unread_count') {
         updateCountFromStorage();
@@ -35,9 +32,7 @@ const HeaderProfilePicture = () => {
     };
   }, []);
 
-  // Handle authentication changes and polling
   useEffect(() => {
-    // Skip if authentication state hasn't changed
     if (prevAuthState.current === isAuthenticated && isAuthenticated === false) {
       return;
     }

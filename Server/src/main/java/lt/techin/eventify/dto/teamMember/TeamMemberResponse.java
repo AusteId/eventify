@@ -5,7 +5,6 @@ public record TeamMemberResponse(
         String name,
         String linkedin,
         String github,
-        String email,
-        String imageUrl
+        String email
 ) {
 }
