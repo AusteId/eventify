@@ -94,4 +94,9 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(FileValidityException.class)
+  public ResponseEntity<Map<String,String>> handleFileValidity(FileValidityException e) {
+    return new ResponseEntity<>(Map.of("error",e.getMessage()),HttpStatus.BAD_REQUEST);
+  }
+
 }

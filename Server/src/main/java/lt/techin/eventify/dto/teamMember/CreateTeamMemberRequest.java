@@ -1,5 +1,8 @@
 package lt.techin.eventify.dto.teamMember;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
+import lt.techin.eventify.validation.file.ValidImage;
+import org.springframework.web.multipart.MultipartFile;
 
 public record CreateTeamMemberRequest(
 
@@ -9,18 +12,20 @@ public record CreateTeamMemberRequest(
         String name,
 
         @NotBlank(message = "LinkedIn URL cannot be empty")
-        @Pattern(regexp = "^(https?://)?(www\\.)?linkedin\\.com/.*$", message = "Invalid LinkedIn URL")
+        @Pattern(regexp = "^(https?://)?(www\\.)?(linkedin\\.com|soundcloud\\.com)/.*$", message = "Invalid LinkedIn " +
+                "URL")
         String linkedin,
 
         @NotBlank(message = "GitHub URL cannot be empty")
-        @Pattern(regexp = "^(https?://)?(www\\.)?github\\.com/.*$", message = "Invalid GitHub URL")
+        @Pattern(regexp = "^(https?://)?(www\\.)?(github\\.com|soundcloud\\.com)/.*$", message = "Invalid GitHub URL")
         String github,
 
         @NotBlank(message = "Email cannot be empty")
-        @Email(message = "Invalid email address")
         String email,
 
-        String imageUrl
+        @ValidImage
+        @Schema(type = "string",format = "binary")
+        MultipartFile profile
 
 ) {
 }

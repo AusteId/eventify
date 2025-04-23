@@ -873,7 +873,7 @@ useEffect(() => {
               <div className={`max-w-[70%] rounded-2xl px-3 py-2 shadow-sm ${isDarkMode ? "bg-slate-900 text-gray-200" : "bg-gray-100 text-gray-800"}`}>
                 <div className="flex space-x-1 h-6 items-center">
                   <div
-                    className={`w-2 h-2 rounded-full animate-bounce ${isDarkMode ? "bg-gray-400" : "bg-gray-500"}`}
+                    className={`w-2 h-2 rounded-full animate-bounce ${isDarkMode ? "bg-gray-400 bg-re" : "bg-gray-500"}`}
                     style={{ animationDelay: "0ms" }}
                   ></div>
                   <div

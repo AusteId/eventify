@@ -33,10 +33,6 @@ public class EventMapper {
 
   public EventResponse toEventResponse(Event event) {
 
-//    List<RegistrationToEventResponse> registrations = event.getRegistrations().stream()
-//            .map(registrationToEventMapper::toEventRegistrationResponse)
-//            .collect(Collectors.toList());
-
     List<UserRegisteredToEventResponse> registrations = event.getRegistrations()
             .stream()
             .map(registrationToEventMapper::toUserRegisteredToEvent)
@@ -68,8 +64,6 @@ public class EventMapper {
   }
 
   public Event toEvent(CreateEventRequest event, Category category, User organizer) {
-//    Category category = categoryRepository.findById(createEventRequest.categoryId()).orElseThrow(() -> new CategoryNotFoundException("category not found for id " + createEventRequest.categoryId()));
-//    User organizer = userRepository.findById(createEventRequest.organizerId()).orElseThrow(() -> new UserNotFoundException("user not found for id " + createEventRequest.organizerId()));
 
     GeometryFactory geometryFactory = new GeometryFactory();
     Point location = null;
