@@ -1,0 +1,69 @@
+import ProfileSVG from '../../assets/ProfileSVG.jsx';
+import MessageSVG from '../../assets/MessageSVG.jsx';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
+import { useNavigate } from 'react-router';
+
+const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId }) => {
+  const { isDarkMode } = useDarkMode();
+  const navigate = useNavigate();
+
+  return (
+    <>
+      {isDropdownOpen && (
+        <>
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl z-40 flex items-center justify-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDropdownOpen(false);
+            }}
+          >
+            <ul
+              className={`w-4/5 bg-base-100 rounded-box p-3 shadow-lg z-50 transform transition-all duration-300 ${
+                isDarkMode
+                  ? 'bg-slate-800 text-gray-200 border-[#f59e0b] border'
+                  : 'bg-white border border-gray-300'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <li
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md mb-2 ${
+                  isDarkMode
+                    ? 'hover:bg-slate-700 duration-300'
+                    : 'hover:bg-gray-100 duration-150'
+                }`}
+                onClick={() => {
+                  navigate(`/admin/user-events/${userId}`);
+                  setIsDropdownOpen(false);
+                }}
+              >
+                <div className="absolute left-[15%]">
+                  <ProfileSVG />
+                </div>
+                <a className="font-medium">Events</a>
+              </li>
+              <li
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
+                  isDarkMode
+                    ? 'hover:bg-slate-700 duration-300'
+                    : 'hover:bg-gray-100 duration-150'
+                }`}
+                onClick={() => {
+                  navigate(`/chat/${userId}`);
+                  setIsDropdownOpen(false);
+                }}
+              >
+                <div className="absolute left-[15%]">
+                  <MessageSVG />
+                </div>
+                <a className="font-medium">Comments</a>
+              </li>
+            </ul>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+export default Dropdown;

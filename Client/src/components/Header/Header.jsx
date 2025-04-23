@@ -18,11 +18,12 @@ import ProfileSVG from '../../assets/ProfileSVG';
 import MessageSVG from '../../assets/MessageSVG';
 import LogoutSVG from '../../assets/LogoutSVG';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
+import AdminPanelSVG from '../../assets/AdminPanelSVG.jsx';
 
 const Header = () => {
   const [activeLink, setActiveLink] = useState('');
-  const { isAuthenticated, logout } = useAuth();
-  const { isDarkMode } = useDarkMode();;
+  const { isAuthenticated, logout, roles } = useAuth();
+  const { isDarkMode } = useDarkMode();
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const drawerCheckboxRef = useRef(null);
@@ -35,6 +36,8 @@ const Header = () => {
     { name: 'My Registrations', href: '/myRegistrations', auth: true },
     { name: 'About Us', href: '/about', auth: false },
   ];
+
+  const adminRole = roles.find(role => role.name === 'ADMIN');
 
   const location = useLocation();
 
@@ -72,8 +75,8 @@ const Header = () => {
 
   useEffect(() => {
     setIsDropdownOpen(false);
-    setIsDrawerOpen(false)
-  },[navigate])
+    setIsDrawerOpen(false);
+  }, [navigate]);
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -92,13 +95,27 @@ const Header = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo Section */}
             <div className="flex-shrink-0 flex items-center gap-2">
-              {isDarkMode ? <img src="/eventify-dark.png" alt="eventify logo dark" className="cursor-pointer w-[30px] h-[32px] " onClick={() => navigate("/")} /> : <img src="/eventify-light.png" alt="eventify logo light" className="cursor-pointer w-[30px] h-[32px] " onClick={() => navigate("/")} /> }
-                <span
-                  className={`cursor-pointer text-2xl font-bold duration-750 ${isDarkMode ? 'text-[#f59e0b] text-shadow-lg text-shadow-yellow-200' : 'text-title'}`}
-                  onClick={() => navigate("/")}
-                >
-                  Eventify
-                </span>
+              {isDarkMode ? (
+                <img
+                  src="/eventify-dark.png"
+                  alt="eventify logo dark"
+                  className="cursor-pointer w-[30px] h-[32px] "
+                  onClick={() => navigate('/')}
+                />
+              ) : (
+                <img
+                  src="/eventify-light.png"
+                  alt="eventify logo light"
+                  className="cursor-pointer w-[30px] h-[32px] "
+                  onClick={() => navigate('/')}
+                />
+              )}
+              <span
+                className={`cursor-pointer text-2xl font-bold duration-750 ${isDarkMode ? 'text-[#f59e0b] text-shadow-lg text-shadow-yellow-200' : 'text-title'}`}
+                onClick={() => navigate('/')}
+              >
+                Eventify
+              </span>
             </div>
 
             {/* Desktop Navigation Links */}
@@ -135,12 +152,12 @@ const Header = () => {
                     );
                   }
                 })}
-                {((location.pathname === '/login' ||
-                  (location.pathname.startsWith('/register'))) && (
-                    <div className="absolute top-[-77%] left-[85%] mt-[2.5px] md:block min-[1px]:hidden">
-                      <DarkModeToggle />
-                    </div>
-                  ))}
+                {(location.pathname === '/login' ||
+                  location.pathname.startsWith('/register')) && (
+                  <div className="absolute top-[-77%] left-[85%] mt-[2.5px] md:block min-[1px]:hidden">
+                    <DarkModeToggle />
+                  </div>
+                )}
               </ul>
             </div>
 
@@ -164,7 +181,7 @@ const Header = () => {
               !location.pathname.startsWith('/register') ? (
                 <div className="relative hidden md:flex lg:flex space-x-3">
                   <NavLink tabIndex={-1} to={'/login'}>
-                    <Button >Login</Button>
+                    <Button>Login</Button>
                   </NavLink>
                   <NavLink tabIndex={-1} to={'/register'}>
                     <Button>Sign Up</Button>
@@ -201,9 +218,30 @@ const Header = () => {
                         }`}
                         style={{ transition: 'background-color 750ms ease' }}
                       >
+                        {adminRole && (
+                          <li
+                            className={`relative flex justify-center py-1 cursor-pointer ${
+                              isDarkMode
+                                ? 'hover:bg-slate-600 duration-750'
+                                : 'hover:bg-gray-100 duration-150'
+                            }`}
+                            onClick={() => {
+                              navigate('/admin');
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            <div className="absolute left-[5%]">
+                              <AdminPanelSVG />
+                            </div>
+                            <a>Admin Panel</a>
+                          </li>
+                        )}
+
                         <li
                           className={`relative flex justify-center py-1 cursor-pointer ${
-                            isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'
+                            isDarkMode
+                              ? 'hover:bg-slate-600 duration-750'
+                              : 'hover:bg-gray-100 duration-150'
                           }`}
                           onClick={() => {
                             navigate('/profile');
@@ -217,7 +255,9 @@ const Header = () => {
                         </li>
                         <li
                           className={`relative flex justify-center py-1 cursor-pointer ${
-                            isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'
+                            isDarkMode
+                              ? 'hover:bg-slate-600 duration-750'
+                              : 'hover:bg-gray-100 duration-150'
                           }`}
                           onClick={() => {
                             navigate('/chat');
@@ -231,7 +271,9 @@ const Header = () => {
                         </li>
                         <li
                           className={`relative flex justify-center py-1 cursor-pointer ${
-                            isDarkMode ? 'hover:bg-slate-600 duration-750' : 'hover:bg-gray-100 duration-150'
+                            isDarkMode
+                              ? 'hover:bg-slate-600 duration-750'
+                              : 'hover:bg-gray-100 duration-150'
                           }`}
                           onClick={() => {
                             logout();

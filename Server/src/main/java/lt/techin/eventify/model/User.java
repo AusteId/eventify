@@ -12,12 +12,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 // TODO: use lombok setters and getters
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_user_username", columnList = "username"),
+        @Index(name = "idx_user_email", columnList = "email")
+})
 @NoArgsConstructor
 @Setter
 @Getter
@@ -72,8 +76,15 @@ public class User implements UserDetails {
   @JoinTable(
           name = "users_roles",
           joinColumns = @JoinColumn(name = "user_id"),
-          inverseJoinColumns = @JoinColumn(name = "role_id"))
+          inverseJoinColumns = @JoinColumn(name = "role_id"),
+          indexes = {
+                  @Index(name = "idx_users_roles_user_id", columnList = "user_id"),
+                  @Index(name = "idx_users_roles_role_id", columnList = "role_id")
+          })
   private Set<Role> roles = new HashSet<>();
+
+@OneToMany(mappedBy = "user")
+private List<Ban> bans;
 
 
   @OneToMany(fetch = FetchType.LAZY)

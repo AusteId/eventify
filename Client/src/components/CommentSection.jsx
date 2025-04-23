@@ -14,6 +14,7 @@ const CommentSection = props => {
   const [loading, setLoading] = useState(false);
   const {userId,avatar,isAuthenticated} = useAuth();
   const { isDarkMode } = useDarkMode();
+  const {shortenContent} = useAuth();
 
   const {
     register,
@@ -131,7 +132,7 @@ const CommentSection = props => {
         <div className="flex flex-col gap-6 pt-8">
           {comments.map(comment => (
             <Comment
-              name={comment.userResponse.username}
+              name={shortenContent(comment.userResponse.username, 30)}
               contextId={props.contextId}
               avatar={'src/assets/avatar.png'}
               comment={comment.comment}

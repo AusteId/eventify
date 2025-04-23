@@ -9,6 +9,8 @@ import lt.techin.eventify.repository.mongodb.MessageRepository;
 import lt.techin.eventify.repository.mysql.CategoryRepository;
 import lt.techin.eventify.repository.mysql.RoleRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -176,4 +178,12 @@ public class UserService {
       return Collections.emptyList();
     }
   }
+  public Page<UserBanResponse> getAllUsersPaged(String searchTerm, boolean excludeAdmin, Pageable pageable) {
+    return userRepository.findBySearchTermWithAdminExclusion(searchTerm, excludeAdmin, pageable)
+            .map(user -> new UserBanResponse(user.getId(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getCity()));
+  }
+
 }

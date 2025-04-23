@@ -93,21 +93,35 @@ public class EventService {
     Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EventNotFoundException("Event with ID " + eventId + " not found"));
 
+    if (principal instanceof Authentication) {
+      Authentication auth = (Authentication) principal;
+    }
+
     User currentUser = userRepository.findByUsername(principal.getName())
             .orElseThrow(() -> new UsernameNotFoundException("User " + principal.getName() + " not found"));
 
-    boolean isAdmin = currentUser.getRoles()
-            .stream()
-            .anyMatch(role -> role.getName().equalsIgnoreCase("ADMIN"));
+    boolean isAdmin = false;
 
-    boolean isEventOwner = event.getOrganizer() != null && event.getOrganizer().getUsername().equals(currentUser.getUsername());
+    if (principal instanceof Authentication) {
+      Authentication auth = (Authentication) principal;
+      isAdmin = auth.getAuthorities().stream()
+              .anyMatch(a -> a.getAuthority().contains("ADMIN"));
+    }
+
+    if (!isAdmin) {
+      isAdmin = currentUser.getRoles()
+              .stream()
+              .anyMatch(role -> role.getName().equalsIgnoreCase("ADMIN"));
+    }
+
+    boolean isEventOwner = event.getOrganizer() != null &&
+            event.getOrganizer().getUsername().equals(currentUser.getUsername());
 
     if (isAdmin || isEventOwner) {
       eventRepository.delete(event);
     } else {
       throw new ForbiddenException("You do not have permission to delete this event");
     }
-
   }
 
   @Cacheable("eventsCache")
@@ -346,6 +360,28 @@ public class EventService {
     }
 
     List<EventMapSummary> events = eventRepository.findAllEventsForMap(categoryName, city, startDateTime, endDateTime,
+            experienceLevel, minAge, maxAge, searchTerm);
+
+    return events.stream()
+            .map(eventMapper::toEventMapResponse)
+            .toList();
+  }
+
+  public List<EventMapResponse> findAllEventsForMapByCreator(Long creatorId, String categoryName, String city,
+                                                             String startDateTime, String endDateTime,
+                                                             String experienceLevel, Integer minAge,
+                                                             Integer maxAge, String searchTerm) {
+
+    userRepository.findById(creatorId)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + creatorId + " not found"));
+
+    if (categoryName != null && !categoryName.isEmpty()) {
+      categoryRepository.findByName(categoryName)
+              .orElseThrow(() -> new CategoryNotFoundException("Category '" + categoryName + "' not found"));
+    }
+
+    List<EventMapSummary> events = eventRepository.findAllEventsForMapByCreator(
+            creatorId, categoryName, city, startDateTime, endDateTime,
             experienceLevel, minAge, maxAge, searchTerm);
 
     return events.stream()

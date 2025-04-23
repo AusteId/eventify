@@ -1,0 +1,184 @@
+package lt.techin.eventify.service;
+
+import jakarta.transaction.Transactional;
+import lt.techin.eventify.dto.ban.BanRequest;
+import lt.techin.eventify.dto.ban.BanResponse;
+import lt.techin.eventify.dto.user.UserBanResponse;
+import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.exception.NotFoundException;
+import lt.techin.eventify.exception.UnauthorizedException;
+import lt.techin.eventify.model.Ban;
+import lt.techin.eventify.model.Role;
+import lt.techin.eventify.model.User;
+import lt.techin.eventify.repository.mysql.BanRepository;
+import lt.techin.eventify.repository.mysql.RoleRepository;
+import lt.techin.eventify.repository.mysql.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+public class AdminService {
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final BanRepository banRe;
+    private final UserMapper userMapper;
+
+    public AdminService(UserRepository userRepository, RoleRepository roleRepository, BanRepository banRe,
+                        UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.banRe = banRe;
+        this.userMapper = userMapper;
+
+    }
+
+    @Transactional
+    public BanResponse banUser(BanRequest request) {
+        User user = userRepository.findById(request.userId()).orElseThrow(() -> new NotFoundException("User not found"));
+        User admin = userRepository.findById(request.adminId()).orElseThrow(() -> new NotFoundException("Admin not found"));
+
+        boolean isAdmin = admin.getRoles()
+                .stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("ADMIN"));
+
+        if (!isAdmin) {
+            throw new UnauthorizedException("Only admins can ban users");
+        }
+
+       Role bannedRole = roleRepository.findByName("BANNED".toUpperCase())
+                .orElseGet(() -> roleRepository.save(new Role("BANNED")));
+
+      Role userRole = roleRepository.findByName("USER").orElseThrow(() -> new NotFoundException("Role not found"));
+        Set<Role> currentRoles = new HashSet<>(user.getRoles());
+        currentRoles.remove(userRole);
+        currentRoles.add(bannedRole);
+
+        user.setRoles(currentRoles);
+
+        userRepository.save(user);
+
+        Ban ban = new Ban();
+        ban.setUser(user);
+        ban.setAdmin(admin);
+        ban.setReason(request.reason());
+        ban.setStartTime(LocalDateTime.now());
+        if (request.duration() == null) {
+            ban.setEndTime(null);
+        } else {
+            ban.setEndTime(LocalDateTime.now().plusDays(request.duration()));
+        }
+        ban.setActive(true);
+
+        banRe.save(ban);
+
+        return new BanResponse(user.getId(), admin.getId(), ban.getReason(),ban.getStartTime(),ban.getEndTime(),ban.isActive());
+    }
+
+    @Scheduled(cron = "0 */15 * * * *")
+    public void checkExpiredBans() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Ban> expiredBans = banRe.findByEndTimeBeforeAndActiveTrue(now);
+
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(()-> new NotFoundException("User role not found"));
+
+        Role bannedRole = roleRepository.findByName("BANNED")
+                .orElseThrow(()-> new NotFoundException("Banned role not found"));
+
+        for (Ban ban : expiredBans) {
+            User user = ban.getUser();
+            Set<Role> roles = new HashSet<>(user.getRoles());
+            roles.remove(bannedRole);
+            roles.add(userRole);
+            user.setRoles(roles);
+            userRepository.save(user);
+
+            ban.setActive(false);
+            banRe.save(ban);
+        }
+    }
+
+    public Page<BanResponse> getUserBanHistory(Long userId, Pageable pageable) {
+        User user =
+                userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
+                "User not found"));
+        return banRe.findByUser(user,pageable).map(ban -> new BanResponse(ban.getUser().getId(),ban.getAdmin().getId(),ban.getReason(),ban.getStartTime(),
+                ban.getEndTime(),ban.isActive()));
+    }
+
+    @Transactional
+    public String unbanUserDirectly(Long banId) {
+        Ban activeBan = banRe.findByIdAndActiveTrue(banId).orElseThrow(() -> new NotFoundException("Ban not found"));
+        User user = activeBan.getUser();
+        activeBan.setEndTime(LocalDateTime.now());
+        activeBan.setActive(false);
+
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(()-> new NotFoundException("User role not found"));
+
+        Role bannedRole = roleRepository.findByName("BANNED")
+                .orElseThrow(()-> new NotFoundException("Banned role not found"));
+
+            Set<Role> roles = new HashSet<>(user.getRoles());
+            roles.remove(bannedRole);
+            roles.add(userRole);
+            user.setRoles(roles);
+            userRepository.save(user);
+
+            banRe.save(activeBan);
+
+            return user.getUsername() + " was unbanned at " + LocalDateTime.now();
+    }
+
+    public Page<UserBanResponse> getCurrentlyBannedUsers(Pageable pageable) {
+        Role bannedRole = roleRepository.findByName("BANNED").orElseThrow();
+        return userRepository.findByRolesContaining(bannedRole, pageable).map(userMapper::toDTO);
+    }
+
+    public Optional<BanResponse> getActiveBan(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        return banRe.findByUserAndActiveTrue(user)
+                .map(ban -> new BanResponse(
+                        ban.getUser().getId(),
+                        ban.getAdmin().getId(),
+                        ban.getReason(),
+                        ban.getStartTime(),
+                        ban.getEndTime(),
+                        ban.isActive()
+                ));
+    }
+
+    public Page<BanResponse> getBansWithFilter(
+            Long userId,
+            Long adminId,
+            Boolean active,
+            LocalDateTime startDateAfter,
+            LocalDateTime startDateBefore,
+            LocalDateTime endDateAfter,
+            LocalDateTime endDateBefore,
+            Pageable pageable
+    ) {
+
+        Page<Ban> bans = banRe.findWithFilters(userId,adminId,active, startDateAfter,startDateBefore,
+                endDateAfter,endDateBefore,pageable);
+
+        return bans == null ? Page.empty() : bans.map(ban -> new BanResponse(
+                ban.getUser().getId(),
+                ban.getAdmin().getId(),
+                ban.getReason(),
+                ban.getStartTime(),
+                ban.getEndTime(),
+                ban.isActive()
+        ));
+    }
+}

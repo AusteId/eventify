@@ -11,9 +11,10 @@ import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
-import { Clock, MapPin, Users, Timer } from 'lucide-react';
+import { Clock, MapPin, Timer, Users } from 'lucide-react';
 import { formatDistance } from 'date-fns';
 import { useDarkMode } from './context/DarkModeContext.jsx';
+import ThreePersonSVG from '../assets/threePersonSVG.jsx';
 
 const EventCard = ({
   id,
@@ -42,6 +43,7 @@ const EventCard = ({
     loading: authLoading,
     userId,
     birthDate,
+    shortenContent,
   } = useAuth() || {
     isAuthenticated: false,
     loading: false,
@@ -50,7 +52,7 @@ const EventCard = ({
   };
   const [registered, setRegistered] = useState(isRegistered);
 
-  const {isDarkMode} = useDarkMode();
+  const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -224,24 +226,17 @@ const EventCard = ({
 
   return (
     <div
-      className={`flex mt-0.5 mb-6 flex-col justify-between border duration-750 rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isDarkMode ? "bg-slate-900 border-[#f59e0b]" :"bg-white border-transparent"} ${isEnded && 'grayscale-100'}`}
+      onClick={() => navigate(`/events/${id}`)}
+      className={`cursor-pointer flex mt-0.5 mb-6 flex-col justify-between border duration-750 rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'} ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <a
-          onClick={() => navigate(`/events/${id}`)}
           className="cursor-pointer group"
         >
           <div className="relative">
             {participants >= 0 && maxParticipants > 0 && (
               <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
-                <img
-                  src="./src/assets/threePersonIcon.svg"
-                  loading="lazy"
-                  onError={() => {
-                    console.log('Event image failed to load, using fallback');
-                    setImageData('./src/assets/eventCardImgSample.png');
-                  }}
-                />
+                <ThreePersonSVG/>
                 <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
                   {participants}/{maxParticipants}
                 </p>
@@ -278,13 +273,15 @@ const EventCard = ({
         </a>
 
         <div className="pt-5 px-5 flex flex-col gap-2">
-          <h2 className={`text-heading-xs font-[600] leading-[1.125rem] duration-750 whitespace-nowrap overflow-hidden text-ellipsis ${isDarkMode ? "text-[#f59e0b]" : "text-header-black"}`}>
+          <h2
+            className={`text-heading-xs font-[600] leading-[1.125rem] duration-750 whitespace-nowrap overflow-hidden text-ellipsis ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-black'}`}
+          >
             {name}
           </h2>
           <p
             className={`h-12 font-inter  text-body-m ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
           >
-            {shortDesc}
+            {shortenContent(shortDesc,43)}
           </p>
           <div
             className={`flex flex-col gap-2 font-inter text-body-s ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
@@ -342,14 +339,15 @@ const EventCard = ({
           </div>
         </div>
       </div>
-      <div className="flex justify-center py-[0.38rem] px-[0.75rem]">
+      <div onClick={(e) => e.stopPropagation()} className="flex justify-center py-[0.38rem] px-[0.75rem]">
         {isEnded ? (
-          <p className="p-3">Completed</p>
+          <p className={`p-3 ${isDarkMode && 'text-gray-300'}`}>Completed</p>
         ) : registered && isAuthenticated ? (
           <ButtonCancel
             isFull={true}
             onClick={handleRegistration}
             disabled={loading}
+
           >
             <img
               src="./src/assets/xIcon.svg"

@@ -4,12 +4,18 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import avatar from '../assets/avatar.png';
 import { useDarkMode } from './context/DarkModeContext.jsx';
+import { useAuth } from './Auth/AuthContext.jsx';
+import toast from 'react-hot-toast';
+import DeleteModal from './DeleteModal.jsx';
 
 
 const Comment = props => {
   const [editing, setEditing] = useState(false);
   const [editingComment, setEditingComment] = useState('+');
   const { isDarkMode } = useDarkMode();
+  const { roles,authFetch } = useAuth();
+  const [deleteModal, setDeleteModal] = useState(false);
+  const adminRole = roles.find((role) => role.name === "ADMIN");
 
   const {
     register,
@@ -33,11 +39,15 @@ const Comment = props => {
   const deleteC = () => {
     props.setComments([]);
     props.setLoading(true);
+
+
     const del = async () => {
       try {
-        const response = await api.delete('/events/comments/' + props.id);
+        const response = await api.delete(`/events/comments/${props.id}`);
+        console.log("Success!");
       } catch (err) {
-        console.error('Error deleting comment:', err);
+        console.error('Error:', err);
+        toast.error("Failed to delete comment");
       } finally {
         props.fetchComments();
       }
@@ -83,12 +93,34 @@ const Comment = props => {
     edit();
   };
 
+  const secureClick = () => {
+    if (!adminRole) {
+      toast.error("Unauthorized")
+      return;
+    }
+    setDeleteModal(true);
+  }
+
+  const closeModal = () => {
+    setDeleteModal(false);
+  }
   return (
+    <>
+    {deleteModal && <DeleteModal buttonAccept={"Delete"}
+    buttonCancel={"Cancel"}
+    warningMessage={"Are you sure you want to delete comment by"}
+    name={props.name}
+    api={`/api/users/${props.id}/avatar`}
+                                 onClick={deleteC}
+    closeModal={closeModal}/>}
     <div
       key={props.id}
       className={`duration-750 card bg-base-100 shadow-sm hover:shadow-md transition-all rounded-2xl border ${isDarkMode ? "bg-slate-600/40 border-[#f59e0b]" : "bg-light-gray border-transparent"}`}
     >
-      <div className={`card-body p-4 rounded-2xl ${isDarkMode ? "bg-slate-600/40" : "bg-light-gray"}`}>
+      <div className={`relative card-body p-4 rounded-2xl ${isDarkMode ? "bg-slate-600/40" : "bg-light-gray"}`}>
+        {(adminRole && props.contextId != props.userId) && <button onClick={secureClick} className="text-error absolute right-[6%] top-[12%]">
+          <Trash2 className="cursor-pointer h-6 w-6" />
+        </button>}
         <div className="flex items-start gap-3">
           <div className="avatar">
             <div className="w-10 h-10 rounded-full">
@@ -98,7 +130,7 @@ const Comment = props => {
                     e.target.onerror = null;
                     e.target.src = avatar;
                   }}
-                alt={props.name}
+                alt={(props.name)}
               />
             </div>
           </div>
@@ -194,6 +226,7 @@ const Comment = props => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

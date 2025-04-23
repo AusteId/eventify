@@ -32,6 +32,13 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const shortenContent = (message,number) => {
+    if (message.length <= number) {
+      return message;
+    }
+    return message.substring(0, number) + "...";
+  };
+
   const getUserAvatar = async () => {
     try {
       const cached = localStorage.getItem('userAvatar');
@@ -226,6 +233,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
   return (
     <AuthContext.Provider
       value={{
@@ -238,7 +246,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         authFetch,
         loading,
-        avatar
+        avatar,
+        shortenContent,
       }}
     >
       {children}

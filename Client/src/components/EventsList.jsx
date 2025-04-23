@@ -9,7 +9,10 @@ import Pagination from './Pagination';
 import EventSearch from './search/EventSearch';
 import { useDarkMode } from './context/DarkModeContext.jsx';
 
-const EventsList = ({loading,setLoading}) => {
+const EventsList = ({  loading,
+                      setLoading,
+                      apiEndpoint = `${import.meta.env.VITE_BACK_URL}/api/events/search`,
+                      apiMapEndpoint = `${import.meta.env.VITE_BACK_URL}/api/events/map`}) => {
   
   const [events, setEvents] = useState([]);
   const [eventsForMap, setEventsForMap] = useState([]);
@@ -45,8 +48,9 @@ const EventsList = ({loading,setLoading}) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events/search`,
+          apiEndpoint,
           {
+            withCredentials: true,
             params: {
               page: currentPage,
               size: eventsPerPage,
@@ -98,8 +102,9 @@ const EventsList = ({loading,setLoading}) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events/map`,
+          apiMapEndpoint,
           {
+            withCredentials: true,
             params: {
               searchTerm: searchParams.searchTerm || undefined,
               categoryName: searchParams.filters.categoryName || undefined,

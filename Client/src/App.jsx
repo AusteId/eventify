@@ -23,6 +23,8 @@ import CreateEventForm from './components/CreateEventForm';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
 import DeleteModal from './components/DeleteModal.jsx';
+import AdminLayout from './components/admin/AdminLayout.jsx';
+import UserEvents from './components/admin/AdminEvents.jsx';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
@@ -39,6 +41,8 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Event />} />
+            <Route path="/admin" element={<AdminLayout />} />
+            <Route path="/admin/user-events/:userId" element={<UserEvents />} />
             <Route
               path="/login"
               element={

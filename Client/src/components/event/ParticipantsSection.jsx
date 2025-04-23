@@ -3,9 +3,11 @@ import Modal from './Modal';
 import ViewParticipants from './ViewParticipants';
 import capitalizeFirstLetter from '../../utils/capitalizeFirstLetter';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
+import { useAuth } from '../Auth/AuthContext.jsx';
 
 const ParticipantsSection = ({ organizer, participants }) => {
   const { isDarkMode } = useDarkMode();
+  const {shortenContent} = useAuth();
   const handleClickViewParticipants = () => {
     document.getElementById('view_all_participants_modal').showModal();
   };
@@ -15,7 +17,7 @@ const ParticipantsSection = ({ organizer, participants }) => {
       <div className="flex flex-col gap-4 ">
         <h2 className={`leading-5 text-heading-s font-[600] ${isDarkMode && "text-gray-200"}`}>Organizer</h2>
         <Participant 
-        name={capitalizeFirstLetter(organizer.username)}
+        name={shortenContent(organizer.username,25)}
         profileImg={organizer.avatar}
         isDarkMode={isDarkMode}
         />
@@ -31,7 +33,7 @@ const ParticipantsSection = ({ organizer, participants }) => {
             <div className={`flex flex-col gap-5 ${isDarkMode && "text-[#f59e0b]"}`}>
               {participants.map((participant, index) => (
                 <Participant
-                  name={capitalizeFirstLetter(participant.username)}
+                  name={shortenContent(participant.username)}
                   profileImg={participant.avatar}
                   key={index}
                 />
