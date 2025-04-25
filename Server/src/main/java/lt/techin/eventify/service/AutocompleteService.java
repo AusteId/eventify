@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,16 +45,26 @@ public class AutocompleteService {
 
     List<Map<String, Object>> features = (List<Map<String, Object>>) response.get("features");
 
-    return features.stream()
-            .map(feature -> {
-              Map<String, Object> properties = (Map<String, Object>) feature.get("properties");
-              return new AutocompleteResponse(
-                      (String) properties.getOrDefault("street", ""),
-                      (String) properties.getOrDefault("housenumber", ""),
-                      (String) properties.getOrDefault("city", ""),
-                      (String) properties.getOrDefault("formatted", "")
-              );
-            })
+    Map<String, AutocompleteResponse> uniqueSuggestions = new HashMap<>();
+
+    for (Map<String, Object> feature : features) {
+      Map<String, Object> properties = (Map<String, Object>) feature.get("properties");
+
+      String street = (String) properties.getOrDefault("street", "");
+      String houseNumber = (String) properties.getOrDefault("housenumber", "");
+      String city = (String) properties.getOrDefault("city", "");
+      String formatted = (String) properties.getOrDefault("formatted", "");
+
+      formatted = formatted.replaceAll(",\\s*\\d{5}\\s*", ", ");
+
+      String key = street + "-" + houseNumber + "-" + city;
+      if (!uniqueSuggestions.containsKey(key)) {
+        uniqueSuggestions.put(key, new AutocompleteResponse(street, houseNumber, city, formatted));
+      }
+    }
+
+    return new ArrayList<>(uniqueSuggestions.values()).stream()
+            .limit(5)
             .toList();
   }
 }

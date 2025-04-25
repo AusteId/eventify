@@ -11,6 +11,7 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import Button from './Button';
 import CloseSVG from '../assets/CloseSVG';
 import { useDarkMode } from './context/DarkModeContext.jsx';
+import AddressAutocomplete from './AddressAutocomplete.jsx';
 
 const CreateEventForm = () => {
   const {
@@ -47,6 +48,7 @@ const CreateEventForm = () => {
   const picture = watch('picture');
   const city = watch('city');
   const address = watch('address');
+  const [resetAutocomplete, setResetAutocomplete] = useState(false);
 
   const provider = new OpenStreetMapProvider();
 
@@ -83,6 +85,30 @@ const CreateEventForm = () => {
     fetchCoordinates();
   }, [city, address]);
 
+  const resetForm = () => {
+    reset({
+      picture: null,
+      name: '',
+      city: '',
+      address: '',
+      startDateTime: null,
+      endDateTime: null,
+      category: 'Select Category',
+      minAge: null,
+      maxAge: null,
+      maxParticipants: null,
+      description: '',
+      experienceLevel: 'Select Experience Level',
+      latitude: null,
+      longitude: null,
+    });
+    setResetAutocomplete(true);
+  };
+
+  useEffect(() => {
+    resetForm();
+  }, []);
+
   const onSubmit = async data => {
     closeModal();
     try {
@@ -102,7 +128,7 @@ const CreateEventForm = () => {
   };
 
   const closeModal = () => {
-    reset();
+    resetForm();
     clearErrors();
     document.getElementById('event_creation_modal').close();
   };
@@ -135,7 +161,7 @@ const CreateEventForm = () => {
           type="button"
           className={`w-10 h-10 ${isDarkMode}`}
         >
-          <CloseSVG/>
+          <CloseSVG />
         </button>
       </div>
       <div>
@@ -214,7 +240,10 @@ const CreateEventForm = () => {
           <FieldValidationError>{errors.level?.message}</FieldValidationError>
         </div>
       </div>
-      <div className="flex mt-6 gap-6">
+
+
+
+      {/* <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
             className="block font-inter text-body-m font-bold mb-2"
@@ -262,7 +291,19 @@ const CreateEventForm = () => {
           />
           <FieldValidationError>{errors.address?.message}</FieldValidationError>
         </div>
+      </div> */}
+
+
+      <div className="flex mt-6 gap-6">
+        <AddressAutocomplete
+          setValue={setValue}
+          triggerFetchCoordinates={fetchCoordinates}
+          resetAutocomplete={resetAutocomplete}
+          onResetComplete={() => setResetAutocomplete(false)}
+        />
       </div>
+
+
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
