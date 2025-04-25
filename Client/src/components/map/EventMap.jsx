@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { convertToCompactEuDatetime } from '../../utils/dateFunctions';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
@@ -15,6 +15,84 @@ const defaultIcon = L.icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
+
+const truncateText = (text, maxLength) => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
+
+const EventPopup = ({ events }) => {
+  const { isDarkMode } = useDarkMode();
+  const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const currentEvent = events[currentEventIndex];
+
+  const handlePrevEvent = () => {
+    setCurrentEventIndex((prevIndex) =>
+      prevIndex === 0 ? events.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNextEvent = () => {
+    setCurrentEventIndex((prevIndex) =>
+      prevIndex === events.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  return (
+    <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-dark-gray text-light' : 'bg-light-gray text-medium'} max-w-[15rem]`}>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-bold text-body-m text-center flex-1">{truncateText(currentEvent.name, 21)}</h3>
+        {events.length > 1 && (
+          <span className="bg-btn/20 text-btn text-xs px-1.5 py-0.5 rounded-full ml-5"
+            style={{ marginRight: '10px' }}
+          >
+            {`${currentEventIndex + 1} of ${events.length}`}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-0 custom-popup-content">
+        <div className="flex items-center gap-2 pt-4 pb-1">
+          <FaMapMarkerAlt className="text-btn" />
+          <p className="m-0">{`${currentEvent.address}, ${currentEvent.city}`}</p>
+        </div>
+        <div className="flex items-center gap-2 pt-1 pb-3">
+          <FaCalendarAlt className="text-btn" />
+          <p className="m-0">{`${convertToCompactEuDatetime(currentEvent.startDateTime)}`}</p>
+        </div>
+      </div>
+      <div className="flex justify-between items-center">
+        {events.length > 1 ? (
+          <button
+            onClick={handlePrevEvent}
+            className="p-1 rounded-full hover:bg-btn/20 text-btn"
+          >
+            <FaChevronLeft />
+          </button>
+        ) : (
+          <div className="w-6 h-6" />
+        )}
+
+        <Link
+          to={`/events/${currentEvent.id}`}
+          className="text-body-s font-semibold hover:bg-btn/8 p-3 rounded-lg"
+          style={{ color: 'var(--color-btn)' }}
+        >
+          View Event
+        </Link>
+        {events.length > 1 ? (
+          <button
+            onClick={handleNextEvent}
+            className="p-1 rounded-full hover:bg-btn/20 text-btn"
+          >
+            <FaChevronRight />
+          </button>
+        ) : (
+          <div className="w-6 h-6" />
+        )}
+      </div>
+    </div>
+  );
+};
 
 const EventMap = ({ events, eventId }) => {
   const { isDarkMode } = useDarkMode();
@@ -57,6 +135,27 @@ const EventMap = ({ events, eventId }) => {
     return null;
   };
 
+  const groupEventsByCoordinates = (events) => {
+    const grouped = {};
+
+    events
+      .filter(event => event.latitude != null && event.longitude != null)
+      .forEach(event => {
+        const key = `${event.latitude},${event.longitude}`;
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+        grouped[key].push(event);
+      });
+
+    return Object.entries(grouped).map(([key, eventGroup]) => {
+      const [latitude, longitude] = key.split(',').map(Number);
+      return { latitude, longitude, events: eventGroup };
+    });
+  };
+
+  const groupedEvents = groupEventsByCoordinates(events);
+
   return (
     <MapContainer
       center={[54.6892, 25.2798]}
@@ -82,45 +181,18 @@ const EventMap = ({ events, eventId }) => {
         }
       />
       <MapController eventId={eventId} events={events} />
-      {events
-        .filter(event => event.latitude != null && event.longitude != null)
-        .map((event, index) => (
-          <Marker
-            key={index}
-            position={[event.latitude, event.longitude]}
-            icon={defaultIcon}
-          >
-            <Popup>
-              <div className="p-3 rounded-lg bg-light-gray text-medium max-w-[15rem]">
-                <h3 className="font-bold text-body-m mb-2 text-center">
-                  {event.name}
-                </h3>
+      {groupedEvents.map((group, index) => (
+        <Marker
+          key={index}
+          position={[group.latitude, group.longitude]}
+          icon={defaultIcon}
+        >
 
-                <div className="flex flex-col gap-0 custom-popup-content">
-                  <div className="flex items-center gap-2 pt-4 pb-1">
-                    <FaMapMarkerAlt className="text-btn" />
-                    <p className="m-0">{`${event.address}, ${event.city}`}</p>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-1 pb-3">
-                    <FaCalendarAlt className="text-btn" />
-                    <p className="m-0">{`${convertToCompactEuDatetime(event.startDateTime)}`}</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-center">
-                  <Link
-                    to={`/events/${event.id}`}
-                    className="text-body-s font-semibold hover:bg-btn/8 p-3 rounded-lg"
-                    style={{ color: 'var(--color-btn)' }}
-                  >
-                    View Event
-                  </Link>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+          <Popup>
+            <EventPopup events={group.events} />
+          </Popup>
+        </Marker>
+      ))}
     </MapContainer>
   );
 };
