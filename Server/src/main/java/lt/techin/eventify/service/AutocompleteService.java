@@ -15,7 +15,7 @@ public class AutocompleteService {
 
   private final RestTemplate restTemplate;
 
-  @Value("$GEOAPIFY_API_KEY")
+  @Value("${GEOAPIFY_API_KEY}")
   private String geoapifyApiKey;
 
   public AutocompleteService(RestTemplate restTemplate) {
