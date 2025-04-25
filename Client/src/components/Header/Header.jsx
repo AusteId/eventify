@@ -19,6 +19,8 @@ import MessageSVG from '../../assets/MessageSVG';
 import LogoutSVG from '../../assets/LogoutSVG';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
 import AdminPanelSVG from '../../assets/AdminPanelSVG.jsx';
+import BannedButton from '../Auth/BannedButton.jsx';
+import MessageNavItem from './MessageNavItem.jsx';
 
 const Header = () => {
   const [activeLink, setActiveLink] = useState('');
@@ -38,6 +40,7 @@ const Header = () => {
   ];
 
   const adminRole = roles.find(role => role.name === 'ADMIN');
+  const bannedRole = roles.find(role => role.name === 'BANNED');
 
   const location = useLocation();
 
@@ -124,13 +127,16 @@ const Header = () => {
                 {navLinks.map(link => {
                   if (!isAuthenticated && link.auth) {
                     return null;
-                  } else {
-                    return (
-                      <li key={link.name}>
-                        <NavLink
-                          to={link.href}
-                          onClick={() => setActiveLink(link.name)}
-                          className={`
+                  }
+                  if (bannedRole && link.name === 'My Registrations') {
+                    return null;
+                  }
+                  return (
+                    <li key={link.name}>
+                      <NavLink
+                        to={link.href}
+                        onClick={() => setActiveLink(link.name)}
+                        className={`
                     px-3 py-2 rounded-md text-sm font-inter font-bold transition-colors ease-in-out text-nowrap 
                     ${
                       activeLink === link.href && isDarkMode
@@ -142,15 +148,14 @@ const Header = () => {
                             : 'duration-150 text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }
                   `}
-                          aria-current={
-                            activeLink === link.name ? 'page' : undefined
-                          }
-                        >
-                          {link.name}
-                        </NavLink>
-                      </li>
-                    );
-                  }
+                        aria-current={
+                          activeLink === link.name ? 'page' : undefined
+                        }
+                      >
+                        {link.name}
+                      </NavLink>
+                    </li>
+                  );
                 })}
                 {(location.pathname === '/login' ||
                   location.pathname.startsWith('/register')) && (
@@ -164,17 +169,11 @@ const Header = () => {
             {/* Right Section: Actions & User Menu */}
             <div className="flex items-center gap-3 sm:gap-4">
               {isAuthenticated && (
-                <div className="hidden md:block lg:block">
-                  <Button
-                    onClick={() => {
-                      document
-                        .getElementById('event_creation_modal')
-                        .showModal();
-                    }}
-                  >
-                    Create Event
-                  </Button>
-                </div>
+                <BannedButton
+                  isAuthenticated={isAuthenticated}
+                  roles={roles}
+                  hidden="hidden"
+                />
               )}
               {!isAuthenticated &&
               location.pathname !== '/login' &&
@@ -218,7 +217,7 @@ const Header = () => {
                         }`}
                         style={{ transition: 'background-color 750ms ease' }}
                       >
-                        {(adminRole && location.pathname !== '/admin') ? (
+                        {adminRole && location.pathname !== '/admin' ? (
                           <li
                             className={`relative flex justify-center py-1 cursor-pointer ${
                               isDarkMode
@@ -235,23 +234,25 @@ const Header = () => {
                             </div>
                             <a>Admin Panel</a>
                           </li>
-                        ) : adminRole && (
-                          <li
-                            className={`relative flex justify-center py-1 cursor-pointer ${
-                              isDarkMode
-                                ? 'hover:bg-slate-600 duration-750'
-                                : 'hover:bg-gray-100 duration-150'
-                            }`}
-                            onClick={() => {
-                              navigate('/admin/ban-page');
-                              setIsDropdownOpen(false);
-                            }}
-                          >
-                            <div className="absolute left-[5%]">
-                              <AdminPanelSVG />
-                            </div>
-                            <a>View All Bans</a>
-                          </li>
+                        ) : (
+                          adminRole && (
+                            <li
+                              className={`relative flex justify-center py-1 cursor-pointer ${
+                                isDarkMode
+                                  ? 'hover:bg-slate-600 duration-750'
+                                  : 'hover:bg-gray-100 duration-150'
+                              }`}
+                              onClick={() => {
+                                navigate('/admin/ban-page');
+                                setIsDropdownOpen(false);
+                              }}
+                            >
+                              <div className="absolute left-[5%]">
+                                <AdminPanelSVG />
+                              </div>
+                              <a>View All Bans</a>
+                            </li>
+                          )
                         )}
 
                         <li
@@ -261,7 +262,7 @@ const Header = () => {
                               : 'hover:bg-gray-100 duration-150'
                           }`}
                           onClick={() => {
-                            navigate('/profile');
+                            navigate('/profile/my');
                             setIsDropdownOpen(false);
                           }}
                         >
@@ -270,22 +271,12 @@ const Header = () => {
                           </div>
                           <a>Profile</a>
                         </li>
-                        <li
-                          className={`relative flex justify-center py-1 cursor-pointer ${
-                            isDarkMode
-                              ? 'hover:bg-slate-600 duration-750'
-                              : 'hover:bg-gray-100 duration-150'
-                          }`}
-                          onClick={() => {
-                            navigate('/chat');
-                            setIsDropdownOpen(false);
-                          }}
-                        >
-                          <div className="absolute left-[15%]">
-                            <MessageSVG />
-                          </div>
-                          <a>Messages</a>
-                        </li>
+                        <MessageNavItem
+                          isDarkMode={isDarkMode}
+                          setIsDropdownOpen={setIsDropdownOpen}
+                          isBanned={roles.some(role => role.name === 'BANNED')}
+                          MessageSVG={MessageSVG}
+                        />
                         <li
                           className={`relative flex justify-center py-1 cursor-pointer ${
                             isDarkMode
@@ -359,7 +350,7 @@ const Header = () => {
                           Events
                         </NavLink>
                       </li>
-                      {isAuthenticated && (
+                      {isAuthenticated && !bannedRole && (
                         <li>
                           <NavLink
                             to={'/myRegistrations'}

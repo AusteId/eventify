@@ -4,11 +4,13 @@ import { useAuth } from '../components/Auth/AuthContext';
 import ScrollChevron from '../components/ScrollChevron';
 import Button from './Button';
 import { useDarkMode } from './context/DarkModeContext.jsx';
+import BannedButton from './Auth/BannedButton.jsx';
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, roles } = useAuth();
   const { isDarkMode } = useDarkMode();
+  const bannedRole = roles.find(role => role.name === 'BANNED');
 
   return (
     <div className="relative min-h-200 h-[calc(100vh-64px)] w-full">
@@ -17,7 +19,9 @@ const HeroSection = () => {
         style={{ backgroundImage: `url(${heroBanner})` }}
       ></section>
       <section className="bg-black/50 w-full h-full absolute content-center text-center">
-        <div className={`flex flex-col items-center duration-750 ${isDarkMode ? "text-gray-200" : "text-white"}`}>
+        <div
+          className={`flex flex-col items-center duration-750 ${isDarkMode ? 'text-gray-200' : 'text-white'}`}
+        >
           <h1 className={`min-w-140 text-heading-xxl font-[700]`}>
             Connect, Create, Celebrate
           </h1>
@@ -26,33 +30,52 @@ const HeroSection = () => {
             people who love to connect and share experiences.
           </p>
           <div className="flex gap-4 mt-16">
-            <Button
-              onClick={() => {
-                if (isAuthenticated) {
-                  document.getElementById('event_creation_modal').showModal();
-                } else {
-                  navigate('/login');
-                }
-              }}
-              size="big"
-            >
-              Create Event
-            </Button>
-            <Button
-              size="big"
-              background={`duration-750 ${isDarkMode ? "bg-slate-900 border-1 border-[#f59e0b] hover:bg-slate-600" : "bg-white"}`}
-              textColor="text-btn"
-              hoverColor="hover:bg-[#fcf6b7]"
-              onClick={() => {
-                if (isAuthenticated) {
-                  navigate('/events');
-                } else {
-                  navigate('/login');
-                }
-              }}
-            >
-              Join Event
-            </Button>
+            {bannedRole ? (
+              <BannedButton
+                isAuthenticated={isAuthenticated}
+                roles={roles}
+                size="big"
+              />
+            ) : (
+              <Button
+                onClick={() => {
+                  if (isAuthenticated) {
+                    document.getElementById('event_creation_modal').showModal();
+                  } else {
+                    navigate('/login');
+                  }
+                }}
+                size="big"
+              >
+                Create Event
+              </Button>
+            )}
+
+            {bannedRole ? (
+              <BannedButton
+                isAuthenticated={isAuthenticated}
+                roles={roles}
+                size="big"
+                buttonName="Join Event"
+                message="Cannot join while banned"
+              />
+            ) : (
+              <Button
+                size="big"
+                background={`duration-750 ${isDarkMode ? 'bg-slate-900 border-1 border-[#f59e0b] hover:bg-slate-600' : 'bg-white'}`}
+                textColor="text-btn"
+                hoverColor="hover:bg-[#fcf6b7]"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    navigate('/events');
+                  } else {
+                    navigate('/login');
+                  }
+                }}
+              >
+                Join Event
+              </Button>
+            )}
           </div>
           <ScrollChevron />
         </div>

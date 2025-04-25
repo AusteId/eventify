@@ -19,6 +19,7 @@ import MapMarkerSVG from '../assets/mapMarkerSVG';
 import { useDarkMode } from '../components/context/DarkModeContext.jsx';
 import DeleteModal from '../components/DeleteModal.jsx';
 import { Trash2 } from 'lucide-react';
+import BannedButton from '../components/Auth/BannedButton.jsx';
 
 const Event = () => {
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ const Event = () => {
   const { isDarkMode } = useDarkMode();
 
   const adminRole = roles.find((role) => role.name === "ADMIN")
+  const bannedRole = roles.find((role) => role.name === "BANNED")
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -315,11 +317,11 @@ whitespace-normal
               </div>
             </div>
             <div className="flex justify-center gap-3">
-              {isRegistrationOpen() && !isRegistered && (
+              {(isRegistrationOpen() && !isRegistered && !bannedRole) ? (
                 <Button onClick={handleRegister} disabled={isJoining}>
                   {isJoining ? 'Joining...' : 'Join Event'}
                 </Button>
-              )}
+              ) : <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" buttonName="Join Event" message="Cannot join event while banned"  />}
               {isRegistered && (
                 <Button
                   onClick={handleCancel}

@@ -16,6 +16,7 @@ import { formatDistance } from 'date-fns';
 import { useDarkMode } from './context/DarkModeContext.jsx';
 import ThreePersonSVG from '../assets/threePersonSVG.jsx';
 import DeleteModal from './DeleteModal.jsx';
+import BannedButton from './Auth/BannedButton.jsx';
 
 const EventCard = ({
   isAdmin = false,
@@ -48,7 +49,8 @@ const EventCard = ({
     userId,
     birthDate,
     shortenContent,
-    authFetch
+    authFetch,
+    roles
   } = useAuth() || {
     isAuthenticated: false,
     loading: false,
@@ -56,6 +58,8 @@ const EventCard = ({
     birthDate: null,
   };
   const [registered, setRegistered] = useState(isRegistered);
+
+  const bannedRole = roles.find((role) => role.name === "BANNED");
 
   const { isDarkMode } = useDarkMode();
 
@@ -386,7 +390,8 @@ const EventCard = ({
         </div>
       </div>
       <div onClick={(e) => e.stopPropagation()} className="flex justify-center py-[0.38rem] px-[0.75rem]">
-        {isEnded ? (
+        {bannedRole ? <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" className="w-80" buttonName="Register" message="Cannot register while banned"  /> :
+        isEnded ? (
           <p className={`p-3 ${isDarkMode && 'text-gray-300'}`}>Completed</p>
         ) : registered && isAuthenticated ? (
           <ButtonCancel

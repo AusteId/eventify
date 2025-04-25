@@ -6,6 +6,8 @@ import avatarDefault from '../assets/avatar.png';
 import Comment from './Comment';
 import { useAuth } from './Auth/AuthContext';
 import { useDarkMode } from './context/DarkModeContext.jsx';
+import CommentButton from './CommentButton.jsx';
+import BannedButton from './Auth/BannedButton.jsx';
 
 
 const CommentSection = props => {
@@ -14,7 +16,9 @@ const CommentSection = props => {
   const [loading, setLoading] = useState(false);
   const {userId,avatar,isAuthenticated} = useAuth();
   const { isDarkMode } = useDarkMode();
-  const {shortenContent} = useAuth();
+  const {shortenContent,roles} = useAuth();
+
+  const bannedRole = roles.find((role) => role.name === "BANNED");
 
   const {
     register,
@@ -110,15 +114,8 @@ const CommentSection = props => {
               })}
             ></textarea>
             <div className="w-full flex flex-row items-center">
-              <button
-                type="submit"
-                className={`btn items-center duration-750 border-1 ${isDarkMode && !newComment ? "border-[#f59e0b]" : isDarkMode ? "border-transparent bg-amber-700 hover:bg-amber-600 text-gray-300" : "border-transparent bg-btn hover:bg-btn-hover text-white"} shadow-none  px-4 pt-3 pb-3 rounded-lg `}
-                disabled={!newComment.trim()}
-              >
-                <Send className={`h-4 w-4 ${isDarkMode && newComment 
-                  ? "text-gray-200" : isDarkMode ? "text-[#f59e0b]" : ""}`} />
-                Post Comment
-              </button>
+              {bannedRole ? <BannedButton isAuthenticated={isAuthenticated} roles={roles} buttonName={"Post Comment"} size="big" message="Cannot post comments while banned"/>
+             : <CommentButton isDarkMode={isDarkMode} newComment={newComment} handleSubmit={handleSubmit} /> }
             </div>
           </div>
         </div>

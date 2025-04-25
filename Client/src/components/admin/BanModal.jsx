@@ -116,7 +116,7 @@ const BanModal = ({closeModal, userBanId, username,setRefresh}) => {
 
             <div className="flex space-x-2 items-center mb-1">
               <p className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>User:</p>
-              <p className={`capitalize ${isDarkMode ? "text-[#f59e0b]" : "text-black"}`}>{username}</p>
+              <p className={`capitalize break-all ${isDarkMode ? "text-[#f59e0b]" : "text-black"}`}>{username}</p>
             </div>
 
             <div className="flex space-x-2 items-center">

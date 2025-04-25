@@ -44,23 +44,47 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Event />} />
-
             // Admin Access
-            <Route path="/admin" element={
-              <ProtectedRoutes requiredRoles={["ADMIN"]}>
-              <AdminLayout />
-              </ProtectedRoutes>
-            } />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <AdminLayout />
+                </ProtectedRoutes>
+              }
+            />
             <Route
               path="/admin/user-events/:userId"
-              element={<AdminEvents />}
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <AdminEvents />
+                </ProtectedRoutes>
+              }
             />
             <Route
               path="/admin/user-comments/:userId"
-              element={<AdminComments />}
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <AdminComments />
+                </ProtectedRoutes>
+              }
             />
-            <Route path="/admin/ban-history/:userId" element={<BanHistory />} />
-            <Route path="/admin/ban-page" element={<BanPage />} />
+            <Route
+              path="/admin/ban-history/:userId"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <BanHistory />
+                </ProtectedRoutes>
+              }
+            />
+            <Route
+              path="/admin/ban-page"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <BanPage />
+                </ProtectedRoutes>
+              }
+            />
             <Route
               path="/login"
               element={
@@ -110,14 +134,23 @@ function App() {
                 }
               />
             </Route>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/myRegistrations" element={<MyRegistrations />} />
+            <Route path="/profile/my" element={
+              <ProtectedRoutes requiredRoles={['ADMIN','USER','BANNED']}>
+              <Profile />
+              </ProtectedRoutes>} />
+            <Route path="/myRegistrations" element={
+              <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
+              <MyRegistrations />
+                </ProtectedRoutes>
+            } />
             <Route
               path="/chat"
               element={
+                <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
                 <WebSocketProvider>
                   <Chat />
                 </WebSocketProvider>
+                </ProtectedRoutes>
               }
             />
             <Route path="/about" element={<About />} />

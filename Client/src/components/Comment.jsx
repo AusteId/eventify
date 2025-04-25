@@ -16,6 +16,7 @@ const Comment = props => {
   const { roles,authFetch } = useAuth();
   const [deleteModal, setDeleteModal] = useState(false);
   const adminRole = roles.find((role) => role.name === "ADMIN");
+  const bannedRole = roles.find((role) => role.name === "BANNED");
 
   const {
     register,

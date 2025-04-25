@@ -8,12 +8,11 @@ import Pagination from '../Pagination.jsx';
 import Searchbar from './Searchbar.jsx';
 import Button from '../Button.jsx';
 import Dropdown from './Dropdown.jsx';
-import DeleteModal from '../DeleteModal.jsx';
 import UnbanModal from './UnbanModal.jsx';
-import { useNavigate } from 'react-router';
+
 
 const UserCards = () => {
-  const { authFetch } = useAuth();
+  const { authFetch,shortenContent } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const { isDarkMode } = useDarkMode();
@@ -24,7 +23,6 @@ const UserCards = () => {
   const [unbanUserId, setUnbanUserId] = useState(null);
   const [refresh, setRefresh] = useState(0);
 
-  const navigate = useNavigate();
 
   const placeholderTerm = 'Search users by username or email';
 
@@ -225,7 +223,7 @@ const UserCards = () => {
                         <td
                           className={`text-right capitalize font-semibold duration-750 truncate ${isDarkMode && 'text-gray-200'}`}
                         >
-                          {user.username}
+                          {shortenContent(user.username,20)}
                         </td>
                       </tr>
                       <tr>

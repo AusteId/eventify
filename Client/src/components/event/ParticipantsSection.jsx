@@ -33,7 +33,7 @@ const ParticipantsSection = ({ organizer, participants }) => {
             <div className={`flex flex-col gap-5 ${isDarkMode && "text-[#f59e0b]"}`}>
               {participants.map((participant, index) => (
                 <Participant
-                  name={shortenContent(participant.username)}
+                  name={shortenContent(participant.username,15)}
                   profileImg={participant.avatar}
                   key={index}
                 />
