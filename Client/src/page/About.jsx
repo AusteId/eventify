@@ -10,7 +10,6 @@ import { useAuth } from '../components/Auth/AuthContext.jsx';
 const About = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageTimeStamp, setImageTimeStamp] = useState(Date.now());

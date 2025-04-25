@@ -22,7 +22,12 @@ import BasicModal from './components/BasicModal';
 import CreateEventForm from './components/CreateEventForm';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
-import DeleteModal from './components/DeleteModal.jsx';
+import AdminLayout from './components/admin/AdminLayout.jsx';
+import AdminEvents from './components/admin/AdminEvents.jsx';
+import AdminComments from './components/admin/AdminComments.jsx';
+import BanHistory from './components/admin/BanHistory.jsx';
+import BanPage from './components/admin/BanPage.jsx';
+import ProtectedRoutes from './components/Auth/ProtectedRoutes.jsx';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
@@ -32,13 +37,54 @@ function App() {
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>
-    <DarkModeAutocompleteStyles/>
+      <DarkModeAutocompleteStyles />
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>
             <Route index element={<Home />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Event />} />
+            // Admin Access
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <AdminLayout />
+                </ProtectedRoutes>
+              }
+            />
+            <Route
+              path="/admin/user-events/:userId"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <AdminEvents />
+                </ProtectedRoutes>
+              }
+            />
+            <Route
+              path="/admin/user-comments/:userId"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <AdminComments />
+                </ProtectedRoutes>
+              }
+            />
+            <Route
+              path="/admin/ban-history/:userId"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <BanHistory />
+                </ProtectedRoutes>
+              }
+            />
+            <Route
+              path="/admin/ban-page"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN']}>
+                  <BanPage />
+                </ProtectedRoutes>
+              }
+            />
             <Route
               path="/login"
               element={
@@ -88,15 +134,23 @@ function App() {
                 }
               />
             </Route>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/myRegistrations" element={<MyRegistrations />} />
-
+            <Route path="/profile/my" element={
+              <ProtectedRoutes requiredRoles={['ADMIN','USER','BANNED']}>
+              <Profile />
+              </ProtectedRoutes>} />
+            <Route path="/myRegistrations" element={
+              <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
+              <MyRegistrations />
+                </ProtectedRoutes>
+            } />
             <Route
               path="/chat"
               element={
+                <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
                 <WebSocketProvider>
                   <Chat />
                 </WebSocketProvider>
+                </ProtectedRoutes>
               }
             />
             <Route path="/about" element={<About />} />

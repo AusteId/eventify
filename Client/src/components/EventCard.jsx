@@ -11,11 +11,15 @@ import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
-import { Clock, MapPin, Users, Timer } from 'lucide-react';
+import { Clock, MapPin, Timer, Trash2, Users } from 'lucide-react';
 import { formatDistance } from 'date-fns';
 import { useDarkMode } from './context/DarkModeContext.jsx';
+import ThreePersonSVG from '../assets/threePersonSVG.jsx';
+import DeleteModal from './DeleteModal.jsx';
+import BannedButton from './Auth/BannedButton.jsx';
 
 const EventCard = ({
+  isAdmin = false,
   id,
   experienceLevel = 'All Welcome',
   isRegistered = 0,
@@ -30,6 +34,7 @@ const EventCard = ({
   isEnded,
   minAge,
   maxAge,
+  setRefresh
 }) => {
   const navigate = useNavigate();
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
@@ -37,11 +42,15 @@ const EventCard = ({
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [participants, setParticipants] = useState(currentParticipants ?? 0);
   const [loading, setLoading] = useState(false);
+  const [deleteModal,setDeleteModal] = useState(false);
   const {
     isAuthenticated,
     loading: authLoading,
     userId,
     birthDate,
+    shortenContent,
+    authFetch,
+    roles
   } = useAuth() || {
     isAuthenticated: false,
     loading: false,
@@ -50,7 +59,9 @@ const EventCard = ({
   };
   const [registered, setRegistered] = useState(isRegistered);
 
-  const {isDarkMode} = useDarkMode();
+  const bannedRole = roles.find((role) => role.name === "BANNED");
+
+  const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -214,6 +225,25 @@ const EventCard = ({
           ? `Max age: ${maxAge}`
           : 'All Welcome!';
 
+  const deleteEvent = async () => {
+    try {
+      const response = await authFetch(`http://localhost:8080/api/events/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response && response.ok) {
+        toast.success('Event deleted successfully');
+        setDeleteModal(false);
+        setRefresh(prev => prev + 1);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error deleting event:', err);
+      return false;
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="flex justify-center items-center h-104 w-[22rem] desktop:max-w-[24.875rem]">
@@ -223,25 +253,29 @@ const EventCard = ({
   }
 
   return (
+    <>
+    {deleteModal && (
+      <DeleteModal buttonAccept={'Delete'}
+                   buttonCancel={'Cancel'}
+                   closeModal={() => setDeleteModal(false)}
+                   warningMessage={'Are you sure you want to delete '}
+                   api={`/api/events/${id}/picture`}
+                   name={name}
+                   onClick={deleteEvent}
+      />
+    )}
     <div
-      className={`flex mt-0.5 mb-6 flex-col justify-between border duration-750 rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isDarkMode ? "bg-slate-900 border-[#f59e0b]" :"bg-white border-transparent"} ${isEnded && 'grayscale-100'}`}
+      onClick={() => navigate(`/events/${id}`)}
+      className={`cursor-pointer flex mt-0.5 mb-6 flex-col justify-between border duration-750 rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'} ${isEnded && 'grayscale-100'}`}
     >
       <div>
         <a
-          onClick={() => navigate(`/events/${id}`)}
           className="cursor-pointer group"
         >
           <div className="relative">
             {participants >= 0 && maxParticipants > 0 && (
               <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
-                <img
-                  src="./src/assets/threePersonIcon.svg"
-                  loading="lazy"
-                  onError={() => {
-                    console.log('Event image failed to load, using fallback');
-                    setImageData('./src/assets/eventCardImgSample.png');
-                  }}
-                />
+                <ThreePersonSVG/>
                 <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
                   {participants}/{maxParticipants}
                 </p>
@@ -277,14 +311,27 @@ const EventCard = ({
           </div>
         </a>
 
-        <div className="pt-5 px-5 flex flex-col gap-2">
-          <h2 className={`text-heading-xs font-[600] leading-[1.125rem] duration-750 whitespace-nowrap overflow-hidden text-ellipsis ${isDarkMode ? "text-[#f59e0b]" : "text-header-black"}`}>
+        <div className="pt-5 px-5 flex flex-col gap-2 relative">
+          {isAdmin && (
+            <button
+              className="text-error absolute right-[3%] cursor-pointer duration-300 hover:translate-y-[1px] hover:text-red-500"
+              onClick={(e) => {
+                setDeleteModal(true)
+                e.stopPropagation();
+              }}
+            >
+              <Trash2 className="w-8 h-8" />
+            </button>
+          )}
+          <h2
+            className={`text-heading-xs font-[600] leading-[1.125rem] duration-750 whitespace-nowrap overflow-hidden text-ellipsis ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-black'}`}
+          >
             {name}
           </h2>
           <p
             className={`h-12 font-inter  text-body-m ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
           >
-            {shortDesc}
+            {shortenContent(shortDesc,43)}
           </p>
           <div
             className={`flex flex-col gap-2 font-inter text-body-s ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
@@ -342,14 +389,16 @@ const EventCard = ({
           </div>
         </div>
       </div>
-      <div className="flex justify-center py-[0.38rem] px-[0.75rem]">
-        {isEnded ? (
-          <p className="p-3">Completed</p>
+      <div onClick={(e) => e.stopPropagation()} className="flex justify-center py-[0.38rem] px-[0.75rem]">
+        {bannedRole ? <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" className="w-80" buttonName="Register" message="Cannot register while banned"  /> :
+        isEnded ? (
+          <p className={`p-3 ${isDarkMode && 'text-gray-300'}`}>Completed</p>
         ) : registered && isAuthenticated ? (
           <ButtonCancel
             isFull={true}
             onClick={handleRegistration}
             disabled={loading}
+
           >
             <img
               src="./src/assets/xIcon.svg"
@@ -370,6 +419,7 @@ const EventCard = ({
         )}
       </div>
     </div>
+    </>
   );
 };
 

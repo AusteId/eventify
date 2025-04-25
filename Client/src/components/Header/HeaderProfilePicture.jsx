@@ -3,7 +3,7 @@ import defaultAvatar from '../../assets/profile-picture.webp';
 import { useAuth } from '../Auth/AuthContext';
 
 const HeaderProfilePicture = () => {
-  const { avatar, isAuthenticated } = useAuth();
+  const { avatar, isAuthenticated, roles } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const prevAuthState = useRef(false);
 
@@ -39,7 +39,6 @@ const HeaderProfilePicture = () => {
 
     prevAuthState.current = isAuthenticated;
 
-    // Clear count when logging out
     if (!isAuthenticated) {
       setUnreadCount(0);
       return;

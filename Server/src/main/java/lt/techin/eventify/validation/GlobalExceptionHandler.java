@@ -98,5 +98,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String,String>> handleFileValidity(FileValidityException e) {
     return new ResponseEntity<>(Map.of("error",e.getMessage()),HttpStatus.BAD_REQUEST);
   }
+  @ExceptionHandler(UnauthorizedException.class)
+  public ResponseEntity<Map<String,String>> handleUnauthorized(UnauthorizedException e) {
+    return new ResponseEntity<>(Map.of("error",e.getMessage()),HttpStatus.UNAUTHORIZED);
+  }
 
 }

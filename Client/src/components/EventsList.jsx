@@ -9,12 +9,17 @@ import Pagination from './Pagination';
 import EventSearch from './search/EventSearch';
 import { useDarkMode } from './context/DarkModeContext.jsx';
 
-const EventsList = ({loading,setLoading}) => {
+const EventsList = ({  loading,
+                      setLoading,
+                      isAdmin = false,
+                      apiEndpoint = `${import.meta.env.VITE_BACK_URL}/api/events/search`,
+                      apiMapEndpoint = `${import.meta.env.VITE_BACK_URL}/api/events/map`}) => {
   
   const [events, setEvents] = useState([]);
   const [eventsForMap, setEventsForMap] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [refresh,setRefresh] = useState(0);
   const [searchParams, setSearchParams] = useState({
     searchTerm: '',
     filters: {
@@ -45,8 +50,9 @@ const EventsList = ({loading,setLoading}) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events/search`,
+          apiEndpoint,
           {
+            withCredentials: true,
             params: {
               page: currentPage,
               size: eventsPerPage,
@@ -91,15 +97,16 @@ const EventsList = ({loading,setLoading}) => {
     };
 
     fetchData();
-  }, [currentPage, searchParams]);
+  }, [currentPage, searchParams,refresh]);
 
   useEffect(() => {
     const fetchDataForMap = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/events/map`,
+          apiMapEndpoint,
           {
+            withCredentials: true,
             params: {
               searchTerm: searchParams.searchTerm || undefined,
               categoryName: searchParams.filters.categoryName || undefined,
@@ -181,7 +188,7 @@ const EventsList = ({loading,setLoading}) => {
       ) : (
         <div className="inline-grid tablet:grid-cols-2 desktop:grid-cols-3 justify-items-center gap-7">
           {events.map((event, index) => (
-            <EventCard key={index} {...event} />
+            <EventCard setRefresh={setRefresh} isAdmin={isAdmin} key={index} {...event} />
           ))}
         </div>
       )}

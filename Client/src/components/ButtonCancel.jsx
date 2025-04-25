@@ -1,3 +1,5 @@
+import { useDarkMode } from './context/DarkModeContext.jsx';
+
 const ButtonCancel = ({
   children,
   onClick,
@@ -12,11 +14,13 @@ const ButtonCancel = ({
     small: 'h-[2rem] px-2',
   };
 
+  const {isDarkMode} = useDarkMode();
+
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`${isFull ? 'w-full ' : ' '} text-[#EF4444] border-0 bg-[#FFF] text-[1rem] not-italic font-[400] rounded-[0.5rem] btn btn-soft hover:bg-[#fcf6b7] hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}
+      className={`${isFull ? 'w-full ' : ' '} ${isDarkMode ? "duration-750, bg-slate-600 text-gray-200 hover:bg-slate-700" : "text-[#EF4444] duration-200"}  border-0  text-[1rem] not-italic font-[400] rounded-[0.5rem] btn btn-soft hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}
     >
       {children}
     </button>
