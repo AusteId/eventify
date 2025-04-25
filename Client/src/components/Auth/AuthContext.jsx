@@ -107,6 +107,7 @@ export const AuthProvider = ({ children }) => {
           userId: userData.id || '',
           birthDate: userData.birthDate || null,
         });
+         setIsLoading(false);
       } else {
         setIsAuthenticated(false);
         setRoles([]);
@@ -114,6 +115,7 @@ export const AuthProvider = ({ children }) => {
         setBirthDate(null);
         sessionStorage.removeItem('plsStahp');
         localStorage.removeItem("rememberMe")
+        setIsLoading(false);
       }
     } catch (error) {
       toast.error(error.message || 'Failed to authenticate');

@@ -2,6 +2,7 @@ package lt.techin.eventify.controller;
 
 
 import jakarta.validation.Valid;
+import lt.techin.eventify.dto.ban.AdminCommentResponse;
 import lt.techin.eventify.dto.ban.BanRequest;
 import lt.techin.eventify.dto.ban.BanResponse;
 import lt.techin.eventify.dto.event.EventMapResponse;
@@ -40,15 +41,19 @@ public class AdminController {
     @GetMapping("/bans")
     public ResponseEntity<Page<BanResponse>> getBans(
             @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String username,
             @RequestParam(required = false) Long adminId,
+            @RequestParam(required = false) String adminName,
             @RequestParam(required = false) Boolean active,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDateAfter,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDateBefore,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDateAfter,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDateBefore,
-            @PageableDefault(size = 10, sort = "startTime", direction = Sort.Direction.DESC) Pageable pageable
-            ) {
-        return ResponseEntity.ok(adminService.getBansWithFilter(userId,adminId,active,startDateAfter,startDateBefore,endDateAfter,endDateBefore,pageable));
+            @PageableDefault(size = 10, sort = {"active","startTime"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(adminService.getBansWithFilter(userId, username, adminId, adminName, active,
+                startDateAfter,
+                startDateBefore, endDateAfter, endDateBefore, pageable));
     }
 
     @PatchMapping("/ban-user")
@@ -58,14 +63,15 @@ public class AdminController {
 
     @GetMapping("/bans/history/{userId}")
     public ResponseEntity<Page<BanResponse>> getUserBanHistory(@PathVariable Long userId,
-                                                               @PageableDefault(size = 15, sort = "endTime",direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(adminService.getUserBanHistory(userId,pageable));
+                                                               @PageableDefault(size = 15, sort = {"active","endTime"},
+                                                                       direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(adminService.getUserBanHistory(userId, pageable));
     }
 
-    @GetMapping("/bans/all")
-    public ResponseEntity<Page<UserBanResponse>> getAllBannedUsers(Pageable pageable) {
-        return ResponseEntity.ok(adminService.getCurrentlyBannedUsers(pageable));
-    }
+//    @GetMapping("/bans/all")
+//    public ResponseEntity<Page<UserBanResponse>> getAllBannedUsers(Pageable pageable) {
+//        return ResponseEntity.ok(adminService.getCurrentlyBannedUsers(pageable));
+//    }
 
     @PatchMapping("/unban/{banId}")
     public ResponseEntity<String> unbanUser(@PathVariable Long banId) {
@@ -82,8 +88,17 @@ public class AdminController {
     public ResponseEntity<Page<UserBanResponse>> getAllUsersPaged(
             @RequestParam(required = false) String searchTerm,
             @RequestParam(required = false, defaultValue = "true") boolean excludeAdmin,
-            @PageableDefault(size = 10, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(userService.getAllUsersPaged(searchTerm, excludeAdmin, pageable));
+    }
+
+    @GetMapping("/comments/creator/{userId}")
+    public ResponseEntity<Page<AdminCommentResponse>> getCommentsByCreator(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String searchTerm,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(adminService.getCommentsByUser(userId, searchTerm, pageable));
     }
 
     @GetMapping("/creator/{userId}")
@@ -104,6 +119,7 @@ public class AdminController {
         return ResponseEntity.ok(eventPage);
     }
 
+
     @GetMapping("/creator/{userId}/map")
     public ResponseEntity<List<EventMapResponse>> getEventsForMapByCreator(
             @PathVariable Long userId,
@@ -122,5 +138,10 @@ public class AdminController {
         );
 
         return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/{userId}/username")
+    public ResponseEntity<String> getUsername(@PathVariable Long userId) {
+        return ResponseEntity.ok(adminService.getUsersUsername(userId));
     }
 }

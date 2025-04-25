@@ -4,8 +4,11 @@ import java.time.LocalDateTime;
 
 public record BanResponse(Long userId,
                           Long adminId,
+                          Long banId,
                           String reason,
                           LocalDateTime start,
                           LocalDateTime end,
-                          Boolean isActive) {
+                          Boolean isActive,
+                          String adminName,
+                          String username) {
 }

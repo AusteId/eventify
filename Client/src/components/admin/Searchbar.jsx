@@ -1,27 +1,45 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
 
-const Searchbar = ({ onSearch, initialValue = '' }) => {
+const Searchbar = ({ onSearch, initialValue = '', placeholder }) => {
   const [searchTerm, setSearchTerm] = useState(initialValue);
   const { isDarkMode } = useDarkMode();
   const inputRef = useRef(null);
-
   const lastSearchRef = useRef(searchTerm);
+  const timerRef = useRef(null);
+  const wasEmptyRef = useRef(initialValue === '');
 
   useEffect(() => {
     if (searchTerm === lastSearchRef.current) return;
 
-    const timer = setTimeout(() => {
+    if (searchTerm === '' && !wasEmptyRef.current) {
+      clearTimeout(timerRef.current);
+      lastSearchRef.current = '';
+      wasEmptyRef.current = true;
+      onSearch('');
+      return;
+    }
+
+    if (searchTerm !== '') {
+      wasEmptyRef.current = false;
+    }
+
+    timerRef.current = setTimeout(() => {
       onSearch(searchTerm);
       lastSearchRef.current = searchTerm;
     }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timerRef.current);
   }, [searchTerm, onSearch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    clearTimeout(timerRef.current);
+    lastSearchRef.current = searchTerm;
     onSearch(searchTerm);
+    if (searchTerm === '') {
+      wasEmptyRef.current = true;
+    }
   };
 
   const handleChange = (e) => {
@@ -34,7 +52,7 @@ const Searchbar = ({ onSearch, initialValue = '' }) => {
         <input
           ref={inputRef}
           type="text"
-          placeholder="Search users by username..."
+          placeholder={placeholder}
           value={searchTerm}
           onChange={handleChange}
           className={`w-full px-4 py-3 pl-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-300
@@ -55,7 +73,7 @@ const Searchbar = ({ onSearch, initialValue = '' }) => {
         </div>
         <button
           type="submit"
-          className={`absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 rounded-md transition-all duration-300
+          className={`absolute cursor-pointer right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 rounded-md transition-all duration-750
             ${isDarkMode
             ? 'bg-slate-700 text-[#f59e0b] hover:bg-slate-600'
             : 'bg-[#F3E3C7] text-gray-800 hover:bg-[#DFA238]'}`}

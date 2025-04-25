@@ -2,13 +2,17 @@ import ProfileSVG from '../../assets/ProfileSVG.jsx';
 import MessageSVG from '../../assets/MessageSVG.jsx';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
 import { useNavigate } from 'react-router';
+import { useState } from 'react';
+import BanModal from './BanModal.jsx';
 
-const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId }) => {
+const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDropdown,setRefresh }) => {
   const { isDarkMode } = useDarkMode();
+  const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
     <>
+      {isBanModalOpen && <BanModal setRefresh={setRefresh} closeModal={() => setIsBanModalOpen(false)} userBanId={userId} username={username} />}
       {isDropdownOpen && (
         <>
           <div
@@ -27,7 +31,7 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId }) => {
               onClick={(e) => e.stopPropagation()}
             >
               <li
-                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md mb-2 ${
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
                   isDarkMode
                     ? 'hover:bg-slate-700 duration-300'
                     : 'hover:bg-gray-100 duration-150'
@@ -49,7 +53,7 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId }) => {
                     : 'hover:bg-gray-100 duration-150'
                 }`}
                 onClick={() => {
-                  navigate(`/chat/${userId}`);
+                  navigate(`/admin/user-comments/${userId}`);
                   setIsDropdownOpen(false);
                 }}
               >
@@ -58,6 +62,39 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId }) => {
                 </div>
                 <a className="font-medium">Comments</a>
               </li>
+              <li
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
+                  isDarkMode
+                    ? 'hover:bg-slate-700 duration-300'
+                    : 'hover:bg-gray-100 duration-150'
+                }`}
+                onClick={() => {
+                  navigate(`/admin/ban-history/${userId}`);
+                  setIsDropdownOpen(false);
+                }}
+              >
+                <div className="absolute left-[15%]">
+                  <MessageSVG />
+                </div>
+                <a className="font-medium">Ban History</a>
+              </li>
+              <li
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
+                  isDarkMode
+                    ? 'hover:bg-slate-700 duration-300'
+                    : 'hover:bg-gray-100 duration-150'
+                }`}
+                onClick={() => {
+                  setIsBanModalOpen(true);
+                  closeDropdown()
+                }}
+              >
+                <div className="absolute left-[15%]">
+                  <MessageSVG />
+                </div>
+                <a className="font-medium">Ban User</a>
+              </li>
+
             </ul>
           </div>
         </>

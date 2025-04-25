@@ -22,15 +22,19 @@ public interface BanRepository extends JpaRepository<Ban,Long> {
     Optional<Ban> findByUserAndActiveTrue(User user);
     @Query("SELECT b FROM Ban b WHERE " +
             "(:userId IS NULL OR b.user.id = :userId) AND " +
+            "(:username IS NULL OR LOWER(b.user.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND " +
             "(:adminId IS NULL OR b.admin.id = :adminId) AND " +
+            "(:adminUsername IS NULL OR LOWER(b.admin.username) LIKE LOWER(CONCAT('%', :adminUsername, '%'))) AND " +
             "(:active IS NULL OR b.active = :active) AND " +
             "(:startDateAfter IS NULL OR b.startTime >= :startDateAfter) AND " +
             "(:startDateBefore IS NULL OR b.startTime <= :startDateBefore) AND " +
             "(:endDateAfter IS NULL OR b.endTime >= :endDateAfter) AND " +
             "(:endDateBefore IS NULL OR b.endTime <= :endDateBefore)")
     Page<Ban> findWithFilters(
-            @Param("userid") Long userId,
+            @Param("userId") Long userId,
+            @Param("username") String username,
             @Param("adminId") Long adminId,
+            @Param("adminUsername") String adminUsername,
             @Param("active") Boolean active,
             @Param("startDateAfter") LocalDateTime startDateAfter,
             @Param("startDateBefore") LocalDateTime startDateBefore,

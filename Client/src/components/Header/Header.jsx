@@ -218,7 +218,7 @@ const Header = () => {
                         }`}
                         style={{ transition: 'background-color 750ms ease' }}
                       >
-                        {adminRole && (
+                        {(adminRole && location.pathname !== '/admin') ? (
                           <li
                             className={`relative flex justify-center py-1 cursor-pointer ${
                               isDarkMode
@@ -234,6 +234,23 @@ const Header = () => {
                               <AdminPanelSVG />
                             </div>
                             <a>Admin Panel</a>
+                          </li>
+                        ) : adminRole && (
+                          <li
+                            className={`relative flex justify-center py-1 cursor-pointer ${
+                              isDarkMode
+                                ? 'hover:bg-slate-600 duration-750'
+                                : 'hover:bg-gray-100 duration-150'
+                            }`}
+                            onClick={() => {
+                              navigate('/admin/ban-page');
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            <div className="absolute left-[5%]">
+                              <AdminPanelSVG />
+                            </div>
+                            <a>View All Bans</a>
                           </li>
                         )}
 

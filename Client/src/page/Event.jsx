@@ -275,7 +275,7 @@ const Event = () => {
         >
           {adminRole && (
             <button
-              className="text-error absolute right-[3%] cursor-pointer"
+              className="text-error absolute right-[3%] cursor-pointer duration-300 hover:translate-y-[1px] hover:text-red-500"
               onClick={secureClick}
             >
               <Trash2 className="w-8 h-8" />

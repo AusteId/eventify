@@ -24,7 +24,7 @@ const DeleteModal = ({
     >
       <div
         onClick={handleClick}
-        className={`duration-750 border flex justify-center flex-col p-10 ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'}`}
+        className={`duration-750 border rounded-2xl flex justify-center flex-col p-10 ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'}`}
       >
         <p className={`text-xl duration-750 text-center pb-6 ${isDarkMode ? "text-[#f59e0b]" : "text-header-darker"}`}>{warningMessage} {name}?</p>
         {api !== null && <div className="flex justify-center items-center pb-6"> <img className={"rounded-2xl w-40 "} src={`http://localhost:8080${api}`} alt={"image"} onError={(e) => {

@@ -29,11 +29,4 @@ public class UserMapper {
     return user;
   }
 
-  public UserBanResponse toDTO(User user) {
-    return new UserBanResponse(user.getId(),
-            user.getUsername(),
-            user.getEmail(),
-            user.getCity());
-  }
-
 }

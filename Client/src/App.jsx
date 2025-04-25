@@ -22,9 +22,12 @@ import BasicModal from './components/BasicModal';
 import CreateEventForm from './components/CreateEventForm';
 import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
-import DeleteModal from './components/DeleteModal.jsx';
 import AdminLayout from './components/admin/AdminLayout.jsx';
-import UserEvents from './components/admin/AdminEvents.jsx';
+import AdminEvents from './components/admin/AdminEvents.jsx';
+import AdminComments from './components/admin/AdminComments.jsx';
+import BanHistory from './components/admin/BanHistory.jsx';
+import BanPage from './components/admin/BanPage.jsx';
+import ProtectedRoutes from './components/Auth/ProtectedRoutes.jsx';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
@@ -34,15 +37,30 @@ function App() {
       <BasicModal id="event_creation_modal">
         <CreateEventForm />
       </BasicModal>
-    <DarkModeAutocompleteStyles/>
+      <DarkModeAutocompleteStyles />
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<AuthenticatedLayout />}>
             <Route index element={<Home />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Event />} />
-            <Route path="/admin" element={<AdminLayout />} />
-            <Route path="/admin/user-events/:userId" element={<UserEvents />} />
+
+            // Admin Access
+            <Route path="/admin" element={
+              <ProtectedRoutes requiredRoles={["ADMIN"]}>
+              <AdminLayout />
+              </ProtectedRoutes>
+            } />
+            <Route
+              path="/admin/user-events/:userId"
+              element={<AdminEvents />}
+            />
+            <Route
+              path="/admin/user-comments/:userId"
+              element={<AdminComments />}
+            />
+            <Route path="/admin/ban-history/:userId" element={<BanHistory />} />
+            <Route path="/admin/ban-page" element={<BanPage />} />
             <Route
               path="/login"
               element={
@@ -94,7 +112,6 @@ function App() {
             </Route>
             <Route path="/profile" element={<Profile />} />
             <Route path="/myRegistrations" element={<MyRegistrations />} />
-
             <Route
               path="/chat"
               element={

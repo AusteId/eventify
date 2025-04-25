@@ -11,12 +11,14 @@ import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
-import { Clock, MapPin, Timer, Users } from 'lucide-react';
+import { Clock, MapPin, Timer, Trash2, Users } from 'lucide-react';
 import { formatDistance } from 'date-fns';
 import { useDarkMode } from './context/DarkModeContext.jsx';
 import ThreePersonSVG from '../assets/threePersonSVG.jsx';
+import DeleteModal from './DeleteModal.jsx';
 
 const EventCard = ({
+  isAdmin = false,
   id,
   experienceLevel = 'All Welcome',
   isRegistered = 0,
@@ -31,6 +33,7 @@ const EventCard = ({
   isEnded,
   minAge,
   maxAge,
+  setRefresh
 }) => {
   const navigate = useNavigate();
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
@@ -38,12 +41,14 @@ const EventCard = ({
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [participants, setParticipants] = useState(currentParticipants ?? 0);
   const [loading, setLoading] = useState(false);
+  const [deleteModal,setDeleteModal] = useState(false);
   const {
     isAuthenticated,
     loading: authLoading,
     userId,
     birthDate,
     shortenContent,
+    authFetch
   } = useAuth() || {
     isAuthenticated: false,
     loading: false,
@@ -216,6 +221,25 @@ const EventCard = ({
           ? `Max age: ${maxAge}`
           : 'All Welcome!';
 
+  const deleteEvent = async () => {
+    try {
+      const response = await authFetch(`http://localhost:8080/api/events/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response && response.ok) {
+        toast.success('Event deleted successfully');
+        setDeleteModal(false);
+        setRefresh(prev => prev + 1);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error deleting event:', err);
+      return false;
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="flex justify-center items-center h-104 w-[22rem] desktop:max-w-[24.875rem]">
@@ -225,6 +249,17 @@ const EventCard = ({
   }
 
   return (
+    <>
+    {deleteModal && (
+      <DeleteModal buttonAccept={'Delete'}
+                   buttonCancel={'Cancel'}
+                   closeModal={() => setDeleteModal(false)}
+                   warningMessage={'Are you sure you want to delete '}
+                   api={`/api/events/${id}/picture`}
+                   name={name}
+                   onClick={deleteEvent}
+      />
+    )}
     <div
       onClick={() => navigate(`/events/${id}`)}
       className={`cursor-pointer flex mt-0.5 mb-6 flex-col justify-between border duration-750 rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'} ${isEnded && 'grayscale-100'}`}
@@ -272,7 +307,18 @@ const EventCard = ({
           </div>
         </a>
 
-        <div className="pt-5 px-5 flex flex-col gap-2">
+        <div className="pt-5 px-5 flex flex-col gap-2 relative">
+          {isAdmin && (
+            <button
+              className="text-error absolute right-[3%] cursor-pointer duration-300 hover:translate-y-[1px] hover:text-red-500"
+              onClick={(e) => {
+                setDeleteModal(true)
+                e.stopPropagation();
+              }}
+            >
+              <Trash2 className="w-8 h-8" />
+            </button>
+          )}
           <h2
             className={`text-heading-xs font-[600] leading-[1.125rem] duration-750 whitespace-nowrap overflow-hidden text-ellipsis ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-black'}`}
           >
@@ -368,6 +414,7 @@ const EventCard = ({
         )}
       </div>
     </div>
+    </>
   );
 };
 
