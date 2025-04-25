@@ -201,6 +201,23 @@ const Header = () => {
                     <DarkModeToggle />
                   </div>
                   <div className="relative flex items-center">
+                    {roles.some(role => role.name === 'ADMIN') && (
+                      <div
+                        className={`
+                                 absolute bottom-[-10%] right-[23%] select-none z-10 px-2 py-0.5 
+                                  text-xs font-bold rounded-full shadow-md
+                                  border transform translate-x-1/4
+                                        transition-colors duration-750
+                                          ${
+                                            isDarkMode
+                                              ? 'bg-slate-800 text-amber-400 border-amber-500'
+                                              : 'bg-white text-amber-600 border-amber-500'
+                                          }
+        `}
+                      >
+                        ADMIN
+                      </div>
+                    )}
                     <div
                       role="button"
                       className="p-1 hover:bg-advanced rounded-full cursor-pointer"

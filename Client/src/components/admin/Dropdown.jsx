@@ -1,9 +1,11 @@
-import ProfileSVG from '../../assets/ProfileSVG.jsx';
-import MessageSVG from '../../assets/MessageSVG.jsx';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import BanModal from './BanModal.jsx';
+import BanUserSVG from '../../assets/BanUserSVG.jsx';
+import BanHistorySVG from '../../assets/BanHistorySVG.jsx';
+import CommentsSVG from '../../assets/CommentsSVG.jsx';
+import EventsSVG from '../../assets/EventsSVG.jsx';
 
 const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDropdown,setRefresh }) => {
   const { isDarkMode } = useDarkMode();
@@ -42,7 +44,7 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                 }}
               >
                 <div className="absolute left-[15%]">
-                  <ProfileSVG />
+                  <EventsSVG />
                 </div>
                 <a className="font-medium">Events</a>
               </li>
@@ -58,7 +60,7 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                 }}
               >
                 <div className="absolute left-[15%]">
-                  <MessageSVG />
+                  <CommentsSVG />
                 </div>
                 <a className="font-medium">Comments</a>
               </li>
@@ -74,7 +76,7 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                 }}
               >
                 <div className="absolute left-[15%]">
-                  <MessageSVG />
+                  <BanHistorySVG />
                 </div>
                 <a className="font-medium">Ban History</a>
               </li>
@@ -90,7 +92,7 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                 }}
               >
                 <div className="absolute left-[15%]">
-                  <MessageSVG />
+                  <BanUserSVG />
                 </div>
                 <a className="font-medium">Ban User</a>
               </li>
