@@ -13,6 +13,7 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isSelected, setIsSelected] = useState(false);
+    const [isValidSelection, setIsValidSelection] = useState(true);
     const wrapperRef = useRef(null);
 
     useEffect(() => {
@@ -34,6 +35,7 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
             setSuggestions([]);
             setIsOpen(false);
             setIsSelected(false);
+            setIsValidSelection(true);
             setError(null);
             setValue('city', '');
             setValue('address', '');
@@ -92,21 +94,37 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
     }, [query, fetchSuggestions]);
 
     const handleSelect = (suggestion) => {
-        const { city, street, housenumber, formatted } = suggestion;
-        const address = housenumber ? `${street} ${housenumber}` : street || '';
+        console.log('Selected suggestion:', suggestion);
+        const { city, formatted } = suggestion;
+        const address = formatted
+        .replace(`, ${city}`, '')
+        .replace(/, Lietuva$/, '')
+        .trim();
+        // housenumber ? `${street} ${housenumber}` : street || '';
 
+        console.log('Formed address:', address);
         setValue('city', city || '');
         setValue('address', address || '');
         setQuery(formatted || '');
         setIsOpen(false);
         setIsSelected(true);
+        setIsValidSelection(true);
         triggerFetchCoordinates();
     };
 
     const handleChange = (event) => {
-        setQuery(event.target.value);
+        const newQuery = event.target.value;
+        setQuery(newQuery);
         setIsSelected(false);
-        if (!event.target.value) {
+
+        const selectedSuggestion = suggestions.find(s => s.formatted === newQuery);
+        if (newQuery && !selectedSuggestion) {
+            setIsValidSelection(false);
+        } else {
+            setIsValidSelection(true);
+        }
+
+        if (!newQuery) {
             setValue("city", "");
             setValue("address", "");
             setSuggestions([]);
@@ -117,12 +135,19 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
 
     return (
         <div ref={wrapperRef} className="relative w-full">
-            <label
-                className="block font-inter text-body-m font-bold mb-2"
-                htmlFor="event-address-autocomplete"
-            >
-                Address*
-            </label>
+            <div className="flex items-center gap-2">
+                <label
+                    className="block font-inter text-body-m font-bold mb-2"
+                    htmlFor="event-address-autocomplete"
+                >
+                    Address*
+                </label>
+                {!isValidSelection && query && (
+                    <span className="text-sm text-red-500 pb-1.5">
+                        Please select an address from the suggestions
+                    </span>
+                )}
+            </div>
             <input
                 id="event-address-autocomplete"
                 type="text"
@@ -133,27 +158,31 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
                     } h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             />
             {isLoading && <span className="absolute right-3 top-12">Loading...</span>}
-            {error && (
-                <span className="absolute right-3 top-12 text-red-500">{error}</span>
-            )}
-            {isOpen && suggestions.length > 0 && (
-                <ul
-                    className={`absolute z-10 w-full mt-1 border rounded-lg shadow-lg max-h-60 overflow-auto ${isDarkMode ? 'bg-slate-900 border-[#f59e0b] text-gray-200' : 'bg-white border-input-light text-header-dark'
-                        }`}
-                >
-                    {suggestions.map((suggestion, index) => (
-                        <li
-                            key={index}
-                            onClick={() => handleSelect(suggestion)}
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-200 ${isDarkMode && 'hover:bg-slate-600 hover:text-[#f59e0b]'
-                                }`}
-                        >
-                            {suggestion.formatted}
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+            {
+                error && (
+                    <span className="absolute right-3 top-12 text-red-500">{error}</span>
+                )
+            }
+            {
+                isOpen && suggestions.length > 0 && (
+                    <ul
+                        className={`absolute z-10 w-full mt-1 border rounded-lg shadow-lg max-h-60 overflow-auto ${isDarkMode ? 'bg-slate-900 border-[#f59e0b] text-gray-200' : 'bg-white border-input-light text-header-dark'
+                            }`}
+                    >
+                        {suggestions.map((suggestion, index) => (
+                            <li
+                                key={index}
+                                onClick={() => handleSelect(suggestion)}
+                                className={`px-4 py-2 cursor-pointer hover:bg-gray-200 ${isDarkMode && 'hover:bg-slate-600 hover:text-[#f59e0b]'
+                                    }`}
+                            >
+                                {suggestion.formatted.replace(/, Lietuva$/, "")}
+                            </li>
+                        ))}
+                    </ul>
+                )
+            }
+        </div >
     );
 };
 
