@@ -28,6 +28,7 @@ const CreateEventForm = () => {
       name: '',
       city: '',
       address: '',
+      fullAddress: '',
       startDateTime: null,
       endDateTime: null,
       category: 'Select Category',
@@ -150,6 +151,18 @@ const CreateEventForm = () => {
       onSubmit={handleSubmit(onSubmit)}
       className={`${isDarkMode ? 'bg-slate-900 text-gray-200' : 'text-header-dark'}`}
     >
+      <input
+        type="hidden"
+        {...register('fullAddress', {
+          validate: () => {
+            if (!city || !address) {
+              return 'Address is required';
+            }
+            return true;
+          },
+        })}
+      />
+      
       <div className="flex w-full items-center justify-between">
         <h1
           className={`font-inter text-heading-m font-bold ${isDarkMode && 'text-[#f59e0b]'}`}
@@ -241,68 +254,19 @@ const CreateEventForm = () => {
         </div>
       </div>
 
-
-
-      {/* <div className="flex mt-6 gap-6">
-        <div className="w-full">
-          <label
-            className="block font-inter text-body-m font-bold mb-2"
-            htmlFor="event-city"
-          >
-            City*
-          </label>
-          <input
-            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
-            id="event-city"
-            type="text"
-            placeholder=""
-            name="city"
-            {...register('city', {
-              required: 'City is required',
-              pattern: {
-                value:
-                  /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/,
-                message: 'Invalid city',
-              },
-            })}
-          />
-          <FieldValidationError>{errors.city?.message}</FieldValidationError>
-        </div>
-        <div className="w-full">
-          <label
-            className="block font-inter text-body-m font-bold mb-2"
-            htmlFor="event-address"
-          >
-            Address*
-          </label>
-          <input
-            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
-            id="event-address"
-            type="text"
-            placeholder=""
-            name="address"
-            {...register('address', {
-              required: 'Address is required',
-              pattern: {
-                value: /^[A-Za-ząčęėįšųūž\s\d,.-]+$/i,
-                message: 'Invalid address',
-              },
-            })}
-          />
-          <FieldValidationError>{errors.address?.message}</FieldValidationError>
-        </div>
-      </div> */}
-
-
       <div className="flex mt-6 gap-6">
-        <AddressAutocomplete
-          setValue={setValue}
-          triggerFetchCoordinates={fetchCoordinates}
-          resetAutocomplete={resetAutocomplete}
-          onResetComplete={() => setResetAutocomplete(false)}
-        />
+        <div className="w-full">
+          <AddressAutocomplete
+            setValue={setValue}
+            triggerFetchCoordinates={fetchCoordinates}
+            resetAutocomplete={resetAutocomplete}
+            onResetComplete={() => setResetAutocomplete(false)}
+          />
+          <FieldValidationError>
+            {errors.fullAddress?.message}
+          </FieldValidationError>
+        </div>
       </div>
-
 
       <div className="flex mt-6 gap-6">
         <div className="w-full">

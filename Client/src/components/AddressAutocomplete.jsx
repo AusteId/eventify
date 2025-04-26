@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useDarkMode } from "./context/DarkModeContext.jsx";
 import { useAuth } from "./Auth/AuthContext.jsx";
 import axios from "axios";
@@ -13,6 +13,20 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isSelected, setIsSelected] = useState(false);
+    const wrapperRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         if (resetAutocomplete) {
@@ -102,7 +116,7 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
     };
 
     return (
-        <div className="relative w-full">
+        <div ref={wrapperRef} className="relative w-full">
             <label
                 className="block font-inter text-body-m font-bold mb-2"
                 htmlFor="event-address-autocomplete"
