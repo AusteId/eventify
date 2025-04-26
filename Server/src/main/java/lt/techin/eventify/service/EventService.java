@@ -360,10 +360,6 @@ public class EventService {
 
     Page<Event> eventPage = eventRepository.findEventsByOrganizer(userId, pageable);
 
-//    if (eventPage.isEmpty()) {
-//      throw new EventNotFoundException("It looks like you haven't created any events so far. Why not create one now?");
-//    }
-
     return eventPage.map(eventMapper::toEventSummaryResponse);
   }
 
@@ -374,14 +370,10 @@ public class EventService {
 
     Page<Event> eventPage = eventRepository.findEventsByParticipant(userId, pageable);
 
-//    if (eventPage.isEmpty()) {
-//      throw new EventNotFoundException("It looks like you haven’t joined any events yet. Start by browsing upcoming events!");
-//    }
-
     return eventPage.map(eventMapper::toEventSummaryResponse);
   }
 
   public String findImageKeyById(Long eventId) {
-      return eventRepository.findImageKeyById(eventId);
+    return eventRepository.findImageKeyById(eventId);
   }
 }

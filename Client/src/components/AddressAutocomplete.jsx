@@ -94,15 +94,12 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
     }, [query, fetchSuggestions]);
 
     const handleSelect = (suggestion) => {
-        console.log('Selected suggestion:', suggestion);
         const { city, formatted } = suggestion;
         const address = formatted
         .replace(`, ${city}`, '')
         .replace(/, Lietuva$/, '')
         .trim();
-        // housenumber ? `${street} ${housenumber}` : street || '';
 
-        console.log('Formed address:', address);
         setValue('city', city || '');
         setValue('address', address || '');
         setQuery(formatted || '');

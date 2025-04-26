@@ -113,14 +113,12 @@ const CreateEventForm = () => {
   const onSubmit = async data => {
     closeModal();
     try {
-      console.log('Create event data: ', data);
       const response = await createEvent({
         ...data,
         categoryId: data.category,
         latitude: data.latitude,
         longitude: data.longitude,
       });
-      console.log('RESPONSE: ', response);
       toast.success('Event created successfully');
     } catch (error) {
       console.error('Event creation failed: ', error);
@@ -162,7 +160,7 @@ const CreateEventForm = () => {
           },
         })}
       />
-      
+
       <div className="flex w-full items-center justify-between">
         <h1
           className={`font-inter text-heading-m font-bold ${isDarkMode && 'text-[#f59e0b]'}`}
