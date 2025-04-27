@@ -10,10 +10,7 @@ import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.model.User;
 import lt.techin.eventify.repository.mysql.EventRepository;
-import lt.techin.eventify.service.EventService;
-import lt.techin.eventify.service.R2Service;
-import lt.techin.eventify.service.RegistrationToEventService;
-import lt.techin.eventify.service.UserService;
+import lt.techin.eventify.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +45,18 @@ public class EventController {
   private final UserService userService;
   private static final Logger logger = LoggerFactory.getLogger(EventController.class);
   private final R2Service r2Service;
+  private final AutocompleteService autocompleteService;
 
   @Autowired
-  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper, RegistrationToEventService registrationToEventService, UserService userService, R2Service r2Service) {
+  public EventController(EventService eventService, EventMapper eventMapper, RegistrationToEventMapper registrationToEventMapper,
+                         RegistrationToEventService registrationToEventService, UserService userService, AutocompleteService autocompleteService,
+                         R2Service r2Service) {
     this.eventService = eventService;
     this.eventMapper = eventMapper;
     this.registrationToEventMapper = registrationToEventMapper;
     this.registrationToEventService = registrationToEventService;
     this.userService = userService;
+    this.autocompleteService = autocompleteService;
     this.r2Service = r2Service;
   }
 
@@ -274,5 +275,12 @@ public class EventController {
     Page<EventSummaryResponse> eventPage = eventService.getUserRegisteredEvents(userId, pageable);
 
     return ResponseEntity.ok(eventPage);
+  }
+
+  @GetMapping("/autocomplete")
+  public ResponseEntity<List<AutocompleteResponse>> getAutocompleteSuggestions(@RequestParam String query) {
+
+    List<AutocompleteResponse> suggestions = autocompleteService.getAutocompleteSuggestions(query);
+    return ResponseEntity.ok(suggestions);
   }
 }

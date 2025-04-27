@@ -11,6 +11,7 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import Button from './Button';
 import CloseSVG from '../assets/CloseSVG';
 import { useDarkMode } from './context/DarkModeContext.jsx';
+import AddressAutocomplete from './AddressAutocomplete.jsx';
 
 const CreateEventForm = () => {
   const {
@@ -27,6 +28,7 @@ const CreateEventForm = () => {
       name: '',
       city: '',
       address: '',
+      fullAddress: '',
       startDateTime: null,
       endDateTime: null,
       category: 'Select Category',
@@ -47,6 +49,7 @@ const CreateEventForm = () => {
   const picture = watch('picture');
   const city = watch('city');
   const address = watch('address');
+  const [resetAutocomplete, setResetAutocomplete] = useState(false);
 
   const provider = new OpenStreetMapProvider();
 
@@ -83,17 +86,39 @@ const CreateEventForm = () => {
     fetchCoordinates();
   }, [city, address]);
 
+  const resetForm = () => {
+    reset({
+      picture: null,
+      name: '',
+      city: '',
+      address: '',
+      startDateTime: null,
+      endDateTime: null,
+      category: 'Select Category',
+      minAge: null,
+      maxAge: null,
+      maxParticipants: null,
+      description: '',
+      experienceLevel: 'Select Experience Level',
+      latitude: null,
+      longitude: null,
+    });
+    setResetAutocomplete(true);
+  };
+
+  useEffect(() => {
+    resetForm();
+  }, []);
+
   const onSubmit = async data => {
     closeModal();
     try {
-      console.log('Create event data: ', data);
       const response = await createEvent({
         ...data,
         categoryId: data.category,
         latitude: data.latitude,
         longitude: data.longitude,
       });
-      console.log('RESPONSE: ', response);
       toast.success('Event created successfully');
     } catch (error) {
       console.error('Event creation failed: ', error);
@@ -102,7 +127,7 @@ const CreateEventForm = () => {
   };
 
   const closeModal = () => {
-    reset();
+    resetForm();
     clearErrors();
     document.getElementById('event_creation_modal').close();
   };
@@ -124,6 +149,18 @@ const CreateEventForm = () => {
       onSubmit={handleSubmit(onSubmit)}
       className={`${isDarkMode ? 'bg-slate-900 text-gray-200' : 'text-header-dark'}`}
     >
+      <input
+        type="hidden"
+        {...register('fullAddress', {
+          validate: () => {
+            if (!city || !address) {
+              return 'Address is required';
+            }
+            return true;
+          },
+        })}
+      />
+
       <div className="flex w-full items-center justify-between">
         <h1
           className={`font-inter text-heading-m font-bold ${isDarkMode && 'text-[#f59e0b]'}`}
@@ -135,7 +172,7 @@ const CreateEventForm = () => {
           type="button"
           className={`w-10 h-10 ${isDarkMode}`}
         >
-          <CloseSVG/>
+          <CloseSVG />
         </button>
       </div>
       <div>
@@ -214,55 +251,21 @@ const CreateEventForm = () => {
           <FieldValidationError>{errors.level?.message}</FieldValidationError>
         </div>
       </div>
+
       <div className="flex mt-6 gap-6">
         <div className="w-full">
-          <label
-            className="block font-inter text-body-m font-bold mb-2"
-            htmlFor="event-city"
-          >
-            City*
-          </label>
-          <input
-            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
-            id="event-city"
-            type="text"
-            placeholder=""
-            name="city"
-            {...register('city', {
-              required: 'City is required',
-              pattern: {
-                value:
-                  /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/,
-                message: 'Invalid city',
-              },
-            })}
+          <AddressAutocomplete
+            setValue={setValue}
+            triggerFetchCoordinates={fetchCoordinates}
+            resetAutocomplete={resetAutocomplete}
+            onResetComplete={() => setResetAutocomplete(false)}
           />
-          <FieldValidationError>{errors.city?.message}</FieldValidationError>
-        </div>
-        <div className="w-full">
-          <label
-            className="block font-inter text-body-m font-bold mb-2"
-            htmlFor="event-address"
-          >
-            Address*
-          </label>
-          <input
-            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
-            id="event-address"
-            type="text"
-            placeholder=""
-            name="address"
-            {...register('address', {
-              required: 'Address is required',
-              pattern: {
-                value: /^[A-Za-ząčęėįšųūž\s\d,.-]+$/i,
-                message: 'Invalid address',
-              },
-            })}
-          />
-          <FieldValidationError>{errors.address?.message}</FieldValidationError>
+          <FieldValidationError>
+            {errors.fullAddress?.message}
+          </FieldValidationError>
         </div>
       </div>
+
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <label
