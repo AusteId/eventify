@@ -17,6 +17,11 @@ public interface EventQueryDslRepository {
                                             String endDateTime, String experienceLevel,
                                             Integer minAge, Integer maxAge, String searchTerm);
 
+  List<EventMapSummary> findAllEventsForMapByCreator(Long creatorId, String categoryName, String city,
+                                                     String startDateTime, String endDateTime,
+                                                     String experienceLevel, Integer minAge,
+                                                     Integer maxAge, String searchTerm);
+
   Page<Event> findEventsByOrganizer(Long userId, Pageable pageable);
 
   Page<Event> findEventsByParticipant(Long userId, Pageable pageable);

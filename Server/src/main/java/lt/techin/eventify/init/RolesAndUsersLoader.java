@@ -84,6 +84,9 @@ public class RolesAndUsersLoader implements CommandLineRunner {
     Role adminRole = roleRepository.findByName("ADMIN".toUpperCase())
             .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
 
+    roleRepository.findByName("BANNED".toUpperCase())
+            .orElseGet(() -> roleRepository.save(new Role("BANNED")));
+
     if (userRepository.findByUsername("User").isEmpty()) {
 
       User user = new User();

@@ -84,13 +84,17 @@ public class EventCommentController {
 
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<?> deleteComment(@PathVariable long id, Authentication authentication) {
+
         User user = userService.findByUsername(authentication.getName()).orElse(null);
         if (user == null) return ResponseEntity.badRequest().build();
 
         EventComment eventComment = eventCommentService.findById(id);
         if (eventComment == null) return ResponseEntity.notFound().build();
 
-        if ((eventComment.getUser() == user) || (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))) {
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().contains("ADMIN"));
+
+        if ((eventComment.getUser().getId() == user.getId()) || isAdmin) {
             eventCommentService.delete(id);
             return ResponseEntity.ok().build();
         } else {

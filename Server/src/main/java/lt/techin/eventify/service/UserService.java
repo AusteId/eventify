@@ -6,9 +6,12 @@ import lt.techin.eventify.exception.InvalidCredentialsException;
 import lt.techin.eventify.exception.UsernameAlreadyExistsException;
 import lt.techin.eventify.model.*;
 import lt.techin.eventify.repository.mongodb.MessageRepository;
+import lt.techin.eventify.repository.mysql.BanRepository;
 import lt.techin.eventify.repository.mysql.CategoryRepository;
 import lt.techin.eventify.repository.mysql.RoleRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,10 +34,11 @@ public class UserService {
   private final TokenService tokenService;
   private final MessageRepository messageRepository;
   private final R2Service r2Service;
+  private final BanRepository banRepository;
 
   public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper,
                      RoleRepository roleRepository, CategoryRepository categoryRepository, TokenService tokenService,
-                     MessageRepository messageRepository,R2Service r2Service) {
+                     MessageRepository messageRepository,R2Service r2Service, BanRepository banRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.userMapper = userMapper;
@@ -43,6 +47,7 @@ public class UserService {
     this.tokenService = tokenService;
     this.messageRepository = messageRepository;
     this.r2Service = r2Service;
+    this.banRepository = banRepository;
   }
 
   public boolean existsByUsername(String username) {
@@ -176,4 +181,23 @@ public class UserService {
       return Collections.emptyList();
     }
   }
+  public Page<UserBanResponse> getAllUsersPaged(String searchTerm, boolean excludeAdmin, Pageable pageable) {
+    return userRepository.findBySearchTermWithAdminExclusion(searchTerm, excludeAdmin, pageable)
+            .map(user -> {
+              Optional<Ban> activeBan = banRepository.findByUserAndActiveTrue(user);
+
+              return new UserBanResponse(
+                      user.getId(),
+                      user.getUsername(),
+                      user.getEmail(),
+                      user.getCity(),
+                      activeBan.isPresent(),
+                      activeBan.map(Ban::getEndTime).orElse(null),
+                      activeBan.map(Ban::getReason).orElse(null),
+                      activeBan.map(ban -> ban.getAdmin().getUsername()).orElse(null),
+                      activeBan.map(Ban::getId).orElse(null)
+              );
+            });
+  }
+
 }

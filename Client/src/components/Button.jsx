@@ -1,4 +1,5 @@
 const Button = ({
+  className,
   children,
   onClick,
   type = 'button',
@@ -21,7 +22,7 @@ const Button = ({
     <button
       type={type}
       onClick={onClick}
-      className={`${isFull ? 'w-full ' : ''} ${styleType} ${textColor || "text-white"} ${sizes[size]} ${background} ${border} text-4 not-italic font-[400] rounded-[0.5rem] btn btn-soft ${hoverColor} hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]  `}
+      className={`${isFull ? 'w-full ' : ''} ${className || ""} ${styleType} ${textColor || "text-white"} ${sizes[size]} ${background} ${border} text-4 not-italic font-[400] rounded-[0.5rem] btn btn-soft ${hoverColor} hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]  `}
     >
       {children}
     </button>
