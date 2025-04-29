@@ -6,12 +6,14 @@ import CategoryImage from '../category/CategoryImage';
 import LoadingScreen from '../message/LoadingScreen';
 import RegistrationSteps from '../RegistrationSteps';
 import toast from 'react-hot-toast';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const RegistrationThirdStep = forwardRef((props, ref) => {
   const { prevStep, nextStep } = useOutletContext();
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { isDarkMode } = useDarkMode();
 
 
   RegistrationThirdStep.displayName = 'RegistrationThirdStep';
