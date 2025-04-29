@@ -21,6 +21,9 @@ const CreateEventForm = () => {
     clearErrors,
     setValue,
     watch,
+    getValues,
+    setError,
+    trigger,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -50,6 +53,7 @@ const CreateEventForm = () => {
   const city = watch('city');
   const address = watch('address');
   const [resetAutocomplete, setResetAutocomplete] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const provider = new OpenStreetMapProvider();
 
@@ -86,6 +90,23 @@ const CreateEventForm = () => {
     fetchCoordinates();
   }, [city, address]);
 
+  useEffect(() => {
+    if (city || address) {
+      trigger('fullAddress');
+    }
+  }, [city, address, trigger]);
+
+  useEffect(() => {
+    if (picture) {
+      const newPreviewUrl = URL.createObjectURL(picture);
+      setPreviewUrl(newPreviewUrl);
+      return () => {
+        URL.revokeObjectURL(newPreviewUrl);
+      };
+    }
+    setPreviewUrl(null);
+  }, [picture]);
+
   const resetForm = () => {
     reset({
       picture: null,
@@ -104,6 +125,7 @@ const CreateEventForm = () => {
       longitude: null,
     });
     setResetAutocomplete(true);
+    setPreviewUrl(null);
   };
 
   useEffect(() => {
@@ -111,7 +133,7 @@ const CreateEventForm = () => {
   }, []);
 
   const onSubmit = async data => {
-    closeModal();
+    console.log('DATA: ', data);
     try {
       const response = await createEvent({
         ...data,
@@ -120,9 +142,20 @@ const CreateEventForm = () => {
         longitude: data.longitude,
       });
       toast.success('Event created successfully');
+      closeModal();
     } catch (error) {
       console.error('Event creation failed: ', error);
-      toast.error('Failed to create event');
+      if (error.response && error.response.data && error.response.data.violations) {
+        error.response.data.violations.forEach(violation => {
+          const fieldName = violation.field === 'categoryId' ? 'category' : violation.field;
+          setError(fieldName, {
+            type: 'manual',
+            message: violation.message,
+          });
+        });
+      } else {
+        toast.error('Failed to create event: An unexpected error occurred');
+      }
     }
   };
 
@@ -146,6 +179,7 @@ const CreateEventForm = () => {
 
   return (
     <form
+      noValidate
       onSubmit={handleSubmit(onSubmit)}
       className={`${isDarkMode ? 'bg-slate-900 text-gray-200' : 'text-header-dark'}`}
     >
@@ -207,7 +241,7 @@ const CreateEventForm = () => {
             {...register('name', {
               required: 'Event title is required',
               pattern: {
-                value: /^[A-Za-z0-9\s'-]+$/,
+                value: /^[A-Za-zĄČĘĖĮŠŲŪŽąčęėįšųūž0-9\s'-]+$/,
                 message: 'Event title can only contain letters and numbers',
               },
               minLength: {
@@ -220,7 +254,7 @@ const CreateEventForm = () => {
               },
             })}
           />
-          <FieldValidationError>{errors.title?.message}</FieldValidationError>
+          <FieldValidationError>{errors.name?.message}</FieldValidationError>
         </div>
         <div className="w-full">
           <label
@@ -248,7 +282,7 @@ const CreateEventForm = () => {
             <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Extreme</option>
             <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>All Welcome</option>
           </select>
-          <FieldValidationError>{errors.level?.message}</FieldValidationError>
+          <FieldValidationError>{errors.experienceLevel?.message}</FieldValidationError>
         </div>
       </div>
 
@@ -280,14 +314,23 @@ const CreateEventForm = () => {
             type="datetime-local"
             placeholder=""
             name="startDateTime"
+            onChange={e => {
+              e.target.blur();
+            }}
             {...register('startDateTime', {
               required: 'Start date is required',
+              validate: value => {
+                const date = new Date(value);
+                const now = new Date();
+                return date > now || 'Start date must be in the future';
+              },
             })}
           />
           <FieldValidationError>
             {errors.startDateTime?.message}
           </FieldValidationError>
         </div>
+
         <div className="w-full">
           <label
             className="block font-inter text-body-m font-bold mb-2"
@@ -297,12 +340,27 @@ const CreateEventForm = () => {
           </label>
           <input
             className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
-            id="event-date-ende"
+            id="event-date-end"
             type="datetime-local"
             placeholder=""
             name="endDateTime"
+            onChange={e => {
+              e.target.blur();
+            }}
             {...register('endDateTime', {
               required: 'End date is required',
+              validate: value => {
+                const endDate = new Date(value);
+                const startDate = new Date(getValues('startDateTime'));
+                const now = new Date();
+                if (endDate <= now) {
+                  return 'End date must be in the future';
+                }
+                if (endDate <= startDate) {
+                  return 'End date must be after start date';
+                }
+                return true;
+              },
             })}
           />
           <FieldValidationError>
@@ -356,17 +414,19 @@ const CreateEventForm = () => {
             min={0}
             max={120}
             {...register('minAge', {
-              minLength: {
+              min: {
                 value: 0,
                 message: 'Minimum age must be 0 or above',
               },
-              maxLength: {
+              max: {
                 value: 120,
                 message: 'Minmum age cannot exceed 120',
               },
             })}
           />
+          <FieldValidationError>{errors.minAge?.message}</FieldValidationError>
         </div>
+
         <div className="w-full">
           <label
             className="block font-inter text-body-m font-bold mb-2"
@@ -383,17 +443,26 @@ const CreateEventForm = () => {
             min={0}
             max={120}
             {...register('maxAge', {
-              minLength: {
+              min: {
                 value: 0,
                 message: 'Maximum age must be 0 or above',
               },
-              maxLength: {
+              max: {
                 value: 120,
                 message: 'Maximum age cannot exceed 120',
               },
+              validate: value => {
+                const minAge = parseInt(getValues("minAge"));
+                if (value && minAge && value < minAge) {
+                  return 'Maximum age cannot be less than minimum age';
+                }
+                return true;
+              }
             })}
           />
+          <FieldValidationError>{errors.maxAge?.message}</FieldValidationError>
         </div>
+
         <div className="w-full">
           <label
             className="block font-inter text-body-m font-bold mb-2"
@@ -411,9 +480,17 @@ const CreateEventForm = () => {
             max={1000}
             {...register('maxParticipants', {
               required: 'Maximum Participants is required',
+              min: {
+                value: 1,
+                message: 'Event must have at least 1 participant'
+              },
+              max: {
+                value: 1000,
+                message: 'Event cannot have more than 1000 participants'
+              },
             })}
           />
-          <FieldValidationError>{errors.maxp?.message}</FieldValidationError>
+          <FieldValidationError>{errors.maxParticipants?.message}</FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6">
