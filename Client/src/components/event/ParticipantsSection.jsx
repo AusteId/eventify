@@ -18,7 +18,7 @@ const ParticipantsSection = ({ organizer, participants }) => {
         <h2 className={`leading-5 text-heading-s font-[600] ${isDarkMode && "text-gray-200"}`}>Organizer</h2>
         <Participant 
         name={shortenContent(organizer.username,25)}
-        profileImg={organizer.avatar}
+        userId={organizer.id}
         isDarkMode={isDarkMode}
         />
       </div>
@@ -35,6 +35,7 @@ const ParticipantsSection = ({ organizer, participants }) => {
                 <Participant
                   name={shortenContent(participant.username,15)}
                   profileImg={participant.avatar}
+                  userId={participant.id}
                   key={index}
                 />
               ))}

@@ -1,20 +1,51 @@
+import { useEffect, useState } from 'react';
 import { PiStarFill } from 'react-icons/pi';
 
 const Participant = ({
   name,
   rating,
-  organizerId,
+  userId,
   isDarkMode,
 }) => {
 // {`http://localhost:8080/api/users/${id}/avatar`}
 
+const [avatarUrl, setAvatarUrl] = useState(null);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchAvatar = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/users/${userId}/avatar`);
+        if (response.ok) {
+          const blob = await response.blob();
+          const imageUrl = URL.createObjectURL(blob);
+          setAvatarUrl(imageUrl);
+        } else {
+          setAvatarUrl('https://cdn-icons-png.flaticon.com/512/3135/3135715.png');
+        }
+      } catch (err) {
+        console.error('Avatar fetch error:', err);
+        setAvatarUrl('https://cdn-icons-png.flaticon.com/512/3135/3135715.png');
+      }
+    };
+
+    fetchAvatar();
+
+    return () => {
+      if (avatarUrl) {
+        URL.revokeObjectURL(avatarUrl);
+      }
+    };
+  }, [userId]);
+
   return (
     <div className="flex justify-between max-h-14 items-center gap-3 p-2">
       <div className="flex items-center gap-3">
-        <div className="h-14">
+        <div className="h-14 w-14">
           {' '}
           <img
-            src={`http://localhost:8080/api/users/${organizerId}/avatar`}
+            src={avatarUrl}
             onError={e => {
               e.target.onerror = null;
               e.target.src =
