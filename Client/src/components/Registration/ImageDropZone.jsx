@@ -29,6 +29,10 @@ const ImageDropzone = ({
   const [error, setError] = useState(null);
   const { isDarkMode } = useDarkMode();
 
+  useEffect(() => {
+    setFilePreview(initialPreview);
+  }, [initialPreview]);
+
   const validateFile = file => {
     if (!file) return null;
     if (!acceptedTypes.includes(file.type)) {
@@ -62,7 +66,6 @@ const ImageDropzone = ({
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: acceptedTypes.reduce((acc, type) => {
-      // Create accept object for react-dropzone
       if (type === 'image/jpeg') {
         acc[type] = ['.jpeg', '.jpg'];
       } else if (type === 'image/png') {
@@ -81,13 +84,11 @@ const ImageDropzone = ({
     };
   }, [filePreview, initialPreview]);
 
-  // Update preview if initialPreview changes
-
-
   const removeFile = e => {
     e.stopPropagation();
     setFilePreview(null);
     setError(null);
+    onFileChange(null, fieldName);
   };
 
   return (
@@ -95,15 +96,13 @@ const ImageDropzone = ({
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <section
-        className={`w-full flex justify-center items-center rounded-2xl p-8 duration-750 ${
-          isDarkMode ? 'bg-slate-600' : 'bg-white'
-        } ${customClasses.container || ''}`}
+        className={`w-full flex justify-center items-center rounded-2xl p-8 duration-750 ${isDarkMode ? 'bg-slate-600' : 'bg-white'
+          } ${customClasses.container || ''}`}
       >
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%] duration-750 ${
-            isDarkMode ? 'border-[#f59e0b]' : 'border-btn'
-          } ${customClasses.dropzone || ''}`}
+          className={`border-2 border-dashed p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%] duration-750 ${isDarkMode ? 'border-[#f59e0b]' : 'border-btn'
+            } ${customClasses.dropzone || ''}`}
         >
           <input {...getInputProps()} />
           {filePreview ? (
@@ -146,23 +145,20 @@ const ImageDropzone = ({
                 className={`w-16 h-12 ${isDarkMode ? 'none' : 'none'}`}
               />
               <p
-                className={`text-heading-xs font-semibold pt-2 pb-4 duration-750 ${
-                  isDarkMode ? 'text-gray-200' : 'text-header-dark'
-                }`}
+                className={`text-heading-xs font-semibold pt-2 pb-4 duration-750 ${isDarkMode ? 'text-gray-200' : 'text-header-dark'
+                  }`}
               >
                 Drag and drop your photo here
               </p>
               <p
-                className={`text-body-s font-normal pb-4 duration-750 ${
-                  isDarkMode ? 'text-gray-300' : 'text-body-medium'
-                }`}
+                className={`text-body-s font-normal pb-4 duration-750 ${isDarkMode ? 'text-gray-300' : 'text-body-medium'
+                  }`}
               >
                 or click to browse from your computer
               </p>
               <small
-                className={`text-body-s font-normal pb-8 duration-750 ${
-                  isDarkMode ? 'text-gray-400' : 'text-body-medium'
-                }`}
+                className={`text-body-s font-normal pb-8 duration-750 ${isDarkMode ? 'text-gray-400' : 'text-body-medium'
+                  }`}
               >
                 Supported formats:{' '}
                 {acceptedTypes
