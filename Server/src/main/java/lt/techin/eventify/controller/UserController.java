@@ -7,6 +7,7 @@ import lt.techin.eventify.model.User;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.R2Service;
 import lt.techin.eventify.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -118,6 +119,11 @@ public class UserController {
             "User Not Found"));
     UserResponse userResponse = userMapper.toUserResponse(user);
     return ResponseEntity.ok(userResponse);
+  }
+
+  @GetMapping("/{userId}")
+  public ResponseEntity<UserResponse> getUser(@PathVariable long userId) {
+    return ResponseEntity.ok(userMapper.toUserResponse(userService.findById(userId)));
   }
 
   @GetMapping("/check-availability")

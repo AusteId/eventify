@@ -73,6 +73,7 @@ public class SecurityConfig {
 //                        .hasAnyAuthority("ADMIN")
                             .requestMatchers(HttpMethod.POST,"/api/messages/{senderId}/{recipientId}").permitAll()
                             .requestMatchers(HttpMethod.GET,"/api/messages/{senderId}/{recipientId}").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/users/{userId}").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/{userId}/events").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/comments").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/users/comments/{id}").permitAll()

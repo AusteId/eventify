@@ -1,6 +1,32 @@
 import InterestsSection from '../components/InterestsSection';
 import CommentSection from '../components/CommentSection';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import axios from 'axios';
 const Profile = () => {
+  const [profileData, SetProfileData] = useState([])
+  const {userId} = useParams()
+
+  useEffect(() => {
+    const getProfileData = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/users/${userId}`
+        );
+
+        console.log(response.data)
+
+        SetProfileData(response.data)
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+        return "no"
+      }
+    };
+    getProfileData()
+  }, [userId])
+  
+
+
   return (
     <div className="flex min-h-screen">
       <div className="tablet:w-224 mx-auto">
@@ -9,13 +35,17 @@ const Profile = () => {
             <div className="flex w-full h-32">
               <img
                 className="w-32 h-32 rounded-full"
-                src="src/assets/avatar.png"
+                src={`http://localhost:8080/api/users/${userId}/avatar`}
                 alt="Avatar"
+                onError={e => {
+                  e.target.onerror = null;
+                  e.target.src = "../src/assets/avatar.png"
+                }}
               />
               <div className="ml-8">
                 <div className="flex items-center">
                   <h1 className="text-header-dark font-inter font-bold text-heading-m">
-                    Sarah Mitchell
+                    {profileData.username}
                   </h1>
                   <p className="text-[#6B7280] font-inter items-baseline ml-3">
                     28
@@ -23,17 +53,17 @@ const Profile = () => {
                 </div>
                 <div className="flex items-center">
                   <p className="font-inter text-body-medium">
-                    sarah.mitchell@gmail.com
+                    {profileData.email}
                   </p>
                 </div>
                 <div className="flex items-center mt-4">
                   <p className="font-inter text-body-medium">General</p>
                   <div className="flex items-center align-middle ml-15">
-                    <img className="" src="src/assets/star.svg" alt="Star" />
-                    <img className="" src="src/assets/star.svg" alt="Star" />
-                    <img className="" src="src/assets/star.svg" alt="Star" />
-                    <img className="" src="src/assets/star.svg" alt="Star" />
-                    <img className="" src="src/assets/star.svg" alt="Star" />
+                    <img className="" src="../src/assets/star.svg" alt="Star" />
+                    <img className="" src="../src/assets/star.svg" alt="Star" />
+                    <img className="" src="../src/assets/star.svg" alt="Star" />
+                    <img className="" src="../src/assets/star.svg" alt="Star" />
+                    <img className="" src="../src/assets/star.svg" alt="Star" />
                   </div>
                   <p className="font-inter text-body-medium ml-4">(5.0)</p>
                 </div>
@@ -44,13 +74,10 @@ const Profile = () => {
                 About Me
               </h1>
               <p className="text-body-medium font-inter">
-                Adventure enthusiast and social butterfly! I love organizing
-                group activities and meeting new people. Always up for trying
-                new experiences and creating memorable moments with fellow
-                event-goers.
+                {profileData.description || "No description provided."}
               </p>
             </div>
-            <InterestsSection />
+            <InterestsSection categories={profileData.favoriteEventCategories} />
           </div>
         </div>
         <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
