@@ -220,7 +220,7 @@ const CreateEventForm = () => {
               },
             })}
           />
-          <FieldValidationError>{errors.title?.message}</FieldValidationError>
+          <FieldValidationError>{errors.name?.message}</FieldValidationError>
         </div>
         <div className="w-full">
           <label
@@ -248,7 +248,7 @@ const CreateEventForm = () => {
             <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Extreme</option>
             <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>All Welcome</option>
           </select>
-          <FieldValidationError>{errors.level?.message}</FieldValidationError>
+          <FieldValidationError>{errors.experienceLevel?.message}</FieldValidationError>
         </div>
       </div>
 
@@ -413,7 +413,7 @@ const CreateEventForm = () => {
               required: 'Maximum Participants is required',
             })}
           />
-          <FieldValidationError>{errors.maxp?.message}</FieldValidationError>
+          <FieldValidationError>{errors.maxParticipants?.message}</FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6">
