@@ -3,8 +3,10 @@ import CommentSection from '../components/CommentSection';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import axios from 'axios';
+import NotFound from './NotFound';
 const Profile = () => {
   const [profileData, SetProfileData] = useState([])
+  const [userFound, setUserFound] = useState(true)
   const {userId} = useParams()
 
   useEffect(() => {
@@ -13,19 +15,21 @@ const Profile = () => {
         const response = await axios.get(
           `${import.meta.env.VITE_BACK_URL}/api/users/${userId}`
         );
-
         console.log(response.data)
-
         SetProfileData(response.data)
       } catch (error) {
         console.error('Error fetching user details:', error);
-        return "no"
+        setUserFound(false)
       }
     };
     getProfileData()
   }, [userId])
-  
 
+  if (!userFound) {
+    return (
+      <NotFound/>
+    )
+  }
 
   return (
     <div className="flex min-h-screen">

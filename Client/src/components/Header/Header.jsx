@@ -24,7 +24,7 @@ import MessageNavItem from './MessageNavItem.jsx';
 
 const Header = () => {
   const [activeLink, setActiveLink] = useState('');
-  const { isAuthenticated, logout, roles } = useAuth();
+  const { isAuthenticated, logout, roles, userId } = useAuth();
   const { isDarkMode } = useDarkMode();
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -279,7 +279,7 @@ const Header = () => {
                               : 'hover:bg-gray-100 duration-150'
                           }`}
                           onClick={() => {
-                            navigate('/profile/my');
+                            navigate('/profile/' + userId);
                             setIsDropdownOpen(false);
                           }}
                         >
