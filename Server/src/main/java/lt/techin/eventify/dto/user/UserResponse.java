@@ -14,6 +14,8 @@ public record UserResponse(
         LocalDate birthDate,
         String description,
         Set<Category> favoriteEventCategories,
-        Set<Role> roles
+        Set<Role> roles,
+        Double averageRating,
+        Integer ratingCount
 ) {
 }

@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,6 +104,11 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(AutocompleteException.class)
   public ResponseEntity<Map<String, String>> handleAutocompleteException(AutocompleteException e) {
+    return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(RatingAlreadyExistsException.class)
+  public ResponseEntity<Map<String, String>> handleRatingAlreadyExistsException(RatingAlreadyExistsException e) {
     return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 }

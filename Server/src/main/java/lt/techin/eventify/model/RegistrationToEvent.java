@@ -2,7 +2,6 @@ package lt.techin.eventify.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lt.techin.eventify.dto.event.EventResponse;
 
 import java.time.LocalDateTime;
 

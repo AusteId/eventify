@@ -58,7 +58,6 @@ public class User implements UserDetails {
           joinColumns = @JoinColumn(name = "user_id"),
           inverseJoinColumns = @JoinColumn(name = "category_id")
   )
-
   private Set<Category> favoriteEventCategories;
 
   @OneToMany
@@ -83,13 +82,21 @@ public class User implements UserDetails {
           })
   private Set<Role> roles = new HashSet<>();
 
-@OneToMany(mappedBy = "user")
-private List<Ban> bans;
-
+  @OneToMany(mappedBy = "user")
+  private List<Ban> bans;
 
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private Set<RegistrationToEvent> registrations = new HashSet<>();
+
+  @Column
+  private Double averageRating;
+
+  @Column
+  private Integer ratingCount;
+
+  @OneToMany(mappedBy = "organizer", fetch = FetchType.LAZY)
+  private List<Rating> receivedRatings;
 
   public User(String username, String email, String password, String city, LocalDate birthDate, String description,
               Set<Category> favoriteEventCategories, Set<Role> roles) {
