@@ -9,8 +9,8 @@ const InterestsSection = ({categories}) => {
       <h1 className="text-header-dark font-inter font-bold text-heading-s">
         Interests
       </h1>
-      {categories != null ?
-        <div className="flex flex-wrap items-center pt-4 gap-2">
+      {categories?.length != 0 ?
+        <div className="flex flex-wrap items-center pt-6 gap-2">
         {categories?.map(category => (
           <CategoryTag
             img={"data:image/png;base64," + category.icon.data}
@@ -18,7 +18,7 @@ const InterestsSection = ({categories}) => {
             key={category.id}
           />
         ))}
-      </div> : "User did not provide any interests"
+      </div> : <p className="text-body-medium font-inter pt-6">No interests provided.</p>
       }
     </div>
   );

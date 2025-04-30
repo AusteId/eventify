@@ -56,8 +56,8 @@ public class ProfileCommentController {
     return ResponseEntity.ok(commentResponses);
   }
 
-  @PostMapping("{userId}/comments")
-  public ResponseEntity<ProfileCommentResponse> postComment(@PathVariable long userId, @Valid @RequestBody CreateProfileCommentRequest dto, Authentication authentication) {
+  @PostMapping("/{userId}/comments")
+  public ResponseEntity<ProfileCommentResponse> postComment(@Valid @RequestBody CreateProfileCommentRequest dto, @PathVariable long userId, Authentication authentication) {
     User user = userService.findByUsername(authentication.getName()).orElse(null);
     if (user == null) return ResponseEntity.badRequest().build();
 

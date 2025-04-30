@@ -44,7 +44,7 @@ const Comment = props => {
 
     const del = async () => {
       try {
-        const response = await api.delete(`/events/comments/${props.id}`);
+        const response = await api.delete(props.editPoint + props.id);
         console.log("Success!");
       } catch (err) {
         console.error('Error:', err);
@@ -80,7 +80,7 @@ const Comment = props => {
 
     const edit = async () => {
       try {
-        const response = await api.patch(`/events/comments/` + props.id, {
+        const response = await api.patch(props.editPoint + props.id, {
           comment: data.comment,
         });
         console.log(response.data);

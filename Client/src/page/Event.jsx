@@ -501,6 +501,7 @@ whitespace-normal
                 <CommentSection
                   contextId={userId}
                   endpoint={'/events/' + event.id + '/comments'}
+                  editPoint={"/events/comments/"}
                 />
               </div>
             </div>

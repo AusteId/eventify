@@ -4,16 +4,19 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import axios from 'axios';
 import NotFound from './NotFound';
+import { useAuth } from '../components/Auth/AuthContext';
+
 const Profile = () => {
   const [profileData, SetProfileData] = useState([])
   const [userFound, setUserFound] = useState(true)
-  const {userId} = useParams()
+  const {pUserId} = useParams()
+  const {userId} = useAuth();
 
   useEffect(() => {
     const getProfileData = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/users/${userId}`
+          `${import.meta.env.VITE_BACK_URL}/api/users/${pUserId}`
         );
         console.log(response.data)
         SetProfileData(response.data)
@@ -23,13 +26,25 @@ const Profile = () => {
       }
     };
     getProfileData()
-  }, [userId])
+  }, [pUserId])
 
   if (!userFound) {
     return (
       <NotFound/>
     )
   }
+
+  function calculateAge(birthDate) {
+      const today = new Date();
+      const birth = new Date(birthDate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDifference = today.getMonth() - birth.getMonth();
+      
+      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
+      age--;
+      }
+      return age;
+    }
 
   return (
     <div className="flex min-h-screen">
@@ -39,7 +54,7 @@ const Profile = () => {
             <div className="flex w-full h-32">
               <img
                 className="w-32 h-32 rounded-full"
-                src={`http://localhost:8080/api/users/${userId}/avatar`}
+                src={`http://localhost:8080/api/users/${pUserId}/avatar`}
                 alt="Avatar"
                 onError={e => {
                   e.target.onerror = null;
@@ -52,7 +67,7 @@ const Profile = () => {
                     {profileData.username}
                   </h1>
                   <p className="text-[#6B7280] font-inter items-baseline ml-3">
-                    28
+                    {calculateAge(profileData.birthDate)}
                   </p>
                 </div>
                 <div className="flex items-center">
@@ -85,7 +100,7 @@ const Profile = () => {
           </div>
         </div>
         <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
-          <CommentSection />
+          <CommentSection contextId={userId} endpoint={'/users/' + pUserId + '/comments'} editPoint={"/users/comments/"} />
         </div>
       </div>
     </div>
