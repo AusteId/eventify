@@ -1,7 +1,8 @@
 package lt.techin.eventify.controller;
 
+import jakarta.validation.Valid;
 import lt.techin.eventify.dto.rating.RatingMapper;
-import lt.techin.eventify.dto.rating.RatingResponse;
+import lt.techin.eventify.dto.rating.RatingRequest;
 import lt.techin.eventify.dto.rating.RatingSummaryResponse;
 import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.User;
@@ -28,12 +29,12 @@ public class RatingController {
   }
 
   @PostMapping
-  public ResponseEntity<Void> createRating(@RequestBody RatingResponse ratingResponse) {
+  public ResponseEntity<Void> createRating(@Valid @RequestBody RatingRequest ratingRequest) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User rater = userService.findByUsername(authentication.getName())
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    ratingService.createRating(ratingResponse, rater.getId());
+    ratingService.createRating(ratingRequest, rater.getId());
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 

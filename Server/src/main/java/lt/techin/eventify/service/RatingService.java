@@ -1,7 +1,7 @@
 package lt.techin.eventify.service;
 
 import lt.techin.eventify.dto.rating.RatingMapper;
-import lt.techin.eventify.dto.rating.RatingResponse;
+import lt.techin.eventify.dto.rating.RatingRequest;
 import lt.techin.eventify.exception.RatingAlreadyExistsException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.Rating;
@@ -27,21 +27,21 @@ public class RatingService {
     this.ratingMapper = ratingMapper;
   }
 
-  public Rating createRating(RatingResponse ratingResponse, Long raterId) {
+  public Rating createRating(RatingRequest ratingRequest, Long raterId) {
 
-    ratingRepository.findByRaterIdAndEventId(raterId, ratingResponse.eventId())
+    ratingRepository.findByRaterIdAndEventId(raterId, ratingRequest.eventId())
             .ifPresent(rating -> {
               throw new RatingAlreadyExistsException("You have already rated this event");
             });
 
     User rater = userRepository.findById(raterId)
             .orElseThrow(() -> new IllegalArgumentException("Rater with ID " + raterId + " not found"));
-    User organizer = userRepository.findById(ratingResponse.organizerId())
-            .orElseThrow(() -> new IllegalArgumentException("Organizer with ID " + ratingResponse.organizerId() + " not found"));
-    Event event = eventRepository.findById(ratingResponse.eventId())
-            .orElseThrow(() -> new IllegalArgumentException("Event with ID " + ratingResponse.eventId() + " not found"));
+    User organizer = userRepository.findById(ratingRequest.organizerId())
+            .orElseThrow(() -> new IllegalArgumentException("Organizer with ID " + ratingRequest.organizerId() + " not found"));
+    Event event = eventRepository.findById(ratingRequest.eventId())
+            .orElseThrow(() -> new IllegalArgumentException("Event with ID " + ratingRequest.eventId() + " not found"));
 
-    Rating rating = ratingMapper.toRating(ratingResponse, rater, organizer, event);
+    Rating rating = ratingMapper.toRating(ratingRequest, rater, organizer, event);
     ratingRepository.save(rating);
     updateOrganizerRating(organizer, rating.getRating());
 

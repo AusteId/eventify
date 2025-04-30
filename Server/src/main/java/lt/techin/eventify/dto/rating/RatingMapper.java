@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class RatingMapper {
 
-  public Rating toRating(RatingResponse dto, User rater, User organizer, Event event) {
+  public Rating toRating(RatingRequest dto, User rater, User organizer, Event event) {
     Rating rating = new Rating();
     rating.setRating(dto.rating());
     rating.setRater(rater);
