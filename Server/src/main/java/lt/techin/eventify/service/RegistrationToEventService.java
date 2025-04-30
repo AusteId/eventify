@@ -90,11 +90,7 @@ public class RegistrationToEventService {
 
 
     Event event = eventService.findEventById(eventId);
-
-//        if (LocalDateTime.now().isAfter(event.getStartDateTime())) {
-//            throw new RuntimeException("Cannot cancel registration after the event has started");
-//        }
-
+    
 
     RegistrationToEvent registration = registrationToEventRepository
             .findByUserIdAndEventId(user.getId(), eventId)

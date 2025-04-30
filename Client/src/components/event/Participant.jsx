@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { PiStarFill } from 'react-icons/pi';
+import { Link } from 'react-router';
 
 const Participant = ({
   name,
@@ -41,9 +42,11 @@ const [avatarUrl, setAvatarUrl] = useState(null);
 
   return (
     <div className="flex justify-between max-h-14 items-center gap-3 p-2">
+      <Link to={`/profile/${userId}`}>
       <div className="flex items-center gap-3">
         <div className="h-14 w-14">
           {' '}
+          
           <img
             src={avatarUrl}
             onError={e => {
@@ -53,6 +56,7 @@ const [avatarUrl, setAvatarUrl] = useState(null);
             }}
             className="h-full object-cover rounded-full"
           />
+          
         </div>
         <p className={`font-[600] ${isDarkMode && "text-[#f59e0b]"}`}>{name}</p>
       </div>
@@ -62,6 +66,7 @@ const [avatarUrl, setAvatarUrl] = useState(null);
           <p>{rating}</p>
         </div>
       )}
+      </Link>
     </div>
   );
 };
