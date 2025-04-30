@@ -15,7 +15,10 @@ public class UserMapper {
             user.getBirthDate(),
             user.getDescription(),
             user.getFavoriteEventCategories(),
-            user.getRoles());
+            user.getRoles(),
+            user.getAverageRating(),
+            user.getRatingCount()
+    );
   }
 
   public User toUser(CreateUserRequest dto) {
