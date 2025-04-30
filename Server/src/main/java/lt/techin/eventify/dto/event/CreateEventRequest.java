@@ -2,8 +2,6 @@ package lt.techin.eventify.dto.event;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lt.techin.eventify.model.Category;
-import lt.techin.eventify.model.User;
 import lt.techin.eventify.validation.event.ValidAgeRange;
 import lt.techin.eventify.validation.event.ValidEventDates;
 import lt.techin.eventify.validation.file.ValidImage;
@@ -21,7 +19,7 @@ public record CreateEventRequest(
 
         @NotBlank(message = "Event name cannot be empty or null")
         @Size(min = 3, max = 100, message = "Event name must be between 3 and 100 characters")
-        @Pattern(regexp = "^[A-Za-z0-9\\s'-]+$", message = "Event name can only contain letters and numbers")
+        @Pattern(regexp = "^[A-Za-zĄČĘĖĮŠŲŪŽąčęėįšųūž0-9\\s'-]+$", message = "Event name can only contain letters and numbers")
         String name,
 
         @NotNull(message = "Start date and time cannot be null")

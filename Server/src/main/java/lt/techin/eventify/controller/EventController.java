@@ -9,7 +9,6 @@ import lt.techin.eventify.exception.UsernameNotFoundException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.RegistrationToEvent;
 import lt.techin.eventify.model.User;
-import lt.techin.eventify.repository.mysql.EventRepository;
 import lt.techin.eventify.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -61,6 +61,7 @@ public class EventController {
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Transactional
   public ResponseEntity<EventResponse> addEvent(@Valid @ModelAttribute CreateEventRequest createEventRequest, Authentication authentication) {
 
     MultipartFile picture = createEventRequest.picture();
@@ -76,8 +77,11 @@ public class EventController {
     }
     try {
       EventResponse newEvent = eventService.saveEvent(createEventRequest, authentication);
-      assert picture != null;
-      r2Service.uploadEventImage(picture, newEvent.id());
+
+      if (picture != null && !picture.isEmpty()) {
+        r2Service.uploadEventImage(picture, newEvent.id());
+      }
+
       return ResponseEntity.created(
                       ServletUriComponentsBuilder.fromCurrentRequest()
                               .path("/{id}")
