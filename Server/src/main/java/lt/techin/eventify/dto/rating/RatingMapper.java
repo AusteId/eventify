@@ -18,4 +18,11 @@ public class RatingMapper {
     rating.setEvent(event);
     return rating;
   }
+
+  public RatingSummaryResponse toRatingSummaryResponse(User user) {
+    return new RatingSummaryResponse(
+            user.getAverageRating(),
+            user.getRatingCount()
+    );
+  }
 }
