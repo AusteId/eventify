@@ -134,26 +134,41 @@ function App() {
                 }
               />
             </Route>
-            <Route path="/profile/my" element={
-              <ProtectedRoutes requiredRoles={['ADMIN','USER','BANNED']}>
-              <Profile />
-              </ProtectedRoutes>} />
-            <Route path="/myRegistrations" element={
-              <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
-              <MyRegistrations />
+            <Route
+              path="/profile/my"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN', 'USER', 'BANNED']}>
+                  <Profile />
                 </ProtectedRoutes>
-            } />
+              }
+            />
+            <Route
+              path="/myRegistrations"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN', 'USER']}>
+                  <MyRegistrations />
+                </ProtectedRoutes>
+              }
+            />
             <Route
               path="/chat"
               element={
-                <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
-                <WebSocketProvider>
-                  <Chat />
-                </WebSocketProvider>
+                <ProtectedRoutes requiredRoles={['ADMIN', 'USER']}>
+                  <WebSocketProvider>
+                    <Chat />
+                  </WebSocketProvider>
                 </ProtectedRoutes>
               }
             />
             <Route path="/about" element={<About />} />
+            <Route
+              path="/profile/:userId"
+              element={
+                <ProtectedRoutes requiredRoles={['USER', 'ADMIN']}>
+                  <Profile />
+                </ProtectedRoutes>
+              }
+            />
           </Route>
         </Route>
       </Routes>
