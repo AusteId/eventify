@@ -3,6 +3,7 @@ package lt.techin.eventify.service;
 import lt.techin.eventify.dto.rating.RatingMapper;
 import lt.techin.eventify.dto.rating.RatingRequest;
 import lt.techin.eventify.exception.RatingAlreadyExistsException;
+import lt.techin.eventify.exception.SelfRatingNotAllowedException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.Rating;
 import lt.techin.eventify.model.User;
@@ -40,6 +41,10 @@ public class RatingService {
             .orElseThrow(() -> new IllegalArgumentException("Organizer with ID " + ratingRequest.organizerId() + " not found"));
     Event event = eventRepository.findById(ratingRequest.eventId())
             .orElseThrow(() -> new IllegalArgumentException("Event with ID " + ratingRequest.eventId() + " not found"));
+
+    if (rater.getId().equals(organizer.getId())) {
+      throw new SelfRatingNotAllowedException("You cannot rate your own event");
+    }
 
     Rating rating = ratingMapper.toRating(ratingRequest, rater, organizer, event);
     ratingRepository.save(rating);

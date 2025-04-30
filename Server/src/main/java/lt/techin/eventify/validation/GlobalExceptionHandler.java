@@ -111,4 +111,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, String>> handleRatingAlreadyExistsException(RatingAlreadyExistsException e) {
     return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(SelfRatingNotAllowedException.class)
+  public ResponseEntity<Map<String, String>> handleSelfRatingNotAllowedException(SelfRatingNotAllowedException e) {
+    return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+  }
 }
