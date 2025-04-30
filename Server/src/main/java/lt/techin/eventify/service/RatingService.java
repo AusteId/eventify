@@ -37,16 +37,19 @@ public class RatingService {
 
     User rater = userRepository.findById(raterId)
             .orElseThrow(() -> new IllegalArgumentException("Rater with ID " + raterId + " not found"));
-    User organizer = userRepository.findById(ratingRequest.organizerId())
-            .orElseThrow(() -> new IllegalArgumentException("Organizer with ID " + ratingRequest.organizerId() + " not found"));
     Event event = eventRepository.findById(ratingRequest.eventId())
             .orElseThrow(() -> new IllegalArgumentException("Event with ID " + ratingRequest.eventId() + " not found"));
+
+    User organizer = event.getOrganizer();
+    if (organizer == null) {
+      throw new IllegalStateException("Event does not have an organizer");
+    }
 
     if (rater.getId().equals(organizer.getId())) {
       throw new SelfRatingNotAllowedException("You cannot rate your own event");
     }
 
-    Rating rating = ratingMapper.toRating(ratingRequest, rater, organizer, event);
+    Rating rating = ratingMapper.toRating(ratingRequest, rater, event);
     ratingRepository.save(rating);
     updateOrganizerRating(organizer, rating.getRating());
 
