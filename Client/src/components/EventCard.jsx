@@ -18,6 +18,7 @@ import { useDarkMode } from './context/DarkModeContext.jsx';
 import ThreePersonSVG from '../assets/threePersonSVG.jsx';
 import DeleteModal from './DeleteModal.jsx';
 import BannedButton from './Auth/BannedButton.jsx';
+import RateOrganizerModal from './rating/RateOrganizerModal.jsx';
 
 const EventCard = ({
   isAdmin = false,
@@ -35,7 +36,8 @@ const EventCard = ({
   isEnded,
   minAge,
   maxAge,
-  setRefresh
+  setRefresh,
+  organizerName = 'Jonas Petraitis',
 }) => {
   const navigate = useNavigate();
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
@@ -44,6 +46,7 @@ const EventCard = ({
   const [participants, setParticipants] = useState(currentParticipants ?? 0);
   const [loading, setLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     isAuthenticated,
     loading: authLoading,
@@ -266,6 +269,13 @@ const EventCard = ({
         />
       )}
 
+      <RateOrganizerModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        organizerName={organizerName}
+        eventName={name}
+      />
+
       <div className='relative'>
         <div
           onClick={() => navigate(`/events/${id}`)}
@@ -431,6 +441,7 @@ const EventCard = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                setIsModalOpen(true);
               }}
               className="relative flex items-center gap-2 bg-gradient-to-r from-intermediate to-btn text-white rounded-full py-2 px-4 font-inter text-base hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
             >
