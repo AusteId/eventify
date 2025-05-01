@@ -1,54 +1,64 @@
-import InterestsSection from '../components/InterestsSection';
-import CommentSection from '../components/CommentSection';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import axios from 'axios';
-import NotFound from './NotFound';
 import { useAuth } from '../components/Auth/AuthContext';
+import BasicModal from '../components/BasicModal';
+import Button from '../components/Button';
+import CommentSection from '../components/CommentSection';
+import EditProfileForm from '../components/EditProfileForm';
+import InterestsSection from '../components/InterestsSection';
+import NotFound from './NotFound';
 
 const Profile = () => {
-  const [profileData, SetProfileData] = useState([])
-  const [userFound, setUserFound] = useState(true)
-  const {pUserId} = useParams()
-  const {userId} = useAuth();
+  const [profileData, SetProfileData] = useState([]);
+  const [userFound, setUserFound] = useState(true);
+  const { pUserId } = useParams();
+  const { userId } = useAuth();
 
   useEffect(() => {
     const getProfileData = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BACK_URL}/api/users/${pUserId}`
+          `${import.meta.env.VITE_BACK_URL}/api/users/${pUserId}`,
         );
-        console.log(response.data)
-        SetProfileData(response.data)
+        console.log(response.data);
+        SetProfileData(response.data);
       } catch (error) {
         console.error('Error fetching user details:', error);
-        setUserFound(false)
+        setUserFound(false);
       }
     };
-    getProfileData()
-  }, [pUserId])
+    getProfileData();
+  }, [pUserId]);
 
   if (!userFound) {
-    return (
-      <NotFound/>
-    )
+    return <NotFound />;
   }
 
   function calculateAge(birthDate) {
-      const today = new Date();
-      const birth = new Date(birthDate);
-      let age = today.getFullYear() - birth.getFullYear();
-      const monthDifference = today.getMonth() - birth.getMonth();
-      
-      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDifference = today.getMonth() - birth.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birth.getDate())
+    ) {
       age--;
-      }
-      return age;
     }
+    return age;
+  }
 
   return (
     <div className="flex min-h-screen">
-      <div className="tablet:w-224 mx-auto">
+      <BasicModal id="edit_profile_modal">
+        <EditProfileForm
+          userCategories={profileData.favoriteEventCategories}
+          pUserId={pUserId}
+        />
+      </BasicModal>
+      <div className="tablet:w-224 mx-auto pb-8">
         <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
           <div className="size-full">
             <div className="flex w-full h-32">
@@ -58,7 +68,7 @@ const Profile = () => {
                 alt="Avatar"
                 onError={e => {
                   e.target.onerror = null;
-                  e.target.src = "../src/assets/avatar.png"
+                  e.target.src = '../src/assets/avatar.png';
                 }}
               />
               <div className="ml-8">
@@ -77,15 +87,26 @@ const Profile = () => {
                 </div>
                 <div className="flex items-center mt-4">
                   <p className="font-inter text-body-medium">General</p>
-                  <div className="flex items-center align-middle ml-15">
+                  <div className="flex items-center align-middle ml-8">
                     <img className="" src="../src/assets/star.svg" alt="Star" />
                     <img className="" src="../src/assets/star.svg" alt="Star" />
                     <img className="" src="../src/assets/star.svg" alt="Star" />
                     <img className="" src="../src/assets/star.svg" alt="Star" />
                     <img className="" src="../src/assets/star.svg" alt="Star" />
+                    <p className="font-inter text-body-medium ml-2">(5.0)</p>
                   </div>
-                  <p className="font-inter text-body-medium ml-4">(5.0)</p>
                 </div>
+              </div>
+              <div className="w-full flex justify-end">
+                {userId == pUserId && (
+                  <Button
+                    onClick={() =>
+                      document.getElementById('edit_profile_modal').showModal()
+                    }
+                  >
+                    Edit Profile
+                  </Button>
+                )}
               </div>
             </div>
             <div className="flex flex-col justify-between w-full mt-8">
@@ -93,14 +114,20 @@ const Profile = () => {
                 About Me
               </h1>
               <p className="text-body-medium font-inter">
-                {profileData.description || "No description provided."}
+                {profileData.description || 'No description provided.'}
               </p>
             </div>
-            <InterestsSection categories={profileData.favoriteEventCategories} />
+            <InterestsSection
+              categories={profileData.favoriteEventCategories}
+            />
           </div>
         </div>
         <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
-          <CommentSection contextId={userId} endpoint={'/users/' + pUserId + '/comments'} editPoint={"/users/comments/"} />
+          <CommentSection
+            contextId={userId}
+            endpoint={'/users/' + pUserId + '/comments'}
+            editPoint={'/users/comments/'}
+          />
         </div>
       </div>
     </div>

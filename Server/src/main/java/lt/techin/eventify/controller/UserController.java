@@ -186,4 +186,23 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
+  @PatchMapping("/{userId}")
+  public ResponseEntity<?> updateUser(@PathVariable long id, @Valid @RequestBody EditUserRequest dto, Authentication authentication) throws IOException {
+    User user = userService.findById(id);
+
+    User authUser = userService.findByUsername(authentication.getName()).orElse(null);
+
+    if (authUser == null) return ResponseEntity.badRequest().build();
+
+    if (user != authUser) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    user.setDescription(dto.description());
+
+    user.setFavoriteEventCategories(dto.favoriteEventCategories());
+
+    r2Service.uploadUserAvatar(dto.picture(), id);
+
+    return ResponseEntity.ok(userService.save(user));
+  }
+
 }

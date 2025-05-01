@@ -1,7 +1,7 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import Button from '../Button';
 import Frame from '../../assets/Frame.svg';
+import Button from '../Button';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -82,7 +82,6 @@ const ImageDropzone = ({
   }, [filePreview, initialPreview]);
 
   // Update preview if initialPreview changes
-
 
   const removeFile = e => {
     e.stopPropagation();
