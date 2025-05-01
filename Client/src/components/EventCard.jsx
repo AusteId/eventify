@@ -7,6 +7,7 @@ import { convertToCompactEuDatetime } from '../utils/dateFunctions';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { IoPersonAdd } from 'react-icons/io5';
+import { FaRegStar } from 'react-icons/fa';
 import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
@@ -42,7 +43,7 @@ const EventCard = ({
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [participants, setParticipants] = useState(currentParticipants ?? 0);
   const [loading, setLoading] = useState(false);
-  const [deleteModal,setDeleteModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const {
     isAuthenticated,
     loading: authLoading,
@@ -254,171 +255,192 @@ const EventCard = ({
 
   return (
     <>
-    {deleteModal && (
-      <DeleteModal buttonAccept={'Delete'}
-                   buttonCancel={'Cancel'}
-                   closeModal={() => setDeleteModal(false)}
-                   warningMessage={'Are you sure you want to delete '}
-                   api={`/api/events/${id}/picture`}
-                   name={name}
-                   onClick={deleteEvent}
-      />
-    )}
-    <div
-      onClick={() => navigate(`/events/${id}`)}
-      className={`cursor-pointer flex mt-0.5 mb-6 flex-col justify-between border duration-750 rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'} ${isEnded && 'grayscale-100'}`}
-    >
-      <div>
-        <a
-          className="cursor-pointer group"
+      {deleteModal && (
+        <DeleteModal buttonAccept={'Delete'}
+          buttonCancel={'Cancel'}
+          closeModal={() => setDeleteModal(false)}
+          warningMessage={'Are you sure you want to delete '}
+          api={`/api/events/${id}/picture`}
+          name={name}
+          onClick={deleteEvent}
+        />
+      )}
+
+      <div className='relative'>
+        <div
+          onClick={() => navigate(`/events/${id}`)}
+          className={`cursor-pointer flex mt-0.5 mb-6 flex-col justify-between border duration-750 rounded-[0.5rem] h-104 desktop:h-108 w-[22rem] desktop:max-w-[24.875rem] shadow-[0_4px_6px_rgba(0,0,0,0.1),_0_2px_4px_rgba(0,0,0,0.1)] ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'} ${isEnded && 'grayscale-100'} relative`}
         >
-          <div className="relative">
-            {participants >= 0 && maxParticipants > 0 && (
-              <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
-                <ThreePersonSVG/>
-                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
-                  {participants}/{maxParticipants}
-                </p>
-              </div>
-            )}
-            {experienceLevel !== 0 && (
-              <div
-                className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
-              >
-                <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
-                  {expLevels[normalizedExpLevel][1]}
-                </p>
-              </div>
-            )}
-
-            {isImageLoading ? (
-              <div className="rounded-t-[0.5rem] h-44 w-full flex items-center justify-center bg-gray-200">
-                <span className="loading loading-spinner loading-lg text-gray-500"></span>
-              </div>
-            ) : (
-              <img
-                src={imageData || './src/assets/eventCardImgSample.png'}
-                alt="event photo"
-                className="rounded-t-[0.5rem] h-44 w-full object-cover"
-                onError={() => {
-                  console.log('Event image failed to load, using fallback');
-                  setImageData('./src/assets/eventCardImgSample.png');
-                }}
-              />
-            )}
-
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-[0.5rem]"></div>
-          </div>
-        </a>
-
-        <div className="pt-5 px-5 flex flex-col gap-2 relative">
-          {isAdmin && (
-            <button
-              className="text-error absolute right-[3%] cursor-pointer duration-300 hover:translate-y-[1px] hover:text-red-500"
-              onClick={(e) => {
-                setDeleteModal(true)
-                e.stopPropagation();
-              }}
+          <div>
+            <a
+              className="cursor-pointer group"
             >
-              <Trash2 className="w-8 h-8" />
-            </button>
-          )}
-          <h2
-            className={`text-heading-xs font-[600] leading-[1.125rem] duration-750 whitespace-nowrap overflow-hidden text-ellipsis ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-black'}`}
-          >
-            {name}
-          </h2>
-          <p
-            className={`h-12 font-inter  text-body-m ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
-          >
-            {shortenContent(shortDesc,43)}
-          </p>
-          <div
-            className={`flex flex-col gap-2 font-inter text-body-s ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
-          >
-            {startDateTime ? (
-              <figure className="flex gap-2">
-                <Clock
-                  size={20}
-                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
-                />
-                {endDateTime ? (
-                  <div className="flex gap-2">
-                    <figcaption>{TimeString}</figcaption>
-                    <figcaption className="flex gap-1">
-                      <Timer
-                        size={20}
-                        className={`${isDarkMode && 'text-[#f59e0b]'}`}
-                      />
-                      {DurationString}
-                    </figcaption>
+              <div className="relative">
+                {participants >= 0 && maxParticipants > 0 && (
+                  <div className="absolute flex top-2 left-2 bg-black/50 gap-1 rounded-full py-[0.38rem] px-[0.75rem] text-sm z-10">
+                    <ThreePersonSVG />
+                    <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
+                      {participants}/{maxParticipants}
+                    </p>
+                  </div>
+                )}
+                {experienceLevel !== 0 && (
+                  <div
+                    className={`absolute right-2 top-2 ${expLevels[normalizedExpLevel][0] ?? ''} rounded-full py-1.5 px-3 text-[0.875rem] z-10`}
+                  >
+                    <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
+                      {expLevels[normalizedExpLevel][1]}
+                    </p>
+                  </div>
+                )}
+
+                {isImageLoading ? (
+                  <div className="rounded-t-[0.5rem] h-44 w-full flex items-center justify-center bg-gray-200">
+                    <span className="loading loading-spinner loading-lg text-gray-500"></span>
                   </div>
                 ) : (
-                  <figcaption>
-                    {convertToCompactEuDatetime(startDateTime)}
-                  </figcaption>
+                  <img
+                    src={imageData || './src/assets/eventCardImgSample.png'}
+                    alt="event photo"
+                    className="rounded-t-[0.5rem] h-44 w-full object-cover"
+                    onError={() => {
+                      console.log('Event image failed to load, using fallback');
+                      setImageData('./src/assets/eventCardImgSample.png');
+                    }}
+                  />
                 )}
-              </figure>
-            ) : (
-              <figure className="flex gap-2">
-                <Clock
-                  size={20}
-                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
-                />
-                <figcaption>Time not provided</figcaption>
-              </figure>
-            )}
-            {city && (
-              <figure className="flex gap-2">
-                <MapPin
-                  size={20}
-                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
-                />
-                <figcaption>{city}</figcaption>
-              </figure>
-            )}
-            {ageString && (
-              <figure className="flex gap-2">
-                <Users
-                  size={20}
-                  className={`${isDarkMode && 'text-[#f59e0b]'}`}
-                />
-                <figcaption>{ageString}</figcaption>
-              </figure>
-            )}
+
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-[0.5rem]"></div>
+              </div>
+            </a>
+
+            <div className="pt-5 px-5 flex flex-col gap-2 relative">
+              {isAdmin && (
+                <button
+                  className="text-error absolute right-[3%] cursor-pointer duration-300 hover:translate-y-[1px] hover:text-red-500"
+                  onClick={(e) => {
+                    setDeleteModal(true)
+                    e.stopPropagation();
+                  }}
+                >
+                  <Trash2 className="w-8 h-8" />
+                </button>
+              )}
+              <h2
+                className={`text-heading-xs font-[600] leading-[1.125rem] duration-750 whitespace-nowrap overflow-hidden text-ellipsis ${isDarkMode ? 'text-[#f59e0b]' : 'text-header-black'}`}
+              >
+                {name}
+              </h2>
+              <p
+                className={`h-12 font-inter  text-body-m ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+              >
+                {shortenContent(shortDesc, 43)}
+              </p>
+
+              <div
+                className={`flex flex-col gap-2 font-inter text-body-s ${isDarkMode ? 'text-gray-200' : 'text-body-medium'}`}
+              >
+                {startDateTime ? (
+                  <figure className="flex gap-2">
+                    <Clock
+                      size={20}
+                      className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                    />
+                    {endDateTime ? (
+                      <div className="flex gap-2">
+                        <figcaption>{TimeString}</figcaption>
+                        <figcaption className="flex gap-1">
+                          <Timer
+                            size={20}
+                            className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                          />
+                          {DurationString}
+                        </figcaption>
+                      </div>
+                    ) : (
+                      <figcaption>
+                        {convertToCompactEuDatetime(startDateTime)}
+                      </figcaption>
+                    )}
+                  </figure>
+                ) : (
+                  <figure className="flex gap-2">
+                    <Clock
+                      size={20}
+                      className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                    />
+                    <figcaption>Time not provided</figcaption>
+                  </figure>
+                )}
+                {city && (
+                  <figure className="flex gap-2">
+                    <MapPin
+                      size={20}
+                      className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                    />
+                    <figcaption>{city}</figcaption>
+                  </figure>
+                )}
+                {ageString && (
+                  <figure className="flex gap-2">
+                    <Users
+                      size={20}
+                      className={`${isDarkMode && 'text-[#f59e0b]'}`}
+                    />
+                    <figcaption>{ageString}</figcaption>
+                  </figure>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div onClick={(e) => e.stopPropagation()} className="flex justify-center py-[0.38rem] px-[0.75rem]">
+            {bannedRole ? <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" className="w-80" buttonName="Register" message="Cannot register while banned" /> :
+              isEnded ? (
+                <p className={`p-3 ${isDarkMode && 'text-gray-300'}`}>Completed</p>
+              ) : registered && isAuthenticated ? (
+                <ButtonCancel
+                  isFull={true}
+                  onClick={handleRegistration}
+                  disabled={loading}
+
+                >
+                  <img
+                    src="./src/assets/xIcon.svg"
+                    className="border-0"
+                    alt="Cancel"
+                  />
+                  {loading ? 'Processing...' : 'Cancel Registration'}
+                </ButtonCancel>
+              ) : (
+                <Button
+                  isFull={true}
+                  onClick={handleRegistration}
+                  disabled={loading || participants >= maxParticipants}
+                >
+                  <IoPersonAdd />
+                  {loading ? 'Processing...' : 'Register'}
+                </Button>
+              )}
           </div>
         </div>
-      </div>
-      <div onClick={(e) => e.stopPropagation()} className="flex justify-center py-[0.38rem] px-[0.75rem]">
-        {bannedRole ? <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" className="w-80" buttonName="Register" message="Cannot register while banned"  /> :
-        isEnded ? (
-          <p className={`p-3 ${isDarkMode && 'text-gray-300'}`}>Completed</p>
-        ) : registered && isAuthenticated ? (
-          <ButtonCancel
-            isFull={true}
-            onClick={handleRegistration}
-            disabled={loading}
 
-          >
-            <img
-              src="./src/assets/xIcon.svg"
-              className="border-0"
-              alt="Cancel"
-            />
-            {loading ? 'Processing...' : 'Cancel Registration'}
-          </ButtonCancel>
-        ) : (
-          <Button
-            isFull={true}
-            onClick={handleRegistration}
-            disabled={loading || participants >= maxParticipants}
-          >
-            <IoPersonAdd />
-            {loading ? 'Processing...' : 'Register'}
-          </Button>
+        {isEnded && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-intermediate to-btn opacity-70 hover:opacity-100 blur-md transition duration-1000 animate-pulse rounded-full"></div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="relative flex items-center gap-2 bg-gradient-to-r from-intermediate to-btn text-white rounded-full py-2 px-4 font-inter text-base hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
+            >
+              <FaRegStar />
+              Rate Organizer
+            </button>
+          </div>
         )}
+
       </div>
-    </div>
     </>
   );
 };
