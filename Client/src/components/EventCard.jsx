@@ -12,7 +12,7 @@ import joinEvent from '../helpers/event/joinEvent';
 import cancelEvent from '../helpers/event/cancelEvent';
 import { useAuth } from './Auth/AuthContext';
 import toast from 'react-hot-toast';
-import { Clock, MapPin, Timer, Trash2, Users } from 'lucide-react';
+import { Clock, MapPin, Timer, Trash2, Users, Crown } from 'lucide-react';
 import { formatDistance } from 'date-fns';
 import { useDarkMode } from './context/DarkModeContext.jsx';
 import ThreePersonSVG from '../assets/threePersonSVG.jsx';
@@ -47,6 +47,7 @@ const EventCard = ({
   const [loading, setLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userRating, setUserRating] = useState(null);
   const {
     isAuthenticated,
     loading: authLoading,
@@ -64,7 +65,6 @@ const EventCard = ({
   const [registered, setRegistered] = useState(isRegistered);
 
   const bannedRole = roles.find((role) => role.name === "BANNED");
-
   const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
@@ -268,7 +268,13 @@ const EventCard = ({
 
       <RateOrganizerModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={(submittedRating) => {
+          setIsModalOpen(false);
+          if (submittedRating) {
+            setUserRating(submittedRating);
+            setRefresh(prev => prev + 1);
+          }
+        }}
         organizerName={organizerName}
         eventName={name}
         eventId={id}
@@ -299,6 +305,13 @@ const EventCard = ({
                     <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
                       {expLevels[normalizedExpLevel][1]}
                     </p>
+                  </div>
+                )}
+
+                {isEnded && userRating !== null && (
+                  <div className="absolute right-2 top-2 bg-amber-400 text-white rounded-full py-1 px-2 flex items-center gap-1 z-10">
+                    <Crown size={14} />
+                    <span>{userRating}★</span>
                   </div>
                 )}
 

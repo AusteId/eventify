@@ -33,7 +33,7 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName, eventId
       );
       if (response.status === 201) {
         toast.success('Rating submitted successfully');
-        onClose();
+        onClose(rating);
       } else {
         throw new Error('Failed to submit rating');
       }
@@ -95,7 +95,7 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName, eventId
             </button>
           ))}
         </div>
-        
+
         {rating === 0 && <div className='h-[20px]'></div>}
         {rating > 0 && (
           <p className={`text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-600'} text-sm`}>
