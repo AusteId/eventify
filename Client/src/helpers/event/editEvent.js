@@ -2,12 +2,12 @@ import axios from 'axios';
 const editEvent = async (data, id) => {
   const formData = new FormData();
 
-  if (data.image) {
-    formData.append('image', data.image);
+  if (data.avatar) {
+    formData.append('avatar', data.avatar);
   }
 
   Object.keys(data).forEach(key => {
-    if (key !== 'image') {
+    if (key !== 'avatar') {
       if (data[key]) formData.append(key, data[key]);
     }
   });

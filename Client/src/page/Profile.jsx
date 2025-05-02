@@ -7,6 +7,7 @@ import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import EditProfileForm from '../components/EditProfileForm';
 import InterestsSection from '../components/InterestsSection';
+import LoadingScreen from '../components/message/LoadingScreen';
 import NotFound from './NotFound';
 
 const Profile = () => {
@@ -14,6 +15,7 @@ const Profile = () => {
   const [userFound, setUserFound] = useState(true);
   const { pUserId } = useParams();
   const { userId } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const getProfileData = async () => {
@@ -50,12 +52,19 @@ const Profile = () => {
     return age;
   }
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <div className="flex min-h-screen">
       <BasicModal id="edit_profile_modal">
         <EditProfileForm
           userCategories={profileData.favoriteEventCategories}
           pUserId={pUserId}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          description={profileData.description}
         />
       </BasicModal>
       <div className="tablet:w-224 mx-auto pb-8">

@@ -1,6 +1,8 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import CloseSVG from '../assets/CloseSVG';
 import editEvent from '../helpers/event/editEvent';
 import Button from './Button';
@@ -9,12 +11,18 @@ import { useDarkMode } from './context/DarkModeContext';
 import FieldValidationError from './FieldValidationError';
 import ImageDropzone from './Registration/ImageDropZone';
 
-const EditProfileForm = ({ userCategories, pUserId }) => {
+const EditProfileForm = ({
+  userCategories,
+  pUserId,
+  isLoading,
+  setIsLoading,
+  description,
+}) => {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useDarkMode();
-  const [seed, setSeed] = useState(1);
+  const [avatarState, setAvatarState] = useState(null);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -25,13 +33,14 @@ const EditProfileForm = ({ userCategories, pUserId }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      picture: null,
-      description: '',
-      favoriteEventCategories: userCategories,
+      avatar: null,
+      description: description,
+      categoryIds: [],
     },
   });
 
-  const picture = watch('picture');
+  const avatar = watch('avatar');
+  const categoryIds = watch('categoryIds');
 
   const closeModal = () => {
     resetForm();
@@ -39,45 +48,7 @@ const EditProfileForm = ({ userCategories, pUserId }) => {
     document.getElementById('edit_profile_modal').close();
   };
 
-  const applyDefaultCategories = () => {
-    let categoryList = [];
-    userCategories?.map(category => {
-      categoryList.push(category.id);
-    });
-    setSelectedInterests(categoryList);
-  };
-
-  useEffect(() => {
-    applyDefaultCategories();
-  }, [userCategories]);
-
-  const resetPage = () => {
-    setSeed(Math.random());
-  };
-
-  const resetForm = () => {
-    applyDefaultCategories();
-    reset({
-      picture: null,
-      description: '',
-      favoriteEventCategories: userCategories,
-    });
-  };
-
-  const toggleInterest = interestId => {
-    let newInterests;
-    if (selectedInterests.includes(interestId)) {
-      newInterests = selectedInterests.filter(id => id !== interestId);
-    } else {
-      newInterests = [...selectedInterests, interestId];
-    }
-
-    setSelectedInterests(newInterests);
-    setValue('categoryIds', newInterests);
-  };
-
   const getAllCategories = async () => {
-    setIsLoading(true);
     try {
       const response = await fetch(`http://localhost:8080/api/categories/all`, {
         method: 'GET',
@@ -95,23 +66,76 @@ const EditProfileForm = ({ userCategories, pUserId }) => {
     } catch (err) {
       toast.error(err.message || 'Failed to fetch categories');
     } finally {
-      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    applyDefaultCategories();
+  }, [categories]);
 
   useEffect(() => {
     getAllCategories();
   }, []);
 
+  const applyDefaultCategories = () => {
+    let categoryList = [];
+    userCategories?.map(category => {
+      categoryList.push(category.id);
+    });
+    setSelectedInterests(categoryList);
+    setValue('categoryIds', categoryList);
+  };
+
+  const resetForm = () => {
+    applyDefaultCategories();
+    setAvatarState(`http://localhost:8080/api/users/${pUserId}/avatar`);
+    setValue('avatar', avatarState);
+    // reset({
+    //   avatar: null,
+    //   description: description,
+    // });
+  };
+
+  const toggleInterest = interestId => {
+    let newInterests;
+    if (selectedInterests.includes(interestId)) {
+      newInterests = selectedInterests.filter(id => id !== interestId);
+    } else {
+      newInterests = [...selectedInterests, interestId];
+    }
+
+    setSelectedInterests(newInterests);
+    setValue('categoryIds', newInterests);
+  };
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8080/api/users/${pUserId}/avatar`, {
+        responseType: 'blob',
+      })
+      .then(response => {
+        const imageUrl = URL.createObjectURL(response.data);
+        setValue('avatar', response.data);
+        setAvatarState(imageUrl);
+      })
+      .catch(error => console.error('Error fetching avatar:', error));
+  }, [pUserId]);
+
   const onSubmit = async data => {
+    if (isLoading) return;
     closeModal();
     console.log(data);
+    setIsLoading(true);
     try {
       const response = await editEvent(data, pUserId);
       toast.success('Event edited successfully');
     } catch (error) {
       console.error('Event edit failed: ', error);
       toast.error('Failed to edit event');
+    } finally {
+      resetForm();
+      navigate(0);
+      setIsLoading(false);
     }
   };
 
@@ -126,9 +150,11 @@ const EditProfileForm = ({ userCategories, pUserId }) => {
       <div className="flex mt-6 gap-6">
         <div className="w-full">
           <ImageDropzone
-            onFileChange={file => setValue('picture', file)}
-            initialPreview={`http://localhost:8080/api/users/${pUserId}/avatar`}
-            fieldName="profilePicture"
+            onFileChange={file => {
+              setValue('avatar', file);
+            }}
+            initialPreview={avatarState}
+            fieldName="avatar"
             acceptedTypes={['image/jpeg', 'image/png']}
             maxSize={5 * 1024 * 1024}
           />
@@ -148,6 +174,7 @@ const EditProfileForm = ({ userCategories, pUserId }) => {
             rows="4"
             placeholder="Add a description..."
             maxLength={1000}
+            defaultValue={description}
             {...register('description', {
               maxLength: {
                 value: 1000,

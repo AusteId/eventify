@@ -15,9 +15,8 @@ public record EditUserRequest(
         String description,
         @ValidImage
         @Schema(type = "string", format = "binary")
-        MultipartFile picture,
-        @NotEmpty
-        @NotNull
-        Set<Category> favoriteEventCategories
+        MultipartFile avatar,
+        @Size(max = 20, message = "Can only have up to 20 interests")
+        Set<Long> categoryIds
 ) {
 }

@@ -10,16 +10,16 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../Auth/AuthContext';
-import Button from '../Button';
-import HeaderProfilePicture from './HeaderProfilePicture';
-import DarkModeToggle from './DarkModeToggle';
-import ProfileSVG from '../../assets/ProfileSVG';
-import MessageSVG from '../../assets/MessageSVG';
-import LogoutSVG from '../../assets/LogoutSVG';
-import { useDarkMode } from '../context/DarkModeContext.jsx';
 import AdminPanelSVG from '../../assets/AdminPanelSVG.jsx';
+import LogoutSVG from '../../assets/LogoutSVG';
+import MessageSVG from '../../assets/MessageSVG';
+import ProfileSVG from '../../assets/ProfileSVG';
+import { useAuth } from '../Auth/AuthContext';
 import BannedButton from '../Auth/BannedButton.jsx';
+import Button from '../Button';
+import { useDarkMode } from '../context/DarkModeContext.jsx';
+import DarkModeToggle from './DarkModeToggle';
+import HeaderProfilePicture from './HeaderProfilePicture';
 import MessageNavItem from './MessageNavItem.jsx';
 
 const Header = () => {
@@ -272,22 +272,23 @@ const Header = () => {
                           )
                         )}
 
-                        <li
+                        <NavLink
                           className={`relative flex justify-center py-1 cursor-pointer ${
                             isDarkMode
                               ? 'hover:bg-slate-600 duration-750'
                               : 'hover:bg-gray-100 duration-150'
                           }`}
+                          to={'/profile/' + userId}
                           onClick={() => {
-                            navigate('/profile/' + userId);
                             setIsDropdownOpen(false);
                           }}
                         >
                           <div className="absolute left-[15%]">
                             <ProfileSVG />
                           </div>
-                          <a>Profile</a>
-                        </li>
+                          Profile
+                        </NavLink>
+
                         <MessageNavItem
                           isDarkMode={isDarkMode}
                           setIsDropdownOpen={setIsDropdownOpen}

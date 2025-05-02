@@ -68,6 +68,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/categories/{id}/add-icon").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/logout").permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/api/users/{userId}").hasAnyAuthority("ADMIN", "USER")
                     .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyAuthority("ADMIN", "USER","BANNED")
                             .requestMatchers(HttpMethod.GET, "/api/users/all").permitAll()
 //                        .hasAnyAuthority("ADMIN")

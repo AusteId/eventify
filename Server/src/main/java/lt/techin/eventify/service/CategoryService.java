@@ -34,6 +34,9 @@ public class CategoryService {
     return categoryRepository.findAll().stream().map(CategoryMapper::toDTO).toList();
   }
 
+  public Category findById(long id) {
+    return categoryRepository.findById(id).orElse(null);
+  }
 
   // Icon related Section
   public CategoryIconResponse getCategoryIcon(Long categoryId) {
