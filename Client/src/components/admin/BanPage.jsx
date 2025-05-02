@@ -58,11 +58,6 @@ const BanPage = () => {
     }
   };
 
-  useEffect(() => {
-    const pageIndex = currentPage > 0 ? currentPage - 1 : 0;
-    fetchBans(pageIndex, currentFilters);
-  }, [refresh, currentPage, currentFilters]);
-
   const handlePageChange = pageNumber => {
     setCurrentPage(pageNumber);
     fetchBans(pageNumber - 1, currentFilters);
@@ -114,10 +109,10 @@ const BanPage = () => {
     setUnbanUserId(prevId => (prevId === userId ? null : userId));
   };
 
-  const unbanUserDirectly = banId => {
+  const unbanUserDirectly = async banId => {
     setLoading(true);
     try {
-      const response = authFetch(
+      const response = await authFetch(
         `http://localhost:8080/api/admin/unban/${banId}`,
         {
           method: 'PATCH',
@@ -135,6 +130,11 @@ const BanPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const pageIndex = currentPage > 0 ? currentPage - 1 : 0;
+    fetchBans(pageIndex, currentFilters);
+  }, [refresh, currentPage, currentFilters]);
 
   return (
     <div className={`min-h-screen px-4 py-6 transition-colors duration-750`}>

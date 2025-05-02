@@ -24,6 +24,7 @@ const BanModal = ({closeModal, userBanId, username,setRefresh}) => {
         });
         if (response.status === 401 || response.status === 403) {
           toast.error("Unauthorized");
+          return
         }
         const username = await response.text();
         setAdminName(username);
@@ -57,6 +58,16 @@ const BanModal = ({closeModal, userBanId, username,setRefresh}) => {
 
       if (response.status === 401 || response.status === 403) {
         toast.error("Unauthorized");
+        return;
+      }
+
+      if (response.status === 406) {
+        toast.error("Cannot ban admin")
+        return;
+      }
+
+      if (response.status === 409) {
+        toast.error("User already has am active ban")
         return;
       }
 
