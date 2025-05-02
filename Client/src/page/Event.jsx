@@ -317,20 +317,17 @@ whitespace-normal
               </div>
             </div>
             <div className="flex justify-center gap-3">
-              {(isRegistrationOpen() && !isRegistered && !bannedRole) ? (
+            {(!isRegistered && !bannedRole) ? (
                 <Button onClick={handleRegister} disabled={isJoining}>
                   {isJoining ? 'Joining...' : 'Join Event'}
                 </Button>
-              ) : <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" buttonName="Join Event" message="Cannot join event while banned"  />}
-              {isRegistered && (
-                <Button
-                  onClick={handleCancel}
-                  variant="secondary"
-                  disabled={isCanceling}
-                >
-                  {isCanceling ? 'Canceling...' : 'Leave Event'}
-                </Button>
-              )}
+              ) : (isRegistered && !bannedRole) ? <Button
+                onClick={handleCancel}
+                variant="secondary"
+                disabled={isCanceling}
+              >
+                {isCanceling ? 'Canceling...' : 'Leave Event'}
+              </Button> : <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" buttonName="Join Event" message="Cannot join event while banned" />}
               {userId == event.organizer.id && (
                 <div className="tablet:hidden">
                   <Button>{<EditIcon />} Manage event</Button>

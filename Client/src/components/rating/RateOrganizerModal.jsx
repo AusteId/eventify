@@ -49,7 +49,7 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName, eventId
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
       />
-      <div className={`relative border rounded-lg p-6 w-[90%] max-w-md shadow-lg ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'}`}>
+      <div className={`relative border rounded-lg p-6 w-[90%] max-w-md shadow-lg ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'}`} style={{ maxHeight: '324px' }}>
         <button
           onClick={onClose}
           className={`absolute top-2 right-2 ${isDarkMode ? 'text-gray-200 hover:text-[#f59e0b]' : 'text-gray-500 hover:text-gray-700'} cursor-pointer`}
@@ -95,14 +95,15 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName, eventId
             </button>
           ))}
         </div>
-
+        
+        {rating === 0 && <div className='h-[20px]'></div>}
         {rating > 0 && (
-          <p className={`text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-600'} mb-10 text-sm`}>
+          <p className={`text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-600'} text-sm`}>
             You selected {rating} {rating === 1 ? 'star' : 'stars'}
           </p>
         )}
 
-        <div className="flex justify-between gap-4">
+        <div className="flex justify-between mt-10">
           <button
             onClick={onClose}
             className={`px-4 py-2 ${isDarkMode ? 'text-[#f59e0b] border-[#f59e0b] hover:bg-slate-600' : 'text-gray-600 border-gray-300 hover:bg-gray-100'} border rounded-lg transition-colors duration-200 cursor-pointer`}
