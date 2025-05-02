@@ -203,8 +203,8 @@ const Header = () => {
                   <div className="relative flex items-center">
                     {roles.some(role => role.name === 'ADMIN') && (
                       <div
-                        className={`
-                                 absolute bottom-[-10%] right-[23%] select-none z-10 px-2 py-0.5 
+                        className={` ${isDrawerOpen && "hidden"}
+                                 absolute bottom-[-10%] right-[23%] select-none z-1 px-2 py-0.5 
                                   text-xs font-bold rounded-full shadow-md
                                   border transform translate-x-1/4
                                         transition-colors duration-750

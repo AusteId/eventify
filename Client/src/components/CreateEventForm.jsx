@@ -167,10 +167,18 @@ const CreateEventForm = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
+      try {
+
       setIsLoading(true);
-      const data = await getCategories();
+      const response = await fetch("http://localhost:8080/api/categories/all", {
+        method: "GET"
+      })
+      const data = await response.json()
       setCategories(data);
       setIsLoading(false);
+      }catch (error) {
+        console.error(error.mesage)
+      }
     };
     fetchCategories();
   }, []);

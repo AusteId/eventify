@@ -7,7 +7,7 @@ import BanHistorySVG from '../../assets/BanHistorySVG.jsx';
 import CommentsSVG from '../../assets/CommentsSVG.jsx';
 import EventsSVG from '../../assets/EventsSVG.jsx';
 
-const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDropdown,setRefresh }) => {
+const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId, username, closeDropdown, setRefresh, bannedUser }) => {
   const { isDarkMode } = useDarkMode();
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -25,19 +25,17 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
             }}
           >
             <ul
-              className={`w-4/5 bg-base-100 rounded-box p-3 shadow-lg z-50 transform transition-all duration-300 ${
-                isDarkMode
+              className={`w-4/5 bg-base-100 rounded-box p-3 shadow-lg z-50 transform transition-all duration-300 ${isDarkMode
                   ? 'bg-slate-800 text-gray-200 border-[#f59e0b] border'
                   : 'bg-white border border-gray-300'
-              }`}
+                }`}
               onClick={(e) => e.stopPropagation()}
             >
               <li
-                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
-                  isDarkMode
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${isDarkMode
                     ? 'hover:bg-slate-700 duration-300'
                     : 'hover:bg-gray-100 duration-150'
-                }`}
+                  }`}
                 onClick={() => {
                   navigate(`/admin/user-events/${userId}`);
                   setIsDropdownOpen(false);
@@ -49,11 +47,10 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                 <a className="font-medium">Events</a>
               </li>
               <li
-                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
-                  isDarkMode
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${isDarkMode
                     ? 'hover:bg-slate-700 duration-300'
                     : 'hover:bg-gray-100 duration-150'
-                }`}
+                  }`}
                 onClick={() => {
                   navigate(`/admin/user-comments/${userId}`);
                   setIsDropdownOpen(false);
@@ -65,11 +62,10 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                 <a className="font-medium">Comments</a>
               </li>
               <li
-                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
-                  isDarkMode
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${isDarkMode
                     ? 'hover:bg-slate-700 duration-300'
                     : 'hover:bg-gray-100 duration-150'
-                }`}
+                  }`}
                 onClick={() => {
                   navigate(`/admin/ban-history/${userId}`);
                   setIsDropdownOpen(false);
@@ -80,12 +76,11 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                 </div>
                 <a className="font-medium">Ban History</a>
               </li>
-              <li
-                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${
-                  isDarkMode
+              {!bannedUser && <li
+                className={`relative flex justify-center py-2.5 cursor-pointer rounded-md ${isDarkMode
                     ? 'hover:bg-slate-700 duration-300'
                     : 'hover:bg-gray-100 duration-150'
-                }`}
+                  }`}
                 onClick={() => {
                   setIsBanModalOpen(true);
                   closeDropdown()
@@ -95,8 +90,7 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, userId,username, closeDro
                   <BanUserSVG />
                 </div>
                 <a className="font-medium">Ban User</a>
-              </li>
-
+              </li>}
             </ul>
           </div>
         </>
