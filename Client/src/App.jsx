@@ -1,33 +1,33 @@
+import { useRef } from 'react';
 import { Route, Routes } from 'react-router';
 import './App.css';
+import AuthenticatedLayout from './components/AuthenticatedLayout';
+import Chat from './components/chatting/Chat';
+import { WebSocketProvider } from './components/chatting/WebSocketContext';
 import MainLayout from './components/MainLayout';
+import MyRegistrations from './components/myRegistrations/MyRegistrations';
+import RegistrationFirstStep from './components/Registration/RegistrationFirstStep';
+import RegistrationFourthStep from './components/Registration/RegistrationFourthStep';
+import RegistrationLayout from './components/Registration/RegistrationLayout';
+import RegistrationSecondStep from './components/Registration/RegistrationSecondStep';
+import RegistrationThirdStep from './components/Registration/RegistrationThirdStep';
 import About from './page/About';
+import Event from './page/Event';
 import Events from './page/Events';
 import Home from './page/Home';
 import Login from './page/Login';
 import Profile from './page/Profile';
-import MyRegistrations from './components/myRegistrations/MyRegistrations';
-import AuthenticatedLayout from './components/AuthenticatedLayout';
-import RegistrationLayout from './components/Registration/RegistrationLayout';
-import { useRef } from 'react';
-import RegistrationFirstStep from './components/Registration/RegistrationFirstStep';
-import RegistrationSecondStep from './components/Registration/RegistrationSecondStep';
-import RegistrationThirdStep from './components/Registration/RegistrationThirdStep';
-import RegistrationFourthStep from './components/Registration/RegistrationFourthStep';
-import { WebSocketProvider } from './components/chatting/WebSocketContext';
-import Chat from './components/chatting/Chat';
-import Event from './page/Event';
 
-import BasicModal from './components/BasicModal';
-import CreateEventForm from './components/CreateEventForm';
-import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
-import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
-import AdminLayout from './components/admin/AdminLayout.jsx';
-import AdminEvents from './components/admin/AdminEvents.jsx';
 import AdminComments from './components/admin/AdminComments.jsx';
+import AdminEvents from './components/admin/AdminEvents.jsx';
+import AdminLayout from './components/admin/AdminLayout.jsx';
 import BanHistory from './components/admin/BanHistory.jsx';
 import BanPage from './components/admin/BanPage.jsx';
+import ProtectedRouteLoggedIn from './components/Auth/ProtectedRouteLoggedIn';
 import ProtectedRoutes from './components/Auth/ProtectedRoutes.jsx';
+import BasicModal from './components/BasicModal';
+import CreateEventForm from './components/CreateEventForm';
+import DarkModeAutocompleteStyles from './components/message/DarkModeAutoCompleteStyles';
 
 function App() {
   const formRefs = useRef([null, null, null, null]);
@@ -134,26 +134,41 @@ function App() {
                 }
               />
             </Route>
-            <Route path="/profile/:pUserId" element={
-              <ProtectedRoutes requiredRoles={['ADMIN','USER','BANNED']}>
-              <Profile />
-              </ProtectedRoutes>} />
-            <Route path="/myRegistrations" element={
-              <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
-              <MyRegistrations />
+            <Route
+              path="/profile/:pUserId"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN', 'USER', 'BANNED']}>
+                  <Profile />
                 </ProtectedRoutes>
-            } />
+              }
+            />
+            <Route
+              path="/myRegistrations"
+              element={
+                <ProtectedRoutes requiredRoles={['ADMIN', 'USER']}>
+                  <MyRegistrations />
+                </ProtectedRoutes>
+              }
+            />
             <Route
               path="/chat"
               element={
-                <ProtectedRoutes requiredRoles={['ADMIN','USER']}>
-                <WebSocketProvider>
-                  <Chat />
-                </WebSocketProvider>
+                <ProtectedRoutes requiredRoles={['ADMIN', 'USER']}>
+                  <WebSocketProvider>
+                    <Chat />
+                  </WebSocketProvider>
                 </ProtectedRoutes>
               }
             />
             <Route path="/about" element={<About />} />
+            <Route
+              path="/profile/:userId"
+              element={
+                <ProtectedRoutes requiredRoles={['USER', 'ADMIN']}>
+                  <Profile />
+                </ProtectedRoutes>
+              }
+            />
           </Route>
         </Route>
       </Routes>

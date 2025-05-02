@@ -9,7 +9,8 @@ const ViewParticipants = ({ organizer, participants,isDarkMode }) => {
         <Participant 
         name={capitalizeFirstLetter(organizer.username)}
         profileImg={organizer.avatar}
-        organizerId={organizer.id}
+        userId={organizer.id}
+        
         />
       </div>
       {participants.length != 0 && (
@@ -26,7 +27,7 @@ const ViewParticipants = ({ organizer, participants,isDarkMode }) => {
                   name={capitalizeFirstLetter(participant.username)}
                   profileImg={participant.avatar}
                   rating={participant.rating}
-                  id={participant.id}
+                  userId={participant.id}
                   key={index}
                 />
               ))}

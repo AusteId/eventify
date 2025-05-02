@@ -29,6 +29,10 @@ const ImageDropzone = ({
   const [error, setError] = useState(null);
   const { isDarkMode } = useDarkMode();
 
+  useEffect(() => {
+    setFilePreview(initialPreview);
+  }, [initialPreview]);
+
   const validateFile = file => {
     if (!file) return null;
     if (!acceptedTypes.includes(file.type)) {
@@ -62,7 +66,6 @@ const ImageDropzone = ({
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: acceptedTypes.reduce((acc, type) => {
-      // Create accept object for react-dropzone
       if (type === 'image/jpeg') {
         acc[type] = ['.jpeg', '.jpg'];
       } else if (type === 'image/png') {
@@ -87,6 +90,7 @@ const ImageDropzone = ({
     e.stopPropagation();
     setFilePreview(null);
     setError(null);
+    onFileChange(null, fieldName);
   };
 
   return (
