@@ -1,7 +1,7 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import Button from '../Button';
 import Frame from '../../assets/Frame.svg';
+import Button from '../Button';
 import { useDarkMode } from '../context/DarkModeContext.jsx';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -84,6 +84,8 @@ const ImageDropzone = ({
     };
   }, [filePreview, initialPreview]);
 
+  // Update preview if initialPreview changes
+
   const removeFile = e => {
     e.stopPropagation();
     setFilePreview(null);
@@ -96,13 +98,15 @@ const ImageDropzone = ({
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <section
-        className={`w-full flex justify-center items-center rounded-2xl p-8 duration-750 ${isDarkMode ? 'bg-slate-600' : 'bg-white'
-          } ${customClasses.container || ''}`}
+        className={`w-full flex justify-center items-center rounded-2xl p-8 duration-750 ${
+          isDarkMode ? 'bg-slate-600' : 'bg-white'
+        } ${customClasses.container || ''}`}
       >
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%] duration-750 ${isDarkMode ? 'border-[#f59e0b]' : 'border-btn'
-            } ${customClasses.dropzone || ''}`}
+          className={`border-2 border-dashed p-6 flex flex-col items-center justify-center cursor-pointer rounded-2xl w-[95%] duration-750 ${
+            isDarkMode ? 'border-[#f59e0b]' : 'border-btn'
+          } ${customClasses.dropzone || ''}`}
         >
           <input {...getInputProps()} />
           {filePreview ? (
@@ -145,20 +149,23 @@ const ImageDropzone = ({
                 className={`w-16 h-12 ${isDarkMode ? 'none' : 'none'}`}
               />
               <p
-                className={`text-heading-xs font-semibold pt-2 pb-4 duration-750 ${isDarkMode ? 'text-gray-200' : 'text-header-dark'
-                  }`}
+                className={`text-heading-xs font-semibold pt-2 pb-4 duration-750 ${
+                  isDarkMode ? 'text-gray-200' : 'text-header-dark'
+                }`}
               >
                 Drag and drop your photo here
               </p>
               <p
-                className={`text-body-s font-normal pb-4 duration-750 ${isDarkMode ? 'text-gray-300' : 'text-body-medium'
-                  }`}
+                className={`text-body-s font-normal pb-4 duration-750 ${
+                  isDarkMode ? 'text-gray-300' : 'text-body-medium'
+                }`}
               >
                 or click to browse from your computer
               </p>
               <small
-                className={`text-body-s font-normal pb-8 duration-750 ${isDarkMode ? 'text-gray-400' : 'text-body-medium'
-                  }`}
+                className={`text-body-s font-normal pb-8 duration-750 ${
+                  isDarkMode ? 'text-gray-400' : 'text-body-medium'
+                }`}
               >
                 Supported formats:{' '}
                 {acceptedTypes

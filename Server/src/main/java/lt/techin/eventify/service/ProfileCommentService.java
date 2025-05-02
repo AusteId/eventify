@@ -10,11 +10,9 @@ import java.util.List;
 @Service
 public class ProfileCommentService {
   private final ProfileCommentRepository profileCommentRepository;
-  private final ProfileCommentMapper profileCommentMapper;
 
   public ProfileCommentService(ProfileCommentRepository profileCommentRepository, ProfileCommentMapper profileCommentMapper) {
     this.profileCommentRepository = profileCommentRepository;
-    this.profileCommentMapper = profileCommentMapper;
   }
 
   public List<ProfileComment> getProfileComments() {

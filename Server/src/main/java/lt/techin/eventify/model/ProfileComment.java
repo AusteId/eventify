@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users_comments")
@@ -29,7 +30,7 @@ public class ProfileComment {
   private String comment;
 
   @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
-  private Timestamp createdAt;
+  private LocalDateTime createdAt;
 
   public ProfileComment(User commenter, User commented, String comment) {
     this.commenter = commenter;

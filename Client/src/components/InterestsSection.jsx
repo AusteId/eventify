@@ -1,47 +1,25 @@
 import CategoryTag from './CategoryTag';
 
-const InterestsSection = () => {
-  const categories = [
-    {
-      id: 1,
-      img: 'src/assets/categories/music.svg',
-      text: 'Music',
-    },
-    {
-      id: 2,
-      img: 'src/assets/categories/sports.svg',
-      text: 'Sports',
-    },
-    {
-      id: 3,
-      img: 'src/assets/categories/bgames.svg',
-      text: 'Board Games',
-    },
-    {
-      id: 4,
-      img: 'src/assets/categories/food.svg',
-      text: 'Food & Dining',
-    },
-    {
-      id: 5,
-      img: 'src/assets/categories/photo.svg',
-      text: 'Photography',
-    },
-  ];
+const InterestsSection = ({categories}) => {
+
+  console.log(categories)
+
   return (
     <div className="w-full mt-8">
       <h1 className="text-header-dark font-inter font-bold text-heading-s">
         Interests
       </h1>
-      <div className="flex flex-wrap items-center pt-4 gap-2">
-        {categories.map(category => (
+      {categories?.length != 0 ?
+        <div className="flex flex-wrap items-center pt-6 gap-2">
+        {categories?.map(category => (
           <CategoryTag
-            img={category.img}
-            text={category.text}
+            img={"data:image/png;base64," + category.icon.data}
+            text={category.name}
             key={category.id}
           />
         ))}
-      </div>
+      </div> : <p className="text-body-medium font-inter pt-6">No interests provided.</p>
+      }
     </div>
   );
 };

@@ -4,6 +4,7 @@ import lt.techin.eventify.dto.user.UserMapper;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.EventComment;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.util.TimeConverter;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.stereotype.Component;
 
@@ -16,23 +17,13 @@ import java.time.*;
 public class EventCommentMapper {
   private static final UserMapper userMapper = new UserMapper();
 
+  private static final TimeConverter timeConverter = new TimeConverter();
+
   public static EventCommentResponse toResponse(EventComment eventComment) {
 
-    String relativeTime = "Unknown time";
+    String time = timeConverter.convert(eventComment.getCreatedAt());
 
-    LocalDateTime createdAt = eventComment.getCreatedAt();
-
-    if (createdAt != null) {
-
-      ZoneId lithuaniaZone = ZoneId.of("Europe/Vilnius");
-      ZonedDateTime lithuaniaTime = createdAt.atZone(ZoneOffset.UTC)
-              .withZoneSameInstant(lithuaniaZone);
-
-      PrettyTime prettyTime = new PrettyTime();
-      relativeTime = prettyTime.format(lithuaniaTime.toLocalDateTime());
-    }
-
-    return new EventCommentResponse(eventComment.getId(), userMapper.toUserResponse(eventComment.getUser()), eventComment.getEvent().getId(), eventComment.getComment(), relativeTime);
+    return new EventCommentResponse(eventComment.getId(), userMapper.toUserResponse(eventComment.getUser()), eventComment.getEvent().getId(), eventComment.getComment(), time);
   }
 
   public static EventComment toEventComment(CreateEventCommentRequest dto, User user, Event event) {
