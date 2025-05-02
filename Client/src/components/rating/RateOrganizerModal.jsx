@@ -2,10 +2,14 @@
 
 import { useState } from 'react';
 import { FaStar, FaRegStar } from 'react-icons/fa';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import { useDarkMode } from '../context/DarkModeContext';
 
-const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName }) => {
+const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName, eventId }) => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const { isDarkMode } = useDarkMode();
 
   if (!isOpen) return null;
 
@@ -13,8 +17,30 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName }) => {
     setRating(value);
   };
 
-  const handleSubmit = () => {
-    onClose();
+  const handleSubmit = async () => {
+
+    if (!eventId) {
+      toast.error('Event ID is missing');
+      console.error('Event ID is undefined:', eventId);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACK_URL}/api/ratings`,
+        { eventId, rating },
+        { withCredentials: true }
+      );
+      if (response.status === 201) {
+        toast.success('Rating submitted successfully');
+        onClose();
+      } else {
+        throw new Error('Failed to submit rating');
+      }
+    } catch (err) {
+      toast.error('Failed to submit rating');
+      console.error('Error submitting rating:', err.response?.data || err.message);
+    }
   };
 
   return (
@@ -23,10 +49,10 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName }) => {
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg">
+      <div className={`relative border rounded-lg p-6 w-[90%] max-w-md shadow-lg ${isDarkMode ? 'bg-slate-900 border-[#f59e0b]' : 'bg-white border-transparent'}`}>
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
+          className={`absolute top-2 right-2 ${isDarkMode ? 'text-gray-200 hover:text-[#f59e0b]' : 'text-gray-500 hover:text-gray-700'} cursor-pointer`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -44,11 +70,11 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName }) => {
           </svg>
         </button>
 
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+        <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} mb-6`}>
           Rate Organizer
         </h2>
 
-        <p className="text-gray-600 mb-6 text-center">
+        <p className={`text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-600'} mb-6`}>
           How would you rate {organizerName} as the organizer of "{eventName}"?
         </p>
 
@@ -71,7 +97,7 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName }) => {
         </div>
 
         {rating > 0 && (
-          <p className="text-center text-gray-600 mb-10 text-sm">
+          <p className={`text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-600'} mb-10 text-sm`}>
             You selected {rating} {rating === 1 ? 'star' : 'stars'}
           </p>
         )}
@@ -79,13 +105,13 @@ const RateOrganizerModal = ({ isOpen, onClose, organizerName, eventName }) => {
         <div className="flex justify-between gap-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+            className={`px-4 py-2 ${isDarkMode ? 'text-[#f59e0b] border-[#f59e0b] hover:bg-slate-600' : 'text-gray-600 border-gray-300 hover:bg-gray-100'} border rounded-lg transition-colors duration-200 cursor-pointer`}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-btn text-white rounded-lg hover:bg-btn-hover transition-colors duration-200 cursor-pointer"
+            className={`px-4 py-2 bg-btn text-white rounded-lg ${isDarkMode ? 'hover:bg-amber-600' : 'hover:bg-btn-hover'} transition-colors duration-200 cursor-pointer`}
             disabled={rating === 0}
           >
             Submit

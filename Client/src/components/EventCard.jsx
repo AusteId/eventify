@@ -106,7 +106,6 @@ const EventCard = ({
             withCredentials: true,
           },
         );
-        console.log('Full API response:', response.data);
         const registrations = response.data.registrations || [];
         setRegistered(response.data.isRegistered);
         setParticipants(registrations.length || 0);
@@ -162,14 +161,12 @@ const EventCard = ({
     try {
       if (registered) {
         const result = await cancelEvent(id);
-        console.log('cancelEvent result:', result);
         setRegistered(false);
         setParticipants(prev => Math.max(prev - 1));
         toast.success('Registration has been successfully canceled.');
       } else {
         if (participants < maxParticipants) {
           const result = await joinEvent(id);
-          console.log('joinEvent result:', result);
           setRegistered(true);
           setParticipants(prev => prev + 1);
           toast.success(`You're registered to ${name}!`);
@@ -274,6 +271,7 @@ const EventCard = ({
         onClose={() => setIsModalOpen(false)}
         organizerName={organizerName}
         eventName={name}
+        eventId={id}
       />
 
       <div className='relative'>
@@ -436,14 +434,14 @@ const EventCard = ({
         </div>
 
         {isEnded && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-            <div className="absolute -inset-1.5 bg-gradient-to-r from-intermediate to-btn opacity-70 hover:opacity-100 blur-md transition duration-1000 animate-pulse rounded-full"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+            <div className="absolute -inset-1 bg-gradient-to-r from-intermediate to-btn opacity-70 hover:opacity-100 blur-md transition duration-1000 animate-pulse rounded-full"></div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setIsModalOpen(true);
               }}
-              className="relative flex items-center gap-2 bg-gradient-to-r from-intermediate to-btn text-white rounded-full py-2 px-4 font-inter text-base hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
+              className="relative flex items-center gap-2 bg-gradient-to-r from-intermediate to-btn text-white rounded-lg py-2 px-4 font-inter text-base hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
             >
               <FaRegStar />
               Rate Organizer
