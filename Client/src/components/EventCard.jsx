@@ -36,8 +36,7 @@ const EventCard = ({
   isEnded,
   minAge,
   maxAge,
-  setRefresh,
-  organizerName = 'Jonas Petraitis',
+  organizer = {},
 }) => {
   const navigate = useNavigate();
   const normalizedExpLevel = experienceLevel ? experienceLevel : 'All Welcome';
@@ -48,6 +47,8 @@ const EventCard = ({
   const [deleteModal, setDeleteModal] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userRating, setUserRating] = useState(null);
+  const [isLoadingRating, setIsLoadingRating] = useState(true);
+  const [fetchedOrganizer, setFetchedOrganizer] = useState(null);
   const {
     isAuthenticated,
     loading: authLoading,
@@ -66,6 +67,10 @@ const EventCard = ({
 
   const bannedRole = roles.find((role) => role.name === "BANNED");
   const { isDarkMode } = useDarkMode();
+
+  console.log('Organizer prop:', organizer);
+  const organizerName = fetchedOrganizer?.username || organizer?.username || 'Unknown Organizer';
+  console.log('EventCard organizerName:', organizerName);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -97,9 +102,13 @@ const EventCard = ({
       if (!id || !isAuthenticated || !userId) {
         setRegistered(false);
         setParticipants(currentParticipants ?? 0);
+        setUserRating(null);
+        setIsLoadingRating(false);
+        console.log('No id or authentication, isEnded:', isEnded, 'userRating:', userRating);
         return;
       }
       try {
+        setIsLoadingRating(true);
         const response = await axios.get(
           `${import.meta.env.VITE_BACK_URL}/api/events/${id}`,
           {
@@ -109,14 +118,32 @@ const EventCard = ({
         const registrations = response.data.registrations || [];
         setRegistered(response.data.isRegistered);
         setParticipants(registrations.length || 0);
+        setFetchedOrganizer(response.data.organizer);
+        const ratingResponse = await axios.get(
+          `${import.meta.env.VITE_BACK_URL}/api/ratings/event/${id}/user`,
+          {
+            withCredentials: true,
+          },
+        );
+        console.log('Raw ratingResponse.data:', ratingResponse.data);
+        const fetchedRating = typeof ratingResponse.data === 'number' ? ratingResponse.data : null;
+        setUserRating(fetchedRating);
+        console.log('Fetched userRating:', fetchedRating, 'isEnded:', isEnded);
       } catch (error) {
         console.error('Error fetching event details:', error);
         setRegistered(false);
         setParticipants(currentParticipants ?? 0);
+        setUserRating(null);
+      } finally {
+        setIsLoadingRating(false);
       }
     };
     fetchEventDetails();
   }, [id, isAuthenticated, userId]);
+
+  useEffect(() => {
+    console.log('Updated state, isLoadingRating:', isLoadingRating, 'userRating:', userRating, 'isEnded:', isEnded);
+  }, [isLoadingRating, userRating, isEnded]);
 
   const calculateAge = birthDate => {
     if (!birthDate) return null;
@@ -235,7 +262,6 @@ const EventCard = ({
       if (response && response.ok) {
         toast.success('Event deleted successfully');
         setDeleteModal(false);
-        setRefresh(prev => prev + 1);
         return true;
       }
       return false;
@@ -272,7 +298,7 @@ const EventCard = ({
           setIsModalOpen(false);
           if (submittedRating) {
             setUserRating(submittedRating);
-            setRefresh(prev => prev + 1);
+            console.log('Submitted rating from RateOrganizerModal:', submittedRating);
           }
         }}
         organizerName={organizerName}
@@ -305,13 +331,6 @@ const EventCard = ({
                     <p className={`${isDarkMode ? 'text-gray-200' : 'text-white'}`}>
                       {expLevels[normalizedExpLevel][1]}
                     </p>
-                  </div>
-                )}
-
-                {isEnded && userRating !== null && (
-                  <div className="absolute right-2 top-2 bg-amber-400 text-white rounded-full py-1 px-2 flex items-center gap-1 z-10">
-                    <Crown size={14} />
-                    <span>{userRating}★</span>
                   </div>
                 )}
 
@@ -446,20 +465,30 @@ const EventCard = ({
           </div>
         </div>
 
-        {isEnded && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        {!isLoadingRating && isEnded && typeof userRating === 'number' && userRating > 0 && (
+                  <div className="absolute right-2 top-2 bg-amber-400 text-white rounded-full py-1 px-2 flex items-center gap-1 z-10 grayscale-0">
+                    <Crown size={14} />
+                    <span>{userRating}★</span>
+                  </div>
+                )}
+
+        {!isLoadingRating && isEnded && userRating === null && (
+          <>
+          {console.log('Showing Rate Organizer button, isEnded:', isEnded, 'userRating:', userRating)}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
             <div className="absolute -inset-1 bg-gradient-to-r from-intermediate to-btn opacity-70 hover:opacity-100 blur-md transition duration-1000 animate-pulse rounded-full"></div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setIsModalOpen(true);
               }}
-              className="relative flex items-center gap-2 bg-gradient-to-r from-intermediate to-btn text-white rounded-lg py-2 px-4 font-inter text-base hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
+              className="relative flex items-center gap-2 bg-gradient-to-r from-intermediate to-btn text-white rounded-lg py-3 px-6 font-inter text-lg hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
             >
               <FaRegStar />
               Rate Organizer
             </button>
           </div>
+          </>
         )}
 
       </div>
