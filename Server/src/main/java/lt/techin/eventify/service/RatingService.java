@@ -12,6 +12,8 @@ import lt.techin.eventify.repository.mysql.RatingRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class RatingService {
 
@@ -71,5 +73,9 @@ public class RatingService {
     }
 
     userRepository.save(organizer);
+  }
+
+  public Optional<Rating> findByRaterIdAndEventId(Long raterId, Long eventId) {
+    return ratingRepository.findByRaterIdAndEventId(raterId, eventId);
   }
 }
