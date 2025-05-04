@@ -466,28 +466,30 @@ const EventCard = ({
         </div>
 
         {!isLoadingRating && isEnded && typeof userRating === 'number' && userRating > 0 && (
-                  <div className="absolute right-2 top-2 bg-amber-400 text-white rounded-full py-1 px-2 flex items-center gap-1 z-10 grayscale-0">
-                    <Crown size={14} />
-                    <span>{userRating}★</span>
-                  </div>
-                )}
+          <div className="absolute right-2 top-2 bg-amber-400 text-white rounded-[1rem] py-3 px-6 flex flex-col items-center gap-1 z-10 grayscale-0">
+            <Crown size={18} className=''/>
+            <span>{userRating}★</span>
+          </div>
+        )}
 
         {!isLoadingRating && isEnded && userRating === null && (
           <>
-          {console.log('Showing Rate Organizer button, isEnded:', isEnded, 'userRating:', userRating)}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-            <div className="absolute -inset-1 bg-gradient-to-r from-intermediate to-btn opacity-70 hover:opacity-100 blur-md transition duration-1000 animate-pulse rounded-full"></div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsModalOpen(true);
-              }}
-              className="relative flex items-center gap-2 bg-gradient-to-r from-intermediate to-btn text-white rounded-lg py-3 px-6 font-inter text-lg hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
-            >
-              <FaRegStar />
-              Rate Organizer
-            </button>
-          </div>
+            {console.log('Showing Rate Organizer button, isEnded:', isEnded, 'userRating:', userRating)}
+            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+              {/* <div className="absolute -inset-1 bg-gradient-to-r from-intermediate to-btn opacity-70 hover:opacity-100 blur-md transition duration-1000 animate-pulse rounded-full"></div> */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsModalOpen(true);
+                }}
+                className="relative flex items-center bg-gradient-to-r from-intermediate to-btn text-white rounded-lg py-[0.42rem] px-[4.5rem] font-inter text-lg hover:bg-gradient-to-r hover:from-btn hover:to-btn-hover transition-colors duration-200 cursor-pointer animate-pulse-slow"
+              >
+                <FaRegStar className='mr-2' />
+                <div className='w-40'>
+                  Rate Organizer
+                </div>
+              </button>
+            </div>
           </>
         )}
 
