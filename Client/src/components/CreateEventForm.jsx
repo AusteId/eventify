@@ -1,17 +1,15 @@
-import { useForm } from 'react-hook-form';
-import FieldValidationError from './FieldValidationError';
-import createEvent from '../helpers/event/createEvent';
-import { useEffect, useState } from 'react';
-import getCategories from '../helpers/event/getCategories';
-import { LoaderIcon } from 'react-hot-toast';
-import ImageDropzone from './Registration/ImageDropZone';
-import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
-import toast from 'react-hot-toast';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import Button from './Button';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast, { LoaderIcon } from 'react-hot-toast';
 import CloseSVG from '../assets/CloseSVG';
-import { useDarkMode } from './context/DarkModeContext.jsx';
+import createEvent from '../helpers/event/createEvent';
+import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
 import AddressAutocomplete from './AddressAutocomplete.jsx';
+import Button from './Button';
+import { useDarkMode } from './context/DarkModeContext.jsx';
+import FieldValidationError from './FieldValidationError';
+import ImageDropzone from './Registration/ImageDropZone';
 
 const CreateEventForm = () => {
   const {
@@ -145,9 +143,14 @@ const CreateEventForm = () => {
       closeModal();
     } catch (error) {
       console.error('Event creation failed: ', error);
-      if (error.response && error.response.data && error.response.data.violations) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.violations
+      ) {
         error.response.data.violations.forEach(violation => {
-          const fieldName = violation.field === 'categoryId' ? 'category' : violation.field;
+          const fieldName =
+            violation.field === 'categoryId' ? 'category' : violation.field;
           setError(fieldName, {
             type: 'manual',
             message: violation.message,
@@ -168,16 +171,18 @@ const CreateEventForm = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-
-      setIsLoading(true);
-      const response = await fetch("http://localhost:8080/api/categories/all", {
-        method: "GET"
-      })
-      const data = await response.json()
-      setCategories(data);
-      setIsLoading(false);
-      }catch (error) {
-        console.error(error.mesage)
+        setIsLoading(true);
+        const response = await fetch(
+          'http://localhost:8080/api/categories/all',
+          {
+            method: 'GET',
+          },
+        );
+        const data = await response.json();
+        setCategories(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error.mesage);
       }
     };
     fetchCategories();
@@ -283,14 +288,31 @@ const CreateEventForm = () => {
             })}
             className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
           >
-            <option disabled={true} className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Select Experience Level</option>
-            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Beginner</option>
-            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Intermediate</option>
-            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Advanced</option>
-            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>Extreme</option>
-            <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`}>All Welcome</option>
+            <option
+              disabled={true}
+              className={`duration-750 ${isDarkMode && 'bg-slate-900'}`}
+            >
+              Select Experience Level
+            </option>
+            <option className={`duration-750 ${isDarkMode && 'bg-slate-900'}`}>
+              Beginner
+            </option>
+            <option className={`duration-750 ${isDarkMode && 'bg-slate-900'}`}>
+              Intermediate
+            </option>
+            <option className={`duration-750 ${isDarkMode && 'bg-slate-900'}`}>
+              Advanced
+            </option>
+            <option className={`duration-750 ${isDarkMode && 'bg-slate-900'}`}>
+              Extreme
+            </option>
+            <option className={`duration-750 ${isDarkMode && 'bg-slate-900'}`}>
+              All Welcome
+            </option>
           </select>
-          <FieldValidationError>{errors.experienceLevel?.message}</FieldValidationError>
+          <FieldValidationError>
+            {errors.experienceLevel?.message}
+          </FieldValidationError>
         </div>
       </div>
 
@@ -391,11 +413,20 @@ const CreateEventForm = () => {
               validate: value =>
                 value !== 'Select Category' || 'Please select a valid option',
             })}
-            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}>
-
-            <option disabled={true} className={`duration-750 ${isDarkMode && "bg-slate-900 text-gray-200"}`}>Select Category</option>
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
+          >
+            <option
+              disabled={true}
+              className={`duration-750 ${isDarkMode && 'bg-slate-900 text-gray-200'}`}
+            >
+              Select Category
+            </option>
             {categories.map((category, index) => (
-              <option className={`duration-750 ${isDarkMode && "bg-slate-900"}`} value={category.id} key={index}>
+              <option
+                className={`duration-750 ${isDarkMode && 'bg-slate-900'}`}
+                value={category.id}
+                key={index}
+              >
                 {capitalizeFirstLetter(category.name)}
               </option>
             ))}
@@ -414,7 +445,7 @@ const CreateEventForm = () => {
             Minimum Age
           </label>
           <input
-            className={`${isDarkMode ? "text-gray-200 border-[#f59e0b] dark-mode-datetime" : "text-body-medium border-input-light"} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b] dark-mode-datetime' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-minage"
             type="number"
             placeholder=""
@@ -443,7 +474,7 @@ const CreateEventForm = () => {
             Maximum Age
           </label>
           <input
-            className={`${isDarkMode ? "text-gray-200 border-[#f59e0b] dark-mode-datetime" : "text-body-medium border-input-light"} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b] dark-mode-datetime' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-maxage"
             type="number"
             placeholder=""
@@ -460,12 +491,12 @@ const CreateEventForm = () => {
                 message: 'Maximum age cannot exceed 120',
               },
               validate: value => {
-                const minAge = parseInt(getValues("minAge"));
+                const minAge = parseInt(getValues('minAge'));
                 if (value && minAge && value < minAge) {
                   return 'Maximum age cannot be less than minimum age';
                 }
                 return true;
-              }
+              },
             })}
           />
           <FieldValidationError>{errors.maxAge?.message}</FieldValidationError>
@@ -479,7 +510,7 @@ const CreateEventForm = () => {
             Maximum Participants*
           </label>
           <input
-            className={`${isDarkMode ? "text-gray-200 border-[#f59e0b]" : "text-body-medium border-input-light"} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
+            className={`${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} h-10 appearance-none border rounded-lg w-full py-2 px-3 leading-tight focus:outline-none`}
             id="event-maxparticipants"
             type="number"
             placeholder=""
@@ -490,15 +521,17 @@ const CreateEventForm = () => {
               required: 'Maximum Participants is required',
               min: {
                 value: 1,
-                message: 'Event must have at least 1 participant'
+                message: 'Event must have at least 1 participant',
               },
               max: {
                 value: 1000,
-                message: 'Event cannot have more than 1000 participants'
+                message: 'Event cannot have more than 1000 participants',
               },
             })}
           />
-          <FieldValidationError>{errors.maxParticipants?.message}</FieldValidationError>
+          <FieldValidationError>
+            {errors.maxParticipants?.message}
+          </FieldValidationError>
         </div>
       </div>
       <div className="flex mt-6 gap-6">
@@ -511,7 +544,7 @@ const CreateEventForm = () => {
           </label>
           <textarea
             id="event-description"
-            className={` ${isDarkMode ? "text-gray-200 border-[#f59e0b]" : "text-body-medium border-input-light"} field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border rounded-md px-3 py-2 focus:outline-none ...`}
+            className={` ${isDarkMode ? 'text-gray-200 border-[#f59e0b]' : 'text-body-medium border-input-light'} field-sizing-fixed resize-none font-inter text-body-medium text-body-m w-full bg-transparent placeholder:text-slate-400 text-sm border rounded-md px-3 py-2 focus:outline-none ...`}
             rows="3"
             placeholder="Describe the event..."
             {...register('description', {
@@ -530,9 +563,9 @@ const CreateEventForm = () => {
         <Button
           type="button"
           onClick={closeModal}
-          background={`duration-750 ${isDarkMode ? "bg-slate-900 border-1 border-[#f59e0b] hover:bg-slate-600" : "bg-white border-1 border-gray-300"}`}
-          hoverColor={`duration-750 ${isDarkMode && "hover:text-[#f59e0b]"}`}
-          textColor={`duration-750 ${isDarkMode && "text-[#f59e0b]"}`}
+          background={`duration-750 ${isDarkMode ? 'bg-slate-900 border-1 border-[#f59e0b] hover:bg-slate-600' : 'bg-white border-1 border-gray-300'}`}
+          hoverColor={`duration-750 ${isDarkMode && 'hover:text-[#f59e0b]'}`}
+          textColor={`duration-750 ${isDarkMode && 'text-[#f59e0b]'}`}
         >
           <p>Cancel</p>
         </Button>
