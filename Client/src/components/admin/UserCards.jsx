@@ -167,6 +167,7 @@ const UserCards = () => {
 
                 <Dropdown
                   setRefresh={setRefresh}
+                  bannedUser={user.banned}
                   closeDropdown={() => setOpenDropdownId(null)}
                   isDropdownOpen={openDropdownId === user.id}
                   username={user.username}

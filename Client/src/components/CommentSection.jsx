@@ -28,7 +28,7 @@ const CommentSection = props => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      comment: null,
+      comment: '',
     },
   });
 
@@ -140,6 +140,7 @@ const CommentSection = props => {
               setComments={setComments}
               setLoading={setLoading}
               userId={comment.userResponse.id}
+              editPoint={props.editPoint}
             />
           ))}
         </div>

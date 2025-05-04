@@ -56,17 +56,17 @@ public class ProfileCommentController {
     return ResponseEntity.ok(commentResponses);
   }
 
-  @PostMapping("{userId}/comments")
-  public ResponseEntity<ProfileCommentResponse> postComment(@PathVariable long userId, @Valid @RequestBody CreateProfileCommentRequest dto, Authentication authentication) {
+  @PostMapping("/{userId}/comments")
+  public ResponseEntity<ProfileCommentResponse> postComment(@Valid @RequestBody CreateProfileCommentRequest dto, @PathVariable long userId, Authentication authentication) {
     User user = userService.findByUsername(authentication.getName()).orElse(null);
     if (user == null) return ResponseEntity.badRequest().build();
 
     User commented = userService.findById(userId);
     if (commented == null) return ResponseEntity.notFound().build();
 
-    if (user == commented) {
-      return ResponseEntity.badRequest().build();
-    }
+//    if (user == commented) {
+//      return ResponseEntity.badRequest().build();
+//    }
 
     ProfileComment profileComment = profileCommentService.save(ProfileCommentMapper.toProfileComment(dto, user, commented));
 

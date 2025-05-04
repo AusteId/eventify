@@ -3,10 +3,13 @@ package lt.techin.eventify.controller;
 import jakarta.validation.Valid;
 import lt.techin.eventify.dto.event.EventResponse;
 import lt.techin.eventify.dto.user.*;
+import lt.techin.eventify.model.Category;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.service.CategoryService;
 import lt.techin.eventify.service.EventService;
 import lt.techin.eventify.service.R2Service;
 import lt.techin.eventify.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -18,10 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,17 +33,19 @@ public class UserController {
   private final UserMapper userMapper;
   private final R2Service r2Service;
   private final RestTemplate restTemplate;
+  private final CategoryService categoryService;
 
   @Value("${geonames.username}")
   private String geonamesUsername;
 
   @Autowired
   public UserController(R2Service r2Service, UserService userService, EventService eventService,
-                        UserMapper userMapper) {
+                        UserMapper userMapper, CategoryService categoryService) {
     this.userService = userService;
     this.eventService = eventService;
     this.userMapper = userMapper;
     this.r2Service = r2Service;
+    this.categoryService = categoryService;
     this.restTemplate = new RestTemplate();
   }
 
@@ -120,6 +123,11 @@ public class UserController {
     return ResponseEntity.ok(userResponse);
   }
 
+  @GetMapping("/{userId}")
+  public ResponseEntity<UserResponse> getUser(@PathVariable long userId) {
+    return ResponseEntity.ok(userMapper.toUserResponse(userService.findById(userId)));
+  }
+
   @GetMapping("/check-availability")
   public ResponseEntity<Map<String, Boolean>> checkAvailability(
           @RequestParam(required = false) String username,
@@ -170,7 +178,8 @@ public class UserController {
   }
   @GetMapping("/{userId}/avatar")
   public ResponseEntity<byte[]> getUserPublicAvatar(@PathVariable Long userId) {
-    return ResponseEntity.ok(userService.getUserPublicAvatar(userId));
+//    return ResponseEntity.ok(userService.getUserPublicAvatar(userId));
+      return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(userService.getUserPublicAvatar(userId));
   }
 
   @GetMapping("/cities")
@@ -178,6 +187,39 @@ public class UserController {
     String url = String.format("http://api.geonames.org/searchJSON?name_startsWith=%s&maxRows=10&username=%s&cities=cities1000&lang=lt&country=LT", query,geonamesUsername);
     Object response = restTemplate.getForObject(url, Object.class);
     return ResponseEntity.ok(response);
+  }
+
+  @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<?> updateUser(@PathVariable long userId, @Valid @ModelAttribute EditUserRequest dto, Authentication authentication) throws IOException {
+    User user = userService.findById(userId);
+
+    MultipartFile avatar = dto.avatar();
+
+    User authUser = userService.findByUsername(authentication.getName()).orElse(null);
+
+    if (authUser == null) return ResponseEntity.badRequest().build();
+
+    if (user != authUser) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    user.setDescription(dto.description());
+
+    Set<Category> favoriteCategories = new HashSet<>();
+    if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
+      favoriteCategories = dto.categoryIds().stream()
+              .map(categoryService::findById)
+              .collect(Collectors.toSet());
+    }
+
+    user.setFavoriteEventCategories(favoriteCategories);
+
+    if (avatar != null) {
+      r2Service.uploadUserAvatar(avatar, userId);
+    } else {
+      // User does not want ANY avatar!
+      r2Service.deleteUserAvatar(userId);
+    }
+
+    return ResponseEntity.ok(userService.save(user));
   }
 
 }

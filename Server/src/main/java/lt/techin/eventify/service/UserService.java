@@ -58,6 +58,10 @@ public class UserService {
     return userRepository.existsByEmail(email);
   }
 
+  public User save(User user) {
+    return userRepository.save(user);
+  }
+
   public User saveUser(CreateUserRequest dto) throws IOException {
     if (userRepository.existsByEmail(dto.email())) {
       throw new EmailAlreadyExistsException("Email already exists.");
@@ -70,7 +74,6 @@ public class UserService {
     Role roleUser = roleRepository.findByName("USER").orElseThrow();
 
     User newUser = userMapper.toUser(dto);
-
 
     Set<Category> favoriteCategories = new HashSet<>();
     if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {

@@ -126,6 +126,14 @@ public class R2Service {
         s3Client.putObject(putObjectRequest,RequestBody.fromBytes(jpgBytes));
     }
 
+    public void deleteUserAvatar(long userId) throws IOException {
+        String s3Key = String.format("users/%s/image.jpg",userId);
+
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(s3Key).build();
+
+        s3Client.deleteObject(deleteObjectRequest);
+    }
+
     public byte[] downloadFile(String key) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
