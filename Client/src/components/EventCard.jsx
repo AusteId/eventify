@@ -67,10 +67,7 @@ const EventCard = ({
 
   const bannedRole = roles.find((role) => role.name === "BANNED");
   const { isDarkMode } = useDarkMode();
-
-  console.log('Organizer prop:', organizer);
   const organizerName = fetchedOrganizer?.username || organizer?.username || 'Unknown Organizer';
-  console.log('EventCard organizerName:', organizerName);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -104,7 +101,6 @@ const EventCard = ({
         setParticipants(currentParticipants ?? 0);
         setUserRating(null);
         setIsLoadingRating(false);
-        console.log('No id or authentication, isEnded:', isEnded, 'userRating:', userRating);
         return;
       }
       try {
@@ -125,10 +121,8 @@ const EventCard = ({
             withCredentials: true,
           },
         );
-        console.log('Raw ratingResponse.data:', ratingResponse.data);
         const fetchedRating = typeof ratingResponse.data === 'number' ? ratingResponse.data : null;
         setUserRating(fetchedRating);
-        console.log('Fetched userRating:', fetchedRating, 'isEnded:', isEnded);
       } catch (error) {
         console.error('Error fetching event details:', error);
         setRegistered(false);
@@ -142,7 +136,6 @@ const EventCard = ({
   }, [id, isAuthenticated, userId]);
 
   useEffect(() => {
-    console.log('Updated state, isLoadingRating:', isLoadingRating, 'userRating:', userRating, 'isEnded:', isEnded);
   }, [isLoadingRating, userRating, isEnded]);
 
   const calculateAge = birthDate => {
@@ -296,9 +289,8 @@ const EventCard = ({
         isOpen={isModalOpen}
         onClose={(submittedRating) => {
           setIsModalOpen(false);
-          if (submittedRating) {
+          if (typeof submittedRating === 'number' && submittedRating >= 1 && submittedRating <= 5) {
             setUserRating(submittedRating);
-            console.log('Submitted rating from RateOrganizerModal:', submittedRating);
           }
         }}
         organizerName={organizerName}
@@ -474,7 +466,6 @@ const EventCard = ({
 
         {!isLoadingRating && isEnded && userRating === null && (
           <>
-            {console.log('Showing Rate Organizer button, isEnded:', isEnded, 'userRating:', userRating)}
             <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
               {/* <div className="absolute -inset-1 bg-gradient-to-r from-intermediate to-btn opacity-70 hover:opacity-100 blur-md transition duration-1000 animate-pulse rounded-full"></div> */}
               <button
