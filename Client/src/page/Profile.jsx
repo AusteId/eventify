@@ -18,7 +18,10 @@ const Profile = () => {
   const { pUserId } = useParams();
   const { userId } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [ratingData, setRatingData] = useState({ averageRating: 0, ratingCount: 0 });
+  const [ratingData, setRatingData] = useState({
+    averageRating: 0,
+    ratingCount: 0,
+  });
   const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
@@ -42,7 +45,7 @@ const Profile = () => {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BACK_URL}/api/ratings/users/${pUserId}/rating`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         console.log('Fetched user rating:', response.data);
         setRatingData({
@@ -76,7 +79,7 @@ const Profile = () => {
     return age;
   }
 
-  const renderStars = (rating) => {
+  const renderStars = rating => {
     const maxStars = 5;
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -84,7 +87,7 @@ const Profile = () => {
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <FaStar key={`full-${i}`} className="text-intermediate text-xl" />
+        <FaStar key={`full-${i}`} className="text-intermediate text-xl" />,
       );
     }
 
@@ -97,7 +100,7 @@ const Profile = () => {
             className="text-intermediate text-xl absolute top-0 left-0"
             style={{ clipPath: `inset(0 ${100 - percentage}% 0 0)` }}
           />
-        </div>
+        </div>,
       );
     }
 
@@ -106,7 +109,7 @@ const Profile = () => {
         <FaRegStar
           key={`empty-${stars.length}`}
           className="text-gray-300 text-xl"
-        />
+        />,
       );
     }
 
@@ -180,14 +183,19 @@ const Profile = () => {
                   </p>
                 </div>
                 <div className="flex items-center mt-4">
-
                   <div className="flex items-center flex-nowrap">
                     {renderStars(ratingData.averageRating)}
-                    <p className="ml-1 text-body-medium font-inter whitespace-nowrap pl-2">
-                      {ratingData.averageRating} ({ratingData.ratingCount} {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
+                    <p
+                      className={
+                        isDarkMode
+                          ? 'ml-1 text-slate-400 font-inter whitespace-nowrap pl-2'
+                          : 'ml-1 text-body-medium font-inter whitespace-nowrap pl-2'
+                      }
+                    >
+                      {ratingData.averageRating} ({ratingData.ratingCount}{' '}
+                      {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
                     </p>
                   </div>
-
                 </div>
               </div>
               <div className="w-full flex justify-end">
