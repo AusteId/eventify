@@ -93,8 +93,8 @@ const Profile = () => {
                   <h1
                     className={
                       isDarkMode
-                        ? 'text-[#f59e0b] font-inter font-bold text-heading-m'
-                        : 'text-header-dark font-inter font-bold text-heading-m'
+                        ? 'text-[#f59e0b] font-inter font-bold text-heading-m text-nowrap'
+                        : 'text-header-dark font-inter font-bold text-heading-m text-nowrap'
                     }
                   >
                     {profileData.username}
