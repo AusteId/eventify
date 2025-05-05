@@ -10,6 +10,7 @@ import CategoryImage from './category/CategoryImage';
 import { useDarkMode } from './context/DarkModeContext';
 import FieldValidationError from './FieldValidationError';
 import ImageDropzone from './Registration/ImageDropZone';
+import { useAuth } from '../components/Auth/AuthContext';
 
 const EditProfileForm = ({
   userCategories,
@@ -23,6 +24,7 @@ const EditProfileForm = ({
   const { isDarkMode } = useDarkMode();
   const [avatarState, setAvatarState] = useState(null);
   const navigate = useNavigate();
+  const { setAvatar } = useAuth();
   const {
     register,
     handleSubmit,
@@ -122,6 +124,15 @@ const EditProfileForm = ({
     reset(current, { keepErrors: true, keepDirty: true });
   };
 
+  const blobToBase64 = blob => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
   useEffect(() => {
     axios
       .get(`http://localhost:8080/api/users/${pUserId}/avatar`, {
@@ -140,6 +151,10 @@ const EditProfileForm = ({
     setIsLoading(true);
     try {
       const response = await editEvent(data, pUserId);
+
+      const base64 = await blobToBase64(data.avatar);
+      localStorage.setItem('userAvatar', base64);
+      setAvatar(base64);
     } catch (error) {
       console.error('Event edit failed: ', error);
       toast.error('Failed to edit event');

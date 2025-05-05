@@ -10,14 +10,12 @@ import { DarkModeProvider } from './components/context/DarkModeContext.jsx';
 import './components/context/standalone-notification-system.js';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-          <DarkModeProvider>
-            <App />
-            <Toaster />
-          </DarkModeProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>,
+  <BrowserRouter>
+    <AuthProvider>
+      <DarkModeProvider>
+        <App />
+        <Toaster />
+      </DarkModeProvider>
+    </AuthProvider>
+  </BrowserRouter>,
 );

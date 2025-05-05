@@ -18,7 +18,10 @@ const Profile = () => {
   const { pUserId } = useParams();
   const { userId } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [ratingData, setRatingData] = useState({ averageRating: 0, ratingCount: 0 });
+  const [ratingData, setRatingData] = useState({
+    averageRating: 0,
+    ratingCount: 0,
+  });
   const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
@@ -42,7 +45,7 @@ const Profile = () => {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BACK_URL}/api/ratings/users/${pUserId}/rating`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         console.log('Fetched user rating:', response.data);
         setRatingData({
@@ -91,7 +94,7 @@ const Profile = () => {
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <FaStar key={`full-${i}`} className="text-intermediate text-xl" />
+        <FaStar key={`full-${i}`} className="text-intermediate text-xl" />,
       );
     }
 
@@ -104,7 +107,7 @@ const Profile = () => {
             className="text-intermediate text-xl absolute top-0 left-0"
             style={{ clipPath: `inset(0 ${100 - percentage}% 0 0)` }}
           />
-        </div>
+        </div>,
       );
     }
 
@@ -113,7 +116,7 @@ const Profile = () => {
         <FaRegStar
           key={`empty-${stars.length}`}
           className="text-gray-300 text-xl"
-        />
+        />,
       );
     }
 
@@ -159,8 +162,8 @@ const Profile = () => {
                   <h1
                     className={
                       isDarkMode
-                        ? 'text-[#f59e0b] font-inter font-bold text-heading-m'
-                        : 'text-header-dark font-inter font-bold text-heading-m'
+                        ? 'text-[#f59e0b] font-inter font-bold text-heading-m text-nowrap'
+                        : 'text-header-dark font-inter font-bold text-heading-m text-nowrap'
                     }
                   >
                     {profileData.username}
@@ -187,28 +190,32 @@ const Profile = () => {
                   </p>
                 </div>
                 <div className="flex items-center mt-4">
-
                   <div className="flex items-center flex-nowrap">
                     {renderStars(ratingData.averageRating)}
-                    <p className="ml-1 text-body-medium font-inter whitespace-nowrap pl-2">
-                      {formatRating(ratingData.averageRating)} ({ratingData.ratingCount} {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
-                    </p>
-                  </div>
-
-                </div>
-              </div>
-              <div className="w-full flex justify-end">
-                {userId == pUserId && (
-                  <Button
-                    onClick={() =>
-                      document.getElementById('edit_profile_modal').showModal()
-                    }
-                  >
-                    Edit Profile
-                  </Button>
-                )}
-              </div>
-            </div>
+                    <p
+      className={
+        isDarkMode
+          ? 'ml-1 text-slate-400 font-inter whitespace-nowrap pl-2'
+          : 'ml-1 text-body-medium font-inter whitespace-nowrap pl-2'
+      }
+    >
+      {formatRating(ratingData.averageRating)} ({ratingData.ratingCount} {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
+    </p>
+  </div>
+                </div >
+              </div >
+  <div className="w-full flex justify-end">
+    {userId == pUserId && (
+      <Button
+        onClick={() =>
+          document.getElementById('edit_profile_modal').showModal()
+        }
+      >
+        Edit Profile
+      </Button>
+    )}
+  </div>
+            </div >
             <div className="flex flex-col justify-between w-full mt-8">
               <h1
                 className={
@@ -232,23 +239,23 @@ const Profile = () => {
             <InterestsSection
               categories={profileData.favoriteEventCategories}
             />
-          </div>
-        </div>
-        <div
-          className={
-            isDarkMode
-              ? 'bg-slate-900 w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
-              : 'bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
-          }
-        >
-          <CommentSection
-            contextId={userId}
-            endpoint={'/users/' + pUserId + '/comments'}
-            editPoint={'/users/comments/'}
-          />
-        </div>
-      </div>
-    </div>
+          </div >
+        </div >
+  <div
+    className={
+      isDarkMode
+        ? 'bg-slate-900 w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
+        : 'bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
+    }
+  >
+    <CommentSection
+      contextId={userId}
+      endpoint={'/users/' + pUserId + '/comments'}
+      editPoint={'/users/comments/'}
+    />
+  </div>
+      </div >
+    </div >
   );
 };
 export default Profile;
