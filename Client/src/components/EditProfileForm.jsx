@@ -34,19 +34,24 @@ const EditProfileForm = ({
   } = useForm({
     defaultValues: {
       avatar: null,
-      description: description,
+      description: '',
       categoryIds: [],
     },
   });
 
   const avatar = watch('avatar');
   const categoryIds = watch('categoryIds');
+  const descriptionValue = watch('description');
 
   const closeModal = () => {
     resetForm();
     clearErrors();
     document.getElementById('edit_profile_modal').close();
   };
+
+  useEffect(() => {
+    setValue('description', description);
+  }, [description, setValue]);
 
   const getAllCategories = async () => {
     try {
@@ -90,6 +95,7 @@ const EditProfileForm = ({
     applyDefaultCategories();
     setAvatarState(`http://localhost:8080/api/users/${pUserId}/avatar`);
     setValue('avatar', avatarState);
+    setValue('description', description);
     // reset({
     //   avatar: null,
     //   description: description,
@@ -105,7 +111,15 @@ const EditProfileForm = ({
     }
 
     setSelectedInterests(newInterests);
-    setValue('categoryIds', newInterests);
+    // setValue('categoryIds', newInterests);
+
+    const current = {
+      description: watch('description'),
+      avatar: watch('avatar'),
+      categoryIds: newInterests,
+    };
+
+    reset(current, { keepErrors: true, keepDirty: true });
   };
 
   useEffect(() => {
@@ -123,19 +137,15 @@ const EditProfileForm = ({
 
   const onSubmit = async data => {
     if (isLoading) return;
-    closeModal();
-    console.log(data);
     setIsLoading(true);
     try {
       const response = await editEvent(data, pUserId);
-      toast.success('Event edited successfully');
     } catch (error) {
       console.error('Event edit failed: ', error);
       toast.error('Failed to edit event');
+      return;
     } finally {
-      resetForm();
       navigate(0);
-      setIsLoading(false);
     }
   };
 
@@ -174,7 +184,8 @@ const EditProfileForm = ({
             rows="4"
             placeholder="Add a description..."
             maxLength={1000}
-            defaultValue={description}
+            value={descriptionValue}
+            onChange={e => setValue('description', e.target.value)}
             {...register('description', {
               maxLength: {
                 value: 1000,

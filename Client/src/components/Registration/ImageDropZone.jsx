@@ -120,10 +120,10 @@ const ImageDropzone = ({
                 <Button
                   type="button"
                   onClick={e => {
-                    e.stopPropagation();
-                    const fileInput =
-                      document.querySelector('input[type="file"]');
-                    if (fileInput) fileInput.click();
+                    // e.stopPropagation();
+                    // const fileInput =
+                    //   document.querySelector('input[type="file"]');
+                    // if (fileInput) fileInput.click();
                   }}
                   className="text-sm"
                 >

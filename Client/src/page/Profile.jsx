@@ -5,6 +5,7 @@ import { useAuth } from '../components/Auth/AuthContext';
 import BasicModal from '../components/BasicModal';
 import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
+import { useDarkMode } from '../components/context/DarkModeContext';
 import EditProfileForm from '../components/EditProfileForm';
 import InterestsSection from '../components/InterestsSection';
 import LoadingScreen from '../components/message/LoadingScreen';
@@ -18,6 +19,7 @@ const Profile = () => {
   const { userId } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [ratingData, setRatingData] = useState({ averageRating: 0, ratingCount: 0 });
+  const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
     const getProfileData = async () => {
@@ -127,7 +129,13 @@ const Profile = () => {
         />
       </BasicModal>
       <div className="tablet:w-224 mx-auto pb-8">
-        <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
+        <div
+          className={
+            isDarkMode
+              ? 'w-full h-auto p-8 mt-8 rounded-2xl shadow-md bg-slate-900'
+              : 'w-full h-auto p-8 mt-8 rounded-2xl shadow-md bg-white'
+          }
+        >
           <div className="size-full">
             <div className="flex w-full h-32">
               <img
@@ -141,15 +149,33 @@ const Profile = () => {
               />
               <div className="ml-8">
                 <div className="flex items-center">
-                  <h1 className="text-header-dark font-inter font-bold text-heading-m">
+                  <h1
+                    className={
+                      isDarkMode
+                        ? 'text-[#f59e0b] font-inter font-bold text-heading-m'
+                        : 'text-header-dark font-inter font-bold text-heading-m'
+                    }
+                  >
                     {profileData.username}
                   </h1>
-                  <p className="text-[#6B7280] font-inter items-baseline ml-3">
+                  <p
+                    className={
+                      isDarkMode
+                        ? 'text-slate-400 font-inter items-baseline ml-3'
+                        : 'text-[#6B7280] font-inter items-baseline ml-3'
+                    }
+                  >
                     {calculateAge(profileData.birthDate)}
                   </p>
                 </div>
                 <div className="flex items-center">
-                  <p className="font-inter text-body-medium">
+                  <p
+                    className={
+                      isDarkMode
+                        ? 'font-inter text-slate-400 '
+                        : 'font-inter text-body-medium'
+                    }
+                  >
                     {profileData.email}
                   </p>
                 </div>
@@ -177,10 +203,22 @@ const Profile = () => {
               </div>
             </div>
             <div className="flex flex-col justify-between w-full mt-8">
-              <h1 className="text-header-dark font-inter font-bold text-heading-s pb-6">
+              <h1
+                className={
+                  isDarkMode
+                    ? 'text-gray-200 font-inter font-bold text-heading-s pb-6'
+                    : 'text-header-dark font-inter font-bold text-heading-s pb-6'
+                }
+              >
                 About Me
               </h1>
-              <p className="text-body-medium font-inter">
+              <p
+                className={
+                  isDarkMode
+                    ? 'text-slate-400 font-inter'
+                    : 'text-body-medium font-inter'
+                }
+              >
                 {profileData.description || 'No description provided.'}
               </p>
             </div>
@@ -189,7 +227,13 @@ const Profile = () => {
             />
           </div>
         </div>
-        <div className="bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md">
+        <div
+          className={
+            isDarkMode
+              ? 'bg-slate-900 w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
+              : 'bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
+          }
+        >
           <CommentSection
             contextId={userId}
             endpoint={'/users/' + pUserId + '/comments'}
