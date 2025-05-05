@@ -79,7 +79,14 @@ const Profile = () => {
     return age;
   }
 
-  const renderStars = rating => {
+  const formatRating = (rating) => {
+    if (Number.isInteger(rating)) {
+      return rating.toString();
+    }
+    return parseFloat(rating).toFixed(1);
+  };
+
+  const renderStars = (rating) => {
     const maxStars = 5;
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -186,30 +193,29 @@ const Profile = () => {
                   <div className="flex items-center flex-nowrap">
                     {renderStars(ratingData.averageRating)}
                     <p
-                      className={
-                        isDarkMode
-                          ? 'ml-1 text-slate-400 font-inter whitespace-nowrap pl-2'
-                          : 'ml-1 text-body-medium font-inter whitespace-nowrap pl-2'
-                      }
-                    >
-                      {ratingData.averageRating} ({ratingData.ratingCount}{' '}
-                      {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full flex justify-end">
-                {userId == pUserId && (
-                  <Button
-                    onClick={() =>
-                      document.getElementById('edit_profile_modal').showModal()
-                    }
-                  >
-                    Edit Profile
-                  </Button>
-                )}
-              </div>
-            </div>
+      className={
+        isDarkMode
+          ? 'ml-1 text-slate-400 font-inter whitespace-nowrap pl-2'
+          : 'ml-1 text-body-medium font-inter whitespace-nowrap pl-2'
+      }
+    >
+      {formatRating(ratingData.averageRating)} ({ratingData.ratingCount} {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
+    </p>
+  </div>
+                </div >
+              </div >
+  <div className="w-full flex justify-end">
+    {userId == pUserId && (
+      <Button
+        onClick={() =>
+          document.getElementById('edit_profile_modal').showModal()
+        }
+      >
+        Edit Profile
+      </Button>
+    )}
+  </div>
+            </div >
             <div className="flex flex-col justify-between w-full mt-8">
               <h1
                 className={
@@ -233,23 +239,23 @@ const Profile = () => {
             <InterestsSection
               categories={profileData.favoriteEventCategories}
             />
-          </div>
-        </div>
-        <div
-          className={
-            isDarkMode
-              ? 'bg-slate-900 w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
-              : 'bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
-          }
-        >
-          <CommentSection
-            contextId={userId}
-            endpoint={'/users/' + pUserId + '/comments'}
-            editPoint={'/users/comments/'}
-          />
-        </div>
-      </div>
-    </div>
+          </div >
+        </div >
+  <div
+    className={
+      isDarkMode
+        ? 'bg-slate-900 w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
+        : 'bg-white w-full h-auto p-8 mt-8 rounded-2xl shadow-md'
+    }
+  >
+    <CommentSection
+      contextId={userId}
+      endpoint={'/users/' + pUserId + '/comments'}
+      editPoint={'/users/comments/'}
+    />
+  </div>
+      </div >
+    </div >
   );
 };
 export default Profile;
