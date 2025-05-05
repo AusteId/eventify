@@ -1,9 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router';
 
@@ -21,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const blobToBase64 = (blob) => {
+  const blobToBase64 = blob => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result);
@@ -34,7 +29,7 @@ export const AuthProvider = ({ children }) => {
     if (message.length <= number) {
       return message;
     }
-    return message.substring(0, number) + "...";
+    return message.substring(0, number) + '...';
   };
 
   const getUserAvatar = async () => {
@@ -45,7 +40,9 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      const response = await authFetch('http://localhost:8080/api/users/avatar');
+      const response = await authFetch(
+        'http://localhost:8080/api/users/avatar',
+      );
       if (response && response.ok) {
         const blob = await response.blob();
         const base64 = await blobToBase64(blob);
@@ -62,13 +59,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthOnMount = async () => {
       setIsLoading(true);
-      console.log("Running initial auth check");
+      console.log('Running initial auth check');
 
-      const hasRememberMe = localStorage.getItem("rememberMe") === "true";
-      const hasSession = sessionStorage.getItem("plsStahp") === "true";
+      const hasRememberMe = localStorage.getItem('rememberMe') === 'true';
+      const hasSession = sessionStorage.getItem('plsStahp') === 'true';
 
       if (!hasRememberMe && !hasSession) {
-        console.log("No session or remember me found");
+        console.log('No session or remember me found');
         setIsLoading(false);
         return;
       }
@@ -80,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
         if (response.ok) {
           const userData = await response.json();
-          console.log("Auth check success:", userData);
+          console.log('Auth check success:', userData);
 
           setIsAuthenticated(true);
           setRoles(userData.roles || []);
@@ -93,11 +90,11 @@ export const AuthProvider = ({ children }) => {
 
           getUserAvatar();
         } else {
-          console.log("Auth check failed with status:", response.status);
+          console.log('Auth check failed with status:', response.status);
           clearAuthData();
         }
       } catch (error) {
-        console.error("Auth check error:", error);
+        console.error('Auth check error:', error);
         toast.error(error.message || 'Failed to authenticate');
         clearAuthData();
       } finally {
@@ -115,8 +112,8 @@ export const AuthProvider = ({ children }) => {
     setBirthDate(null);
     setAvatar(null);
     sessionStorage.removeItem('plsStahp');
-    localStorage.removeItem("rememberMe");
-    localStorage.removeItem("userAvatar");
+    localStorage.removeItem('rememberMe');
+    localStorage.removeItem('userAvatar');
   };
 
   const login = async credentials => {
@@ -130,7 +127,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({
           email: credentials.email.toLowerCase(),
           password: credentials.password,
-          rememberMe: credentials.rememberMe || false
+          rememberMe: credentials.rememberMe || false,
         }),
         credentials: 'include',
       });
@@ -142,10 +139,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (credentials.rememberMe) {
-        localStorage.setItem("rememberMe", "true");
+        localStorage.setItem('rememberMe', 'true');
       } else {
         sessionStorage.setItem('plsStahp', 'true');
-        localStorage.removeItem("rememberMe");
+        localStorage.removeItem('rememberMe');
       }
 
       const userResponse = await fetch('http://localhost:8080/api/users/me', {
@@ -168,7 +165,7 @@ export const AuthProvider = ({ children }) => {
       navigate(redirect);
       return true;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error('Login error:', error);
       toast.error(error.message || 'Login Failed');
       return false;
     } finally {
@@ -185,12 +182,12 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       clearAuthData();
-      localStorage.removeItem("eventify_unread_count");
+      localStorage.removeItem('eventify_unread_count');
 
       window.dispatchEvent(new Event('logout'));
       toast.success('Logged out!');
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error('Logout error:', error);
       toast.error(error.message || 'Failed to logout');
       clearAuthData();
     } finally {
@@ -216,7 +213,7 @@ export const AuthProvider = ({ children }) => {
       }
       return response;
     } catch (error) {
-      console.error("Auth fetch error:", error);
+      console.error('Auth fetch error:', error);
       toast.error(error.message || 'Failed to fetch');
       return null;
     }
@@ -234,12 +231,11 @@ export const AuthProvider = ({ children }) => {
     loading,
     avatar,
     shortenContent,
+    setAvatar,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
