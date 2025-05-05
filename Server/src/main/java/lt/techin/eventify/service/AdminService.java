@@ -7,6 +7,8 @@ import lt.techin.eventify.dto.ban.BanRequest;
 import lt.techin.eventify.dto.ban.BanResponse;
 import lt.techin.eventify.dto.user.UserBanResponse;
 import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.exception.ActiveBanException;
+import lt.techin.eventify.exception.AdminException;
 import lt.techin.eventify.exception.NotFoundException;
 import lt.techin.eventify.exception.UnauthorizedException;
 import lt.techin.eventify.model.Ban;
@@ -56,8 +58,21 @@ public class AdminService {
                 .stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("ADMIN"));
 
+        boolean isUserAdmin = user.getRoles()
+                .stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("ADMIN"));
+
         if (!isAdmin) {
             throw new UnauthorizedException("Only admins can ban users");
+        }
+
+        if (isUserAdmin) {
+            throw new AdminException("Cannot ban an admin");
+        }
+
+        Optional<Ban> activeBan = banRe.findByUserAndActiveTrue(user);
+        if (activeBan.isPresent()) {
+            throw new ActiveBanException("User already has an active ban");
         }
 
         Role bannedRole = roleRepository.findByName("BANNED".toUpperCase())
