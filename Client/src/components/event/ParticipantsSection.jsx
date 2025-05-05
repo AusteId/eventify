@@ -31,7 +31,7 @@ const ParticipantsSection = ({ organizer, participants }) => {
                 : `Participants (${participants.length})`}
             </h2>
             <div className={`flex flex-col gap-5 ${isDarkMode && "text-[#f59e0b]"}`}>
-              {participants.map((participant, index) => (
+              {participants.slice(0,3).map((participant, index) => (
                 <Participant
                   name={shortenContent(participant.username,15)}
                   profileImg={participant.avatar}
