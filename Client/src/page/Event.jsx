@@ -108,8 +108,8 @@ const Event = () => {
       const userRegistration =
         data.registrations && Array.isArray(data.registrations)
           ? data.registrations.some(
-              reg => String(reg.userJoinToEvent?.userId) === String(userId),
-            )
+            reg => String(reg.userJoinToEvent?.userId) === String(userId),
+          )
           : false;
       setIsRegistered(userRegistration);
 
@@ -223,7 +223,7 @@ const Event = () => {
     fetchEventData();
   }, [params.id, userId, isRegistered]);
 
-  useEffect(() => {}, [isRegistered]);
+  useEffect(() => { }, [isRegistered]);
 
   if (loading || !event) {
     return (
@@ -261,12 +261,12 @@ const Event = () => {
     <>
       {deleteModal && (
         <DeleteModal buttonAccept={'Delete'}
-                     buttonCancel={'Cancel'}
-        closeModal={closeModal}
-                     warningMessage={'Are you sure you want to delete '}
-                     api={`/api/events/${event.id}/picture`}
-                     name={event.name}
-                     onClick={deleteEvent}
+          buttonCancel={'Cancel'}
+          closeModal={closeModal}
+          warningMessage={'Are you sure you want to delete '}
+          api={`/api/events/${event.id}/picture`}
+          name={event.name}
+          onClick={deleteEvent}
         />
       )}
       <div
@@ -317,20 +317,17 @@ whitespace-normal
               </div>
             </div>
             <div className="flex justify-center gap-3">
-              {(isRegistrationOpen() && !isRegistered && !bannedRole) ? (
+              {(!isRegistered && !bannedRole) ? (
                 <Button onClick={handleRegister} disabled={isJoining}>
                   {isJoining ? 'Joining...' : 'Join Event'}
                 </Button>
-              ) : <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" buttonName="Join Event" message="Cannot join event while banned"  />}
-              {isRegistered && (
-                <Button
-                  onClick={handleCancel}
-                  variant="secondary"
-                  disabled={isCanceling}
-                >
-                  {isCanceling ? 'Canceling...' : 'Leave Event'}
-                </Button>
-              )}
+              ) : (isRegistered && !bannedRole) ? <Button
+                onClick={handleCancel}
+                variant="secondary"
+                disabled={isCanceling}
+              >
+                {isCanceling ? 'Canceling...' : 'Leave Event'}
+              </Button> : <BannedButton isAuthenticated={isAuthenticated} roles={roles} size="" buttonName="Join Event" message="Cannot join event while banned" />}
               {userId == event.organizer.id && (
                 <div className="tablet:hidden">
                   <Button>{<EditIcon />} Manage event</Button>

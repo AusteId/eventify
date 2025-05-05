@@ -111,4 +111,12 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, String>> handleRatingAlreadyExistsException(RatingAlreadyExistsException e) {
     return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
   }
+  @ExceptionHandler(AdminException.class)
+  public ResponseEntity<Map<String, String>> handleAdmin(AdminException e) {
+    return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
+  }
+  @ExceptionHandler(ActiveBanException.class)
+  public ResponseEntity<Map<String, String>> handleActiveBan(ActiveBanException e) {
+    return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+  }
 }
