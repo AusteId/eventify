@@ -1,8 +1,13 @@
 package lt.techin.eventify.service;
 
+import lt.techin.eventify.dto.user.CreateUserRequest;
 import lt.techin.eventify.dto.user.LoginUserRequest;
+import lt.techin.eventify.dto.user.UserMapper;
+import lt.techin.eventify.exception.EmailAlreadyExistsException;
 import lt.techin.eventify.exception.InvalidCredentialsException;
+import lt.techin.eventify.model.Role;
 import lt.techin.eventify.model.User;
+import lt.techin.eventify.repository.mysql.RoleRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +35,18 @@ class UserServiceTest {
   @Mock
   private TokenService tokenService;
 
+  @Mock
+  private RoleRepository roleRepository;
+
+  @Mock
+  private UserMapper userMapper;
+
   @InjectMocks
   private UserService userService;
 
   private User user;
   private LoginUserRequest loginRequest;
+  private CreateUserRequest createUserRequest;
 
   @BeforeEach
   void setUp() {
@@ -51,6 +63,17 @@ class UserServiceTest {
     );
 
     loginRequest = new LoginUserRequest("user@user.com", "User1234", false);
+
+    createUserRequest = new CreateUserRequest(
+            "newuser",
+            "user@user.com",
+            "NewPassword123",
+            null,
+            null,
+            null,
+            java.util.List.of(),
+            null
+    );
   }
 
   @Test
@@ -115,4 +138,80 @@ class UserServiceTest {
     });
     assertEquals("Invalid email or password", exception.getMessage());
   }
+
+  @Test
+  void saveUser_SuccessfulRegistration_ReturnsUser() throws Exception {
+
+    when(userRepository.existsByEmail("newuser@example.com")).thenReturn(false);
+    when(userRepository.existsByUsername("newuser")).thenReturn(false);
+
+    CreateUserRequest uniqueUserRequest = new CreateUserRequest(
+            "newuser",
+            "newuser@example.com",
+            "NewPassword123",
+            null,
+            null,
+            null,
+            java.util.List.of(),
+            null
+    );
+
+    User newUser = new User(
+            "newuser",
+            "newuser@example.com",
+            "NewPassword123",
+            null,
+            null,
+            null,
+            new HashSet<>(),
+            new HashSet<>()
+    );
+    when(userMapper.toUser(uniqueUserRequest)).thenReturn(newUser);
+
+    Role userRole = new Role();
+    userRole.setName("USER");
+    when(roleRepository.findByName("USER")).thenReturn(Optional.of(userRole));
+    when(passwordEncoder.encode("NewPassword123")).thenReturn("$2a$10$hashedNewPassword");
+
+    User savedUser = new User(
+            "newuser",
+            "newuser@example.com",
+            "$2a$10$hashedNewPassword",
+            null,
+            null,
+            null,
+            new HashSet<>(),
+            new HashSet<>()
+    );
+    when(userRepository.save(newUser)).thenReturn(savedUser);
+
+    User result = userService.saveUser(uniqueUserRequest);
+
+    assertNotNull(result);
+    assertEquals("newuser@example.com", result.getEmail());
+    assertEquals("$2a$10$hashedNewPassword", result.getPassword());
+
+    verify(userRepository).existsByEmail("newuser@example.com");
+    verify(userRepository).existsByUsername("newuser");
+    verify(userMapper).toUser(uniqueUserRequest);
+    verify(roleRepository).findByName("USER");
+    verify(passwordEncoder).encode("NewPassword123");
+    verify(userRepository).save(newUser);
+  }
+
+  @Test
+  void saveUser_EmailAlreadyExists_ThrowsException() {
+
+    when(userRepository.existsByEmail("user@user.com")).thenReturn(true);
+
+    EmailAlreadyExistsException exception = assertThrows(EmailAlreadyExistsException.class, () -> {
+      userService.saveUser(createUserRequest);
+    });
+
+    assertEquals("Email already exists.", exception.getMessage());
+
+    verify(userRepository).existsByEmail("user@user.com");
+    verify(userRepository, never()).save(any(User.class));
+  }
+
 }

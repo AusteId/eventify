@@ -76,6 +76,13 @@ const Profile = () => {
     return age;
   }
 
+  const formatRating = (rating) => {
+    if (Number.isInteger(rating)) {
+      return rating.toString();
+    }
+    return parseFloat(rating).toFixed(1);
+  };
+
   const renderStars = (rating) => {
     const maxStars = 5;
     const stars = [];
@@ -184,7 +191,7 @@ const Profile = () => {
                   <div className="flex items-center flex-nowrap">
                     {renderStars(ratingData.averageRating)}
                     <p className="ml-1 text-body-medium font-inter whitespace-nowrap pl-2">
-                      {ratingData.averageRating} ({ratingData.ratingCount} {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
+                      {formatRating(ratingData.averageRating)} ({ratingData.ratingCount} {ratingData.ratingCount === 1 ? 'review' : 'reviews'})
                     </p>
                   </div>
 

@@ -47,13 +47,6 @@ const AddressAutocomplete = ({ setValue, triggerFetchCoordinates, resetAutocompl
     const fetchSuggestions = useCallback(
         debounce(async (searchQuery) => {
 
-            if (!isAuthenticated) {
-                setError('Please log in to use address autocomplete');
-                setSuggestions([]);
-                setIsOpen(false);
-                return;
-            }
-
             if (isSelected) {
                 setSuggestions([]);
                 setIsOpen(false);
