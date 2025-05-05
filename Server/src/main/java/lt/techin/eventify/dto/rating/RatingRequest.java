@@ -11,9 +11,6 @@ public record RatingRequest(
         int rating,
 
         @Positive(message = "Event ID must be a positive number")
-        long eventId,
-
-        @Positive(message = "Organizer ID must be a positive number")
-        long organizerId
+        long eventId
 ) {
 }
