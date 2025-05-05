@@ -3,6 +3,7 @@ package lt.techin.eventify.service;
 import lt.techin.eventify.dto.rating.RatingMapper;
 import lt.techin.eventify.dto.rating.RatingRequest;
 import lt.techin.eventify.exception.RatingAlreadyExistsException;
+import lt.techin.eventify.exception.SelfRatingNotAllowedException;
 import lt.techin.eventify.model.Event;
 import lt.techin.eventify.model.Rating;
 import lt.techin.eventify.model.User;
@@ -10,6 +11,8 @@ import lt.techin.eventify.repository.mysql.EventRepository;
 import lt.techin.eventify.repository.mysql.RatingRepository;
 import lt.techin.eventify.repository.mysql.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class RatingService {
@@ -36,12 +39,19 @@ public class RatingService {
 
     User rater = userRepository.findById(raterId)
             .orElseThrow(() -> new IllegalArgumentException("Rater with ID " + raterId + " not found"));
-    User organizer = userRepository.findById(ratingRequest.organizerId())
-            .orElseThrow(() -> new IllegalArgumentException("Organizer with ID " + ratingRequest.organizerId() + " not found"));
     Event event = eventRepository.findById(ratingRequest.eventId())
             .orElseThrow(() -> new IllegalArgumentException("Event with ID " + ratingRequest.eventId() + " not found"));
 
-    Rating rating = ratingMapper.toRating(ratingRequest, rater, organizer, event);
+    User organizer = event.getOrganizer();
+    if (organizer == null) {
+      throw new IllegalStateException("Event does not have an organizer");
+    }
+
+    if (rater.getId().equals(organizer.getId())) {
+      throw new SelfRatingNotAllowedException("You cannot rate your own event");
+    }
+
+    Rating rating = ratingMapper.toRating(ratingRequest, rater, event);
     ratingRepository.save(rating);
     updateOrganizerRating(organizer, rating.getRating());
 
@@ -63,5 +73,9 @@ public class RatingService {
     }
 
     userRepository.save(organizer);
+  }
+
+  public Optional<Rating> findByRaterIdAndEventId(Long raterId, Long eventId) {
+    return ratingRepository.findByRaterIdAndEventId(raterId, eventId);
   }
 }
